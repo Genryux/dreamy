@@ -11,20 +11,20 @@
                 {{ asset('images/systemicon.png') }}
             </x-slot>
             <div class="flex flex-col space-y-1">
-                <label class="text-white/30 text-[14px]">Menu</label>
+                <label class="text-white/30 text-[14px] nav-text">Menu</label>
                 <x-nav-link href="/admission" :active="request()->is('admission')">
 
-                    <span class="flex flex-row space-x-2">
-                        <i class="fi fi-ss-chart-simple text-[20px]"></i>
-                        <p class="font-semibold text-[16px]">Dashboard</p>
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
                     </span>
 
                 </x-nav-link>
                 <x-nav-link href="/admission/status" :active="request()->is('admission/status')">
 
-                    <span class="flex flex-row space-x-2">
-                        <i class="fi fi-ss-pending text-[20px]"></i>
-                        <p class="font-semibold text-[16px]">Application Status</p>
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rs-memo-circle-check text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">Applications</p>
                     </span>
 
                 </x-nav-link>
@@ -34,10 +34,16 @@
         <!-- Main content area -->
         <div id="content" class="flex-1 flex flex-col">
             <!-- Top Navigation Bar -->
-            <header id="top-nav-bar" class="bg-gray-200 p-4 flex justify-end items-center gap-2">
+            <header id="top-nav-bar" class="bg-[#f8f8f8] border-b border-[#1e1e1e]/20 p-4 flex justify-between items-center gap-2">
                 <!-- profile icon, notifications, etc. -->
-                <p>notifs icon here</p>
-                <p>profile icon here</p>
+                <button id="sidebar-toggle-button" class="flex flex-row space-x-4 hover:bg-[#e0e0e0] p-2 rounded-md transition-all duration-150">
+                    <i class="fi fi-rs-sidebar-flip text-[20px]"></i>
+                </button>
+                
+                <span class="flex flex-row space-x-4">
+                    <i class="fi fi-rs-bell text-[20px]"></i>
+                    <i class="fi fi-rs-user text-[20px]"></i>
+                </span>
             </header>
 
             <!-- Main Content -->

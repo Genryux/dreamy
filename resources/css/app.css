@@ -1,5 +1,21 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom font weight utilities */
+.font-regular {
+    font-weight: 400;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-bold {
+    font-weight: 700;
+}
 

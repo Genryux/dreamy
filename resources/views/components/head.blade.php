@@ -1,15 +1,76 @@
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1A3165">
 
     <title>Laravel</title>
 
     <!-- Fonts -->
-    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-straight/css/uicons-solid-straight.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.tailwindcss.com/"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Custom Scripts -->
+    <script src="{{ asset('js/sidebar-toggle.js') }}"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        /* Sidebar toggle styles */
+        #side-nav-bar.collapsed {
+            overflow-x: hidden;
+        }
+        
+        #side-nav-bar.collapsed i {
+            margin: 0 auto;
+        }
+        
+        #side-nav-bar.collapsed .nav-text {
+            opacity: 0;
+            display: none;
+        }
+        
+        /* Transition for smoother UI */
+        #side-nav-bar, #content {
+            transition: width 0.3s ease-in-out;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 767px) {
+            #side-nav-bar {
+                width: 280px !important;
+                left: 0;
+                top: 0;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            #side-nav-bar.visible {
+                transform: translateX(0);
+            }
+            
+            #mobile-menu-button {
+                z-index: 60;
+            }
+            
+            body.overflow-hidden {
+                overflow: hidden;
+            }
+            
+            #mobile-overlay {
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+                pointer-events: none;
+            }
+            
+            #mobile-overlay.visible {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+    </style>
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))

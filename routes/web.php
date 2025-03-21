@@ -16,11 +16,11 @@ Route::get('/portal/register', [RegistrationController::class, 'create'])
 
 Route::get('/admin', function () {
     return view('layouts.admin');
-})->name('admin');
+})->name('admin')->middleware('auth');
 
 Route::get('/student', function () {
     return view('layouts.student');
-})->name('student');
+})->name('student')->middleware('auth');
 
 Route::get('/admission', function () {
     return view('user-applicant.dashboard');
@@ -28,7 +28,7 @@ Route::get('/admission', function () {
 
 Route::get('/admission/status', function () {
     return view('user-applicant.status');
-})->name('status');
+})->name('status')->middleware('auth');
 
 
 Route::post('/session', [SessionController::class, 'store']);
