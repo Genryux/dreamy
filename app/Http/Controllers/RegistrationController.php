@@ -20,13 +20,14 @@ class RegistrationController extends Controller
         $attributes = request()->validate([
             
             'name' => ['required'],
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email','unique:users'],
             'password' => ['required', Password::min(8)->max(60)->letters()->numbers(),'confirmed']
 
         ]);
-
         
         $user = User::create($attributes);
+
+        $user->assignRole('applicant');
         
         Auth::login($user);
 

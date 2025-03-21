@@ -9,10 +9,26 @@ Route::get('/', function () {
 });
 
 Route::get('/portal/login', [SessionController::class, 'create'])
-    ->name('login');
+    ->name('login')->middleware('guest');
 
 Route::get('/portal/register', [RegistrationController::class, 'create'])
-    ->name('register');
+    ->name('register')->middleware('guest');
+
+Route::get('/admin', function () {
+    return view('layouts.admin');
+})->name('admin');
+
+Route::get('/student', function () {
+    return view('layouts.student');
+})->name('student');
+
+Route::get('/admission', function () {
+    return view('user-applicant.dashboard');
+})->name('admission');
+
+Route::get('/admission/status', function () {
+    return view('user-applicant.status');
+})->name('status');
 
 
 Route::post('/session', [SessionController::class, 'store']);
