@@ -10,6 +10,12 @@
 
 
 @section('content')
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
     <div class="flex flex-col h-full">
         <div class="text-center border-b border-[#1e1e1e]/10 p-4 md:p-6">
             <p class="text-[18px] md:text-[20px] font-bold">Welcome to Dreamy School admission portal!</p>

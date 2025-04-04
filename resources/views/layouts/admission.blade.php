@@ -2,7 +2,7 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="font-sans bg-[#D9E2F5]">
+<body class="bg-[#D9E2F5]">
 
     <div id="main-container" class="min-h-screen flex flex-col md:flex-row">
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="font-sans">
+<body class="bg-[#D9E2F5]">
 
     <div id="main-container" class="min-h-screen hidden md:flex">
 
@@ -12,7 +12,7 @@
             </x-slot>
             <div class="flex flex-col space-y-1">
                 <label class="text-white/30 text-[14px] nav-text">Menu</label>
-                <x-nav-link href="/admission" :active="request()->is('admission')">
+                <x-nav-link href="/admin" :active="request()->is('admin')">
 
                     <span class="flex flex-row items-center space-x-4">
                         <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
@@ -32,11 +32,11 @@
         </x-side-nav-bar>
 
         <!-- Main content area -->
-        <div id="content" class="flex-1 flex flex-col">
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 w-full">
             <!-- Top Navigation Bar -->
-            <header id="top-nav-bar" class="bg-[#f8f8f8] border-b border-[#1e1e1e]/20 p-4 flex justify-between items-center gap-2">
+            <header id="top-nav-bar" class="bg-[#f8f8f8] border-b h-[60px] border-[#1e1e1e]/20 px-[10px] flex justify-between items-center gap-2">
                 <!-- profile icon, notifications, etc. -->
-                <button id="sidebar-toggle-button" class="flex flex-row space-x-4 hover:bg-[#e0e0e0] p-2 rounded-md transition-all duration-150">
+                <button id="sidebar-toggle-button" class="flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
                     <i class="fi fi-rs-sidebar-flip text-[20px]"></i>
                 </button>
                 
@@ -47,16 +47,36 @@
             </header>
 
             <!-- Main Content -->
-            <main id="main-content" class="flex-1 p-6 overflow-auto bg-blue-500">
-                <section>
-                    <header class="mb-6">
-                        @yield('header')
-                    </header>
+            <main id="main-content" class="flex-1 p-[10px] overflow-auto h-full flex flex-col text-[#0f111c]">
+
+                <header class="bg-[#f8f8f8] px-[22px] py-[18px] mb-3 rounded-md border border-[#1e1e1e]/20">
+                    @yield('header')
+                </header>
+                <section class="bg-[#f8f8f8] flex-1 flex flex-col rounded-md border border-[#1e1e1e]/20">
+
                     @yield('content')
+
+                    
+                    
                 </section>
+
             </main>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (document.getElementById("myTable") && typeof simpleDatatables.DataTable !== 'undefined') {
+            const dataTable = new simpleDatatables.DataTable("#myTable", {
+                searchable: true,
+                sortable: true,
+                paging: true,
+                perPage: 5,
+                perPageSelect: [5, 10, 15, 20, 25],
+            });
+        }
+        });
+    </script>
 
 </body>
 
