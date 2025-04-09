@@ -52,7 +52,7 @@
                 <header class="bg-[#f8f8f8] px-[22px] py-[18px] mb-3 rounded-md border border-[#1e1e1e]/20">
                     @yield('header')
                 </header>
-                <section class="bg-[#f8f8f8] flex-1 flex flex-col rounded-md border border-[#1e1e1e]/20">
+                <section class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20">
 
                     @yield('content')
 
@@ -64,19 +64,9 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            if (document.getElementById("myTable") && typeof simpleDatatables.DataTable !== 'undefined') {
-            const dataTable = new simpleDatatables.DataTable("#myTable", {
-                searchable: true,
-                sortable: true,
-                paging: true,
-                perPage: 5,
-                perPageSelect: [5, 10, 15, 20, 25],
-            });
-        }
-        });
-    </script>
+    @stack('scripts')
+
+ 
 
 </body>
 

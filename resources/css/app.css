@@ -19,3 +19,27 @@
     font-weight: 700;
 }
 
+.datatable-info {
+    /* Your custom styles */
+    font-size: 14px;
+    color: #0f111c;
+    margin-right: 15px;
+    /* etc. */
+}
+
+.datatable-pagination {
+    font-size: 14px;
+}
+
+.dt-layout-full {
+    border: 1px solid rgba(30, 30, 30, 0.15);
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+#myTable_info {
+    font-size: 14px;
+    counter-reset: #0f111c;
+    opacity: 80%;
+    margin-bottom: 10px;
+}

@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ApplicationFormSubmitted;
+use App\Events\RecentApplicationTableUpdated;
+use App\Models\Applicant;
 use App\Models\ApplicationForm;
+use App\Models\User;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ApplicationFormController extends Controller
 {
@@ -13,7 +18,7 @@ class ApplicationFormController extends Controller
      */
     public function index()
     {
-        //
+        return view('user-applicant.application-form');
     }
 
     /**
@@ -35,21 +40,20 @@ class ApplicationFormController extends Controller
         $request->validate([
 
             'lrn' => ['required', 'digits:12','unique:application_forms,lrn'],
-
             'full_name' => ['required', 'string'],
-
             'age' => ['required', 'integer'],
-
             'birthdate' => ['required', 'date'],
-
             'desired_program' => ['required', 'string'],
-
             'grade_level' => ['required']
 
         ]);
 
-        ApplicationForm::create([
+        $applicant = Applicant::where('user_id', Auth::user()->id)->first();
 
+
+        $form = ApplicationForm::create([
+
+            'applicant_id' => $applicant->id,
             'lrn' => $request->lrn,
             'full_name' => $request->full_name,
             'age' => $request->age,
@@ -58,6 +62,15 @@ class ApplicationFormController extends Controller
             'grade_level' => $request->grade_level
 
         ]);
+
+        // event(new ApplicationFormSubmitted($form));
+        event(new RecentApplicationTableUpdated($form));
+
+        if ($applicant) {
+            $applicant->update([
+                'application_status' => 'pending'
+            ]);
+        }
 
         return redirect('admission')->with('success', 'Application submitted successfully!');
 
@@ -69,6 +82,7 @@ class ApplicationFormController extends Controller
     public function show(ApplicationForm $applicationForm)
     {
         //
+        $applicationForm->all();
     }
 
     /**

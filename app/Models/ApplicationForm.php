@@ -9,6 +9,10 @@ class ApplicationForm extends Model
     //
     protected $table = "application_forms";
     protected $fillable = [
-        'lrn', 'full_name', 'age', 'birthdate', 'desired_program', 'grade_level'
+        'applicant_id','lrn', 'full_name', 'age', 'birthdate', 'desired_program', 'grade_level'
     ];
+
+    public function applicant() {
+        return $this->belongsTo(Applicant::class);
+    }
 }

@@ -11,15 +11,29 @@
                     <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
                         <div class="sm:col-span-4">
-                            <label for="name" class="block text-sm/6 font-medium text-gray-900">Name</label>
+                            <label for="first_name" class="block text-sm/6 font-medium text-gray-900">First Name</label>
                             <div class="mt-2">
                                 <div
                                     class="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-                                    <input type="text" name="name" id="name"
+                                    <input type="text" name="first_name" id="first_name"
                                         class="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-black placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
-                                        placeholder="Enter your Name..." value="{{ old('name') }}" required>
+                                        placeholder="Enter your first name..." value="{{ old('first_name') }}" required>
                                 </div>
-                                @error('name')
+                                @error('first_name')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="sm:col-span-4">
+                            <label for="last_name" class="block text-sm/6 font-medium text-gray-900">Last Name</label>
+                            <div class="mt-2">
+                                <div
+                                    class="flex items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                                    <input type="text" name="last_name" id="last_name"
+                                        class="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-black placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
+                                        placeholder="Enter your last name..." value="{{ old('last_name') }}" required>
+                                </div>
+                                @error('last_name')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>

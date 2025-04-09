@@ -16,7 +16,8 @@ class RegistrarSeeder extends Seeder
         $user = User::firstOrCreate(
             ['email' => 'registrar@example.com'],
             [
-                'name' => 'Registrar User',
+                'first_name' => 'Registrar',
+                'last_name' => 'User',
                 'password' => Hash::make('password123')
             ]
         );

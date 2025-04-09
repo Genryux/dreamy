@@ -31,15 +31,19 @@ class SessionController extends Controller
         }
 
         request()->session()->regenerate();
+
+        session()->forget('url.intended');
         
         // Get the authenticated user
         $user = Auth::user();
+
+        //dd(redirect()->route('admission'));
         
         // Check roles and redirect accordingly
         if ($user->hasRole('teacher')) {
             return redirect()->route('admin');
         } elseif ($user->hasRole('applicant')) {
-            return redirect()->route('admission');
+            return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole('student')) {
             return redirect()->route('student');
         } elseif ($user->hasRole('registrar')) {
