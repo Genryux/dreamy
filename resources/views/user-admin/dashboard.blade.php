@@ -41,7 +41,7 @@
                             <td class="w-1/6 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $application->birthdate }}</td>
                             <td class="w-1/6 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $application->desired_program }}</td>
                             <td class="w-1/6 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $application->grade_level }}</td>
-                            <td class="w-1/6 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $application->created_at }}</td>
+                            <td class="w-4/6 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ \Carbon\Carbon::parse($application->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -58,6 +58,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         table = new DataTable('#myTable', {
             paging: false,
+            pageLength: 10,
             searching: true,
             autoWidth: false,
             order: [[6, 'desc']],
@@ -100,6 +101,10 @@
         window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (event) => {
             console.log(event);
 
+            let formattedDate = moment(event.application.created_at)
+                        .tz('Asia/Manila')
+                        .format('MMM. D - h:mm A');
+
             let row = table.row.add([
                 event.application.lrn,
                 event.application.full_name,
@@ -107,15 +112,8 @@
                 event.application.birthdate,
                 event.application.desired_program,
                 event.application.grade_level,
-                event.application.created_at
+                formattedDate
             ]).order([6, 'desc']).draw();
-
-            // Prepend the new row visually:
-
-            if (table.rows().count() > 10) {
-                // Remove the oldest row (the last row in this case)
-                table.row(':last').remove().draw(false);
-            }
 
             // Retrieve the node of the added row:
             var newRow = row.node();
