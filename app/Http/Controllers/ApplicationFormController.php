@@ -8,17 +8,54 @@ use App\Models\Applicant;
 use App\Models\ApplicationForm;
 use App\Models\User;
 use Illuminate\Auth\Events\Validated;
+use Illuminate\Console\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationFormController extends Controller
 {
+    public function pending() {
+
+        //$pending_applications_count = Applicant::where('application_status', 'pending')->count();
+
+        //$pending_applications = ApplicationForm::latest()->limit(10)->get();
+
+        $pending_applicants = Applicant::where('application_status', 'pending')->get();
+
+        // foreach ($var as $va) {
+
+        //     dd($va->applicationForm->full_name);
+
+        // }
+
+        return view('user-admin.pending-application', [
+            'pending_applicants' => $pending_applicants
+        ]);
+
+    }
+
+    public function selected() {
+
+    }
+
+    public function rejected() {
+
+    }
+
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        return view('user-applicant.application-form');
+
+        $pending_applications = Applicant::where('application_status', 'pending')->count();
+        $applications = ApplicationForm::latest()->limit(10)->get();
+    
+        return view('user-admin.dashboard', [
+            'applications' => $applications,
+            'pending_applications' => $pending_applications
+        ]);
     }
 
     /**
@@ -26,7 +63,7 @@ class ApplicationFormController extends Controller
      */
     public function create()
     {
-        //
+        return view('user-applicant.application-form');
     }
 
     /**
@@ -62,15 +99,18 @@ class ApplicationFormController extends Controller
             'grade_level' => $request->grade_level
 
         ]);
-
-        // event(new ApplicationFormSubmitted($form));
-        event(new RecentApplicationTableUpdated($form));
-
+        
         if ($applicant) {
             $applicant->update([
                 'application_status' => 'pending'
             ]);
         }
+
+        $pending_applications = Applicant::where('application_status', 'pending')->count();
+
+        // event(new ApplicationFormSubmitted($form));
+        event(new RecentApplicationTableUpdated($form, $pending_applications));
+
 
         return redirect('admission')->with('success', 'Application submitted successfully!');
 
@@ -79,10 +119,13 @@ class ApplicationFormController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ApplicationForm $applicationForm)
+    public function show(ApplicationForm $applicationForm, Request $request)
     {
-        //
-        $applicationForm->all();
+
+        $form = ApplicationForm::find($request->id);
+        
+        return view('user-admin.pending-details');
+
     }
 
     /**

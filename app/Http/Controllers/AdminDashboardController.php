@@ -10,9 +10,7 @@ class AdminDashboardController extends Controller
 {
     public function getRecentApplications() {
 
-        $applications = ApplicationForm::latest()->limit(10)->get();
-    
-        return view('user-admin.dashboard', ['applications' => $applications]);
+
 
     }
 

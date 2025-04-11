@@ -17,13 +17,15 @@ class RecentApplicationTableUpdated implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $application;
+    public $pendingCount;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(ApplicationForm $application)
+    public function __construct(ApplicationForm $application, $pendingCount)
     {
         $this->application = $application->toArray();
+        $this->pendingCount = $pendingCount;
     }
 
     /**

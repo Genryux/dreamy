@@ -10,6 +10,7 @@
         <span class="flex items-center">
             <span class="h-px flex-1 bg-[#f8f8f8]/30"></span>
         </span>
+        
         <span class="py-2">
             <p class="opacity-60 py-2 whitespace-nowrap nav-text">Logged In as: Applicant</p>
             <form action="">

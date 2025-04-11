@@ -31,7 +31,7 @@ Route::get('/student', function () {
     return view('layouts.student');
 })->name('student')->middleware('auth');
 
-Route::get('/admin', [AdminDashboardController::class, 'getRecentApplications'])->name('admin');
+Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
 
 
 //admission
@@ -54,7 +54,12 @@ Route::get('/admission/status', function () {
 
 })->name('status')->middleware('auth');
 
-Route::get('/admission/application-form', [ApplicationFormController::class, 'index'])->name('admission.form.get');
+
+Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.form-details');
+
+Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
+
+Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
 
 Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
 
