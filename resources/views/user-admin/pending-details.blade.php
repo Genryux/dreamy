@@ -56,14 +56,16 @@
             <h2 class="text-[16px]"> <span class="text-[#0f111c]/80">Applicant Details:</span><span class="opacity-100 font-medium  font-bold"> Juan Dela Cruz</span></h2>
         </div>
         <div class="flex flex-row items-center space-x-1">
-            <button class="border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
-            <button class="border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
+            <button id="accept-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
+            <button id="reject-btn" class="border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
         </div>
     </div>
 
 @endsection
 
 @section('content')
+
+
 <div class="px-[14px] py-[14px] space-y-3">
     <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
         <table class="text-[#0f111c] w-full">
@@ -210,9 +212,65 @@
         </table>
     </div>
     <div class="flex flex-row items-center justify-end space-x-1">
-        <button class="my-2 border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
-        <button class="my-2 border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
+        <button id="accept-btn" class="my-2 border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
+        <button id="reject-btn" class="my-2 border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
     </div>
 </div>
 
 @endsection
+
+@push('scripts')
+    <script type="module">
+
+        let modal = document.querySelector('#modal-bg');
+        let openButton = document.querySelector('#accept-btn');
+        let closeButton = document.querySelector('#close-btn');
+        let cancelButton = document.querySelector('#cancel-btn');
+        let body = document.querySelector('body')
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            openButton.addEventListener('click', function() {
+
+                if (modal.classList.contains('h-0')) {
+
+                    modal.classList.remove('h-0');
+                    modal.classList.add('h-full');
+                    body.classList.add('overflow-hidden')
+                
+                }
+
+                if (!modal.classList.contains('h-0')) {
+
+                    cancelButton.addEventListener('click', () => {
+                        
+                        modal.classList.remove('h-full');
+                        modal.classList.add('h-0');
+                        body.classList.remove('overflow-hidden')
+                        
+                    })
+
+                    closeButton.addEventListener('click', () => {
+                        
+                        modal.classList.remove('h-full');
+                        modal.classList.add('h-0');
+                        body.classList.remove('overflow-hidden')
+                        
+                    })
+
+                    modal.addEventListener('click', () => {
+                        
+                        modal.classList.remove('h-full');
+                        modal.classList.add('h-0');
+                        body.classList.remove('overflow-hidden')
+                        
+                    })
+                }
+            
+            })
+
+
+        })
+    </script>
+@endpush

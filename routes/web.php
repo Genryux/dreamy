@@ -27,11 +27,29 @@ Route::get('/portal/register', [RegistrationController::class, 'create'])
 //     return view('user-admin.dashboard', ['users' => $users]);
 // })->name('admin');
 
+
+//admin
+Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+
+Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
+
+Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending');
+
+
+
+Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
+
+Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
+
+
+
+
+
 Route::get('/student', function () {
     return view('layouts.student');
 })->name('student')->middleware('auth');
 
-Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+
 
 
 //admission
@@ -55,13 +73,8 @@ Route::get('/admission/status', function () {
 })->name('status')->middleware('auth');
 
 
-Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.form-details');
+//dashboard
 
-Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
-
-Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
-
-Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
 
 
 

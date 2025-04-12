@@ -18,7 +18,7 @@ class ApplicationFormController extends Controller
 
         //$pending_applications_count = Applicant::where('application_status', 'pending')->count();
 
-        //$pending_applications = ApplicationForm::latest()->limit(10)->get();
+        $pending_applicant = ApplicationForm::latest()->get();
 
         $pending_applicants = Applicant::where('application_status', 'pending')->get();
 
@@ -28,8 +28,9 @@ class ApplicationFormController extends Controller
 
         // }
 
+        
         return view('user-admin.pending-application', [
-            'pending_applicants' => $pending_applicants
+            'pending_applicants' => $pending_applicant
         ]);
 
     }
