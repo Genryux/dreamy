@@ -23,7 +23,7 @@
       </li>
   
       <li>
-        <a href="/pending-applications" class="block transition-colors hover:text-gray-900"> Pending Applications </a>
+        <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Selected Applications </a>
       </li>
   
       <li class="rtl:rotate-180">
@@ -42,31 +42,104 @@
       </li>
   
       <li>
-        <a href="#" class="block transition-colors hover:text-gray-900"> Applicant Details </a>
+        <a href="#" class="block transition-colors hover:text-gray-900"> Interview Details </a>
       </li>
     </ol>
-  </nav>
+</nav>
   
 @endsection
 
-@section('header')
-    <div class="px-[16px] py-[16px] flex flex-row items-center justify-between space-x-2">
-        <div class="flex flex-row items-center space-x-2">
-            <i class="fi fi-rs-member-list flex text-[#0f111c]"></i>
-            <h2 class="text-[16px]"> <span class="text-[#0f111c]/80">Applicant Details:</span><span class="opacity-100 font-medium  font-bold"> Juan Dela Cruz</span></h2>
-        </div>
-        <div class="flex flex-row items-center space-x-1">
-            <button id="accept-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
-            <button id="reject-btn" class="border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
-        </div>
-    </div>
+@section('modal')
+<div id="modal-bg" class="absolute bottom-0 left-0 bg-[#0f111c]/40 h-0 w-full z-20 ease-in-out duration-150 overflow-hidden">
 
+    <div class="flex items-center justify-center h-screen w-screen">
+    <x-modal modal="Record Interview Result">
+
+        <form action="" class="py-2 px-4 space-y-2">
+
+            <label for="passed" class="flex items-center justify-between has-checked:bg-red-500 has-checked:ring-red-500">
+                <p>Passed</p>
+                <input type="radio" name="status" id="passed" checked class="">
+            </label>
+
+            <label for="failed" class="flex items-center justify-between has-checked:ring-2 has-checked:ring-red-500">
+                <p>Failed</p>
+                <input type="radio" name="status" id="failed" class="">
+            </label>
+            
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+            <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+        </x-slot>
+    </x-modal>
+    </div>
+</div>
 @endsection
 
 @section('content')
+<div class="flex flex-col">
+    <div class="flex flex-row items-center space-x-2 text-start pl-[14px] py-[10px]">
+        <i class="fi fi-rs-member-list flex text-[#0f111c] flex flex-row items-center"></i>
+        <p class="text-[14px] md:text-[16px] font-bold">Interview details: <span></span></p>
+    </div>
+    <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
+    <div class="flex flex-row pl-[14px] py-[16px] text-[14px]">
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Grade</p>
+                <p class="font-bold">Grade 11</p>
+            </span>
+            <span>
+                <p class="opacity-80">Track</p>
+                <p class="font-bold">HUMSS</p>
+            </span>
+            <span>
+                <p class="opacity-80">Contact</p>
+                <p class="font-bold">09123456789</p>
+            </span>
+        </div>
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Interview Date</p>
+                <p class="font-bold">-</p>
+            </span>
+            <span>
+                <p class="opacity-80">Interview Time</p>
+                <p class="font-bold">-</p>
+            </span>
+            <span>
+                <p class="opacity-80">Location</p>
+                <p class="font-bold">-</p>
+            </span>
+        </div>
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Interviewer</p>
+                <p class="font-bold">-</p>
+            </span>
+            <span>
+                <p class="opacity-80">Status</p>
+                <p class="font-bold">-</p>
+            </span>
+        </div>
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Remarks</p>
+                <p class="font-bold">-</p>
+            </span>
+        </div>
+    </div>
+    <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
+    <div class="flex flex-row items-center justify-between px-[14px] py-[10px] text-[14px] font-medium">
+        <button id="show-details-btn" class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80">View Applicant's Full Details <i class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
+        <button id="record-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] text-[#f8f8f8] rounded-md px-2 py-1">Record Interview Result</button>
+    </div>
+</div>
 
-
-<div class="px-[14px] py-[14px] space-y-3">
+    <div id="details-container" class="hidden flex-col px-[14px] py-[14px] space-y-3 ">
     <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
         <table class="text-[#0f111c] w-full">
             <thead class="">
@@ -80,36 +153,36 @@
                     <td class="px-4 py-2 text-[14px]">Returning (Balik-Aral):</td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">With LRN:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">With LRN:<span class="font-bold"> Yes</span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN: <span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to Enroll:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to Enroll:<span class="font-bold"></span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary Track:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary Track:<span class="font-bold"> </span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span class="font-bold"></span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span class="font-bold"></span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:<span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span class="font-bold"></span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span class="font-bold"> </span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of Birth:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of Birth:<span class="font-bold"></span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:<span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
-                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP community:</td>
-                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:</td>
+                    <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP community:<span class="font-bold"></span></td>
+                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span class="font-bold"></span></td>
                 </tr>
                 <tr class="opacity-[0.87]">
                     <td class="px-4 py-2 text-[14px]">Learner with disability:</td>
@@ -211,66 +284,76 @@
             </tbody>
         </table>
     </div>
-    <div class="flex flex-row items-center justify-end space-x-1">
-        <button id="accept-btn" class="my-2 border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
-        <button id="reject-btn" class="my-2 border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
-    </div>
 </div>
-
 @endsection
 
 @push('scripts')
-    <script type="module">
+<script type="module">
 
-        let modal = document.querySelector('#modal-bg');
-        let openButton = document.querySelector('#accept-btn');
-        let closeButton = document.querySelector('#close-btn');
-        let cancelButton = document.querySelector('#cancel-btn');
-        let body = document.querySelector('body')
+    let modal = document.querySelector('#modal-bg');
+    let openButton = document.querySelector('#record-btn');
+    let closeButton = document.querySelector('#close-btn');
+    let cancelButton = document.querySelector('#cancel-btn');
+    let body = document.querySelector('body')
 
+    document.addEventListener("DOMContentLoaded", function () {
 
-        document.addEventListener("DOMContentLoaded", function () {
+        let showBtn = document.querySelector('#show-details-btn');
+        let detailsContainer = document.querySelector('#details-container');
 
-            openButton.addEventListener('click', function() {
+        showBtn.addEventListener('click', function () {
 
-                if (modal.classList.contains('h-0')) {
-
-                    modal.classList.remove('h-0');
-                    modal.classList.add('h-full');
-                    body.classList.add('overflow-hidden')
-                
-                }
-
-                if (!modal.classList.contains('h-0')) {
-
-                    cancelButton.addEventListener('click', () => {
-                        
-                        modal.classList.remove('h-full');
-                        modal.classList.add('h-0');
-                        body.classList.remove('overflow-hidden')
-                        
-                    })
-
-                    closeButton.addEventListener('click', () => {
-                        
-                        modal.classList.remove('h-full');
-                        modal.classList.add('h-0');
-                        body.classList.remove('overflow-hidden')
-                        
-                    })
-
-                    modal.addEventListener('click', () => {
-                        
-                        modal.classList.remove('h-full');
-                        modal.classList.add('h-0');
-                        body.classList.remove('overflow-hidden')
-                        
-                    })
-                }
-            
-            })
-
+            if (detailsContainer.classList.contains('hidden')) {
+                detailsContainer.classList.remove('hidden');
+                detailsContainer.classList.add('flex')
+            } else if (!detailsContainer.classList.contains('hidden')) {
+                detailsContainer.classList.remove('flex');
+                detailsContainer.classList.add('hidden')
+            }
 
         })
-    </script>
+
+        openButton.addEventListener('click', function() {
+
+            if (modal.classList.contains('h-0')) {
+
+                modal.classList.remove('h-0');
+                modal.classList.add('h-full');
+                body.classList.add('overflow-hidden')
+
+            }
+
+            if (!modal.classList.contains('h-0')) {
+
+
+
+                closeButton.addEventListener('click', () => {
+                    
+                    modal.classList.remove('h-full');
+                    modal.classList.add('h-0');
+                    body.classList.remove('overflow-hidden')
+                    
+                })
+
+                modal.addEventListener('click', () => {
+                    
+                    modal.classList.remove('h-full');
+                    modal.classList.add('h-0');
+                    body.classList.remove('overflow-hidden')
+                    
+                })
+
+                cancelButton.addEventListener('click', () => {
+                    
+                    modal.classList.remove('h-full');
+                    modal.classList.add('h-0');
+                    body.classList.remove('overflow-hidden')
+                    
+                })
+            }
+
+        })
+
+    });
+</script>
 @endpush

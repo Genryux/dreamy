@@ -18,24 +18,24 @@ class ApplicationFormController extends Controller
 
         //$pending_applications_count = Applicant::where('application_status', 'pending')->count();
 
-        $pending_applicant = ApplicationForm::latest()->get();
+        //$pending_applicant = ApplicationForm::latest()->get();
 
-        $pending_applicants = Applicant::where('application_status', 'pending')->get();
-
-        // foreach ($var as $va) {
-
-        //     dd($va->applicationForm->full_name);
-
-        // }
+        $pending_applicants = Applicant::where('application_status', 'Pending')->get();
 
         
-        return view('user-admin.pending-application', [
-            'pending_applicants' => $pending_applicant
+        return view('user-admin.pending.pending-application', [
+            'pending_applicants' => $pending_applicants
         ]);
 
     }
 
     public function selected() {
+
+        $selected_applicants = Applicant::where('application_status', 'Selected')->get();
+
+        return view('user-admin.selected.selected-application', [
+            'selected_applicants' => $selected_applicants
+        ]);
 
     }
 
@@ -103,7 +103,7 @@ class ApplicationFormController extends Controller
         
         if ($applicant) {
             $applicant->update([
-                'application_status' => 'pending'
+                'application_status' => 'Pending'
             ]);
         }
 
@@ -125,7 +125,7 @@ class ApplicationFormController extends Controller
 
         $form = ApplicationForm::find($request->id);
         
-        return view('user-admin.pending-details');
+        return view('user-admin.pending.pending-details', ['form' => $form]);
 
     }
 

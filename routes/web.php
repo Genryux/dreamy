@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ApplicationFormController;
+use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
 use App\Models\Applicant;
-use App\Models\ApplicationForm;
+use App\Models\Interview;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -31,17 +32,21 @@ Route::get('/portal/register', [RegistrationController::class, 'create'])
 //admin
 Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
 
+//pending
 Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
+Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.details');
 
-Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending');
-
-
+//selected
+Route::get('/selected-applications', [ApplicationFormController::class, 'selected'])->name('selected');
+Route::get('/selected-application/interview-details/{id}', [InterviewController::class, 'show'])->name('selected.details');
 
 Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
-
 Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
 
 
+//interview
+
+Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
 
 
 
@@ -63,7 +68,7 @@ Route::get('/admission/status', function () {
 
     $applicant = Applicant::where('user_id', Auth::user()->id)->first();
 
-    $application_status = $applicant->application_status;
+    $application_status = $applicant->application_status ?? '';
 
     return view('user-applicant.status', [
         'status' => $application_status

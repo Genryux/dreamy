@@ -12,7 +12,7 @@ class Applicant extends Model
 
     protected $table = "applicant";
     protected $fillable = [
-        'user_id', 'first_name', 'last_name', 'application_status', 'interview_status'
+        'user_id', 'first_name', 'last_name', 'application_status',
     ];
 
     public function applicationForm() {
@@ -21,6 +21,10 @@ class Applicant extends Model
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function interview() {
+        return $this->hasOne(Interview::class);
     }
 
 }

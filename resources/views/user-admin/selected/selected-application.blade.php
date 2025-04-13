@@ -23,7 +23,7 @@
       </li>
   
       <li>
-        <a href="/pending-applications" class="block transition-colors hover:text-gray-900"> Pending Applications </a>
+        <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Selected Applications </a>
       </li>
   
       <li class="rtl:rotate-180">
@@ -46,16 +46,10 @@
   
 @endsection
 
-@section('header')
-
-
-@endsection
-
-
 @section('content')
     <div class="flex flex-col">
         <div class="text-start border-b border-[#1e1e1e]/10 pl-[14px] py-[10px]">
-            <p class="text-[16px] md:text-[18px] font-bold">Pending Applications</p>
+            <p class="text-[16px] md:text-[16px] font-bold">Selected Applications</p>
         </div>
 
         <div class="flex flex-col items-center flex-grow px-[14px] py-[10px] space-y-2">
@@ -65,7 +59,7 @@
             </div>
 
             <div class="w-full">
-                <table id="pendingTable" class="w-full table-fixed">
+                <table id="selectedTable" class="w-full table-fixed">
                     <thead class="text-[14px]">
                         <tr>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
@@ -100,17 +94,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pending_applicants as $pending_applicant)
+                        @foreach ($selected_applicants as $selected_applicant)
                         <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->lrn }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->full_name }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->age }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->birthdate }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->desired_program }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->grade_level }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ \Carbon\Carbon::parse($pending_applicant->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->lrn }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->full_name }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->age }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->birthdate }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->desired_program }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->interview->status }}</td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ \Carbon\Carbon::parse($selected_applicant->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}</td>
 
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a href="/pending-application/form-details/{{$pending_applicant->id }}">View</a></td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a href="/selected-application/interview-details/{{$selected_applicant->id }}">View</a></td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -126,7 +120,7 @@
     let pendingApplications = document.querySelector('#pending-application');
 
     document.addEventListener("DOMContentLoaded", function () {
-        table = new DataTable('#pendingTable', {
+        table = new DataTable('#selectedTable', {
             paging: true,
             pageLength: 20,
             searching: true,

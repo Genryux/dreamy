@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('header')
+
+<x-header-container>
     <div class="flex flex-row items-center space-x-2 px-[14px] py-[10px]">
         <i class="fi fi-rs-chart-simple text-[20px]"></i>
         <p class="text-[16px] md:text-[18px] font-bold">Dashboard</p>
@@ -56,8 +58,8 @@
         </x-total-stat-card>
 
 
-    </div>
-    
+    </div>           
+</x-header-container>
 
 @endsection
 
