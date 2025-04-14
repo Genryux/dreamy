@@ -116,7 +116,7 @@
 
             <div class="flex justify-end px-4 py-3 space-x-1">
                 <button id="cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-                <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+                <button form="interview-form" name="action" value="accept-with-schedule" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
             </div>
 
         </div>
@@ -135,8 +135,9 @@
             <h2 class="text-[16px]"> <span class="text-[#0f111c]/80">Applicant Details:</span><span class="opacity-100 font-medium  font-bold"> {{ $form->full_name }} </span></h2>
         </div>
         <div class="flex flex-row items-center space-x-1">
-            <button id="accept-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
-            <button id="reject-btn" class="border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
+            <button type="submit" name="action" form="interview-form" value="accept-only" class="border border-[#1e1e1e]/15 bg-[#199BCF] px-2 py-1 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept Only</button>
+            <button id="accept-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] px-2 py-1 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept & Schedule</button>
+            <button id="reject-btn" class="border border-[#1e1e1e]/15 px-2 py-1 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
         </div>
     </div>
 </x-header-container>
@@ -144,6 +145,25 @@
 @endsection
 
 @section('content')
+
+@error('date')
+    {{ $message }}
+@enderror
+@error('time')
+    {{ $message }}
+@enderror
+@error('location')
+    {{ $message }}
+@enderror
+@error('add_info')
+    {{ $message }}
+@enderror
+@error('status')
+    {{ $message }}
+@enderror
+@error('remarks')
+    {{ $message }}
+@enderror
 
 
 <div class="px-[14px] py-[14px] space-y-3">

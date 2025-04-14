@@ -50,8 +50,8 @@ class ApplicationFormController extends Controller
     public function index()
     {
 
-        $pending_applications = Applicant::where('application_status', 'pending')->count();
-        $applications = ApplicationForm::latest()->limit(10)->get();
+        $pending_applications = Applicant::where('application_status', 'Pending')->count();
+        $applications = Applicant::where('application_status', 'Pending')->latest()->limit(10)->get();
     
         return view('user-admin.dashboard', [
             'applications' => $applications,

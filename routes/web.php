@@ -47,6 +47,7 @@ Route::post('/admission/application-form', [ApplicationFormController::class, 's
 //interview
 
 Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
+Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
 
 
 

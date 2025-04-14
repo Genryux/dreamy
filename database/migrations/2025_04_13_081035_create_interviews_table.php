@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Applicant::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Teacher::class)->nullable();
-            $table->date('date');
-            $table->time('time');
-            $table->string('location');
-            $table->text('add_info');
-            $table->string('status');
+            $table->date('date')->nullable();
+            $table->time('time')->nullable();
+            $table->string('location')->nullable();
+            $table->text('add_info')->nullable();
+            $table->string('status')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
         });

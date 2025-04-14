@@ -1,59 +1,204 @@
 @extends('layouts.admin')
 
 @section('breadcrumbs')
-<nav aria-label="Breadcrumb" class="mb-4 mt-2">
-    <ol class="flex items-center gap-1 text-sm text-gray-700">
-      <li>
-        <a href="#" class="block transition-colors hover:text-gray-900"> Applications </a>
-      </li>
-  
-      <li class="rtl:rotate-180">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="size-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </li>
-  
-      <li>
-        <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Selected Applications </a>
-      </li>
-  
-      <li class="rtl:rotate-180">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="size-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </li>
-  
-      <li>
-        <a href="#" class="block transition-colors hover:text-gray-900"> Interview Details </a>
-      </li>
-    </ol>
-</nav>
+    <nav aria-label="Breadcrumb" class="mb-4 mt-2">
+        <ol class="flex items-center gap-1 text-sm text-gray-700">
+        <li>
+            <a href="#" class="block transition-colors hover:text-gray-900"> Applications </a>
+        </li>
+    
+        <li class="rtl:rotate-180">
+            <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            >
+            <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"
+            />
+            </svg>
+        </li>
+    
+        <li>
+            <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Selected Applications </a>
+        </li>
+    
+        <li class="rtl:rotate-180">
+            <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            >
+            <path
+                fill-rule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clip-rule="evenodd"
+            />
+            </svg>
+        </li>
+    
+        <li>
+            <a href="#" class="block transition-colors hover:text-gray-900"> Interview Details </a>
+        </li>
+        </ol>
+    </nav>
   
 @endsection
 
 @section('modal')
-<div id="modal-bg" class="absolute bottom-0 left-0 bg-[#0f111c]/40 h-0 w-full z-20 ease-in-out duration-150 overflow-hidden">
 
-    <div class="flex items-center justify-center h-screen w-screen">
-    <x-modal modal="Record Interview Result">
+    {{-- <x-modal modal="{{$interview_details->status === 'Pending' ? 'Schedule Interview ' : 'Record Interview Result' }}">
+
+        @if ($interview_details->status === 'Pending')
+            <form action="/set-interview/{{ $applicant_details->id }}" method="post" id="interview-form" class="flex flex-col space-y-2 px-4 py-2">
+                @csrf
+                @method('PATCH')
+                <div class="flex flex-row space-x-2">
+                    <div class="flex-1 space-y-1">
+                        <label for="date" class="text-[14px] font-bold">Date</label>
+                        <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                            <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
+                            <input type="date" name="date" id="date" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        </div>
+                        
+                    </div >
+                    <div class="flex-1 space-y-1">
+                        <label for="time" class="text-[14px] font-bold">Time</label>
+                        <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                            <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
+                            <input type="time" name="time" id="time" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        </div>
+                        
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <label for="location" class="text-[14px] font-bold">Location</label>
+                        <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                            <i class="fi fi-rs-marker flex items-center opacity-60"></i>
+                            <input type="text" name="location" id="location" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 space-y-1">
+                    <label for="" class="text-[14px] font-bold">Assign to</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] w-2/3 focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-user flex items-center opacity-60"></i>
+                        <select name="" id="" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                            <option value="" class="font-Manrope">Juan Dela Cruz</option>
+                            <option value="">Peter Dela Cruz</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex-1 space-y-1">
+                    <label for="add_info" class="text-[14px] font-bold">Additional Information</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-info flex items-center opacity-60"></i>
+                        <textarea name="add_info" id="add_info" cols="10" rows="10" class="bg-transparent outline-none font-medium text-[14px] w-full resize-none h-[100px]"></textarea>
+                    </div>
+                </div>
+
+            </form>
+        @elseif ($interview_details->status === 'Scheduled')
+            <form action="" class="py-2 px-4 space-y-2">
+
+                <label for="passed" class="flex items-center justify-between has-checked:bg-red-500 has-checked:ring-red-500">
+                    <p>Passed</p>
+                    <input type="radio" name="status" id="passed" checked class="">
+                </label>
+
+                <label for="failed" class="flex items-center justify-between has-checked:ring-2 has-checked:ring-red-500">
+                    <p>Failed</p>
+                    <input type="radio" name="status" id="failed" class="">
+                </label>
+                
+
+            </form>
+        @endif
+
+
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+            @if ($interview_details->status === 'Pending')
+                <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+            @else
+                <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+            @endif
+            
+        </x-slot>
+    </x-modal> --}}
+
+@if ($interview_details->status === 'Pending')
+
+    <x-modal modal_id="sched-interview-modal" modal_name="Schedule Interview">
+
+            <form action="/set-interview/{{ $applicant_details->id }}" method="post" id="interview-form" class="flex flex-col space-y-2 px-4 py-2">
+                @csrf
+                @method('PATCH')
+                <div class="flex flex-row space-x-2">
+                    <div class="flex-1 space-y-1">
+                        <label for="date" class="text-[14px] font-bold">Date</label>
+                        <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                            <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
+                            <input type="date" name="date" id="date" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        </div>
+                        
+                    </div >
+                    <div class="flex-1 space-y-1">
+                        <label for="time" class="text-[14px] font-bold">Time</label>
+                        <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                            <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
+                            <input type="time" name="time" id="time" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        </div>
+                        
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <label for="location" class="text-[14px] font-bold">Location</label>
+                        <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                            <i class="fi fi-rs-marker flex items-center opacity-60"></i>
+                            <input type="text" name="location" id="location" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 space-y-1">
+                    <label for="" class="text-[14px] font-bold">Assign to</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] w-2/3 focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-user flex items-center opacity-60"></i>
+                        <select name="" id="" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                            <option value="" class="font-Manrope">Juan Dela Cruz</option>
+                            <option value="">Peter Dela Cruz</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex-1 space-y-1">
+                    <label for="add_info" class="text-[14px] font-bold">Additional Information</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-info flex items-center opacity-60"></i>
+                        <textarea name="add_info" id="add_info" cols="10" rows="10" class="bg-transparent outline-none font-medium text-[14px] w-full resize-none h-[100px]"></textarea>
+                    </div>
+                </div>
+
+            </form>
+
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+            <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+
+        </x-slot>
+    </x-modal>
+
+@elseif ($interview_details->status === 'Scheduled')
+
+    <x-modal modal_id="record-interview-modal" modal_name="Record Interview Result">
+
 
         <form action="" class="py-2 px-4 space-y-2">
 
@@ -75,67 +220,193 @@
             <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
         </x-slot>
     </x-modal>
-    </div>
-</div>
+
+    <x-modal modal_id="edit-sched-modal" modal_name="Edit Interview Schedule">
+
+
+        <form action="/set-interview/{{ $applicant_details->id }}" method="post" id="interview-form" class="flex flex-col space-y-2 px-4 py-2">
+            @csrf
+            @method('PATCH')
+            <div class="flex flex-row space-x-2">
+                <div class="flex-1 space-y-1">
+                    <label for="date" class="text-[14px] font-bold">Date</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
+                        <input type="date" name="date" id="date" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                    </div>
+                    
+                </div >
+                <div class="flex-1 space-y-1">
+                    <label for="time" class="text-[14px] font-bold">Time</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
+                        <input type="time" name="time" id="time" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                    </div>
+                    
+                </div>
+                <div class="flex-1 space-y-1">
+                    <label for="location" class="text-[14px] font-bold">Location</label>
+                    <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                        <i class="fi fi-rs-marker flex items-center opacity-60"></i>
+                        <input type="text" name="location" id="location" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 space-y-1">
+                <label for="" class="text-[14px] font-bold">Assign to</label>
+                <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] w-2/3 focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                    <i class="fi fi-rs-user flex items-center opacity-60"></i>
+                    <select name="" id="" class="bg-transparent outline-none font-medium text-[14px] w-full">
+                        <option value="" class="font-Manrope">Juan Dela Cruz</option>
+                        <option value="">Peter Dela Cruz</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex-1 space-y-1">
+                <label for="add_info" class="text-[14px] font-bold">Additional Information</label>
+                <div class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
+                    <i class="fi fi-rs-info flex items-center opacity-60"></i>
+                    <textarea name="add_info" id="add_info" cols="10" rows="10" class="bg-transparent outline-none font-medium text-[14px] w-full resize-none h-[100px]"></textarea>
+                </div>
+            </div>
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+            <button form="interview-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+        </x-slot>
+    </x-modal>
+
+@endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @section('content')
 <div class="flex flex-col">
+    @error('date')
+        {{ $message }}
+    @enderror
+    @error('time')
+    {{ $message }}
+@enderror
+@error('location')
+{{ $message }}
+@enderror
     <div class="flex flex-row items-center space-x-2 text-start pl-[14px] py-[10px]">
         <i class="fi fi-rs-member-list flex text-[#0f111c] flex flex-row items-center"></i>
-        <p class="text-[14px] md:text-[16px] font-bold">Interview details: <span></span></p>
+        <p class="text-[14px] md:text-[16px] font-medium">Interview details: <span class="font-bold">{{ $applicant_details->full_name }}</span></p>
     </div>
     <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
     <div class="flex flex-row pl-[14px] py-[16px] text-[14px]">
         <div class="flex flex-col flex-1 space-y-4">
             <span>
                 <p class="opacity-80">Grade</p>
-                <p class="font-bold">Grade 11</p>
+                <p class="font-bold">{{ $applicant_details->grade_level }}</p>
             </span>
             <span>
                 <p class="opacity-80">Track</p>
-                <p class="font-bold">HUMSS</p>
+                <p class="font-bold">{{ $applicant_details->desired_program }}</p>
             </span>
             <span>
                 <p class="opacity-80">Contact</p>
-                <p class="font-bold">09123456789</p>
+                <p class="font-bold">{{ $applicant_details->contact ?? '-' }}</p>
             </span>
         </div>
         <div class="flex flex-col flex-1 space-y-4">
             <span>
                 <p class="opacity-80">Interview Date</p>
-                <p class="font-bold">-</p>
+                <p class="font-bold">{{ $interview_details->date ?? '-' }}</p>
             </span>
             <span>
                 <p class="opacity-80">Interview Time</p>
-                <p class="font-bold">-</p>
+                <p class="font-bold">{{ $interview_details->time ?? '-' }}</p>
             </span>
             <span>
                 <p class="opacity-80">Location</p>
-                <p class="font-bold">-</p>
+                <p class="font-bold">{{ $interview_details->location ?? '-' }}</p>
             </span>
         </div>
         <div class="flex flex-col flex-1 space-y-4">
             <span>
                 <p class="opacity-80">Interviewer</p>
-                <p class="font-bold">-</p>
+                <p class="font-bold">{{ $interview_details->interviewer ?? '-' }}</p>
             </span>
             <span>
                 <p class="opacity-80">Status</p>
-                <p class="font-bold">-</p>
+                @if ($interview_details->status === 'Pending')
+                    <p class="font-bold text-[#FBBC04]">{{ $interview_details->status ?? '-' }}</p>
+                @elseif (($interview_details->status === 'Scheduled'))
+                    <p class="font-bold text-[#1A73E8]">{{ $interview_details->status ?? '-' }}</p>
+                @elseif (($interview_details->status === 'Completed-Passed'))
+                    <p class="font-bold text-[#34A853]">{{ $interview_details->status ?? '-' }}</p>
+                @elseif (($interview_details->status === 'Completed-Failed'))
+                    <p class="font-bold text-[#EA4335]">{{ $interview_details->status ?? '-' }}</p>
+                @endif
             </span>
         </div>
         <div class="flex flex-col flex-1 space-y-4">
             <span>
                 <p class="opacity-80">Remarks</p>
-                <p class="font-bold">-</p>
+                <p class="font-bold">{{ $interview_details->remarks ?? '-' }}</p>
             </span>
         </div>
     </div>
     <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
     <div class="flex flex-row items-center justify-between px-[14px] py-[10px] text-[14px] font-medium">
         <button id="show-details-btn" class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80">View Applicant's Full Details <i class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
-        <button id="record-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] text-[#f8f8f8] rounded-md px-2 py-1">Record Interview Result</button>
+        @if ($interview_details->status === 'Pending')
+            <button id="record-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] text-[#f8f8f8] rounded-md px-2 py-1">Schedule Interview</button>
+        @elseif ($interview_details->status === 'Scheduled')
+            <div>
+                <button id="edit-sched-btn" class="border border-[#1e1e1e]/15 text-[#0f111c]/80 font-bold rounded-md px-3 py-1">Edit</button>
+                <button id="record-interview-btn" class="border border-[#1e1e1e]/15 bg-[#199BCF] text-[#f8f8f8] rounded-md px-2 py-1">Record Interview Result</button>
+            </div>
+
+        @endif
+
     </div>
 </div>
 
@@ -290,69 +561,60 @@
 @push('scripts')
 <script type="module">
 
-    let modal = document.querySelector('#modal-bg');
-    let openButton = document.querySelector('#record-btn');
-    let closeButton = document.querySelector('#close-btn');
-    let cancelButton = document.querySelector('#cancel-btn');
-    let body = document.querySelector('body')
+    import { initModal } from "/js/modal.js";
+
+    // let modal = document.querySelector('#putanginamodal');
+    // let openButton = document.querySelector('#record-btn');
+    // let closeButton = document.querySelector('#close-btn');
+    // let cancelButton = document.querySelector('#cancel-btn');
+    // let body = document.querySelector('body')
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        let showBtn = document.querySelector('#show-details-btn');
-        let detailsContainer = document.querySelector('#details-container');
+        initModal('edit-sched-modal', 'edit-sched-btn', 'close-btn', 'cancel-btn');
+        initModal('record-interview-modal', 'record-interview-btn', 'close-btn', 'cancel-btn');
+        
 
-        showBtn.addEventListener('click', function () {
+        // openButton.addEventListener('click', function() {
 
-            if (detailsContainer.classList.contains('hidden')) {
-                detailsContainer.classList.remove('hidden');
-                detailsContainer.classList.add('flex')
-            } else if (!detailsContainer.classList.contains('hidden')) {
-                detailsContainer.classList.remove('flex');
-                detailsContainer.classList.add('hidden')
-            }
+        //     if (modal.classList.contains('h-0')) {
 
-        })
+        //         modal.classList.remove('h-0');
+        //         modal.classList.add('h-full');
+        //         body.classList.add('overflow-hidden')
 
-        openButton.addEventListener('click', function() {
+        //     }
 
-            if (modal.classList.contains('h-0')) {
-
-                modal.classList.remove('h-0');
-                modal.classList.add('h-full');
-                body.classList.add('overflow-hidden')
-
-            }
-
-            if (!modal.classList.contains('h-0')) {
+        //     if (!modal.classList.contains('h-0')) {
 
 
 
-                closeButton.addEventListener('click', () => {
+        //         closeButton.addEventListener('click', () => {
                     
-                    modal.classList.remove('h-full');
-                    modal.classList.add('h-0');
-                    body.classList.remove('overflow-hidden')
+        //             modal.classList.remove('h-full');
+        //             modal.classList.add('h-0');
+        //             body.classList.remove('overflow-hidden')
                     
-                })
+        //         })
 
-                modal.addEventListener('click', () => {
+        //         modal.addEventListener('click', () => {
                     
-                    modal.classList.remove('h-full');
-                    modal.classList.add('h-0');
-                    body.classList.remove('overflow-hidden')
+        //             modal.classList.remove('h-full');
+        //             modal.classList.add('h-0');
+        //             body.classList.remove('overflow-hidden')
                     
-                })
+        //         })
 
-                cancelButton.addEventListener('click', () => {
+        //         cancelButton.addEventListener('click', () => {
                     
-                    modal.classList.remove('h-full');
-                    modal.classList.add('h-0');
-                    body.classList.remove('overflow-hidden')
+        //             modal.classList.remove('h-full');
+        //             modal.classList.add('h-0');
+        //             body.classList.remove('overflow-hidden')
                     
-                })
-            }
+        //         })
+        //     }
 
-        })
+        // })
 
     });
 </script>
