@@ -50,12 +50,17 @@ class ApplicationFormController extends Controller
     public function index()
     {
 
-        $pending_applications = Applicant::where('application_status', 'Pending')->count();
+        $pending_applications = Applicant::countByStatus('Pending')->count();
+        $selected_applications = Applicant::countByStatus('Selected')->count();
+        
+        $applicationCount = Applicant::countAllStatus(['Pending', 'Selected', 'Pending Documents'])->count();
         $applications = Applicant::where('application_status', 'Pending')->latest()->limit(10)->get();
     
         return view('user-admin.dashboard', [
             'applications' => $applications,
-            'pending_applications' => $pending_applications
+            'pending_applications' => $pending_applications,
+            'selected_applications' => $selected_applications,
+            'applicationCount' => $applicationCount
         ]);
     }
 
@@ -107,10 +112,10 @@ class ApplicationFormController extends Controller
             ]);
         }
 
-        $pending_applications = Applicant::where('application_status', 'pending')->count();
+        $total_applications = Applicant::countApplications()->count();
 
         // event(new ApplicationFormSubmitted($form));
-        event(new RecentApplicationTableUpdated($form, $pending_applications));
+        event(new RecentApplicationTableUpdated($form, $total_applications));
 
 
         return redirect('admission')->with('success', 'Application submitted successfully!');

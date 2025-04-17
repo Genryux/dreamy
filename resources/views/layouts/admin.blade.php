@@ -13,7 +13,7 @@
                 {{ asset('images/systemicon.png') }}
             </x-slot>
             <div class="flex flex-col space-y-1">
-                <x-divider color='#f8f8f8' opacity="0.30"></x-divider>
+                <x-divider color='#f8f8f8' opacity="0.20"></x-divider>
                 <label class="text-white/30 text-[14px] nav-text">Menu</label>
                 <x-nav-link href="/admin" :active="request()->is('admin')">
 
@@ -71,7 +71,7 @@
             </div>
             <div class="flex flex-col space-y-1 mt-10">
                 <span class='flex items-center mt-4'>
-                    <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/30"></span>
+                    <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
                 </span>
                 <label class="text-white/30 text-[14px] nav-text">Student</label>
             </div>
@@ -93,10 +93,11 @@
             </header>
 
             <!-- Main Content -->
-            <main id="main-content" class="flex-1 p-[10px] relative overflow-auto h-full flex flex-col text-[#0f111c] relative">
+            <main id="main-content" class="flex-1 p-[10px] relative overflow-auto h-full flex flex-col text-[#0f111c] relative space-y-2">
 
                 @yield('breadcrumbs')
                 @yield('header')
+                @yield('stat')
 
                 <section class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20">
 

@@ -27,4 +27,12 @@ class Applicant extends Model
         return $this->hasOne(Interview::class);
     }
 
+    public function scopeCountAllStatus($query, $status = []) {
+        return $query->whereIn('application_status', $status);
+    }
+
+    public function scopeCountByStatus($query, $status) {
+        return $query->where('application_status', $status);
+    }
+
 }
