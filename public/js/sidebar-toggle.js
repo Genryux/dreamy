@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Toggle sidebar width
             if (sideNav.classList.contains('collapsed')) {
                 // Expand
-                sideNav.style.width = '320px';
+                sideNav.style.width = '300px';
                 sideNav.classList.remove('collapsed');
                 
                 // Show texts with a short delay to create a smooth transition
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Adjust content width and ensure it takes full available space
             content.style.transition = 'width 0.3s ease-in-out';
-            content.style.width = sideNav.classList.contains('collapsed') ? 'calc(100% - 80px)' : 'calc(100% - 320px)';
+            content.style.width = sideNav.classList.contains('collapsed') ? 'calc(100% - 80px)' : 'calc(100% - 300px)';
         });
     }
     
@@ -121,3 +121,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 }); 
+

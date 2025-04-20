@@ -27,6 +27,14 @@ class Applicant extends Model
         return $this->hasOne(Interview::class);
     }
 
+    public function enrollmentPeriods() {
+        return $this->belongsTo(EnrollmentPeriod::class);
+    }
+
+    public function academicTerms() {
+        return $this->belongsTo(AcademicTerms::class);
+    }
+
     public function scopeCountAllStatus($query, $status = []) {
         return $query->whereIn('application_status', $status);
     }

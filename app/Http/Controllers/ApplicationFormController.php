@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ApplicationFormSubmitted;
 use App\Events\RecentApplicationTableUpdated;
+use App\Models\AcademicTerms;
 use App\Models\Applicant;
 use App\Models\ApplicationForm;
 use App\Models\User;
@@ -50,6 +51,11 @@ class ApplicationFormController extends Controller
     public function index()
     {
 
+
+
+        //dd($currentAcadTerm->full_name);
+
+
         $pending_applications = Applicant::countByStatus('Pending')->count();
         $selected_applications = Applicant::countByStatus('Selected')->count();
         
@@ -92,6 +98,7 @@ class ApplicationFormController extends Controller
         ]);
 
         $applicant = Applicant::where('user_id', Auth::user()->id)->first();
+        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
 
 
         $form = ApplicationForm::create([

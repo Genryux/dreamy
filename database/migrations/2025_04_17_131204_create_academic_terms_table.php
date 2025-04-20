@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('year');
             $table->string('semester');
-            $table->string('start_date');
-            $table->string('end_date');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->boolean('is_active')->default(false);
             $table->timestamps();
 

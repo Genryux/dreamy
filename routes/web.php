@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ApplicationFormController;
+use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
@@ -30,7 +32,7 @@ Route::get('/portal/register', [RegistrationController::class, 'create'])
 
 
 //admin
-Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin');
 
 //pending
 Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
@@ -43,6 +45,11 @@ Route::get('/selected-application/interview-details/{id}', [InterviewController:
 Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
 Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
 
+//academic terms
+Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
+
+//enrollment period
+Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->name('enrollment-period.post');
 
 //interview
 
