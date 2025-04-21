@@ -8,6 +8,7 @@ use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
 use App\Models\Applicant;
+use App\Models\EnrollmentPeriod;
 use App\Models\Interview;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -50,9 +51,10 @@ Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('
 
 //enrollment period
 Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->name('enrollment-period.post');
+Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->name('enrollment-period.patch');
+
 
 //interview
-
 Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
 Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
 
@@ -68,7 +70,13 @@ Route::get('/student', function () {
 //admission
 
 Route::get('/admission', function () {
-    return view('user-applicant.dashboard');
+
+    $activeEnrollmentPeriod = EnrollmentPeriod::whereIn('status', ['Ongoing','Paused'])->first();
+
+    return view('user-applicant.dashboard', [
+        'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+    ]);
+
 })->name('admission.dashboard');
 
 

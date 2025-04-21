@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['year', 'semester']);
+            $table->unique(['is_active'], 'unique_is_active')->where('is_active', true);
         });
     }
 

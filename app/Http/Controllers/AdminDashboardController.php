@@ -16,9 +16,9 @@ class AdminDashboardController extends Controller
 
         $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
 
-        $activeEnrollmentPeriod = EnrollmentPeriod::whereIn('status', ['Ongoing','Paused'])->first();
+        $activeEnrollmentPeriod = EnrollmentPeriod::where('active', true)->first();
 
-        //dd($activeEnrollmentPeriod->applications);
+        //dd($activeEnrollmentPeriod->academicTerms->full_name);
 
         $pending_applications = Applicant::countByStatus('Pending')->count();
         $selected_applications = Applicant::countByStatus('Selected')->count();

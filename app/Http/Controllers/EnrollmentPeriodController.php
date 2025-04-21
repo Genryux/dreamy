@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EnrollmentPeriodStatusUpdated;
 use App\Models\EnrollmentPeriod;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,18 @@ class EnrollmentPeriodController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        //dd($request->all());
+        $validated = $request->validate([
+            'academic_terms_id' => 'required|exists:academic_terms,id',
+            'name' => 'required|string|max:255',
+            'max_applicants' => 'required|integer|min:1',
+            'application_start_date' => 'required|date',
+            'application_end_date' => 'required|date|after:start_date',
+        ]);
+
+        EnrollmentPeriod::create($validated);
+
+        return redirect()->back()->with('success', 'Enrollment period created successfully.');
     }
 
     /**
@@ -50,9 +62,26 @@ class EnrollmentPeriodController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, EnrollmentPeriod $enrollmentPeriod)
+    public function update(Request $request, $id)
     {
-        //
+        //dd($request->id);
+
+        $enrollmentPeriod = EnrollmentPeriod::findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:Ongoing,Paused,Closed',
+        ]);
+
+        if ($request->status === 'Closed') {
+            $enrollmentPeriod->update(['active' => false]);
+        }
+
+        $enrollmentPeriod->update($validated);
+
+        event(new EnrollmentPeriodStatusUpdated($enrollmentPeriod));
+        // Broadcast the event to update the enrollment period status
+
+        return response()->json(['message' => 'Enrollment period updated successfully.']);
     }
 
     /**

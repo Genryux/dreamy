@@ -75,6 +75,7 @@
     <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn">
         <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="pt-2 pb-4 px-4 space-y-2">
             @csrf
+            <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
             <div class="flex flex-row space-x-2">
                 <div class="flex-1 space-y-1">
                     <label for="name" class="text-[14px] font-bold opacity-90">Name</label>
@@ -89,11 +90,11 @@
                     </div>
                 </div>
                 <div class="flex-1 space-y-1">
-                    <label for="max_applicant" class="text-[14px] font-bold opacity-90">Max Applicant</label>
+                    <label for="max_applicants" class="text-[14px] font-bold opacity-90">Max Applicant</label>
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
-                        <select name="max_applicant" id="max_applicant" class="w-full bg-transparent text-[14px] opacity-80">
+                        <select name="max_applicants" id="max_applicants" class="w-full bg-transparent text-[14px] opacity-80">
                             <option disabled selected class="text-[14px] opacity-60">Set maximum number of applicant</option>
                             <option value="20" class="text-[14px]">20 Applicants</option>
                             <option value="40" class="text-[14px]">40 Applicants</option>
@@ -113,7 +114,7 @@
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-calendar-check flex items-center opacity-60"></i>
-                        <input type="date" name="start_date" id="start_date" placeholder="XXXX-XXXX"
+                        <input type="date" name="application_start_date" id="start_date" placeholder="XXXX-XXXX"
                             class="bg-transparent outline-none font-medium text-[14px] w-full text-[#0f111c]/80">
                     </div>
                 </div>
@@ -122,7 +123,7 @@
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-calendar-xmark flex items-center opacity-60"></i>
-                        <input type="date" name="end_date" id="end_date" placeholder="XXXX-XXXX"
+                        <input type="date" name="application_end_date" id="end_date" placeholder="XXXX-XXXX"
                             class="bg-transparent outline-none font-medium text-[14px] w-full text-[#0f111c]/80">
                     </div>
                 </div>
@@ -215,62 +216,95 @@
         <div class="bg-[#f8f8f8] flex-1 border border-[#1e1e1e]/20 rounded-md px-[16px] py-4">
             <div class="flex flex-row justify-between">
                 <span class="font-bold">Active Enrollment Period</span>
-                <span class="text-[14px] text-[#EA4335] font-bold">-</span>
-            </div>
-            <div class="flex flex-col py-2 opacity-30 hidden">
-                <span class="font-bold text-[16px]">-</span>
-                <span class="font-medium text-[14px] opacity-60">-</span>
+                @if ($activeEnrollmentPeriod)
+                <span class="text-[14px] text-[#EA4335] font-bold">
+                    <label for="toggleEnrollmentPeriod" class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer" 
+                        @if ($activeEnrollmentPeriod->status == 'Ongoing') 
+                            checked 
+                            value="Paused"
+                        @elseif ($activeEnrollmentPeriod->status == 'Paused')
+                            value="Ongoing"
+                        @endif
+                        >
+
+                        <div class="w-11 h-[19px] bg-[#EA4335]/80 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[24px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[12px] after:w-[12px] after:transition-all peer-checked:bg-[#34A853]/80"></div>
+
+                    </label>
+                </span>
+                @endif
+
             </div>
             @if ($activeEnrollmentPeriod)
-                <div class="flex flex-row justify-evenly py-6 border border-red-500">
-                    <div class="flex flex-row gap-4 items-center">
-                        <div class="bg-[#E6F4EA] px-4 py-3 rounded-full">
-                            <i class="fi fi-ss-calendar-check text-[20px] text-[#34A853]"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="font-bold">March 15</span>
-                            <span class="text-[14px] opacity-60">Start Date</span>
-                        </div>
-                    </div>
-                    <span class="flex items-center">
-                        <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
-                    </span>
-                    <div class="flex flex-row gap-4 items-center">
-                        <div class="bg-[#FCE8E6] px-4 py-3 rounded-full">
-                            <i class="fi fi-ss-calendar-xmark text-[20px] text-[#EA4335]"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="font-bold">March 30</span>
-                            <span class="text-[14px] opacity-60">End Date</span>
-                        </div>
-                    </div>
-                </div>
-            @elseif (!$activeEnrollmentPeriod)
-                <div class="flex flex-row justify-evenly py-2">
-
-                    <div class="flex flex-col justify-center items-center space-y-3">
-                        <img src="{{ asset('images/empty-box.png') }}" alt="empty-box" class="size-[120px]">
-                        <span class="opacity-60">There is currently no active enrollment period</span>
-                        @if ($currentAcadTerm)
-                            <button id="enrollment-period-btn" class="border border-[#1A73E8] px-3 py-1 text-[#1A73E8] font-bold text-[14px] rounded-md">
-                                Add Enrollment Period
-                            </button>
-                        @endif
-
-                    </div>
-
-                </div>
+            <div id="ep-details" class="{{ $activeEnrollmentPeriod->name == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
+            @else
+            <div id="ep-details"> 
             @endif
+                @if ($activeEnrollmentPeriod)
+                <div class="flex flex-col py-2">
+                    <span class="font-bold text-[16px]">{{ $activeEnrollmentPeriod->name }}</span>
+                    <span class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                </div>
+                @endif
+                @if ($activeEnrollmentPeriod)
+                    <div class="flex flex-row justify-evenly py-8">
+                        <div class="flex flex-row gap-4 items-center">
+                            <div class="bg-[#E6F4EA] px-4 py-3 rounded-full">
+                                <i class="fi fi-ss-calendar-check text-[20px] text-[#34A853]"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
+                                <span class="text-[14px] opacity-60">Start Date</span>
+                            </div>
+                        </div>
+                        <span class="flex items-center">
+                            <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
+                        </span>
+                        <div class="flex flex-row gap-4 items-center">
+                            <div class="bg-[#FCE8E6] px-4 py-3 rounded-full">
+                                <i class="fi fi-ss-calendar-xmark text-[20px] text-[#EA4335]"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
+                                <span class="text-[14px] opacity-60">End Date</span>
+                            </div>
+                        </div>
+                    </div>
+                @elseif (!$activeEnrollmentPeriod)
+                    <div class="flex flex-row justify-evenly py-2">
 
-            <div class="flex flex-row items-center justify-between pt-2 hidden">
-                <span class="text-[15px] opacity-30">Time Remaining: <span class="opacity-100 font-bold">-</span></span>
+                        <div class="flex flex-col justify-center items-center space-y-3">
+                            <img src="{{ asset('images/empty-box.png') }}" alt="empty-box" class="size-[120px]">
+                            <span class="opacity-60">There is currently no active enrollment period</span>
+                            @if ($currentAcadTerm)
+                                <button id="enrollment-period-btn" class="border border-[#1A73E8] px-3 py-1 text-[#1A73E8] font-bold text-[14px] rounded-md">
+                                    Add Enrollment Period
+                                </button>
+                            @endif
+
+                        </div>
+
+                    </div>
+                @endif
+            </div>
+            @if ($activeEnrollmentPeriod)
+            <div class="flex flex-row items-center justify-between pt-2">
+                <span id="ep-time" class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[15px]">Time Remaining:  
+                    <span class="opacity-100 font-bold">      
+                        @php
+                            $remainingDays = max(0, \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->diffInDays(\Carbon\Carbon::now()));
+                            echo $remainingDays . ' ' . Str::plural('Day', $remainingDays);
+                        @endphp
+                    
+                    </span>
+                </span>
                 <div>
-                    <button
-                        class="border border-[#F97316] px-3 py-1 rounded-md text-[#F97316] font-bold text-[14px]">Edit</button>
-                    <button class="bg-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#f8f8f8] font-bold">End Enrollment
-                        Period</button>
+                    <button id="end-enrollment-btn" data-id="{{ $activeEnrollmentPeriod->id }}" class="border border-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End Enrollment
+                        Period
+                    </button>
                 </div>
             </div>
+            @endif
         </div>
 
         <div class="bg-[#f8f8f8] flex-1 border border-[#1e1e1e]/20 rounded-md px-[16px] py-4 space-y-3">
@@ -447,12 +481,12 @@
 
 @push('scripts')
     <script type="module">
-        import {
-            initModal
-        } from "/js/modal.js";
+        import { initModal } from "/js/modal.js";
 
         let table;
         let totalApplications = document.querySelector('#total-application');
+        let endEnrollmentBtn = document.querySelector('#end-enrollment-btn');
+        let toggle = document.querySelector('#toggleEnrollmentPeriod');
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -545,6 +579,63 @@
                 }, 4000);
 
             });
+
+            if (endEnrollmentBtn) {
+                endEnrollmentBtn.addEventListener('click', async () => {
+                    const id = endEnrollmentBtn.dataset.id;
+                    console.log(id);
+                    try {
+                        const response = await window.axios.patch(`/enrollment-period/${id}`, {
+                            status: 'Closed'
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+            }
+
+            if (toggle) {
+                toggle.addEventListener('change', async () => {
+                    const id = endEnrollmentBtn.dataset.id;
+                    const status = toggle.checked ? 'Ongoing' : 'Paused';
+                    console.log(id);
+                    try {
+                        const response = await window.axios.patch(`/enrollment-period/${id}`, {
+                            status: status
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+            }
+
+            window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (event) => {
+                console.log(event.enrollmentPeriod.status);
+                let epDetails = document.querySelector('#ep-details');
+                let epTime = document.querySelector('#ep-time');
+
+                if (event.enrollmentPeriod.status == 'Paused') {
+                    epDetails.classList.add('opacity-30');
+                    epTime.classList.add('opacity-30');
+                } else if (event.enrollmentPeriod.status == 'Ongoing') {
+                    epDetails.classList.remove('opacity-30');
+                    epTime.classList.remove('opacity-30');
+                }
+
+
+            });
+
+
+
+
 
         });
     </script>

@@ -20,7 +20,10 @@ return new class extends Migration
             $table->date('application_end_date');
             $table->integer('max_applicants');
             $table->string('status')->default('Ongoing'); // Ongoing, Paused, Ended
+            $table->boolean('active')->default(true);
             $table->timestamps();
+
+            $table->unique(['active'], 'unique_active')->where('active', true);
         });
     }
 
