@@ -25,8 +25,8 @@
                         <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
                         <select name="semester" id="semester" class="w-full bg-transparent text-[14px]">
                             <option ></option>
-                            <option value="1st Semester" class="text-[14px]">1st Semester</option>
-                            <option value="2nd Semester" class="text-[14px]">2nd Semester</option>
+                            <option value="First Semester" class="text-[14px]">First Semester</option>
+                            <option value="Second Semester" class="text-[14px]">Second Semester</option>
                         </select>
                     </div>
                 </div>
@@ -217,33 +217,44 @@
             <div class="flex flex-row justify-between">
                 <span class="font-bold">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
-                <span class="text-[14px] text-[#EA4335] font-bold">
-                    <label for="toggleEnrollmentPeriod" class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer" 
-                        @if ($activeEnrollmentPeriod->status == 'Ongoing') 
-                            checked 
-                            value="Paused"
-                        @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                            value="Ongoing"
-                        @endif
-                        >
-
-                        <div class="w-11 h-[19px] bg-[#EA4335]/80 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[24px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[12px] after:w-[12px] after:transition-all peer-checked:bg-[#34A853]/80"></div>
-
-                    </label>
-                </span>
+                    @if ($activeEnrollmentPeriod->status == 'Ongoing')
+                        <span id="status-span" class="text-[14px] font-bold text-[#34A853]">Ongoing</span>
+                    @elseif ($activeEnrollmentPeriod->status == 'Paused')
+                        <span id="status-span" class="text-[14px] font-bold text-[#EA4335]">Paused</span>
+                    @endif
                 @endif
-
             </div>
             @if ($activeEnrollmentPeriod)
-            <div id="ep-details" class="{{ $activeEnrollmentPeriod->name == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
+            <div id="ep-details" class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
             @else
             <div id="ep-details"> 
             @endif
                 @if ($activeEnrollmentPeriod)
-                <div class="flex flex-col py-2">
-                    <span class="font-bold text-[16px]">{{ $activeEnrollmentPeriod->name }}</span>
-                    <span class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                <div class="flex flex-row py-2 justify-between">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-[16px]">{{ $activeEnrollmentPeriod->name }}</span>
+                        <span class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                    </div>
+                    <div>
+                        @if ($activeEnrollmentPeriod)
+                        <span class="text-[14px] text-[#EA4335] font-bold">
+                            {{-- toggle --}}
+                            <label for="toggleEnrollmentPeriod" class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer" 
+                                @if ($activeEnrollmentPeriod->status == 'Ongoing') 
+                                    checked 
+                                    value="Paused"
+                                @elseif ($activeEnrollmentPeriod->status == 'Paused')
+                                    value="Ongoing"
+                                @endif
+                                >
+
+                                <div class="w-11 h-[19px] bg-[#EA4335]/80 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[24px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[12px] after:w-[12px] after:transition-all peer-checked:bg-[#34A853]/80"></div>
+
+                            </label>
+                        </span>
+                        @endif
+                    </div>
                 </div>
                 @endif
                 @if ($activeEnrollmentPeriod)
@@ -306,14 +317,14 @@
             </div>
             @endif
         </div>
-
+{{-- Application overview --}}
         <div class="bg-[#f8f8f8] flex-1 border border-[#1e1e1e]/20 rounded-md px-[16px] py-4 space-y-3">
             <span class="font-bold">Application Overview</span>
             <div class="flex flex-row space-x-3">
 
                 <div class="w-1/3 flex flex-col space-y-5">
                     <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
-                        <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount }}<span
+                        <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
                                 class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
                         <span class="font-medium opacity-60">Total Applications</span>
                     </span>
@@ -333,7 +344,7 @@
                         <div class="flex flex-row items-center gap-3">
                             <div
                                 class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                {{ $pending_applications }}</div>
+                                {{ $pending_applications ?? '0' }}</div>
                             <p class="font-medium text-[16px]">Pending</p>
                         </div>
                         <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
@@ -342,7 +353,7 @@
                         <div class="flex flex-row items-center gap-3">
                             <div
                                 class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                {{ $selected_applications }}</div>
+                                {{ $selected_applications ?? '0' }}</div>
                             <p class="font-medium text-[16px]">Selected
                         </div>
                         <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
@@ -389,6 +400,12 @@
     @error('is_active')
     <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
+    @error('error')
+    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+    @enderror
+    @if (session('error'))
+        <div class="text-red-500 text-[14px] font-bold">{{ session('error') }}</div>
+    @endif
 
     <div class="flex flex-col">
         <div class="text-start border-b border-[#1e1e1e]/10 pl-[14px] py-[10px]">
@@ -441,37 +458,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($applications as $application)
-                            <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $application->applicationForm->lrn }}</td>
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $application->applicationForm->full_name }}</td>
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $application->applicationForm->age }}</td>
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $application->applicationForm->birthdate }}</td>
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $application->applicationForm->desired_program }}</td>
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $application->applicationForm->grade_level }}</td>
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
-                                </td>
+                        @if ($applications != null)
+                            @foreach ($applications as $application)
+                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $application->applicationForm->lrn }}</td>
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $application->applicationForm->full_name }}</td>
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $application->applicationForm->age }}</td>
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $application->applicationForm->birthdate }}</td>
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $application->applicationForm->desired_program }}</td>
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $application->applicationForm->grade_level }}</td>
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
+                                    </td>
 
-                                <td
-                                    class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    <a href="/pending-application/form-details/{{ $application->id }}">View</a>
-                                </td>
-                            </tr>
-                        @endforeach
+                                    <td
+                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        <a href="/pending-application/form-details/{{ $application->id }}">View</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+
                     </tbody>
                 </table>
             </div>
@@ -592,6 +612,9 @@
                                 'Content-Type': 'application/json'
                             }
                         });
+                        if (response.status == 200) {
+                                window.location.reload();
+                        }
                     } catch (error) {
                         console.error(error);
                     }
@@ -621,13 +644,20 @@
                 console.log(event.enrollmentPeriod.status);
                 let epDetails = document.querySelector('#ep-details');
                 let epTime = document.querySelector('#ep-time');
+                let statusSpan = document.querySelector('#status-span');
 
                 if (event.enrollmentPeriod.status == 'Paused') {
                     epDetails.classList.add('opacity-30');
                     epTime.classList.add('opacity-30');
+                    statusSpan.innerHTML = event.enrollmentPeriod.status;
+                    statusSpan.classList.remove('text-[#34A853]');
+                    statusSpan.classList.add('text-[#EA4335]');
                 } else if (event.enrollmentPeriod.status == 'Ongoing') {
                     epDetails.classList.remove('opacity-30');
                     epTime.classList.remove('opacity-30');
+                    statusSpan.innerHTML = event.enrollmentPeriod.status;
+                    statusSpan.classList.remove('text-[#EA4335]');
+                    statusSpan.classList.add('text-[#34A853]');
                 }
 
 

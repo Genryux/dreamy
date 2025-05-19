@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicTerms;
 use Illuminate\Http\Request;
 
+
 class AcademicTermController extends Controller
 {
     /**
@@ -28,17 +29,39 @@ class AcademicTermController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'year' => 'required|string|max:255',
-            'semester' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'is_active' => 'required|boolean'
-        ]);
 
-        AcademicTerms::create($validated);
+        try {
+            $existingTerm = AcademicTerms::where('year', $request->year)
+                ->where('semester', $request->semester)
+                ->first();
 
-        return redirect()->back()->with('success', 'Academic term created successfully.');
+
+            if ($existingTerm) {
+                return redirect()->back()->with('error', 'Academic term already exists.');
+            }
+
+            if ($request->is_active) {
+                $activeTerm = AcademicTerms::where('is_active', true)->first();
+                $activeTerm->update(['is_active' => false]);
+            }
+
+            $validated = $request->validate([
+                'year' => 'required|string|max:255',
+                'semester' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after:start_date',
+                'is_active' => 'required|boolean'
+            ]);
+
+            AcademicTerms::create($validated);
+            
+            return redirect()->back()->with('success', 'Academic term created successfully.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error checking existing terms: ' . $e->getMessage());
+        }
+
+
     }
 
     /**

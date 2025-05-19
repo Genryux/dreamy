@@ -35,7 +35,7 @@ class EnrollmentPeriodController extends Controller
             'name' => 'required|string|max:255',
             'max_applicants' => 'required|integer|min:1',
             'application_start_date' => 'required|date',
-            'application_end_date' => 'required|date|after:start_date',
+            'application_end_date' => 'required|date|after:application_start_date',
         ]);
 
         EnrollmentPeriod::create($validated);
@@ -72,11 +72,13 @@ class EnrollmentPeriodController extends Controller
             'status' => 'required|string|in:Ongoing,Paused,Closed',
         ]);
 
-        if ($request->status === 'Closed') {
-            $enrollmentPeriod->update(['active' => false]);
+        $updateData = $validated;
+
+        if ($request->status == 'Closed') {
+            $updateData['active'] = false;
         }
 
-        $enrollmentPeriod->update($validated);
+        $enrollmentPeriod->update($updateData);
 
         event(new EnrollmentPeriodStatusUpdated($enrollmentPeriod));
         // Broadcast the event to update the enrollment period status

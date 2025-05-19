@@ -8,7 +8,7 @@ class EnrollmentPeriod extends Model
 {
     protected $table = 'enrollment_periods';
     protected $fillable = [
-        'academic_terms_id', 'name', 'application_start_date', 'application_end_date', 'max_applicants', 'status'
+        'academic_terms_id', 'name', 'application_start_date', 'application_end_date', 'max_applicants', 'status', 'active'
     ];
 
     public function applications() {

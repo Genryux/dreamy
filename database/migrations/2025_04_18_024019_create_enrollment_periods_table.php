@@ -22,8 +22,6 @@ return new class extends Migration
             $table->string('status')->default('Ongoing'); // Ongoing, Paused, Ended
             $table->boolean('active')->default(true);
             $table->timestamps();
-
-            $table->unique(['active'], 'unique_active')->where('active', true);
         });
     }
 
