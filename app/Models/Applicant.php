@@ -35,11 +35,11 @@ class Applicant extends Model
         return $this->belongsTo(AcademicTerms::class);
     }
 
-    public function scopeCountAllStatus($query, $status = []) {
+    public function scopeWithAnyStatus($query, $status = []) {
         return $query->whereIn('application_status', $status);
     }
 
-    public function scopeCountByStatus($query, $status) {
+    public function scopeWithStatus($query, $status) {
         return $query->where('application_status', $status);
     }
 

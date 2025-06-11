@@ -2,11 +2,11 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="bg-[#D9E2F5]">
+<body class="bg-[#1A3165]">
 
-    <div id="main-container" class="min-h-screen flex flex-col md:flex-row">
+    <div id="main-container" class="min-h-screen flex flex-col md:flex-col">
 
-        <x-side-nav-bar>
+        {{-- <x-side-nav-bar>
             <x-slot name="logo">
                 {{ asset('images/admportal.png') }}
             </x-slot>
@@ -25,42 +25,34 @@
                     </span>
                 </x-nav-link>
             </div>
-        </x-side-nav-bar>
+        </x-side-nav-bar> --}}
 
-        <!-- Main content area -->
-        <div id="content" class="flex-1 flex flex-col transition-all duration-300 w-full">
-            <!-- Top Navigation Bar -->
-            <header id="top-nav-bar" class="bg-[#f8f8f8] border-b h-[60px] border-[#1e1e1e]/20 px-[10px] flex justify-between items-center gap-2">
-                <!-- profile icon, notifications, etc. -->
-                <button id="sidebar-toggle-button" class="flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
-                    <i class="fi fi-rs-sidebar-flip text-[20px] hidden md:block"></i>
-                    <i class="fi fi-rs-list text-[20px] md:hidden"></i>
-                </button>
+        <header id="top-nav-bar" class=" flex justify-center items-center gap-2 p-4">
+
+            <div>
+                <a href="/admission" class="flex items-center space-x-2">
+                    <img src="{{ asset('images/admportal.png') }}" alt="Logo" class="h-[80px]">
+                </a>
+            </div>
+
+        </header>
+
+        <main id="content" class="p-[10px] overflow-auto h-full flex flex-col justify-center items-center">
+
+            <section class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20 md:w-[70%] justify-center ">
+
+                @yield('content')
+                <div class="self-center w-[80%] md:w-[60%] opacity-30">
+                    <x-divider></x-divider>
+                </div>
+                @yield('summary')
                 
-                <span class="flex flex-row space-x-4">
-                    <i class="fi fi-rs-bell text-[20px]"></i>
-                    <i class="fi fi-rs-user text-[20px]"></i>
-                </span>
-            </header>
+            </section>
 
-            <!-- Main Content -->
-            <main id="main-content" class="flex-1 p-[10px] overflow-auto h-full flex flex-col">
+        </main>
 
-                <header class="bg-[#f8f8f8] px-[22px] py-[18px] mb-3 rounded-md border border-[#1e1e1e]/20">
-                    @yield('header')
-                </header>
-                <section class="bg-[#f8f8f8] flex-1 flex flex-col rounded-md border border-[#1e1e1e]/20">
-
-                    @yield('content')
-
-                    
-                    
-                </section>
-
-            </main>
-        </div>
-    </div>
-
+        @stack('scripts')
+ 
 </body>
 
 </html>

@@ -18,10 +18,22 @@ class AcademicTerms extends Model
         return "{$this->year}, {$this->semester}";
     }
 
-    public function enrollment_period() {
+    public function enrollmentPeriods() {
         return $this->hasMany(EnrollmentPeriod::class);
     }
 
+    public function ActiveEnrollmentPeriod() {
+        return $this->hasOne(EnrollmentPeriod::class)
+            ->where('status', 'Ongoing')
+            ->where('active', true);
+    }
+    public function scopeEnrollmentPeriodStatus($status) {
+        return $this->hasOne(EnrollmentPeriod::class)
+            ->where('status', $status);
+    }
+    public function scopePaused($query) {
+        return $query->where('is_active', true)->first();
+    }
     
 
 }

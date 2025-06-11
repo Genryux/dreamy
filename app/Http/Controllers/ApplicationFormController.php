@@ -84,7 +84,17 @@ class ApplicationFormController extends Controller
     public function store(Request $request)
     {
 
-        //dd($request->birthdate);
+        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
+
+        $activeEnrollmentPeriod = $currentAcadTerm->activeEnrollmentPeriod;
+
+        if (!$activeEnrollmentPeriod && !$currentAcadTerm) {
+            return redirect()->back()->with('error', 'Enrollment for this school year is now officially closed. We are no longer accepting applications. For information about future enrollment periods, please stay tuned for announcements or contact the admissions office directly.');
+        }
+
+        if (!$currentAcadTerm->EnrollmentPeriodStatus('Ongoing')) {
+            return redirect()->back()->with('error', 'The enrollment period is temporarily closed and we are not accepting applications at this time. Please check back later or contact the admissions office for further assistance. Thank you for your understanding.');
+        }
 
         $request->validate([
 
@@ -97,29 +107,34 @@ class ApplicationFormController extends Controller
 
         ]);
 
-        $applicant = Applicant::where('user_id', Auth::user()->id)->first();
-        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
 
+        try {
+            
+            $applicant = Applicant::where('user_id', Auth::user()->id)->first();
 
-        $form = ApplicationForm::create([
+            $form = ApplicationForm::create([
+                'academic_terms_id' => $currentAcadTerm->id,
+                'enrollment_period_id' => $activeEnrollmentPeriod->id,
+                'applicant_id' => $applicant->id,
+                'lrn' => $request->lrn,
+                'full_name' => $request->full_name,
+                'age' => $request->age,
+                'birthdate' => $request->birthdate,
+                'desired_program' => $request->desired_program,
+                'grade_level' => $request->grade_level
 
-            'applicant_id' => $applicant->id,
-            'lrn' => $request->lrn,
-            'full_name' => $request->full_name,
-            'age' => $request->age,
-            'birthdate' => $request->birthdate,
-            'desired_program' => $request->desired_program,
-            'grade_level' => $request->grade_level
-
-        ]);
-        
-        if ($applicant) {
-            $applicant->update([
-                'application_status' => 'Pending'
             ]);
+            
+            if ($applicant) {
+                $applicant->update([
+                    'application_status' => 'Pending'
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
         }
 
-        $total_applications = Applicant::countApplications()->count();
+        $total_applications = Applicant::WithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
 
         // event(new ApplicationFormSubmitted($form));
         event(new RecentApplicationTableUpdated($form, $total_applications));

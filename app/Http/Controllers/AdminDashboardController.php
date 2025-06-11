@@ -8,55 +8,43 @@ use App\Models\Applicant;
 use App\Models\ApplicationForm;
 use App\Models\EnrollmentPeriod;
 use Illuminate\Http\Request;
+use App\Services\DashboardDataService;
 
 class AdminDashboardController extends Controller
 {
 
+    protected $dashboardDataService;
+
+    public function __construct(DashboardDataService $dashboardDataService)
+    {
+        $this->dashboardDataService = $dashboardDataService;
+    }
+
+
     public function index() {
 
-        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
+        $data = $this->dashboardDataService->getAdminDashboardData();
 
-        //dd($currentAcadTerm->id);
+        if (!$data) {
+            return redirect()->route('admin')->with('error', 'No active academic term found.');
+        }
 
-        if ($currentAcadTerm != null) {
-            $activeEnrollmentPeriod = EnrollmentPeriod::where('active', true)->where('academic_terms_id', $currentAcadTerm->id)->first();
+        $recentApplications = $data['recentApplications'];
+        $pendingApplicationsCount = $data['pendingApplicationsCount'];
+        $selectedApplicationsCount = $data['selectedApplicationsCount'];
+        $applicationCount = $data['applicationCount'];
+        $currentAcadTerm = $data['currentAcadTerm'];
+        $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'];
 
-            $pending_applications = Applicant::countByStatus('Pending')->count();
-            $selected_applications = Applicant::countByStatus('Selected')->count();
-            
-            $applicationCount = Applicant::countAllStatus(['Pending', 'Selected', 'Pending Documents'])->count();
-            $applications = Applicant::where('application_status', 'Pending')->latest()->limit(10)->get();
-    
-            return view('user-admin.dashboard', [
-                'applications' => $applications,
-                'pending_applications' => $pending_applications,
-                'selected_applications' => $selected_applications,
-                'applicationCount' => $applicationCount,
-                'currentAcadTerm' => $currentAcadTerm,
-                'activeEnrollmentPeriod' => $activeEnrollmentPeriod
-            ]);
-        } else {
-
-            return view('user-admin.dashboard', [
-                'applications' => $applications ?? null,
-                'pending_applications' => $pending_applications ?? null,
-                'selected_applications' => $selected_applications ?? null,
-                'applicationCount' => $applicationCount ?? null,
-                'currentAcadTerm' => $currentAcadTerm ?? null,
-                'activeEnrollmentPeriod' => $activeEnrollmentPeriod ?? null
-            ]);
-
-        } 
-
-        
-
-
-        //dd($activeEnrollmentPeriod->academicTerms->full_name);
-
+        return view('user-admin.dashboard', [
+            'applications' => $recentApplications,
+            'pendingApplicationsCount' => $pendingApplicationsCount,
+            'selectedApplicationsCount' => $selectedApplicationsCount,
+            'applicationCount' => $applicationCount,
+            'currentAcadTerm' => $currentAcadTerm,
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+        ]);
 
     }
 
-    public function getEnrollmentStat() {
-
-    }
 }
