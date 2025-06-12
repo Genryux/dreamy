@@ -136,6 +136,25 @@
             <button form="enrollment-period-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
         </x-slot>
     </x-modal>
+    @if ($activeEnrollmentPeriod)
+        <x-modal modal_id="end-enrollment-modal" modal_name="End enrollment period confirmation" close_btn_id="end-enrollment-close-btn">
+            <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="end-enrollment-form" class="pt-2 pb-4 px-4 space-y-2">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status" id="ep-status" value="Closed">
+                <p class="text-[16px] font-semibold">Are you sure you want to end the enrollment period?</p>
+                <p class="text-[14px] font-medium opacity-80">Please ensure that all applications have been reviewed and there are no pending or unprocessed submissions before proceeding.</p>
+                <p class="text-[14px] font-medium opacity-80">This action may prevent further access or updates to ongoing applications.</p>
+            </form>
+
+            <x-slot name="modal_buttons">
+                <button id="end-enrollment-cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+                <button form="end-enrollment-form" id="end-enrollment-period-confirmation" data-id="{{ $activeEnrollmentPeriod->id }}" class="bg-[#F97316] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+            </x-slot>
+        </x-modal>
+    @endif
+    {{-- end enrollment period modal --}}
+
 @endsection
 
 @section('header')
@@ -224,10 +243,11 @@
                     @endif
                 @endif
             </div>
+
             @if ($activeEnrollmentPeriod)
-            <div id="ep-details" class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
+                <div id="ep-details" class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
             @else
-            <div id="ep-details"> 
+                <div id="ep-details"> 
             @endif
                 @if ($activeEnrollmentPeriod)
                 <div class="flex flex-row py-2 justify-between">
@@ -310,7 +330,7 @@
                     </span>
                 </span>
                 <div>
-                    <button id="end-enrollment-btn" data-id="{{ $activeEnrollmentPeriod->id }}" class="border border-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End Enrollment
+                    <button id="end-enrollment-btn" class="border border-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End Enrollment
                         Period
                     </button>
                 </div>
@@ -505,7 +525,7 @@
 
         let table;
         let totalApplications = document.querySelector('#total-application');
-        let endEnrollmentBtn = document.querySelector('#end-enrollment-btn');
+        let endEnrollmentBtn = document.querySelector('#end-enrollment-period-confirmation');
         let toggle = document.querySelector('#toggleEnrollmentPeriod');
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -546,6 +566,7 @@
 
             initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn');
             initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn');
+            initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn', 'end-enrollment-cancel-btn');
 
             //Overriding default search input
             const customSearch = document.getElementById("myCustomSearch");
@@ -600,26 +621,26 @@
 
             });
 
-            if (endEnrollmentBtn) {
-                endEnrollmentBtn.addEventListener('click', async () => {
-                    const id = endEnrollmentBtn.dataset.id;
-                    console.log(id);
-                    try {
-                        const response = await window.axios.patch(`/enrollment-period/${id}`, {
-                            status: 'Closed'
-                        }, {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        if (response.status == 200) {
-                                window.location.reload();
-                        }
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
-            }
+            // if (endEnrollmentBtn) {
+            //     endEnrollmentBtn.addEventListener('click', async () => {
+            //         const id = endEnrollmentBtn.dataset.id;
+            //         console.log(id);
+            //         try {
+            //             const response = await window.axios.patch(`/enrollment-period/${id}`, {
+            //                 status: 'Closed'
+            //             }, {
+            //                 headers: {
+            //                     'Content-Type': 'application/json'
+            //                 }
+            //             });
+            //             if (response.status == 200) {
+            //                     window.location.reload();
+            //             }
+            //         } catch (error) {
+            //             console.error(error);
+            //         }
+            //     });
+            // }
 
             if (toggle) {
                 toggle.addEventListener('change', async () => {

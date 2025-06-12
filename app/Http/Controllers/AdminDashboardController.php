@@ -25,25 +25,21 @@ class AdminDashboardController extends Controller
 
         $data = $this->dashboardDataService->getAdminDashboardData();
 
-        if (!$data) {
-            return redirect()->route('admin')->with('error', 'No active academic term found.');
+        // Fallback values in case the data is not set
+        
+        if ($data) {
+
+            return view('user-admin.dashboard', [
+            'applications' =>$recentApplications = $data['recentApplications'] ?? collect(),
+            'pendingApplicationsCount' => $pendingApplicationsCount = $data['pendingApplicationsCount'] ?? 0,
+            'selectedApplicationsCount' => $selectedApplicationsCount = $data['selectedApplicationsCount'] ?? 0,
+            'applicationCount' => $applicationCount = $data['applicationCount'] ?? 0,
+            'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null
+            ]);
         }
 
-        $recentApplications = $data['recentApplications'];
-        $pendingApplicationsCount = $data['pendingApplicationsCount'];
-        $selectedApplicationsCount = $data['selectedApplicationsCount'];
-        $applicationCount = $data['applicationCount'];
-        $currentAcadTerm = $data['currentAcadTerm'];
-        $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'];
-
-        return view('user-admin.dashboard', [
-            'applications' => $recentApplications,
-            'pendingApplicationsCount' => $pendingApplicationsCount,
-            'selectedApplicationsCount' => $selectedApplicationsCount,
-            'applicationCount' => $applicationCount,
-            'currentAcadTerm' => $currentAcadTerm,
-            'activeEnrollmentPeriod' => $activeEnrollmentPeriod
-        ]);
+        return null;
 
     }
 

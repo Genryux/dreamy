@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdmissionDashboardController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
@@ -69,15 +70,17 @@ Route::get('/student', function () {
 
 //admission
 
-Route::get('/admission', function () {
+// Route::get('/admission', function () {
 
-    $activeEnrollmentPeriod = EnrollmentPeriod::whereIn('status', ['Ongoing','Paused'])->first();
+//     //$activeEnrollmentPeriod = EnrollmentPeriod::whereIn('status', ['Ongoing','Paused'])->first();
 
-    return view('user-applicant.dashboard', [
-        'activeEnrollmentPeriod' => $activeEnrollmentPeriod
-    ]);
+//     return view('user-applicant.dashboard', [
+//         'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+//     ]);
 
-})->name('admission.dashboard');
+// })->name('admission.dashboard');
+
+Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard');
 
 
 Route::get('/admission/status', function () {
