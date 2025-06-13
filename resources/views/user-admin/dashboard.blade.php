@@ -217,7 +217,12 @@
     </div>            --}}
 
         <div class="flex flex-row items-center justify-between space-x-2 px-[14px] py-4">
-            <span class="">Academic Term: <button class="font-bold">{{ $currentAcadTerm->full_name ?? '-' }}</button></span>
+            <div class="flex flex-row items-center space-x-1">
+                <p>Academic Term:</p>
+                <button class="font-bold flex flex-row items-center space-x-2 text-[16px] text-[#1A73E8] hover:text-[#199BCF] ease-in-out duration-150">
+                    {{ $currentAcadTerm->full_name ?? '-' }}
+                </button>
+            </div>
             <div>
                 <button id="acad-term-btn"
                     class="border border-[#1A73E8] bg-[#1A73E8] px-3 py-1 text-[14px] font-bold text-[#f8f8f8] rounded-md">Add

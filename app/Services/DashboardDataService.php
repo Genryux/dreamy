@@ -12,39 +12,53 @@ class DashboardDataService
     {
         $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
 
-        if ($currentAcadTerm) {
-            $activeEnrollmentPeriod = EnrollmentPeriod::where('active', true)
-                ->where('academic_terms_id', $currentAcadTerm->id)
-                ->first();
-
-            if ($activeEnrollmentPeriod) {
-
-                $pendingApplicationsCount = Applicant::withStatus('Pending')->count();
-                $selectedApplicationsCount = Applicant::withStatus('Selected')->count();
-                $applicationCount = Applicant::withAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
-                $recentApplications = Applicant::where('application_status', 'Pending')
-                    ->latest()
-                    ->limit(10)
-                    ->get();
-
-                return [
-                    'recentApplications' => $recentApplications,
-                    'pendingApplicationsCount' => $pendingApplicationsCount,
-                    'selectedApplicationsCount' => $selectedApplicationsCount,
-                    'applicationCount' => $applicationCount,
-                    'currentAcadTerm' => $currentAcadTerm,
-                    'activeEnrollmentPeriod' => $activeEnrollmentPeriod
-                ];
-            }
+        if (!$currentAcadTerm) {
 
             return [
-                'currentAcadTerm' => $currentAcadTerm,
+                'recentApplications' => null,
+                'pendingApplicationsCount' => null,
+                'selectedApplicationsCount' => null,
+                'applicationCount' => null,
+                'currentAcadTerm' => null,
+                'activeEnrollmentPeriod' => null
             ];
-
 
         }
 
-        return null;
+        $activeEnrollmentPeriod = EnrollmentPeriod::where('active', true)
+        ->where('academic_terms_id', $currentAcadTerm->id)
+        ->first();
+
+        if (!$activeEnrollmentPeriod) {
+
+            return [
+                'currentAcadTerm' => $currentAcadTerm,
+                'recentApplications' => null,
+                'pendingApplicationsCount' => null,
+                'selectedApplicationsCount' => null,
+                'applicationCount' => null,
+                'activeEnrollmentPeriod' => null
+            ];
+
+        }
+
+        $pendingApplicationsCount = Applicant::withStatus('Pending')->count();
+        $selectedApplicationsCount = Applicant::withStatus('Selected')->count();
+        $applicationCount = Applicant::withAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
+        $recentApplications = Applicant::where('application_status', 'Pending')
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        return [
+            'recentApplications' => $recentApplications,
+            'pendingApplicationsCount' => $pendingApplicationsCount,
+            'selectedApplicationsCount' => $selectedApplicationsCount,
+            'applicationCount' => $applicationCount,
+            'currentAcadTerm' => $currentAcadTerm,
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+        ];
+
     }
 
     public function getAdmissionDashboardData()
@@ -62,7 +76,10 @@ class DashboardDataService
 
         if (!$currentAcadTerm) {
 
-            return null;
+            return [
+                'currentAcadTerm' => null,
+                'activeEnrollmentPeriod' => null
+            ];
 
         }
 

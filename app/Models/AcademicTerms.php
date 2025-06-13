@@ -15,7 +15,7 @@ class AcademicTerms extends Model
     ];
 
     public function getFullNameAttribute() {
-        return "{$this->year}, {$this->semester}";
+        return "{$this->year} - {$this->semester}";
     }
 
     public function enrollmentPeriods() {
