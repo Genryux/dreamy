@@ -28,6 +28,7 @@ class AdmissionDashboardController extends Controller
             return view('user-applicant.dashboard', [
                 'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
                 'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+                'applicant' => $data['applicant'] ?? null,
             ]);
         }
 

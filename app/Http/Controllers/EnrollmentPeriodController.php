@@ -83,6 +83,14 @@ class EnrollmentPeriodController extends Controller
         event(new EnrollmentPeriodStatusUpdated($enrollmentPeriod));
         // Broadcast the event to update the enrollment period status
 
+            // Check if request is AJAX/JSON
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'message' => 'Enrollment period updated successfully.',
+                'data' => $enrollmentPeriod
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Enrollment period updated successfully.');
 
         //return response()->json(['message' => 'Enrollment period updated successfully.']);

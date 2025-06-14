@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Applicant;
 use App\Models\EnrollmentPeriod;        
 use App\Models\AcademicTerms;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardDataService
 {
@@ -72,13 +73,26 @@ class DashboardDataService
         // }
 
         // return null;
+
+        
+        $applicant = Auth::user()->applicant;
+
         $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
+
+        if (!$applicant) {
+
+            return [
+                'applicant' => null
+            ];
+
+        }
 
         if (!$currentAcadTerm) {
 
             return [
                 'currentAcadTerm' => null,
-                'activeEnrollmentPeriod' => null
+                'activeEnrollmentPeriod' => null,
+                'applicant' => $applicant
             ];
 
         }
@@ -91,14 +105,16 @@ class DashboardDataService
 
             return [
                 'currentAcadTerm' => $currentAcadTerm,
-                'activeEnrollmentPeriod' => null
+                'activeEnrollmentPeriod' => null,
+                'applicant' => $applicant
             ];
 
         }
 
         return [
             'currentAcadTerm' => $currentAcadTerm,
-            'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
+            'applicant' => $applicant
         ];
 
     }
