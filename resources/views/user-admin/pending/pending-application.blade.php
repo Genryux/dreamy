@@ -93,7 +93,10 @@
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">Actions</th>
                         </tr>
                     </thead>
+                       
+                       
                     <tbody>
+                   
                         @foreach ($pending_applicants as $pending_applicant)
                         <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                             <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->applicationForm->lrn }}</td>
@@ -104,7 +107,8 @@
                             <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $pending_applicant->applicationForm->grade_level }}</td>
                             <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ \Carbon\Carbon::parse($pending_applicant->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}</td>
 
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a href="/pending-application/form-details/{{$pending_applicant->id }}">View</a></td>
+                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a href="/pending-application/form-details/{{$pending_applicant->applicationForm->id }}">View</a></td>
+                            {{-- @dd($pending_applicant->applicationForm->id) --}}
                         </tr>
                         @endforeach
                     </tbody>

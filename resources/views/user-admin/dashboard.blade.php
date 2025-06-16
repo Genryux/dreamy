@@ -511,7 +511,7 @@
 
                                     <td
                                         class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <a href="/pending-application/form-details/{{ $application->id }}">View</a>
+                                        <a href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
                                     </td>
                                 </tr>
                             @endforeach

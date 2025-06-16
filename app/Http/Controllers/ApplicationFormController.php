@@ -21,7 +21,9 @@ class ApplicationFormController extends Controller
 
         //$pending_applicant = ApplicationForm::latest()->get();
 
-        $pending_applicants = Applicant::where('application_status', 'Pending')->get();
+        $pending_applicants = Applicant::withStatus('Pending')->get();
+
+        // dd($pending_applicants[0]->id);
 
         
         return view('user-admin.pending.pending-application', [
@@ -151,6 +153,8 @@ class ApplicationFormController extends Controller
     {
 
         $form = ApplicationForm::find($request->id);
+
+        //dd($form->applicant_id);
         
         return view('user-admin.pending.pending-details', ['form' => $form]);
 

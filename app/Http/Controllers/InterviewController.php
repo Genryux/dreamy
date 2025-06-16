@@ -32,6 +32,8 @@ class InterviewController extends Controller
 
         $action = $request->input('action');
 
+        //dd($request->all());
+
         if ($action === 'accept-only') {
 
             $request->validate([

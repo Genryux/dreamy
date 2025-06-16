@@ -22,7 +22,7 @@ class AdmissionDashboardController extends Controller
     public function index()
     {
         $data = $this->dashboardDataService->getAdmissionDashboardData();
-
+        
         // Fallback values in case the data is not set
         if ($data) {
             return view('user-applicant.dashboard', [

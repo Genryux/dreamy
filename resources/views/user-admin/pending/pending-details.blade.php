@@ -63,7 +63,7 @@
 
             <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
 
-            <form action="/set-interview/{{$form->id}}" method="post" id="interview-form" class="flex flex-col space-y-2 px-4 py-2">
+            <form action="/set-interview/{{$form->applicant_id}}" method="post" id="interview-form" class="flex flex-col space-y-2 px-4 py-2">
                 @csrf
                 <div class="flex flex-row space-x-2">
                     <div class="flex-1 space-y-1">

@@ -80,7 +80,7 @@ Route::get('/student', function () {
 
 // })->name('admission.dashboard');
 
-Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard');
+Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard')->middleware('auth');
 
 
 Route::get('/admission/status', function () {
