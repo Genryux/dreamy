@@ -2,16 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\Applicant;
-use App\Models\EnrollmentPeriod;        
-use App\Models\AcademicTerms;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardDataService
 {
+    public function __construct(
+        protected AcademicTermService $academicTermService,
+        protected EnrollmentPeriodService $enrollmentPeriodService,
+        protected ApplicationFormService $applicationFormService
+    )
+    {}
+
     public function getAdminDashboardData()
     {
-        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
+        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
         if (!$currentAcadTerm) {
 
@@ -26,9 +30,7 @@ class DashboardDataService
 
         }
 
-        $activeEnrollmentPeriod = EnrollmentPeriod::where('active', true)
-        ->where('academic_terms_id', $currentAcadTerm->id)
-        ->first();
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
 
         if (!$activeEnrollmentPeriod) {
 
@@ -43,13 +45,10 @@ class DashboardDataService
 
         }
 
-        $pendingApplicationsCount = Applicant::withStatus('Pending')->count();
-        $selectedApplicationsCount = Applicant::withStatus('Selected')->count();
-        $applicationCount = Applicant::withAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
-        $recentApplications = Applicant::where('application_status', 'Pending')
-            ->latest()
-            ->limit(10)
-            ->get();
+        $pendingApplicationsCount = $this->applicationFormService->fetchApplicationWithStatus('Pending')->count();
+        $selectedApplicationsCount = $this->applicationFormService->fetchApplicationWithStatus('Selected')->count();
+        $applicationCount = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
+        $recentApplications = $this->applicationFormService->fetchRecentPendingApplications(10);
 
         return [
             'recentApplications' => $recentApplications,
@@ -64,20 +63,10 @@ class DashboardDataService
 
     public function getAdmissionDashboardData()
     {
-        // $activeEnrollmentPeriod = EnrollmentPeriod::whereIn('status', ['Ongoing', 'Paused'])->first();
 
-        // if ($activeEnrollmentPeriod) {
-        //     return [
-        //         'activeEnrollmentPeriod' => $activeEnrollmentPeriod
-        //     ];
-        // }
-
-        // return null;
-
-        
         $applicant = Auth::user()->applicant;
 
-        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
+        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
         if (!$applicant) {
 
@@ -97,9 +86,7 @@ class DashboardDataService
 
         }
 
-        $activeEnrollmentPeriod = EnrollmentPeriod::where('active', true)
-        ->where('academic_terms_id', $currentAcadTerm->id)
-        ->first();
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
 
         if (!$activeEnrollmentPeriod) {
 
@@ -118,9 +105,5 @@ class DashboardDataService
         ];
 
     }
-
-
-
-
 
 }

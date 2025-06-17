@@ -34,7 +34,7 @@ Route::get('/portal/register', [RegistrationController::class, 'create'])
 
 
 //admin
-Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin');
+Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
 
 //pending
 Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');

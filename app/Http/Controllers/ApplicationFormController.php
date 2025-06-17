@@ -8,6 +8,10 @@ use App\Models\AcademicTerms;
 use App\Models\Applicant;
 use App\Models\ApplicationForm;
 use App\Models\User;
+use App\Services\AcademicTermService;
+use App\Services\ApplicationFormService;
+use App\Services\DashboardDataService;
+use App\Services\EnrollmentPeriodService;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Console\Application;
 use Illuminate\Http\Request;
@@ -15,9 +19,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ApplicationFormController extends Controller
 {
+    public function __construct(
+        protected AcademicTermService $academicTermService,
+        protected DashboardDataService $dashboardDataService,
+        protected EnrollmentPeriodService $enrollmentPeriodService,
+        protected ApplicationFormService $applicationFormService
+    )
+    {}
+
     public function pending() {
 
-        //$pending_applications_count = Applicant::where('application_status', 'pending')->count();
+        //$pending_applications_count = Applicant::where('apsplication_status', 'pending')->count();
 
         //$pending_applicant = ApplicationForm::latest()->get();
 
@@ -53,23 +65,21 @@ class ApplicationFormController extends Controller
     public function index()
     {
 
-
-
-        //dd($currentAcadTerm->full_name);
-
-
-        $pending_applications = Applicant::countByStatus('Pending')->count();
-        $selected_applications = Applicant::countByStatus('Selected')->count();
+        $data = $this->dashboardDataService->getAdminDashboardData();
         
-        $applicationCount = Applicant::countAllStatus(['Pending', 'Selected', 'Pending Documents'])->count();
-        $applications = Applicant::where('application_status', 'Pending')->latest()->limit(10)->get();
-    
-        return view('user-admin.dashboard', [
-            'applications' => $applications,
-            'pending_applications' => $pending_applications,
-            'selected_applications' => $selected_applications,
-            'applicationCount' => $applicationCount
-        ]);
+        if ($data) {
+
+            return view('user-admin.dashboard', [
+            'applications' =>$recentApplications = $data['recentApplications'] ?? collect(),
+            'pendingApplicationsCount' => $pendingApplicationsCount = $data['pendingApplicationsCount'] ?? 0,
+            'selectedApplicationsCount' => $selectedApplicationsCount = $data['selectedApplicationsCount'] ?? 0,
+            'applicationCount' => $applicationCount = $data['applicationCount'] ?? 0,
+            'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null
+            ]);
+        }
+
+        return null;
     }
 
     /**
@@ -86,45 +96,26 @@ class ApplicationFormController extends Controller
     public function store(Request $request)
     {
 
-        $currentAcadTerm = AcademicTerms::where('is_active', true)->first();
+        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
 
-        $activeEnrollmentPeriod = $currentAcadTerm->activeEnrollmentPeriod;
-
-        if (!$activeEnrollmentPeriod && !$currentAcadTerm) {
-            return redirect()->back()->with('error', 'Enrollment for this school year is now officially closed. We are no longer accepting applications. For information about future enrollment periods, please stay tuned for announcements or contact the admissions office directly.');
-        }
-
-        if (!$currentAcadTerm->EnrollmentPeriodStatus('Ongoing')) {
-            return redirect()->back()->with('error', 'The enrollment period is temporarily closed and we are not accepting applications at this time. Please check back later or contact the admissions office for further assistance. Thank you for your understanding.');
-        }
-
-        $request->validate([
-
-            'lrn' => ['required', 'digits:12','unique:application_forms,lrn'],
-            'full_name' => ['required', 'string'],
-            'age' => ['required', 'integer'],
-            'birthdate' => ['required', 'date'],
-            'desired_program' => ['required', 'string'],
-            'grade_level' => ['required']
-
-        ]);
+        $validated = $this->applicationFormService->validateData($request);
 
 
         try {
             
             $applicant = Applicant::where('user_id', Auth::user()->id)->first();
 
-            $form = ApplicationForm::create([
-                'academic_terms_id' => $currentAcadTerm->id,
-                'enrollment_period_id' => $activeEnrollmentPeriod->id,
-                'applicant_id' => $applicant->id,
-                'lrn' => $request->lrn,
-                'full_name' => $request->full_name,
-                'age' => $request->age,
-                'birthdate' => $request->birthdate,
-                'desired_program' => $request->desired_program,
-                'grade_level' => $request->grade_level
-
+            $form = $this->applicationFormService->processApplicationForm([
+                'applicant_id' => $applicant ? $applicant->id : null,
+                'lrn' => $validated->lrn,
+                'full_name' => $validated->full_name,
+                'age' => $validated->age,
+                'birthdate' => $validated->birthdate,
+                'desired_program' => $validated->desired_program,
+                'grade_level' => $validated->grade_level,
+                'academic_term_id' => $currentAcadTerm ? $currentAcadTerm->id : null,
+                'enrollment_period_id' => $activeEnrollmentPeriod ? $activeEnrollmentPeriod->id : null
             ]);
             
             if ($applicant) {
@@ -136,7 +127,7 @@ class ApplicationFormController extends Controller
             return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
         }
 
-        $total_applications = Applicant::WithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
+        $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
 
         // event(new ApplicationFormSubmitted($form));
         event(new RecentApplicationTableUpdated($form, $total_applications));

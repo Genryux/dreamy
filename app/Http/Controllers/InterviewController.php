@@ -88,7 +88,7 @@ class InterviewController extends Controller
      */
     public function show(Interview $interview, Request $request)
     {
-
+        
         $applicant = Applicant::find($request->id);
         $applicantDetails = $applicant->applicationForm;
         $interviewDetails = $applicant->interview;
@@ -112,6 +112,7 @@ class InterviewController extends Controller
      */
     public function update(Request $request)
     { 
+        dd($request->all());
 
         $validated = $request->validate([
 
