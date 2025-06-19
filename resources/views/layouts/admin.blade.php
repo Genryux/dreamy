@@ -36,7 +36,7 @@
                     </div>
 
                     <div id="flex" class="flex flex-col space-y-1 mt-1">
-                        <x-nav-link href="/pending-applications" :active="request()->is('pending*')">
+                        <x-nav-link href="/pending-applications" :active="request()->is('pending')">
 
                             <span class="">
                                 <p class="px-7 mx-2 font-semibold text-[16px] nav-text truncate">Pending Applications</p>
@@ -50,20 +50,14 @@
                             </span>
         
                         </x-nav-link>
-                        <x-nav-link href="/admin" :active="request()->is('rejected')">
+                        <x-nav-link href="/pending-documents" :active="request()->is('documents')">
 
                             <span class="">
-                                <p class="px-7 mx-2 font-semibold text-[16px] nav-text truncate">Rejected Applications</p>
+                                <p class="px-7 mx-2 font-semibold text-[16px] nav-text truncate">Pending Documents</p>
                             </span>
         
                         </x-nav-link>
-                        <x-nav-link href="/admin" :active="request()->is('pending.docu')">
 
-                            <span class="">
-                                <p class="px-7 mx-2 font-semibold text-[16px] nav-text truncate">Dashboard</p>
-                            </span>
-        
-                        </x-nav-link>
 
                     </div>
                     

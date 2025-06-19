@@ -93,7 +93,7 @@ class ApplicationFormService
     public function validateData(array $data): array
     {
         return validator($data, [
-            'lrn' => ['required', 'digits:12','unique:application_forms,lrn'],
+            'lrn' => ['required', 'digits:12', 'unique:application_forms,lrn'],
             'full_name' => ['required', 'string'],
             'age' => ['required', 'integer'],
             'birthdate' => ['required', 'date'],
@@ -106,9 +106,9 @@ class ApplicationFormService
      * Save the application data to the database.
      *
      * @param array $data
-     * @return array
+     * @return \App\Models\ApplicationForm
      */
-    protected function saveApplication(array $data): ApplicationForm
+    public function saveApplication(array $data): ApplicationForm
     {
         // Placeholder for saving logic, e.g., 
         return ApplicationForm::create($data); // Return the saved application data for now

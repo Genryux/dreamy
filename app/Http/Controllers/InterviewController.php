@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Applicant;
 use App\Models\Interview;
+use App\Services\ApplicantService;
 use Illuminate\Http\Request;
 
 class InterviewController extends Controller
 {
+    public function __construct(protected ApplicantService $applicant) {}
     /**
      * Display a listing of the resource.
      */
@@ -42,14 +44,13 @@ class InterviewController extends Controller
                 'time' => ['nullable'],
                 'location' => ['nullable'],
                 'add_info' => ['nullable'],
-    
+
             ]);
-    
+
             Interview::create([
                 'applicant_id' => $request->id,
                 'status' => 'Pending'
             ]);
-
         } else if ($action === 'accept-with-schedule') {
 
             $request->validate([
@@ -58,9 +59,9 @@ class InterviewController extends Controller
                 'time' => ['required'],
                 'location' => ['required'],
                 'add_info' => ['required'],
-    
+
             ]);
-    
+
             Interview::create([
                 'applicant_id' => $request->id,
                 'date' => $request->date,
@@ -69,7 +70,6 @@ class InterviewController extends Controller
                 'add_info' => $request->add_info,
                 'status' => 'Scheduled'
             ]);
-
         }
 
         $applicant = Applicant::find($request->id);
@@ -88,8 +88,8 @@ class InterviewController extends Controller
      */
     public function show(Interview $interview, Request $request)
     {
-        
-        $applicant = Applicant::find($request->id);
+
+        $applicant = $this->applicant->fetchApplicant($request->id);
         $applicantDetails = $applicant->applicationForm;
         $interviewDetails = $applicant->interview;
 
@@ -111,29 +111,57 @@ class InterviewController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request)
-    { 
-        dd($request->all());
+    {
 
-        $validated = $request->validate([
 
-            'date' => ['required', 'date'],
-            'time' => ['required'],
-            'location' => ['required'],
-            'add_info' => ['required'],
+        if ($request->input('action') === 'record-result') {
 
-        ]);
 
-        $interview = Interview::where('applicant_id', $request->id)->firstOrFail();
+            $interview = Interview::where('applicant_id', $request->id)->firstOrFail();
+            $applicant = $this->applicant->fetchApplicant($request->id);
 
-        $interview->update([
-            'date' => $validated['date'],
-            'time' => $validated['time'],
-            'location' => $validated['location'],
-            'add_info' => $validated['add_info'],
-            'status' => 'Scheduled'
-        ]);
+            if ($request->input('result') === 'Interview-Failed') {
+                $interview->update([
+                    'status' => 'Interview-Failed'
+                ]);
 
-        return redirect()->back();
+                $applicant->update([
+                    'application_status' => 'Completed-Failed'
+                ]);
+            } else if ($request->input('result') === 'Interview-Passed') {
+                $interview->update([
+                    'status' => 'Interview-Passed'
+                ]);
+
+                $applicant->update([
+                    'application_status' => 'Pending-Documents'
+                ]);
+            }
+
+            return redirect()->back();
+        } else if ($request->input('action') === 'edit-interview') {
+
+            $validated = $request->validate([
+
+                'date' => ['required', 'date'],
+                'time' => ['required'],
+                'location' => ['required'],
+                'add_info' => ['required'],
+
+            ]);
+
+            $interview = Interview::where('applicant_id', $request->id)->firstOrFail();
+
+            $interview->update([
+                'date' => $validated['date'],
+                'time' => $validated['time'],
+                'location' => $validated['location'],
+                'add_info' => $validated['add_info'],
+                'status' => 'Scheduled'
+            ]);
+
+            return redirect()->back();
+        }
     }
 
     /**

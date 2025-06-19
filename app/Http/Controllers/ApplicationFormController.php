@@ -7,6 +7,7 @@ use App\Events\RecentApplicationTableUpdated;
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
 use App\Models\ApplicationForm;
+use App\Models\Interview;
 use App\Models\User;
 use App\Services\AcademicTermService;
 use App\Services\ApplicationFormService;
@@ -16,6 +17,7 @@ use Illuminate\Auth\Events\Validated;
 use Illuminate\Console\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 class ApplicationFormController extends Controller
 {
@@ -24,10 +26,10 @@ class ApplicationFormController extends Controller
         protected DashboardDataService $dashboardDataService,
         protected EnrollmentPeriodService $enrollmentPeriodService,
         protected ApplicationFormService $applicationFormService
-    )
-    {}
+    ) {}
 
-    public function pending() {
+    public function pending()
+    {
 
         //$pending_applications_count = Applicant::where('apsplication_status', 'pending')->count();
 
@@ -37,25 +39,33 @@ class ApplicationFormController extends Controller
 
         // dd($pending_applicants[0]->id);
 
-        
+
         return view('user-admin.pending.pending-application', [
             'pending_applicants' => $pending_applicants
         ]);
-
     }
 
-    public function selected() {
+    public function selected()
+    {
 
         $selected_applicants = Applicant::where('application_status', 'Selected')->get();
 
         return view('user-admin.selected.selected-application', [
             'selected_applicants' => $selected_applicants
         ]);
-
     }
 
-    public function rejected() {
+    public function pendingDocuments(Request $request)
+    {
 
+        $pending_documents = Applicant::where('application_status', 'Pending-Documents')->get();
+
+
+      //  dd($pending_documents[0]->id);
+
+        return view('user-admin.pending-documents.pending-documents', [
+            'pending_documents' => $pending_documents
+        ]);
     }
 
     /**
@@ -66,16 +76,16 @@ class ApplicationFormController extends Controller
     {
 
         $data = $this->dashboardDataService->getAdminDashboardData();
-        
+
         if ($data) {
 
             return view('user-admin.dashboard', [
-            'applications' =>$recentApplications = $data['recentApplications'] ?? collect(),
-            'pendingApplicationsCount' => $pendingApplicationsCount = $data['pendingApplicationsCount'] ?? 0,
-            'selectedApplicationsCount' => $selectedApplicationsCount = $data['selectedApplicationsCount'] ?? 0,
-            'applicationCount' => $applicationCount = $data['applicationCount'] ?? 0,
-            'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
-            'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null
+                'applications' => $recentApplications = $data['recentApplications'] ?? collect(),
+                'pendingApplicationsCount' => $pendingApplicationsCount = $data['pendingApplicationsCount'] ?? 0,
+                'selectedApplicationsCount' => $selectedApplicationsCount = $data['selectedApplicationsCount'] ?? 0,
+                'applicationCount' => $applicationCount = $data['applicationCount'] ?? 0,
+                'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
+                'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null
             ]);
         }
 
@@ -99,25 +109,27 @@ class ApplicationFormController extends Controller
         $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
         $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
 
-        $validated = $this->applicationFormService->validateData($request);
+        $validated = $this->applicationFormService->validateData($request->all());
 
 
         try {
-            
+
             $applicant = Applicant::where('user_id', Auth::user()->id)->first();
 
-            $form = $this->applicationFormService->processApplicationForm([
-                'applicant_id' => $applicant ? $applicant->id : null,
-                'lrn' => $validated->lrn,
-                'full_name' => $validated->full_name,
-                'age' => $validated->age,
-                'birthdate' => $validated->birthdate,
-                'desired_program' => $validated->desired_program,
-                'grade_level' => $validated->grade_level,
-                'academic_term_id' => $currentAcadTerm ? $currentAcadTerm->id : null,
-                'enrollment_period_id' => $activeEnrollmentPeriod ? $activeEnrollmentPeriod->id : null
-            ]);
-            
+            $form = $this->applicationFormService->saveApplication(
+                [
+                    'applicant_id' => $applicant->id ?? null,
+                    'academic_term_id' => $currentAcadTerm->id ?? null,
+                    'enrollment_period_id' => $activeEnrollmentPeriod->id ?? null,
+                    'lrn' => $validated['lrn'],
+                    'full_name' => $validated['full_name'],
+                    'age' => $validated['age'] ?? null,
+                    'birthdate' => $validated['birthdate'],
+                    'desired_program' => $validated['desired_program'],
+                    'grade_level' => $validated['grade_level'],
+                ]
+            );
+
             if ($applicant) {
                 $applicant->update([
                     'application_status' => 'Pending'
@@ -134,7 +146,6 @@ class ApplicationFormController extends Controller
 
 
         return redirect('admission')->with('success', 'Application submitted successfully!');
-
     }
 
     /**
@@ -146,9 +157,8 @@ class ApplicationFormController extends Controller
         $form = ApplicationForm::find($request->id);
 
         //dd($form->applicant_id);
-        
-        return view('user-admin.pending.pending-details', ['form' => $form]);
 
+        return view('user-admin.pending.pending-details', ['form' => $form]);
     }
 
     /**

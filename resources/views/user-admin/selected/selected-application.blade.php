@@ -95,17 +95,21 @@
                     </thead>
                     <tbody>
                         @foreach ($selected_applicants as $selected_applicant)
-                        <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->lrn }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->full_name }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->age }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->birthdate }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->desired_program }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->interview->status }}</td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ \Carbon\Carbon::parse($selected_applicant->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}</td>
+                          @if ($selected_applicant->interview->status == 'Scheduled' || $selected_applicant->interview->status == 'Pending')
+                            <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->lrn }}</td>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->full_name }}</td>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->age }}</td>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->birthdate }}</td>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->applicationForm->desired_program }}</td>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ $selected_applicant->interview->status }}</td>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">{{ \Carbon\Carbon::parse($selected_applicant->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}</td>
 
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a href="/selected-application/interview-details/{{$selected_applicant->id }}">View</a></td>
-                        </tr>
+                                <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a href="/selected-application/interview-details/{{$selected_applicant->id }}">View</a></td>
+                            </tr>
+                          @endif
+                        
+
                         @endforeach
                     </tbody>
                 </table>

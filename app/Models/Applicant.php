@@ -35,6 +35,10 @@ class Applicant extends Model
         return $this->belongsTo(AcademicTerms::class);
     }
 
+    public function submissions() {
+        return $this->hasMany(DocumentSubmissions::class);
+    }
+
     public function scopeWithAnyStatus($query, $status = []) {
         return $query->whereIn('application_status', $status);
     }
