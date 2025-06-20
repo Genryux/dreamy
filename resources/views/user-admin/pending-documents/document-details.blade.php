@@ -35,6 +35,10 @@
     </nav>
 @endsection
 
+@section('header')
+    <h1 class="text-2xl font-semibold text-gray-900">Document Submission Details</h1>
+@endsection
+
 @section('content')
     <div class="flex flex-row items-center space-x-2 text-start pl-[14px] py-[10px]">
         <i class="fi fi-rs-member-list flex text-[#0f111c] flex flex-row items-center"></i>

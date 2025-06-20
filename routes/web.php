@@ -4,12 +4,14 @@ use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdmissionDashboardController;
 use App\Http\Controllers\ApplicationFormController;
+use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\DocumentsSubmissionController;
 use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
 use App\Models\Applicant;
+use App\Models\Documents;
 use App\Models\EnrollmentPeriod;
 use App\Models\Interview;
 use App\Models\User;
@@ -61,7 +63,9 @@ Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name(
 Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
 
 Route::get('/pending-documents', [ApplicationFormController::class, 'pendingDocuments'])->name('documents');
+Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents');
 Route::get('/pending-documents/document-details/{id}', [DocumentsSubmissionController::class, 'index'])->name('documents');
+
 
 
 

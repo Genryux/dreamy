@@ -17,7 +17,7 @@ class DocumentsController extends Controller
     public function index()
     {
         // Logic to retrieve and display documents
-        return view('documents.index');
+        return view('user-admin.pending-documents.document-list');
     }
 
     /**

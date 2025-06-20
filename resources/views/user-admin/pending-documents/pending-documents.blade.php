@@ -16,17 +16,24 @@
             </li>
 
             <li>
-                <a href="/pending-applications" class="block transition-colors hover:text-gray-900"> Pending Documents </a>
+                <a href="/pending-documents" class="block transition-colors hover:text-gray-900"> Pending Documents </a>
             </li>
         </ol>
     </nav>
 @endsection
 
+@section('header')
+    <div class="flex flex-row justify-between items-center space-x-2 text-start px-[14px] py-2">
+        <h1 class="text-[22px] font-bold text-gray-900">Pending documents</h1>
+        <x-nav-link href="/pending-documents/document-list" class="text-[16px] px-2 py-1 rounded-md bg-[#1A73E8] text-[#f8f8f8] font-semibold flex flex-row items-center justify-center gap-2">
+            View Document List
+        </x-nav-link>
+    </div>
+
+@endsection
+
 @section('content')
     <div class="flex flex-col">
-        <div class="text-start border-b border-[#1e1e1e]/10 pl-[14px] py-[10px]">
-            <p class="text-[16px] md:text-[16px] font-bold">Pending Documents</p>
-        </div>
 
         <div class="flex flex-col items-center flex-grow px-[14px] py-[10px] space-y-2">
             <div class="border border-[#1e1e1e]/15 self-start my-custom-search">
