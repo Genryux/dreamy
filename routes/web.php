@@ -62,9 +62,14 @@ Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'upd
 Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
 Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
 
+// pending documents
 Route::get('/pending-documents', [ApplicationFormController::class, 'pendingDocuments'])->name('documents');
-Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents');
 Route::get('/pending-documents/document-details/{id}', [DocumentsSubmissionController::class, 'index'])->name('documents');
+
+// required docs
+Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents');
+
+Route::post('/required-docs', [DocumentsController::class, 'store'])->name('documents.store');
 
 
 

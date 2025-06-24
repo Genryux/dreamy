@@ -136,6 +136,9 @@ class InterviewController extends Controller
                 $applicant->update([
                     'application_status' => 'Pending-Documents'
                 ]);
+
+                // call the document service to assign required documents
+
             }
 
             return redirect()->back();

@@ -2,15 +2,15 @@
 
 @section('modal')
     <x-modal modal_id="create-document" modal_name="Create Document" close_btn_id="create-docs-close-btn">
-        <form action="/enrollment-period/" method="POST" id="create-docs-form" class="pt-2 pb-4 px-4 space-y-2">
+        <form action="/required-docs" method="POST" id="create-docs-form" class="pt-2 pb-4 px-4 space-y-2">
             @csrf
             <div class="flex flex-row gap-2">
                 <div class="flex-1 space-y-1 ">
-                    <label for="year" class="text-[14px] font-bold opacity-90">Name/Type</label>
+                    <label for="doc-type" class="text-[14px] font-bold opacity-90">Name/Type</label>
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                        <input type="text" name="year" id="year" placeholder="Document Name/Type"
+                        <input type="text" name="doc-type" id="doc-type" placeholder="Document Name/Type"
                             class="appearance-none     
                         [&::-webkit-outer-spin-button]:appearance-none
                         [&::-webkit-inner-spin-button]:appearance-none
@@ -18,38 +18,38 @@
                     </div>
                 </div>
                 <div class="flex-1 space-y-1">
-                    <label for="year" class="text-[14px] font-bold opacity-90">Max file size (in KB) </label>
+                    <label for="file-size" class="text-[14px] font-bold opacity-90">Max file size (in KB) </label>
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                        <input type="text" name="year" id="year" placeholder="1024"
+                        <input type="text" name="file-size" id="file-size" placeholder="1024"
                             class="appearance-none     
                     [&::-webkit-outer-spin-button]:appearance-none
                     [&::-webkit-inner-spin-button]:appearance-none
                     [-moz-appearance:textfield] bg-transparent outline-none font-medium text-[14px] w-full">
-                    
+
                     </div>
                 </div>
             </div>
             <div class="flex-1 space-y-1">
                 <div class="flex flex-row">
                     <p class="flex-1 text-[14px] font-bold opacity-90">File type restrictions</p>
-                    <p class="flex-1 text-[12px] font-medium opacity-60">Estimated size in MB:</p>
+                    <p class="flex-1 text-[12px] font-medium opacity-60">Estimated size in MB: <span id="estimated" class="font-bold"></span></p>
                 </div>
                 <div class="flex flex-row justify-start items-center ml-2 rounded-md space-x-2">
-                    <input type="checkbox" name="file-type-option" id="PDF" placeholder="1024"
+                    <input type="checkbox" name="file-type-option[]" value="pdf" id="PDF"
                         class="bg-red-500 size-[16px] cursor-pointer">
 
                     <label for="PDF" class="text-[14px] font-bold opacity-90 cursor-pointer">PDF</label>
                 </div>
                 <div class="flex flex-row justify-start items-center ml-2 rounded-md space-x-2">
-                    <input type="checkbox" name="file-type-option" id="JPG" placeholder="1024"
+                    <input type="checkbox" name="file-type-option[]" value="jpeg" id="JPEG"
                         class="bg-red-500 size-[16px] cursor-pointer">
 
-                    <label for="JPG" class="text-[14px] font-bold opacity-90 cursor-pointer">JPG</label>
+                    <label for="JPG" class="text-[14px] font-bold opacity-90 cursor-pointer">JPEG</label>
                 </div>
                 <div class="flex flex-row justify-start items-center ml-2 rounded-md space-x-2">
-                    <input type="checkbox" name="file-type-option" id="PNG" placeholder="1024"
+                    <input type="checkbox" name="file-type-option[]" value="png" id="PNG"
                         class="bg-red-500 size-[16px] cursor-pointer">
 
                     <label for="PNG" class="text-[14px] font-bold opacity-90 cursor-pointer">PNG</label>
@@ -57,13 +57,13 @@
 
             </div>
             <div class="flex-1 space-y-1">
-                <label for="add_info" class="text-[14px] font-bold">
+                <label for="description" class="text-[14px] font-bold">
                     Description/Instruction
                 </label>
                 <div
                     class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                     <i class="fi fi-rs-info flex items-center opacity-60"></i>
-                    <textarea name="add_info" id="add_info" cols="10" rows="10"
+                    <textarea name="description" id="description" cols="10" rows="10"
                         class="bg-transparent outline-none font-medium text-[14px] w-full resize-none h-[100px]"></textarea>
                 </div>
             </div>
@@ -134,27 +134,27 @@
             </div>
 
             <div class="w-full">
-                <table id="pendingTable" class="w-full table-fixed">
+                <table id="docs-table" class="w-full table-fixed">
                     <thead class="text-[14px]">
                         <tr>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                 <span class="mr-2">Name/Type</span>
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                 <span class="mr-2">Description/Instruction</span>
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                 <span class="mr-2">File type restrictions</span>
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                 <span class="mr-2">Max file size</span>
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th
-                                class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                                class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
                                 Actions
                             </th>
                         </tr>
@@ -163,21 +163,47 @@
 
                     <tbody>
 
+                        @foreach ($required_docs as $document)
+                            <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                <td
+                                    class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                    {{ $document->type }}
+                                </td>
+                                <td
+                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                    {{ $document->description }}
+                                </td>
+                                <td
+                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                    {{ implode(', ', $document->file_type_restriction) }}
+                                </td>
+                                <td
+                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                    {{ $document->max_file_size }} KB
+                                </td>
 
-                        <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                            </td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                            </td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                            </td>
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                            </td>
-
-                            <td class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate"><a
-                                    href="/pending-documents/document-details/">View</a></td>
-                            {{-- @dd($pending_applicant->applicationForm->id) --}}
-                        </tr>
+                                <td
+                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                    <div class="flex flex-row justify-center items-center gap-2">
+                                        <button
+                                            class="flex flex-row gap-1 justify-center items-center text-[14px] px-2 py-1 rounded-md bg-[#E7F0FD] border border-[#1A73E8]/60 font-semibold">
+                                            <i class="fi fi-rs-edit text-[16px] text-[#1A73E8] flex justify-center items-center"></i> Edit
+                                        </button>
+                                        <form action="/required-docs/{{ $document->id }}" method="POST"
+                                            class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="flex flex-row gap-1 justify-center items-center text-[14px] px-2 py-1 rounded-md bg-[#FCE8E6] border border-[#EA4335]/60 font-semibold">
+                                                <i class="fi fi-rs-trash text-[16px] text-[#EA4335] flex justify-center items-center"></i>
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                                {{-- @dd($pending_applicant->applicationForm->id) --}}
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -190,6 +216,74 @@
         import {
             initModal
         } from "/js/modal.js";
+
+        let table;
+        let pendingApplications = document.querySelector('#pending-application');
+
+        document.addEventListener("DOMContentLoaded", function() {
+            table = new DataTable('#docs-table', {
+                paging: true,
+                pageLength: 20,
+                searching: true,
+                autoWidth: false,
+                order: [
+                    [6, 'desc']
+                ],
+                columnDefs: [{
+                    width: '16.66%',
+                    targets: '_all'
+                }],
+                layout: {
+                    topStart: null,
+                    bottomStart: 'info',
+                    bottomEnd: 'paging',
+                }
+            });
+
+            table.on('draw', function() {
+                let newRow = document.querySelector('#myTable tbody tr:first-child');
+
+                // Select all td elements within the new row
+                let cells = newRow.querySelectorAll('td');
+
+                cells.forEach(function(cell) {
+                    cell.classList.add(
+                        'px-4', // Horizontal padding
+                        'py-2', // Vertical padding
+                        'text-start', // Align text to the start (left)
+                        'font-regular',
+                        'text-[14px]',
+                        'opacity-80',
+                        'truncate'
+                    );
+                });
+
+            });
+
+            //Overriding default search input
+            const customSearch = document.getElementById("myCustomSearch");
+            const defaultSearch = document.querySelector(".dt-search");
+
+            defaultSearch.remove();
+            customSearch.addEventListener("input", function(e) {
+                table.search(this.value).draw();
+            });
+
+
+            let sizeInput = document.getElementById("file-size");
+            let estimatedSize = document.getElementById("estimated");
+
+            sizeInput.addEventListener("input", function() {
+                let size = parseInt(this.value);
+                if (!isNaN(size)) {
+                    estimatedSize.textContent = (size / 1024).toFixed(2) + " MB";
+                } else {
+                    estimatedSize.textContent = "Invalid size";
+                }
+            });
+
+
+        });
 
 
         // Initialize the modal

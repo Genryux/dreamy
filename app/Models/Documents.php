@@ -17,12 +17,18 @@ class Documents extends Model
     ];
     protected $casts = [
         'max_file_size' => 'integer',
+        'file_type_restriction' => 'array',
     ];
     protected $table = 'documents';
 
     public function submissions()
     {
         return $this->hasMany(DocumentSubmissions::class);
+    }
+
+    public function applicants()
+    {
+        return $this->belongsToMany(Applicant::class);
     }
 
 }
