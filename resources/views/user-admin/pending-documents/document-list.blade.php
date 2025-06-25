@@ -40,19 +40,19 @@
                     <input type="checkbox" name="file-type-option[]" value="pdf" id="PDF"
                         class="bg-red-500 size-[16px] cursor-pointer">
 
-                    <label for="PDF" class="text-[14px] font-bold opacity-90 cursor-pointer">PDF</label>
+                    <label for="PDF" class="text-[14px] font-bold opacity-90 cursor-pointer select-none">PDF</label>
                 </div>
                 <div class="flex flex-row justify-start items-center ml-2 rounded-md space-x-2">
                     <input type="checkbox" name="file-type-option[]" value="jpeg" id="JPEG"
                         class="bg-red-500 size-[16px] cursor-pointer">
 
-                    <label for="JPG" class="text-[14px] font-bold opacity-90 cursor-pointer">JPEG</label>
+                    <label for="JPEG" class="text-[14px] font-bold opacity-90 cursor-pointer select-none">JPEG</label>
                 </div>
                 <div class="flex flex-row justify-start items-center ml-2 rounded-md space-x-2">
                     <input type="checkbox" name="file-type-option[]" value="png" id="PNG"
                         class="bg-red-500 size-[16px] cursor-pointer">
 
-                    <label for="PNG" class="text-[14px] font-bold opacity-90 cursor-pointer">PNG</label>
+                    <label for="PNG" class="text-[14px] font-bold opacity-90 cursor-pointer select-none">PNG</label>
                 </div>
 
             </div>
@@ -171,7 +171,7 @@
                                 </td>
                                 <td
                                     class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $document->description }}
+                                    {{ $document->description ?? '-' }}
                                 </td>
                                 <td
                                     class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Applicant;
+use App\Models\Documents;
 use App\Models\Interview;
 use App\Services\ApplicantService;
 use Illuminate\Http\Request;
@@ -137,7 +138,9 @@ class InterviewController extends Controller
                     'application_status' => 'Pending-Documents'
                 ]);
 
-                // call the document service to assign required documents
+                $required_docs = Documents::all();
+                $applicant->documents()->sync($required_docs->pluck('id')->toArray()); // Associate all required documents with the applicant
+                $applicant->submissions()->delete(); // Clear previous submissions if any
 
             }
 

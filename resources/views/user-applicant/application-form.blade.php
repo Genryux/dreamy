@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-    <x-head></x-head>
+<x-head></x-head>
+
 <body>
     <h1>Admission form</h1>
 
@@ -15,28 +16,28 @@
         @error('lrn')
             {{ $message }}
         @enderror
-        
+
         <label for="full_name">Full Name</label>
         <input type="text" name="full_name" id="full_name">
 
         @error('full_name')
             {{ $message }}
         @enderror
-        
+
         <label for="age">Age</label>
         <input type="number" name="age" id="age">
 
         @error('age')
             {{ $message }}
-        @enderror        
+        @enderror
 
         <label for="birthdate">Birthdate</label>
         <input type="date" name="birthdate" id="birthdate">
 
         @error('birthdate')
             {{ $message }}
-        @enderror  
-        
+        @enderror
+
         <label for="desired_program">Program Selection</label>
         <select name="desired_program" id="desired_program">
             <option>Select your desired program</option>
@@ -46,8 +47,8 @@
 
         @error('desired_program')
             {{ $message }}
-        @enderror         
-        
+        @enderror
+
         <label for="grade_level">Grade Level Selection</label>
         <select name="grade_level" id="grade_level">
             <option>Select your grade level</option>
@@ -56,14 +57,24 @@
         </select>
 
         @error('grade_level')
-            {{ $message }}
-        @enderror         
+            <p class="text-red-500">{{ $message }}</p>
+        @enderror
 
         <button>Submit</button>
-        
+
 
     </form>
-
+    
+    @if ($errors->any())
+        <div class="text-red-500 text-sm">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
 </body>
+
 </html>

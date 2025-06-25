@@ -144,6 +144,10 @@
                     <input type="radio" name="result" id="failed" value="Interview-Failed" class="">
                 </label>
 
+                <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant</p>
+
+                
+
             </form>
 
             <x-slot name="modal_buttons">

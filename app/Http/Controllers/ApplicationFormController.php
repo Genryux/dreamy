@@ -17,6 +17,7 @@ use Illuminate\Auth\Events\Validated;
 use Illuminate\Console\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class ApplicationFormController extends Controller
@@ -119,7 +120,7 @@ class ApplicationFormController extends Controller
             $form = $this->applicationFormService->saveApplication(
                 [
                     'applicant_id' => $applicant->id ?? null,
-                    'academic_term_id' => $currentAcadTerm->id ?? null,
+                    'academic_terms_id' => $currentAcadTerm->id ?? null,
                     'enrollment_period_id' => $activeEnrollmentPeriod->id ?? null,
                     'lrn' => $validated['lrn'],
                     'full_name' => $validated['full_name'],
@@ -130,6 +131,8 @@ class ApplicationFormController extends Controller
                 ]
             );
 
+            //dd($form);
+
             if ($applicant) {
                 $applicant->update([
                     'application_status' => 'Pending'
@@ -137,6 +140,8 @@ class ApplicationFormController extends Controller
             }
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
+            Log::error('Application form submission failed', ['error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
+
         }
 
         $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();

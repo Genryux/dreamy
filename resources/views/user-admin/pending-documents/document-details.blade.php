@@ -16,7 +16,7 @@
             </li>
 
             <li>
-                <a href="/pending-applications" class="block transition-colors hover:text-gray-900"> Pending Documents
+                <a href="/pending-documents" class="block transition-colors hover:text-gray-900"> Pending Documents
                 </a>
             </li>
 
@@ -46,50 +46,50 @@
             </span></p>
     </div>
     <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
-            <div class="flex flex-row pl-[14px] py-[16px] text-[14px]">
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Grade</p>
-                    <p class="font-bold"></p>
-                </span>
-                <span>
-                    <p class="opacity-80">Track</p>
-                    <p class="font-bold"></p>
-                </span>
-                <span>
-                    <p class="opacity-80">Contact</p>
-                    <p class="font-bold"></p>
-                </span>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Interview Date</p>
-                    <p class="font-bold"></p>
-                </span>
-                <span>
-                    <p class="opacity-80">Interview Time</p>
-                    <p class="font-bold"></p>
-                </span>
-                <span>
-                    <p class="opacity-80">Location</p>
-                    <p class="font-bold"></p>
-                </span>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Interviewer</p>
-                    <p class="font-bold"></p>
-                </span>
-                <span>
-                    <p class="opacity-80">Status</p>
-
-                </span>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Remarks</p>
-                    <p class="font-bold"></p>
-                </span>
-            </div>
+    <div class="flex flex-row pl-[14px] py-[16px] text-[14px]">
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Grade</p>
+                <p class="font-bold"></p>
+            </span>
+            <span>
+                <p class="opacity-80">Track</p>
+                <p class="font-bold"></p>
+            </span>
+            <span>
+                <p class="opacity-80">Contact</p>
+                <p class="font-bold"></p>
+            </span>
         </div>
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Interview Date</p>
+                <p class="font-bold"></p>
+            </span>
+            <span>
+                <p class="opacity-80">Interview Time</p>
+                <p class="font-bold"></p>
+            </span>
+            <span>
+                <p class="opacity-80">Location</p>
+                <p class="font-bold"></p>
+            </span>
+        </div>
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Interviewer</p>
+                <p class="font-bold"></p>
+            </span>
+            <span>
+                <p class="opacity-80">Status</p>
+
+            </span>
+        </div>
+        <div class="flex flex-col flex-1 space-y-4">
+            <span>
+                <p class="opacity-80">Remarks</p>
+                <p class="font-bold"></p>
+            </span>
+        </div>
+    </div>
 @endsection

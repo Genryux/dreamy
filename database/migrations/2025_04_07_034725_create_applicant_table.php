@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('applicant', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->string('applicant_id')->unique();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('application_status')->nullable();

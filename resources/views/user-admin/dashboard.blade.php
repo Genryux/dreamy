@@ -237,7 +237,7 @@
 
 
     <div class="flex flex-row space-x-2">
-        <div class="bg-[#f8f8f8] flex-1 border border-[#1e1e1e]/20 rounded-md px-[16px] py-4">
+        <div class="bg-[#f8f8f8] flex-1 rounded-md px-[16px] py-4 shadow-sm border border-[#1e1e1e]/15">
             <div class="flex flex-row justify-between">
                 <span class="font-bold">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
@@ -343,7 +343,7 @@
             @endif
         </div>
 {{-- Application overview --}}
-        <div class="bg-[#f8f8f8] flex-1 border border-[#1e1e1e]/20 rounded-md px-[16px] py-4 space-y-3">
+        <div class="bg-[#f8f8f8] flex-1  rounded-md px-[16px] py-4 space-y-3 shadow-sm border border-[#1e1e1e]/15">
             <span class="font-bold">Application Overview</span>
             <div class="flex flex-row space-x-3">
 

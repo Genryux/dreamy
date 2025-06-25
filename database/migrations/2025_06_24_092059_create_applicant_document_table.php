@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('applicant_document', function (Blueprint $table) {
+        Schema::create('applicant_documents', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\Applicant::class)
                 ->constrained()
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('applicant_document');
+        Schema::dropIfExists('applicant_documents');
     }
 };

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -6,6 +6,7 @@ use App\Models\AcademicTerms;
 use App\Models\Applicant;
 use App\Models\ApplicationForm;
 use App\Models\EnrollmentPeriod;
+use Illuminate\Support\Facades\Log;
 
 class ApplicationFormService
 {
@@ -66,13 +67,12 @@ class ApplicationFormService
      * @return array
      */
     public function processApplicationForm(
-        array $data, 
-        ?Applicant $applicant, 
-        ?AcademicTerms $academicTerm, 
+        array $data,
+        ?Applicant $applicant,
+        ?AcademicTerms $academicTerm,
         ?EnrollmentPeriod $activeEnrollmentPeriod
-    
-    ): ApplicationForm
-    {
+
+    ): ApplicationForm {
         $data['applicant_id'] = $applicant->id ?? null;
         $data['academic_term_id'] = $academicTerm->id ?? null;
         $data['enrollment_period_id'] = $activeEnrollmentPeriod->id ?? null;
@@ -81,7 +81,6 @@ class ApplicationFormService
         $this->validateData($data);
 
         return $this->saveApplication($data);
-
     }
 
     /**
@@ -110,7 +109,14 @@ class ApplicationFormService
      */
     public function saveApplication(array $data): ApplicationForm
     {
-        // Placeholder for saving logic, e.g., 
-        return ApplicationForm::create($data); // Return the saved application data for now
+        $form = new ApplicationForm();
+        $form->fill($data);
+
+        if (!$form->save()) {
+            Log::error('Failed to save application form.', ['data' => $data]);
+            throw new \Exception('Application form could not be saved.');
+        }
+
+        return $form;
     }
 }

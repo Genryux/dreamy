@@ -2,7 +2,7 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="bg-[#D9E2F5]">
+<body class="bg-[#E4EAF9]">
 
     <div id="main-container" class="min-h-screen hidden md:flex relative">
 
@@ -74,7 +74,7 @@
         <!-- Main content area -->
         <div id="content" class="flex-1 flex flex-col transition-all duration-300 w-full">
             <!-- Top Navigation Bar -->
-            <header id="top-nav-bar" class="z-10 bg-[#f8f8f8] border-b h-[60px] border-[#1e1e1e]/20 px-[10px] flex justify-between items-center gap-2 sticky top-0">
+            <header id="top-nav-bar" class="z-10 bg-[#f8f8f8] h-[60px] px-[10px] flex justify-between items-center gap-2 sticky top-0 shadow-sm border-b border-[#1e1e1e]/15">
                 <!-- profile icon, notifications, etc. -->
                 <button id="sidebar-toggle-button" class="flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
                     <i class="fi fi-rs-sidebar-flip text-[20px]"></i>
@@ -93,7 +93,7 @@
                 @yield('header')
                 @yield('stat')
 
-                <section class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20">
+                <section class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15">
 
                     @yield('content')
 
