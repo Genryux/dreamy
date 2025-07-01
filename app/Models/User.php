@@ -27,7 +27,7 @@ class User extends Authenticatable
     ];
 
     public function applicant() {
-        return $this->hasOne(Applicant::class);
+        return $this->hasOne(Applicants::class);
     }
 
     /**

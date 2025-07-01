@@ -6,6 +6,7 @@ use App\Events\ApplicationFormSubmitted;
 use App\Events\RecentApplicationTableUpdated;
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\ApplicationForm;
 use App\Models\Interview;
 use App\Models\User;
@@ -36,7 +37,7 @@ class ApplicationFormController extends Controller
 
         //$pending_applicant = ApplicationForm::latest()->get();
 
-        $pending_applicants = Applicant::withStatus('Pending')->get();
+        $pending_applicants = Applicants::withStatus('Pending')->get();
 
         // dd($pending_applicants[0]->id);
 
@@ -49,7 +50,7 @@ class ApplicationFormController extends Controller
     public function selected()
     {
 
-        $selected_applicants = Applicant::where('application_status', 'Selected')->get();
+        $selected_applicants = Applicants::where('application_status', 'Selected')->get();
 
         return view('user-admin.selected.selected-application', [
             'selected_applicants' => $selected_applicants
@@ -59,7 +60,7 @@ class ApplicationFormController extends Controller
     public function pendingDocuments(Request $request)
     {
 
-        $pending_documents = Applicant::where('application_status', 'Pending-Documents')->get();
+        $pending_documents = Applicants::where('application_status', 'Pending-Documents')->get();
 
 
       //  dd($pending_documents[0]->id);
@@ -112,14 +113,17 @@ class ApplicationFormController extends Controller
 
         $validated = $this->applicationFormService->validateData($request->all());
 
+        //dd($validated);
 
         try {
 
-            $applicant = Applicant::where('user_id', Auth::user()->id)->first();
+            $applicant = Applicants::where('user_id', Auth::user()->id)->first();
+
+                  
 
             $form = $this->applicationFormService->saveApplication(
                 [
-                    'applicant_id' => $applicant->id ?? null,
+                    'applicants_id' => $applicant->id ?? null,
                     'academic_terms_id' => $currentAcadTerm->id ?? null,
                     'enrollment_period_id' => $activeEnrollmentPeriod->id ?? null,
                     'lrn' => $validated['lrn'],
@@ -131,7 +135,7 @@ class ApplicationFormController extends Controller
                 ]
             );
 
-            //dd($form);
+            
 
             if ($applicant) {
                 $applicant->update([
@@ -139,10 +143,12 @@ class ApplicationFormController extends Controller
                 ]);
             }
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
+            
             Log::error('Application form submission failed', ['error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
-
+            throw new \Exception($th);
+            return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
         }
+
 
         $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
 

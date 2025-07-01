@@ -2,18 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Applicants;
 use App\Models\Documents;
+use App\Models\DocumentSubmissions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Comment\Doc;
 
 class DocumentsSubmissionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Applicants $applicant)
     {
-        //
-        return view('user-admin.pending-documents.document-details');
+
+        $required_docs = Documents::all();
+        $documentSubmissions = DocumentSubmissions::where('applicants_id', $applicant->id)->get()->keyBy('documents_id');
+
+        return view('user-admin.pending-documents.document-details', [
+            'required_docs' => $required_docs,
+            'submissions' => $documentSubmissions,
+            'applicant' => $applicant,
+        ]);
     }
 
     /**
@@ -35,10 +46,20 @@ class DocumentsSubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Documents $documents)
+    public function show(Documents $documents, Request $request)
     {
-        //
+ 
+
+    //    
+
+      dd();
+
+        // Return the view with the document details
+        return view('user-admin.pending-documents.document-details', [
+            'document' => $documents,
+        ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -51,9 +72,9 @@ class DocumentsSubmissionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Documents $documents)
+    public function update(Request $request, DocumentSubmissions $submittedDocuments)
     {
-        //
+        dd($request->all(), $submittedDocuments->id);
     }
 
     /**

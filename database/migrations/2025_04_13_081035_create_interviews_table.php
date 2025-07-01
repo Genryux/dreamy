@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\Teacher;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('interviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Applicant::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Applicants::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Teacher::class)->nullable();
             $table->date('date')->nullable();
             $table->time('time')->nullable();

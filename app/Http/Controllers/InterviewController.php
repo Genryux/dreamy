@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\Interview;
 use App\Services\ApplicantService;
@@ -49,7 +50,7 @@ class InterviewController extends Controller
             ]);
 
             Interview::create([
-                'applicant_id' => $request->id,
+                'applicants_id' => $request->id,
                 'status' => 'Pending'
             ]);
         } else if ($action === 'accept-with-schedule') {
@@ -64,7 +65,7 @@ class InterviewController extends Controller
             ]);
 
             Interview::create([
-                'applicant_id' => $request->id,
+                'applicants_id' => $request->id,
                 'date' => $request->date,
                 'time' => $request->time,
                 'location' => $request->location,
@@ -73,7 +74,7 @@ class InterviewController extends Controller
             ]);
         }
 
-        $applicant = Applicant::find($request->id);
+        $applicant = Applicants::find($request->id);
 
         if ($applicant) {
             $applicant->update([
@@ -118,9 +119,11 @@ class InterviewController extends Controller
         if ($request->input('action') === 'record-result') {
 
 
-            $interview = Interview::where('applicant_id', $request->id)->firstOrFail();
-            $applicant = $this->applicant->fetchApplicant($request->id);
+            $interview = Interview::where('applicants_id', $request->id)->firstOrFail();
 
+            
+            $applicant = $this->applicant->fetchApplicant($request->id);
+//dd($applicant);
             if ($request->input('result') === 'Interview-Failed') {
                 $interview->update([
                     'status' => 'Interview-Failed'
@@ -130,6 +133,7 @@ class InterviewController extends Controller
                     'application_status' => 'Completed-Failed'
                 ]);
             } else if ($request->input('result') === 'Interview-Passed') {
+                
                 $interview->update([
                     'status' => 'Interview-Passed'
                 ]);
@@ -156,7 +160,7 @@ class InterviewController extends Controller
 
             ]);
 
-            $interview = Interview::where('applicant_id', $request->id)->firstOrFail();
+            $interview = Interview::where('applicants_id', $request->id)->firstOrFail();
 
             $interview->update([
                 'date' => $validated['date'],

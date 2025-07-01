@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Applicant;
+use App\Models\Applicants;
 
 class ApplicantService
 {
@@ -44,6 +44,6 @@ class ApplicantService
     public function fetchApplicant(int $applicantId)
     {
         // Placeholder for actual fetching logic, e.g., from a database
-        return Applicant::find($applicantId);
+        return Applicants::find($applicantId);
     }
 }    

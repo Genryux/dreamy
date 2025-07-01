@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\ApplicationForm;
 use App\Models\EnrollmentPeriod;
 use Illuminate\Support\Facades\Log;
@@ -38,22 +39,22 @@ class ApplicationFormService
 
     public function fetchApplicationById(int $applicantId)
     {
-        return Applicant::find($applicantId);
+        return Applicants::find($applicantId);
     }
 
     public function fetchApplicationWithAnyStatus(array $status)
     {
-        return Applicant::withAnyStatus($status);
+        return Applicants::withAnyStatus($status);
     }
 
     public function fetchApplicationWithStatus(string $status)
     {
-        return Applicant::withStatus($status);
+        return Applicants::withStatus($status);
     }
 
     public function fetchRecentPendingApplications(int $limit = 10)
     {
-        return Applicant::withStatus('Pending')
+        return Applicants::withStatus('Pending')
             ->latest()
             ->limit($limit)
             ->get();
@@ -68,7 +69,7 @@ class ApplicationFormService
      */
     public function processApplicationForm(
         array $data,
-        ?Applicant $applicant,
+        ?Applicants $applicant,
         ?AcademicTerms $academicTerm,
         ?EnrollmentPeriod $activeEnrollmentPeriod
 
@@ -110,13 +111,15 @@ class ApplicationFormService
     public function saveApplication(array $data): ApplicationForm
     {
         $form = new ApplicationForm();
+      // dd($form);
         $form->fill($data);
 
         if (!$form->save()) {
             Log::error('Failed to save application form.', ['data' => $data]);
             throw new \Exception('Application form could not be saved.');
+            dd("alsddkadklasdjklasjkl");
         }
-
+        
         return $form;
     }
 }

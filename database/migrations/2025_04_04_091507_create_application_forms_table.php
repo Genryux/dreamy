@@ -2,6 +2,7 @@
 
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\EnrollmentPeriod;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(AcademicTerms::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(EnrollmentPeriod::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Applicant::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Applicants::class)->constrained()->cascadeOnDelete();
             $table->bigInteger('lrn');
             $table->string('full_name');
             $table->integer('age');

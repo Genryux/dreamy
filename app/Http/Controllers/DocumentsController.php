@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Applicant;
 use App\Models\Documents;
+use App\Models\User;
 use Dom\Document;
 use Illuminate\Http\Request;
 

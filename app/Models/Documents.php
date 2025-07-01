@@ -28,7 +28,7 @@ class Documents extends Model
 
     public function applicants()
     {
-        return $this->belongsToMany(Applicant::class);
+        return $this->belongsToMany(Applicants::class, 'applicants_documents');
     }
 
 }

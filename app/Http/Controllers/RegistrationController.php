@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +34,7 @@ class RegistrationController extends Controller
 
         $user->assignRole('applicant');
 
-        Applicant::create([
+        Applicants::create([
             'user_id' => $user->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,

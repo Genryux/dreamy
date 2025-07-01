@@ -96,10 +96,10 @@
                 <section class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15">
 
                     @yield('content')
-
-                    
                     
                 </section>
+
+                @yield('docs_submission_progress')
 
             </main>
         </div>

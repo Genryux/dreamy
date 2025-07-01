@@ -11,6 +11,7 @@ use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\EnrollmentPeriod;
 use App\Models\Interview;
@@ -64,12 +65,21 @@ Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->nam
 
 // pending documents
 Route::get('/pending-documents', [ApplicationFormController::class, 'pendingDocuments'])->name('documents');
-Route::get('/pending-documents/document-details/{id}', [DocumentsSubmissionController::class, 'index'])->name('documents');
+Route::get('/pending-documents/document-details/{applicant}', [DocumentsSubmissionController::class, 'index'])->name('documents');
+
+
 
 // required docs
-Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents');
+Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents.index');
+
+
 
 Route::post('/required-docs', [DocumentsController::class, 'store'])->name('documents.store');
+
+// document submission
+
+
+Route::patch('/submit-document/{submittedDocuments}', [DocumentsSubmissionController::class, 'update'])->name('documents.patch');
 
 
 
@@ -98,7 +108,7 @@ Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('
 
 Route::get('/admission/status', function () {
 
-    $applicant = Applicant::where('user_id', Auth::user()->id)->first();
+    $applicant = Applicants::where('user_id', Auth::user()->id)->first();
 
     $application_status = $applicant->application_status ?? '';
 

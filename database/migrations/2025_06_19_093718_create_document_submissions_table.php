@@ -2,6 +2,7 @@
 
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
+use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\EnrollmentPeriod;
 use Illuminate\Database\Migrations\Migration;
@@ -19,9 +20,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(AcademicTerms::class)->constrained();
             $table->foreignIdFor(EnrollmentPeriod::class)->constrained();
-            $table->foreignIdFor(Applicant::class)->constrained();
+            $table->foreignIdFor(Applicants::class)->constrained();
             $table->foreignIdFor(Documents::class)->constrained();
-            $table->string('status')->default('not_submitted'); // e.g., not_submitted, submitted, under_review, approved, rejected
+            $table->string('status'); 
             $table->string('file_path')->nullable(); // optional
             $table->text('review_notes')->nullable(); // optional
             $table->timestamps();

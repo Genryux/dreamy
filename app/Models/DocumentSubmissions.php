@@ -11,7 +11,7 @@ class DocumentSubmissions extends Model
         'academic_terms_id',
         'enrollment_period_id',
         'document_id',
-        'applicant_id',
+        'applicants_id',
         'file_path',
         'status',
         'review_notes',
@@ -30,6 +30,6 @@ class DocumentSubmissions extends Model
 
     public function applicant()
     {
-        return $this->belongsTo(Applicant::class, 'applicant_id');
+        return $this->belongsTo(Applicants::class, 'applicants_id');
     }
 }

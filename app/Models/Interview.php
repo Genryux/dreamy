@@ -8,11 +8,11 @@ class Interview extends Model
 {
     protected $table = 'interviews';
     protected $fillable = [
-        'applicant_id', 'teacher_id', 'date', 'time', 'location', 'add_info', 'status', 'remarks'
+        'applicants_id', 'teacher_id', 'date', 'time', 'location', 'add_info', 'status', 'remarks'
     ];
 
     public function applicant() {
-        return $this->belongsTo(Applicant::class);
+        return $this->belongsTo(Applicants::class);
     }
 
 }

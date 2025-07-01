@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Applicant extends Model
+class Applicants extends Model
 {
     /** @use HasFactory<\Database\Factories\ApplicantFactory> */
     use HasFactory;
 
-    protected $table = "applicant";
+    protected $table = "applicants";
     protected $fillable = [
         'user_id',
         'applicant_id',
@@ -51,7 +51,7 @@ class Applicant extends Model
 
     public function documents()
     {
-        return $this->belongsToMany(Documents::class);
+        return $this->belongsToMany(Documents::class, 'applicants_documents');
     }
 
     public function scopeWithAnyStatus($query, $status = [])
