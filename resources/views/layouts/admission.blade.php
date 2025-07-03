@@ -4,7 +4,7 @@
 
 <body class="bg-[#1A3165]">
 
-    <div id="main-container" class="min-h-screen flex flex-col md:flex-col">
+    <div id="main-container" class="min-h-screen flex flex-col md:flex-col pb-2">
 
         <header id="top-nav-bar" class=" flex justify-center items-center gap-2 p-4">
 
@@ -43,6 +43,13 @@
                     @yield('selected')
                 </div>
 
+            @elseif ($applicant->application_status == 'Pending-Documents')
+
+                <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
+                    @yield('status')
+                    @yield('pending-documents')
+                </div>
+
             @endif
 
 
@@ -53,6 +60,8 @@
         </main>
 
         @stack('scripts')
+
+    </div>
  
 </body>
 

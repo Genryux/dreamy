@@ -66,6 +66,10 @@ class DashboardDataService
 
         $applicant = Auth::user()->applicant;
 
+        if ($applicant) {
+            $applicant->load('interview');
+        }
+
         $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
         if (!$applicant) {

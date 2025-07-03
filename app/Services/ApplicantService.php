@@ -3,9 +3,18 @@
 namespace App\Services;
 
 use App\Models\Applicants;
+use App\Models\User;
 
 class ApplicantService
 {
+
+    public function __construct(
+        protected Applicants $applicants,
+        protected UserService $userService
+    ) {
+        // Constructor can be used for dependency injection if needed
+    }
+
     /**
      * Get the applicant data by ID.
      *
@@ -45,5 +54,19 @@ class ApplicantService
     {
         // Placeholder for actual fetching logic, e.g., from a database
         return Applicants::find($applicantId);
+    }
+
+    public function fetchAuthenticatedApplicant(): ?Applicants
+    {
+        // Fetch the authenticated applicant
+        $authUser = $this->userService->fetchAuthenticatedUser();
+
+        $applicant = $authUser->applicant()->first();
+
+        if (!$applicant) {
+            return null; 
+        }
+
+        return $applicant; 
     }
 }    

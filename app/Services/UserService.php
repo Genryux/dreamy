@@ -49,7 +49,7 @@ class UserService
 
     }
 
-    public function fetchAuthenticatedUser() : ?array
+    public function fetchAuthenticatedUser() : ?User
     {
 
         // Fetch the authenticated user
@@ -59,12 +59,7 @@ class UserService
             return null; 
         }
 
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-        ];
+        return $user;
 
     }
 }

@@ -22,6 +22,10 @@ class AdmissionDashboardController extends Controller
     public function index()
     {
         $data = $this->dashboardDataService->getAdmissionDashboardData();
+
+        //dd($data['applicant']->interview->id);
+
+        // $interviews = 
         
         // Fallback values in case the data is not set
         if ($data) {

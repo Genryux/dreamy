@@ -2,10 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\Applicants;
 use App\Models\Interview;
 
 class InterviewService
 {
+
+    public function __construct(
+        public Applicants $applicants,
+    )
+    {
+        // Constructor can be used for dependency injection if needed
+    }
+    
     public function getInterviewData(int $applicantId): array
     {
 
@@ -36,6 +45,38 @@ class InterviewService
     {
         // Fetch the interview by ID
         return Interview::where('applicant_id', $applicantId)->first();
+    }
+
+    public function updateInterviewStatus(int $applicantId, string $status): Interview
+    {
+        
+        $applicant = $this->applicants->with('interview')->find($applicantId);
+        
+        if (!$applicant || !$applicant->interview) {
+            throw new \Exception('Interview not found for the given applicant ID.');
+        }
+
+        // Update the interview status
+        $applicant->interview->status = $status;
+        $applicant->interview->save();
+
+        return $applicant->interview;
+
+    }
+
+    public function updateInterviewInfo(int $applicantId, array $data): Interview
+    {
+        // Find the interview by applicant ID
+        $interview = Interview::where('applicant_id', $applicantId)->first();
+
+        if (!$interview) {
+            throw new \Exception('Interview not found for the given applicant ID.');
+        }
+
+        // Update the interview details
+        $interview->update($data);
+
+        return $interview;
     }
 
 

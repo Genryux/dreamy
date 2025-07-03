@@ -7,11 +7,16 @@ use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\Interview;
 use App\Services\ApplicantService;
+use App\Services\InterviewService;
 use Illuminate\Http\Request;
 
 class InterviewController extends Controller
 {
-    public function __construct(protected ApplicantService $applicant) {}
+    public function __construct(
+        protected ApplicantService $applicant,
+        protected InterviewService $interviewService
+        
+    ) {}
     /**
      * Display a listing of the resource.
      */
@@ -116,15 +121,14 @@ class InterviewController extends Controller
     {
 
 
+
+        $interview = Interview::where('applicants_id', $request->id)->firstOrFail();
+        $applicant = $this->applicant->fetchAuthenticatedApplicant();
+        // dd($applicant->id);
         if ($request->input('action') === 'record-result') {
 
-
-            $interview = Interview::where('applicants_id', $request->id)->firstOrFail();
-
-            
-            $applicant = $this->applicant->fetchApplicant($request->id);
-//dd($applicant);
             if ($request->input('result') === 'Interview-Failed') {
+
                 $interview->update([
                     'status' => 'Interview-Failed'
                 ]);
@@ -133,7 +137,7 @@ class InterviewController extends Controller
                     'application_status' => 'Completed-Failed'
                 ]);
             } else if ($request->input('result') === 'Interview-Passed') {
-                
+
                 $interview->update([
                     'status' => 'Interview-Passed'
                 ]);
@@ -147,8 +151,6 @@ class InterviewController extends Controller
                 $applicant->submissions()->delete(); // Clear previous submissions if any
 
             }
-
-            return redirect()->back();
         } else if ($request->input('action') === 'edit-interview') {
 
             $validated = $request->validate([
@@ -160,7 +162,21 @@ class InterviewController extends Controller
 
             ]);
 
-            $interview = Interview::where('applicants_id', $request->id)->firstOrFail();
+            $interview->update([
+                'date' => $validated['date'],
+                'time' => $validated['time'],
+                'location' => $validated['location'],
+                'add_info' => $validated['add_info'],
+                'status' => 'Scheduled'
+            ]);
+        } else if ($request->input('action') === 'schedule-interview') {
+
+            $validated = $request->validate([
+                'date' => ['required', 'date'],
+                'time' => ['required'],
+                'location' => ['required'],
+                'add_info' => ['required'],
+            ]);
 
             $interview->update([
                 'date' => $validated['date'],
@@ -169,9 +185,14 @@ class InterviewController extends Controller
                 'add_info' => $validated['add_info'],
                 'status' => 'Scheduled'
             ]);
-
-            return redirect()->back();
         }
+        else if ($request->input('action') === 'update-docs') {
+
+            $this->interviewService->updateInterviewStatus($applicant->id, $request->status);
+
+        //dd('tangenamo');
+        }
+        return redirect()->back();
     }
 
     /**

@@ -116,6 +116,7 @@
                     Cancel
                 </button>
                 <button form="interview-form"
+                    name="action" value="schedule-interview"
                     class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
                     Confirm
                 </button>

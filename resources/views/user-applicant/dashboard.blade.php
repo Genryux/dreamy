@@ -125,7 +125,7 @@
             <p class="md:text-[16px] font-medium">Application status:</p>
             @if ($applicant->application_status == 'Pending')
                 <div
-                    class="bg-[#FFF4E5] border border-[#FBBC04]/60 flex flex-row justify-center items-center py-1 px-2 rounded-md gap-2">
+                    class="bg-[#FFF4E5] border border-[#FBBC04]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
                     <i class="fi fi-ss-pending text-[#FBBC04] flex justify-center items-center"></i>
                     <p class="text-[#FBBC04] font-semibold">Pending</p>
                 </div>
@@ -147,13 +147,33 @@
                 @endif
             @endif
 
+            @if ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Interview-Passed')
+                <div
+                    class="bg-[#E6F4EA] border border-[#34A853]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
+                    <i class="fi fi-ss-check text-[#34A853] flex justify-center items-center"></i>
+                    <p class="text-[#34A853] font-semibold">Interview-Passed</p>
+                </div>
+            @endif
+
+            @if ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Interview-Completed')
+                <div
+                    class="bg-[#FFF3E0] border border-[#FB8C00]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
+                    <i class="fi fi-rs-folder-times text-[#FB8C00] flex justify-center items-center"></i>
+                    <p class="text-[#FB8C00] font-semibold">Pending-Documents</p>
+                </div>
+            @endif
+
         </div>
+
         {{-- Status Progress --}}
         <div class="flex flex-row justify-evenly items-center gap-2">
             {{-- Pending --}}
             <div
                 class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Pending' || 'Selected' ? 'opacity-100' : 'opacity-50' }}">
-                @if ($applicant->application_status == 'Pending' || $applicant->application_status == 'Selected')
+                @if (
+                    $applicant->application_status == 'Pending' ||
+                        $applicant->application_status == 'Selected' ||
+                        $applicant->application_status == 'Pending-Documents')
                     <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
                         <i class="fi fi-ss-check flex justify-center items-center text-[14px]"></i>
                     </div>
@@ -170,8 +190,8 @@
             </div>
             {{-- Selected --}}
             <div
-                class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Selected' ? 'opacity-100' : 'opacity-30' }}">
-                @if ($applicant->application_status == 'Selected')
+                class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Selected' || $applicant->application_status == 'Pending-Documents' ? 'opacity-100' : 'opacity-30' }}">
+                @if ($applicant->application_status == 'Selected' || $applicant->application_status == 'Pending-Documents')
                     <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
                         <i class="fi fi-ss-check flex justify-center items-center text-[14px]"></i>
                     </div>
@@ -185,27 +205,52 @@
 
                 <x-divider></x-divider>
             </div>
+
+            {{-- Interview Passed --}}
+
             @if ($applicant->interview)
-                {{-- Interview Passed --}}
                 <div
-                    class="flex flex-row justify-center items-center gap-2 {{ $applicant->interview->status == 'Interview-Passed' ? 'opacity-100' : 'opacity-30' }}">
-                    <div class="flex justify-center items-center bg-[#0f111c] rounded-full text-white size-[26px]">
-                        <p class="font-bold text-[18px]">3</p>
-                    </div>
-                    <p class="text-[16px] font-semibold">Result</p>
-                    <x-divider></x-divider>
+                    class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Interview-Completed' ? 'opacity-100' : 'opacity-30' }}">
+                @else
+                    <div class="flex flex-row justify-center items-center gap-2 opacity-30">
+            @endif
+
+            @if ($applicant->application_status == 'Pending-Documents')
+                <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
+                    <i class="fi fi-ss-check flex justify-center items-center text-[14px]"></i>
                 </div>
-                {{-- Pending Documents --}}
-                <div class="flex flex-row justify-center items-center gap-2 opacity-30">
-                    <div class="flex justify-center items-center bg-[#0f111c] rounded-full text-white size-[26px]">
-                        <p class="font-bold text-[18px]">4</p>
-                    </div>
-                    <p class="text-[16px] font-semibold">Submit documents</p>
-                    <x-divider class=""></x-divider>
+            @else
+                <div class="flex justify-center items-center bg-[#0f111c] rounded-full text-white size-[26px]">
+                    <p class="font-bold text-[18px]">3</p>
+                </div>
+            @endif
+            <p class="text-[16px] font-semibold">Result</p>
+            <x-divider></x-divider>
+
+
+
+        </div>
+
+
+        {{-- Pending Documents --}}
+        <div
+            class="flex flex-row justify-center items-center gap-2 {{$applicant->application_status == 'Pending-Documents' ? 'opacity-100' : 'opacity-30' }}">
+            @if ($applicant->application_status == 'Officially Enrolled')
+                <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
+                    <i class="fi fi-ss-check flex justify-center items-center text-[14px]"></i>
+                </div>
+            @else
+                <div class="flex justify-center items-center bg-[#0f111c] rounded-full text-white size-[26px]">
+                    <p class="font-bold text-[18px]">4</p>
                 </div>
             @endif
 
+            <p class="text-[16px] font-semibold">Submit documents</p>
+
+            <x-divider></x-divider>
         </div>
+
+    </div>
     </div>
 
 @endsection
@@ -247,7 +292,8 @@
                                         class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">
                                         With LRN:<span class="font-bold"> Yes</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN:
-                                        <span class="font-bold"></span></td>
+                                        <span class="font-bold"></span>
+                                    </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade
@@ -446,7 +492,6 @@
 
 @endif
 
-
 @if ($applicant->application_status == 'Selected')
     @section('selected')
         <div class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20 md:w-full justify-center p-4">
@@ -462,23 +507,278 @@
 
             </div>
             <x-divider class="my-4 opacity-15"></x-divider>
-            <div class="flex flex-col justify-center items-center space-y-4 py-14">
 
-                @if ($applicant->interview() && $applicant->interview->status === 'Pending')
+            @if ($applicant->interview() && $applicant->interview->status === 'Pending')
+                <div class="flex flex-col justify-center items-center space-y-4 py-14">
+
                     <p>Your interview schedule will be available soon. Please check back or contact the admissions office
                         for
                         updates.</p>
                     <img src="{{ asset('images/Waiting.svg') }}" alt=""
                         class="size-[200px] md:size-[300px] mx-auto mt-4">
-                @endif
 
-            </div>
+                </div>
+            @elseif ($applicant->interview() && $applicant->interview->status === 'Scheduled')
+                <div class="flex flex-col justify-center items-center space-y-4 py-8 ">
+
+                    <p class="font-black text-[24px]">Your interview has been scheduled! 🎉</p>
+                    <p class="opacity-70">Everything is set up for your upcoming interview. Please review the details below
+                        and make sure to
+                        arrive on time. </p>
+
+
+                    <div class="w-[70%]  border border-[#1e1e1e]/15 px-8 py-4 rounded-md shadow-sm">
+
+                        <div class="flex flex-row justify-center items-center gap-2 mb-4">
+                            <p class="font-semibold text-[18px] opacity-80">Interview Details</p>
+                        </div>
+                        {{-- applicant id --}}
+                        <div class="pb-2 px-2">
+                            <div
+                                class="flex flex-row justify-start items-center p-4 gap-4 bg-[#1A73E8] rounded-md text-white hover:ring-2 ring-[#4D8FF0] transition duration-200 shadow-md">
+
+                                <div class="bg-[#f8f8f8] p-2 rounded-md flex justify-center items-center">
+                                    <i
+                                        class="fi fi-rs-fingerprint flex justify-center items-center text-[24px] text-[#0f111c] opacity-90"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[14px] opacity-60 font-medium">Your Applicant ID</p>
+                                    <span class="text-[16px] font-bold">{{ $applicant->applicant_id }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- date --}}
+
+                        <div class="flex flex-wrap flex-row">
+
+                            <div class="w-1/2 pb-2 px-2">
+                                <div
+                                    class="flex flex-row justify-start items-center p-4 gap-4 bg-[#1A73E8] rounded-md text-white hover:ring-2 ring-[#4D8FF0] transition duration-200 shadow-md">
+
+                                    <div class="bg-[#f8f8f8] p-2 rounded-md flex justify-center items-center">
+                                        <i
+                                            class="fi fi-rs-calendar-day flex justify-center items-center text-[24px] text-[#0f111c] opacity-90"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[14px] opacity-60 font-medium">Interview Date</p>
+                                        <span
+                                            class="text-[16px] font-bold">{{ \Carbon\Carbon::parse($applicant->interview->date)->format('F j, Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- time --}}
+                            <div class="w-1/2 pb-2 px-2">
+                                <div
+                                    class="flex flex-row justify-start items-center p-4 gap-4 bg-[#1A73E8] rounded-md text-white hover:ring-2 ring-[#4D8FF0] transition duration-200 shadow-md">
+
+                                    <div class="bg-[#f8f8f8] p-2 rounded-md flex justify-center items-center">
+                                        <i
+                                            class="fi fi-rs-calendar-clock flex justify-center items-center text-[24px] text-[#0f111c] opacity-90"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[14px] opacity-60 font-medium">Interview Time</p>
+                                        <span
+                                            class="text-[16px] font-bold">{{ \Carbon\Carbon::parse($applicant->interview->time)->format('h:i A') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- location --}}
+                            <div class="w-1/2 pb-2 px-2">
+                                <div
+                                    class="flex flex-row justify-start items-center p-4 gap-4 bg-[#1A73E8] rounded-md text-white hover:ring-2 ring-[#4D8FF0] transition duration-200 shadow-md">
+
+                                    <div class="bg-[#f8f8f8] p-2 rounded-md flex justify-center items-center">
+                                        <i
+                                            class="fi fi-rs-land-layer-location flex justify-center items-center text-[24px] text-[#0f111c] opacity-90"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[14px] opacity-60 font-medium">Location</p>
+                                        <span class="text-[16px] font-bold">Room 1, Second Floor</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- interviewer --}}
+                            <div class="w-1/2 pb-2 px-2">
+                                <div
+                                    class="flex flex-row justify-start items-center py-4 px-4 gap-4 bg-[#1A73E8] rounded-md text-white hover:ring-2 ring-[#4D8FF0] transition duration-200 shadow-md">
+
+                                    <div class="bg-[#f8f8f8] p-2 rounded-md flex justify-center items-center">
+                                        <i
+                                            class="fi fi-rs-user flex justify-center items-center text-[24px] text-[#0f111c] opacity-90"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[14px] opacity-60 font-medium">Interviewer</p>
+                                        <span class="text-[16px] font-bold">Peter DelaCruz</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- important --}}
+                        <div class="px-2">
+                            <div
+                                class="flex flex-col justify-center items-center py-4 gap-4 bg-[#1A73E8] rounded-md text-white hover:ring-2 ring-[#4D8FF0] transition duration-200 shadow-md">
+
+                                <div class="flex flex-row justify-center items-center gap-2">
+                                    <div class="bg-[#f8f8f8] p-2 rounded-md flex justify-center items-center">
+                                        <i
+                                            class="fi fi-rs-octagon-exclamation flex justify-center items-center text-[24px] text-[#0f111c]"></i>
+                                    </div>
+                                    <p class="text-[16px] font-bold">Important</p>
+
+                                </div>
+
+                                <div class="flex justify-center items-center text-center px-4 py-2">
+                                    <span class="text-[16px] font-medium">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
         </div>
     @endsection
 
 @endif
 
+@if ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Interview-Passed')
+    @section('pending-documents')
+        <div class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20 md:w-full justify-center p-4">
+            <div class="flex flex-row justify-start items-center gap-2">
 
+                <div class="text-[24px] text-white bg-[#0f111c] size-[35px] rounded-full flex justify-center items-center">
+                    3
+                </div>
+                <div class="flex flex-col justify-center items-start">
+                    <p class="text-[16px]/5 font-bold">Result</p>
+                    <p class="text-[14px]/5 opacity-60 font-semibold">Date: June 16, 2025</p>
+                </div>
+
+            </div>
+            <x-divider class="my-4 opacity-15"></x-divider>
+            <div class="flex flex-col justify-center items-center py-4 pb-8">
+
+                <img src="{{ asset('images/celebration.png') }}" alt=""
+                    class="size-[200px] md:size-[250px] mx-auto mt-4">
+                <p class="font-medium text-[18px] opacity-80">Congratulations!</p>
+                <p class="font-black text-[38px]">🎉You're In!🎉</p>
+
+                <p class="text-center opacity-70">You have successfully passed your interview and are now conditionally
+                    enrolled! <br> To complete your official
+                    enrollment, please submit all required documents (Online/Physical) as instructed. </p>
+
+                <form action="/set-interview/{{ $applicant->interview->id }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="Interview-Completed">
+
+                    <button name="action" value="update-docs"
+                        class="ring-2 ring-[#1A73E8] text-[#1A73E8] px-4 py-2 rounded-full flex flex-row justify-center items-center gap-1 font-medium mt-10 hover:bg-[#1A73E8] hover:text-white transition duration-200">
+                        Submit Required Documents<i
+                            class="fi fi-rs-arrow-small-right flex justify-center items-center text-[22px]"></i>
+                    </button>
+                </form>
+
+
+
+            </div>
+
+        </div>
+    @endsection
+
+@endif
+
+@if ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Interview-Completed')
+    @section('pending-documents')
+        <div class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20 md:w-full justify-center p-4">
+            <div class="flex flex-row justify-start items-center gap-2">
+
+                <div class="text-[24px] text-white bg-[#0f111c] size-[35px] rounded-full flex justify-center items-center">
+                    4
+                </div>
+                <div class="flex flex-col justify-center items-start">
+                    <p class="text-[16px]/5 font-bold">Submit Required Documents</p>
+                    <p class="text-[14px]/5 opacity-60 font-semibold">Date: June 16, 2025</p>
+                </div>
+
+            </div>
+            <x-divider class="my-4 opacity-15"></x-divider>
+            <div class="flex flex-col justify-center items-center py-4 pb-8">
+
+                <div class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15 p-4">
+                    <div class="w-full">
+                        <table id="docs-table" class="w-full table-fixed">
+                            <thead class="text-[14px]">
+                                <tr>
+                                    <th
+                                        class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 cursor-pointer ">
+                                        <span class="mr-2">Document</span>
+                                        <i class="fi fi-ss-sort text-[12px] opacity-60"></i>
+                                    </th>
+                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2">Status</span>
+                                        <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                    </th>
+                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2">Date Submitted</span>
+                                        <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                    </th>
+                                    <th
+                                        class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+
+
+                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                    <td
+                                        class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+
+
+
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        asd
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                        <div class="flex flex-row justify-center items-center gap-2">
+
+                                            <button>
+                                                
+                                                Upload
+
+                                            </button>
+
+                                        </div>
+                                    </td>
+                                    {{-- @dd($pending_applicant->applicationForm->id) --}}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+        </div>
+    @endsection
+
+@endif
 
 @push('scripts')
     <script type="module">
