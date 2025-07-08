@@ -234,7 +234,7 @@
 
         {{-- Pending Documents --}}
         <div
-            class="flex flex-row justify-center items-center gap-2 {{$applicant->application_status == 'Pending-Documents' ? 'opacity-100' : 'opacity-30' }}">
+            class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Pending-Documents' ? 'opacity-100' : 'opacity-30' }}">
             @if ($applicant->application_status == 'Officially Enrolled')
                 <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
                     <i class="fi fi-ss-check flex justify-center items-center text-[14px]"></i>
@@ -706,9 +706,89 @@
 
             </div>
             <x-divider class="my-4 opacity-15"></x-divider>
-            <div class="flex flex-col justify-center items-center py-4 pb-8">
+            <div class="flex flex-col justify-center items-center py-4 pb-8 space-y-4">
 
-                <div class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15 p-4">
+                <p class="mb-6 text-center">
+                    Upload all required documents for your application. Make sure all files are clear and
+                    readable.
+                    <br>
+                    <span class="font-bold opacity-70">Please select a document type first before uploading any
+                        file.</span>
+                </p>
+
+                <div
+                    class="w-[75%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md ">
+
+                    <div class="flex flex-col w-full space-y-2 ">
+                        @if ($documents)
+                            <div class="w-full flex-wrap flex flex-row gap-2">
+                                @foreach ($documents as $doc)
+                                    <div
+                                        class="bg-[#f3f4f6] border border-[#e5e7eb] flex justify-center items-center py-1 px-3 rounded-full text-gray-400">
+                                        {{ $doc->type }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        <p class="font-bold opacity-80">Document type</p>
+                        <label for="document-option"
+                            class="bg-[#f8f8f8] border border-[#1e1e1e]/15 w-full py-2 rounded-md px-4 focus-within:border-[#1A73E8] transition duration-150 focus-within:ring ring-[#1A73E8]/20">
+
+                            <select name="document-option" id="document-option"
+                                class="bg-transparent w-full text-[16px] ">
+                                @if ($documents)
+                                    <option selected>Select document type...</option>
+                                    @foreach ($documents as $doc)
+                                        <option value="{{ $doc->id }}">{{ $doc->type }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </label>
+                    </div>
+
+                    <form id="uploadForm" class="flex flex-col items-center justify-center w-full space-y-2">
+                        <p class="self-start font-bold opacity-80">Upload File</p>
+                        <label for="fileInput"
+                            class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg cursor-pointer bg-[#E7F0FD] hover:bg-blue-100 ">
+
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-4 text-[#1A73E8]" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                </svg>
+                                <p class="mb-2 text-sm text-[#0f111c]/80"><span class="font-semibold">Click to
+                                        upload</span> or drag and drop</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG or PDF(MAX. 800x400px)</p>
+                            </div>
+                            <span
+                                class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Choose
+                                Files</span>
+
+                            <input id="fileInput" type="file" class="hidden" />
+                        </label>
+                    </form>
+                </div>
+
+                <div class="uploaded-files w-[75%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md "
+                    id="uploadedFiles">
+                    <h2 class="section-title self-start font-bold opacity-80">Uploaded Documents</h2>
+                    <div id="filesList" class="w-full space-y-2">
+
+                    </div>
+                </div>
+
+
+                <div class="w-[75%] flex justify-center items-center">
+                    <button form="uploadForm"
+                        class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Upload</button>
+                </div>
+
+                @if (session('success'))
+                    <p style="color: green;">{{ session('success') }}</p>
+                @endif
+                {{-- <div class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15 p-4">
                     <div class="w-full">
                         <table id="docs-table" class="w-full table-fixed">
                             <thead class="text-[14px]">
@@ -757,19 +837,18 @@
                                         <div class="flex flex-row justify-center items-center gap-2">
 
                                             <button>
-                                                
+
                                                 Upload
 
                                             </button>
 
                                         </div>
                                     </td>
-                                    {{-- @dd($pending_applicant->applicationForm->id) --}}
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </div> --}}
 
 
 
@@ -783,6 +862,149 @@
 @push('scripts')
     <script type="module">
         document.addEventListener('DOMContentLoaded', function() {
+
+            let docs = @json($documents);
+
+            const btn = document.getElementById('upload-btn');
+
+            const input = document.getElementById('fileInput');
+            const doc_option = document.getElementById('document-option');
+
+            const container = document.getElementById('filesList');
+
+            const uploadedFiles = [];
+            const attachedFiles = [];
+            if (uploadedFiles.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state flex flex-col justify-center items-center gap-4">
+                        <img src="{{ asset('images/clipboard.png') }}" class="h-[70px] opacity-60" alt="">
+                        <div class="opacity-60">No documents uploaded yet</div>
+                    </div>
+                `;
+
+            }
+
+            input.addEventListener('change', (event) => {
+
+                // Access the selected files (can be one or multiple)
+                const files = Array.from(event.target.files);
+
+                console.log(files)
+                console.log(doc_option.value)
+                console.log(doc_option.options[doc_option.selectedIndex].text)
+
+                const newDoc = {
+
+                }
+
+
+                files.forEach(file => {
+                    uploadedFiles.push({
+                        file: file, // actual File object
+                        assignedTo: doc_option.value
+                    });
+                });
+
+                files.forEach(file => {
+                    attachedFiles.push({
+                        name: file.name,
+                        assignedTo: doc_option.options[doc_option.selectedIndex].text,
+                        docId: doc_option.value
+                    });
+                });
+
+                container.innerHTML = '';
+
+
+
+                uploadedFiles.forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'uploaded-file';
+
+                    const fileIcon = '📄';
+
+                    item.innerHTML = `
+                        <div
+                            class="flex flex-row justify-between items-center gap-2 bg-[#E7F0FD]/60 border border-[#1e1e1e]/10 px-4 py-2 rounded-md">
+                            <div class="flex flex-row items-center gap-2 flex-1">
+                                <!-- Icon -->
+                                <div class="size-10 bg-blue-500 rounded-lg flex justify-center items-center text-white">
+                                    <i class="fi fi-ss-document text-[24px]"></i>
+                                </div>
+
+                                <!-- Text container -->
+                                <div class="flex flex-col justify-center items-start overflow-hidden">
+                                    <p class="font-bold opacity-80 leading-tight truncate max-w-[300px]">
+                                        ${file.name}
+                                    </p>
+                                    <p class="opacity-60">${file.assignedTo}</p>
+                                </div>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class="shrink-0">
+                                <button onclick="removeDocument(${file.docId})"
+                                    class="border border-red-500/30 hover:bg-red-500 rounded-lg flex justify-center items-center text-red-500 px-3 py-2 gap-1 hover:text-white hover:ring ring-red-200 transition duration-200">
+                                    <i class="fi fi-ss-trash text-[16px]"></i>
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                `;
+                    container.appendChild(item);
+                    console.log(uploadedFiles)
+                });
+
+                // const newInput = input.cloneNode(true); // clone the node (structure and attributes)
+                // input.parentNode.replaceChild(newInput, input); // replace the old input with the clone
+            })
+
+            function removeDocument(docId) {
+                uploadedDocuments = uploadedDocuments.filter(doc => doc.id !== docId);
+
+            }
+
+            const form = document.getElementById('uploadForm')
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const fileInput = document.getElementById('fileInput');
+                const files = fileInput.files;
+
+
+                const formData = new FormData();
+
+                console.log(files)
+
+                uploadedFiles.forEach((item, i) => {
+                    // Add the file
+                    formData.append(`documents[${i}]`, item.file);
+
+                    // Add the assigned option (or use files_assigned[i] = ...)
+                    formData.append(`documents_id[${i}]`, item.assignedTo);
+                });
+
+                console.log(formData)
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                axios.post('/submit-document', formData, {
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                            // Do NOT set Content-Type manually — Axios handles it
+                        }
+                    })
+                    .then(response => {
+                        console.log('Upload successful:', response.data);
+                    })
+                    .catch(error => {
+                        console.error('Upload failed:', error.response?.data || error.message);
+                    });
+            });
+
+
 
             window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                 event) => {
@@ -837,6 +1059,8 @@
 
                 }
             });
+
+
 
         });
     </script>

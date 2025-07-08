@@ -1,7 +1,8 @@
-<?php 
+<?php
 
 namespace App\Services;
 
+use App\Models\Documents;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardDataService
@@ -9,9 +10,9 @@ class DashboardDataService
     public function __construct(
         protected AcademicTermService $academicTermService,
         protected EnrollmentPeriodService $enrollmentPeriodService,
-        protected ApplicationFormService $applicationFormService
-    )
-    {}
+        protected ApplicationFormService $applicationFormService,
+        protected Documents $documents
+    ) {}
 
     public function getAdminDashboardData()
     {
@@ -27,7 +28,6 @@ class DashboardDataService
                 'currentAcadTerm' => null,
                 'activeEnrollmentPeriod' => null
             ];
-
         }
 
         $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
@@ -42,7 +42,6 @@ class DashboardDataService
                 'applicationCount' => null,
                 'activeEnrollmentPeriod' => null
             ];
-
         }
 
         $pendingApplicationsCount = $this->applicationFormService->fetchApplicationWithStatus('Pending')->count();
@@ -58,7 +57,6 @@ class DashboardDataService
             'currentAcadTerm' => $currentAcadTerm,
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod
         ];
-
     }
 
     public function getAdmissionDashboardData()
@@ -77,7 +75,6 @@ class DashboardDataService
             return [
                 'applicant' => null
             ];
-
         }
 
         if (!$currentAcadTerm) {
@@ -87,7 +84,6 @@ class DashboardDataService
                 'activeEnrollmentPeriod' => null,
                 'applicant' => $applicant
             ];
-
         }
 
         $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
@@ -99,15 +95,25 @@ class DashboardDataService
                 'activeEnrollmentPeriod' => null,
                 'applicant' => $applicant
             ];
+        }
 
+        $documents = $this->documents->all();
+
+        if (!$documents) {
+
+            return [
+                'currentAcadTerm' => $currentAcadTerm,
+                'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
+                'applicant' => $applicant,
+                'documents' => null
+            ];
         }
 
         return [
             'currentAcadTerm' => $currentAcadTerm,
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
-            'applicant' => $applicant
+            'applicant' => $applicant,
+            'documents' => $documents
         ];
-
     }
-
 }

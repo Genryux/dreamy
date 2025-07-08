@@ -24,7 +24,7 @@
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
                         <select name="semester" id="semester" class="w-full bg-transparent text-[14px]">
-                            <option ></option>
+                            <option></option>
                             <option value="First Semester" class="text-[14px]">First Semester</option>
                             <option value="Second Semester" class="text-[14px]">Second Semester</option>
                         </select>
@@ -67,8 +67,10 @@
         </form>
 
         <x-slot name="modal_buttons">
-            <button id="cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-            <button form="academic-term-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+            <button id="cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+            <button form="academic-term-form"
+                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
         </x-slot>
     </x-modal>
     {{-- enrollment period modal --}}
@@ -82,7 +84,8 @@
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                        <input type="text" name="name" id="name" placeholder="(Early registration, Regular, etc.)"
+                        <input type="text" name="name" id="name"
+                            placeholder="(Early registration, Regular, etc.)"
                             class="appearance-none     
                         [&::-webkit-outer-spin-button]:appearance-none
                         [&::-webkit-inner-spin-button]:appearance-none
@@ -94,8 +97,10 @@
                     <div
                         class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
                         <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
-                        <select name="max_applicants" id="max_applicants" class="w-full bg-transparent text-[14px] opacity-80">
-                            <option disabled selected class="text-[14px] opacity-60">Set maximum number of applicant</option>
+                        <select name="max_applicants" id="max_applicants"
+                            class="w-full bg-transparent text-[14px] opacity-80">
+                            <option disabled selected class="text-[14px] opacity-60">Set maximum number of applicant
+                            </option>
                             <option value="20" class="text-[14px]">20 Applicants</option>
                             <option value="40" class="text-[14px]">40 Applicants</option>
                             <option value="60" class="text-[14px]">60 Applicants</option>
@@ -132,29 +137,37 @@
         </form>
 
         <x-slot name="modal_buttons">
-            <button id="ep-cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-            <button form="enrollment-period-form" class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+            <button id="ep-cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+            <button form="enrollment-period-form"
+                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
         </x-slot>
     </x-modal>
     @if ($activeEnrollmentPeriod)
-        <x-modal modal_id="end-enrollment-modal" modal_name="End enrollment period confirmation" close_btn_id="end-enrollment-close-btn">
-            <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="end-enrollment-form" class="pt-2 pb-4 px-4 space-y-2">
+        <x-modal modal_id="end-enrollment-modal" modal_name="End enrollment period confirmation"
+            close_btn_id="end-enrollment-close-btn">
+            <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="end-enrollment-form"
+                class="pt-2 pb-4 px-4 space-y-2">
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="status" id="ep-status" value="Closed">
                 <p class="text-[16px] font-semibold">Are you sure you want to end the enrollment period?</p>
-                <p class="text-[14px] font-medium opacity-80">Please ensure that all applications have been reviewed and there are no pending or unprocessed submissions before proceeding.</p>
-                <p class="text-[14px] font-medium opacity-80">This action may prevent further access or updates to ongoing applications.</p>
+                <p class="text-[14px] font-medium opacity-80">Please ensure that all applications have been reviewed and
+                    there are no pending or unprocessed submissions before proceeding.</p>
+                <p class="text-[14px] font-medium opacity-80">This action may prevent further access or updates to ongoing
+                    applications.</p>
             </form>
 
             <x-slot name="modal_buttons">
-                <button id="end-enrollment-cancel-btn" class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-                <button form="end-enrollment-form" id="end-enrollment-period-confirmation" data-id="{{ $activeEnrollmentPeriod->id }}" class="bg-[#F97316] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+                <button id="end-enrollment-cancel-btn"
+                    class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
+                <button form="end-enrollment-form" id="end-enrollment-period-confirmation"
+                    data-id="{{ $activeEnrollmentPeriod->id }}"
+                    class="bg-[#F97316] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
             </x-slot>
         </x-modal>
     @endif
     {{-- end enrollment period modal --}}
-
 @endsection
 
 @section('header')
@@ -219,7 +232,8 @@
         <div class="flex flex-row items-center justify-between space-x-2 px-[14px] py-4">
             <div class="flex flex-row items-center space-x-1">
                 <p>Academic Term:</p>
-                <button class="font-bold flex flex-row items-center space-x-2 text-[16px] text-[#1A73E8] hover:text-[#199BCF] ease-in-out duration-150">
+                <button
+                    class="font-bold flex flex-row items-center space-x-2 text-[16px] text-[#1A73E8] hover:text-[#199BCF] ease-in-out duration-150">
                     {{ $currentAcadTerm->full_name ?? '-' }}
                 </button>
             </div>
@@ -236,6 +250,7 @@
 @section('stat')
 
 
+
     <div class="flex flex-row space-x-2">
         <div class="bg-[#f8f8f8] flex-1 rounded-md px-[16px] py-4 shadow-sm border border-[#1e1e1e]/15">
             <div class="flex flex-row justify-between">
@@ -250,183 +265,197 @@
             </div>
 
             @if ($activeEnrollmentPeriod)
-                <div id="ep-details" class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
-            @else
-                <div id="ep-details"> 
+                <div id="ep-details"
+                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
+                @else
+                    <div id="ep-details">
             @endif
-                @if ($activeEnrollmentPeriod)
+            @if ($activeEnrollmentPeriod)
                 <div class="flex flex-row py-2 justify-between">
                     <div class="flex flex-col">
                         <span class="font-bold text-[16px]">{{ $activeEnrollmentPeriod->name }}</span>
-                        <span class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                        <span
+                            class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
                     </div>
                     <div>
                         @if ($activeEnrollmentPeriod)
-                        <span class="text-[14px] text-[#EA4335] font-bold">
-                            {{-- toggle --}}
-                            <label for="toggleEnrollmentPeriod" class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer" 
-                                @if ($activeEnrollmentPeriod->status == 'Ongoing') 
-                                    checked 
+                            <span class="text-[14px] text-[#EA4335] font-bold">
+                                {{-- toggle --}}
+                                <label for="toggleEnrollmentPeriod"
+                                    class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer"
+                                        @if ($activeEnrollmentPeriod->status == 'Ongoing') checked 
                                     value="Paused"
                                 @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                                    value="Ongoing"
-                                @endif
-                                >
+                                    value="Ongoing" @endif>
 
-                                <div class="w-11 h-[19px] bg-[#EA4335]/80 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[24px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[12px] after:w-[12px] after:transition-all peer-checked:bg-[#34A853]/80"></div>
+                                    <div
+                                        class="w-11 h-[19px] bg-[#EA4335]/80 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[24px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[12px] after:w-[12px] after:transition-all peer-checked:bg-[#34A853]/80">
+                                    </div>
 
-                            </label>
-                        </span>
+                                </label>
+                            </span>
                         @endif
                     </div>
                 </div>
-                @endif
-                @if ($activeEnrollmentPeriod)
-                    <div class="flex flex-row justify-evenly py-8">
-                        <div class="flex flex-row gap-4 items-center">
-                            <div class="bg-[#E6F4EA] px-4 py-3 rounded-full">
-                                <i class="fi fi-ss-calendar-check text-[20px] text-[#34A853]"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
-                                <span class="text-[14px] opacity-60">Start Date</span>
-                            </div>
-                        </div>
-                        <span class="flex items-center">
-                            <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
-                        </span>
-                        <div class="flex flex-row gap-4 items-center">
-                            <div class="bg-[#FCE8E6] px-4 py-3 rounded-full">
-                                <i class="fi fi-ss-calendar-xmark text-[20px] text-[#EA4335]"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
-                                <span class="text-[14px] opacity-60">End Date</span>
-                            </div>
-                        </div>
-                    </div>
-                @elseif (!$activeEnrollmentPeriod)
-                    <div class="flex flex-row justify-evenly py-2">
-
-                        <div class="flex flex-col justify-center items-center space-y-3">
-                            <img src="{{ asset('images/empty-box.png') }}" alt="empty-box" class="size-[120px]">
-                            <span class="opacity-60">There is currently no active enrollment period</span>
-                            @if ($currentAcadTerm)
-                                <button id="enrollment-period-btn" class="border border-[#1A73E8] px-3 py-1 text-[#1A73E8] font-bold text-[14px] rounded-md">
-                                    Add Enrollment Period
-                                </button>
-                            @endif
-
-                        </div>
-
-                    </div>
-                @endif
-            </div>
+            @endif
             @if ($activeEnrollmentPeriod)
+                <div class="flex flex-row justify-evenly py-8">
+                    <div class="flex flex-row gap-4 items-center">
+                        <div class="bg-[#E6F4EA] px-4 py-3 rounded-full">
+                            <i class="fi fi-ss-calendar-check text-[20px] text-[#34A853]"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span
+                                class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
+                            <span class="text-[14px] opacity-60">Start Date</span>
+                        </div>
+                    </div>
+                    <span class="flex items-center">
+                        <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
+                    </span>
+                    <div class="flex flex-row gap-4 items-center">
+                        <div class="bg-[#FCE8E6] px-4 py-3 rounded-full">
+                            <i class="fi fi-ss-calendar-xmark text-[20px] text-[#EA4335]"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span
+                                class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
+                            <span class="text-[14px] opacity-60">End Date</span>
+                        </div>
+                    </div>
+                </div>
+            @elseif (!$activeEnrollmentPeriod)
+                <div class="flex flex-row justify-evenly py-2">
+
+                    <div class="flex flex-col justify-center items-center space-y-3">
+                        <img src="{{ asset('images/empty-box.png') }}" alt="empty-box" class="size-[120px]">
+                        <span class="opacity-60">There is currently no active enrollment period</span>
+                        @if ($currentAcadTerm)
+                            <button id="enrollment-period-btn"
+                                class="border border-[#1A73E8] px-3 py-1 text-[#1A73E8] font-bold text-[14px] rounded-md">
+                                Add Enrollment Period
+                            </button>
+                        @endif
+
+                    </div>
+
+                </div>
+            @endif
+        </div>
+        @if ($activeEnrollmentPeriod)
             <div class="flex flex-row items-center justify-between pt-2">
-                <span id="ep-time" class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[15px]">Time Remaining:  
-                    <span class="opacity-100 font-bold">      
+                <span id="ep-time"
+                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[15px]">Time
+                    Remaining:
+                    <span class="opacity-100 font-bold">
                         @php
-                            $remainingDays = max(0, \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->diffInDays(\Carbon\Carbon::now()));
+                            $remainingDays = max(
+                                0,
+                                \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->diffInDays(
+                                    \Carbon\Carbon::now(),
+                                ),
+                            );
                             echo $remainingDays . ' ' . Str::plural('Day', $remainingDays);
                         @endphp
-                    
+
                     </span>
                 </span>
                 <div>
-                    <button id="end-enrollment-btn" class="border border-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End Enrollment
+                    <button id="end-enrollment-btn"
+                        class="border border-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End
+                        Enrollment
                         Period
                     </button>
                 </div>
             </div>
-            @endif
-        </div>
-{{-- Application overview --}}
-        <div class="bg-[#f8f8f8] flex-1  rounded-md px-[16px] py-4 space-y-3 shadow-sm border border-[#1e1e1e]/15">
-            <span class="font-bold">Application Overview</span>
-            <div class="flex flex-row space-x-3">
+        @endif
+    </div>
+    {{-- Application overview --}}
+    <div class="bg-[#f8f8f8] flex-1  rounded-md px-[16px] py-4 space-y-3 shadow-sm border border-[#1e1e1e]/15">
+        <span class="font-bold">Application Overview</span>
+        <div class="flex flex-row space-x-3">
 
-                <div class="w-1/3 flex flex-col space-y-5">
-                    <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
-                        <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
-                                class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
-                        <span class="font-medium opacity-60">Total Applications</span>
-                    </span>
+            <div class="w-1/3 flex flex-col space-y-5">
+                <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
+                    <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
+                            class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
+                    <span class="font-medium opacity-60">Total Applications</span>
+                </span>
 
-                    <span class="w-full space-y-2">
-                        <div class="w-full">
-                            <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
-                                <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
-                            </div>
+                <span class="w-full space-y-2">
+                    <div class="w-full">
+                        <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
+                            <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
                         </div>
-                        <div class="text-[14px]">0% of Max applications</div>
-                    </span>
+                    </div>
+                    <div class="text-[14px]">0% of Max applications</div>
+                </span>
+            </div>
+
+            <div class="w-2/3 grid grid-cols-2 gap-2">
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-3">
+                        <div
+                            class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                            {{ $pending_applications ?? '0' }}</div>
+                        <p class="font-medium text-[16px]">Pending</p>
+                    </div>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                </div>
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-3">
+                        <div
+                            class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                            {{ $selected_applications ?? '0' }}</div>
+                        <p class="font-medium text-[16px]">Selected
+                    </div>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
 
-                <div class="w-2/3 grid grid-cols-2 gap-2">
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-3">
-                            <div
-                                class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                {{ $pending_applications ?? '0' }}</div>
-                            <p class="font-medium text-[16px]">Pending</p>
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-2">
+                        <div
+                            class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                            0</div>
+                        <p class="font-medium text-[15px]">Pending Docs</p>
                     </div>
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-3">
-                            <div
-                                class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                {{ $selected_applications ?? '0' }}</div>
-                            <p class="font-medium text-[16px]">Selected
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                </div>
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-3">
+                        <div
+                            class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
+                            0</div>
+                        <p class="font-medium text-[16px]">Enrolled</p>
                     </div>
-
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-2">
-                            <div
-                                class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                0</div>
-                            <p class="font-medium text-[15px]">Pending Docs</p>
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                    </div>
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-3">
-                            <div
-                                class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
-                                0</div>
-                            <p class="font-medium text-[16px]">Enrolled</p>
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                    </div>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @endsection
 
 @section('content')
 
     @error('year')
-    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
     @error('semester')
-    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
     @error('start_date')
-    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
     @error('end_date')
-    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
     @error('is_active')
-    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
     @error('error')
-    <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
+        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
     @if (session('error'))
         <div class="text-red-500 text-[14px] font-bold">{{ session('error') }}</div>
@@ -511,7 +540,8 @@
 
                                     <td
                                         class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <a href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
+                                        <a
+                                            href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -526,7 +556,9 @@
 
 @push('scripts')
     <script type="module">
-        import { initModal } from "/js/modal.js";
+        import {
+            initModal
+        } from "/js/modal.js";
 
         let table;
         let totalApplications = document.querySelector('#total-application');
@@ -571,7 +603,8 @@
 
             initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn');
             initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn');
-            initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn', 'end-enrollment-cancel-btn');
+            initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
+                'end-enrollment-cancel-btn');
 
             //Overriding default search input
             const customSearch = document.getElementById("myCustomSearch");
@@ -666,28 +699,29 @@
                 });
             }
 
-            window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (event) => {
-                console.log(event.enrollmentPeriod.status);
-                let epDetails = document.querySelector('#ep-details');
-                let epTime = document.querySelector('#ep-time');
-                let statusSpan = document.querySelector('#status-span');
+            window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
+                event) => {
+                    console.log(event.enrollmentPeriod.status);
+                    let epDetails = document.querySelector('#ep-details');
+                    let epTime = document.querySelector('#ep-time');
+                    let statusSpan = document.querySelector('#status-span');
 
-                if (event.enrollmentPeriod.status == 'Paused') {
-                    epDetails.classList.add('opacity-30');
-                    epTime.classList.add('opacity-30');
-                    statusSpan.innerHTML = event.enrollmentPeriod.status;
-                    statusSpan.classList.remove('text-[#34A853]');
-                    statusSpan.classList.add('text-[#EA4335]');
-                } else if (event.enrollmentPeriod.status == 'Ongoing') {
-                    epDetails.classList.remove('opacity-30');
-                    epTime.classList.remove('opacity-30');
-                    statusSpan.innerHTML = event.enrollmentPeriod.status;
-                    statusSpan.classList.remove('text-[#EA4335]');
-                    statusSpan.classList.add('text-[#34A853]');
-                }
+                    if (event.enrollmentPeriod.status == 'Paused') {
+                        epDetails.classList.add('opacity-30');
+                        epTime.classList.add('opacity-30');
+                        statusSpan.innerHTML = event.enrollmentPeriod.status;
+                        statusSpan.classList.remove('text-[#34A853]');
+                        statusSpan.classList.add('text-[#EA4335]');
+                    } else if (event.enrollmentPeriod.status == 'Ongoing') {
+                        epDetails.classList.remove('opacity-30');
+                        epTime.classList.remove('opacity-30');
+                        statusSpan.innerHTML = event.enrollmentPeriod.status;
+                        statusSpan.classList.remove('text-[#EA4335]');
+                        statusSpan.classList.add('text-[#34A853]');
+                    }
 
 
-            });
+                });
 
 
 

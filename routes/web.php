@@ -78,8 +78,8 @@ Route::post('/required-docs', [DocumentsController::class, 'store'])->name('docu
 
 // document submission
 
-
-Route::patch('/submit-document/{submittedDocuments}', [DocumentsSubmissionController::class, 'update'])->name('documents.patch');
+Route::post('/submit-document', [DocumentsSubmissionController::class, 'store'])->name('documents.store');
+Route::patch('/submit-document/{submittedDocuments}', [DocumentsSubmissionController::class, 'update']);
 
 
 

@@ -25,7 +25,7 @@ class DocumentSubmissions extends Model
 
     public function document()
     {
-        return $this->belongsTo(Documents::class, 'document_id');
+        return $this->belongsTo(Documents::class, 'documents_id');
     }
 
     public function applicant()

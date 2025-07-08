@@ -152,6 +152,7 @@
                     </thead>
 
 
+
                     <tbody>
                         @foreach ($required_docs as $doc)
                             @php
@@ -162,10 +163,25 @@
                                 <td class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                     {{ $doc->type }}
                                 </td>
-                                <td
-                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
 
-                                    @if (!is_null($submission))
+                                @if (is_null($submission))
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        <span class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
+                                            Not submitted
+                                        </span>
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        <p>-</p>
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                        <p>-</p>
+                                    </td>
+                                @else
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                         @if ($submission->status == 'Pending')
                                             <span class="bg-[#FFF4E5] text-[#FBBC04] px-2 py-1 rounded-md font-medium">
                                                 Pending
@@ -179,52 +195,55 @@
                                                 Rejected
                                             </span>
                                         @endif
-                                    @else
-                                        <span class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
-                                            Not submitted
-                                        </span>
-                                    @endif
+
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        asd
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                        <div class="flex flex-row justify-center items-center gap-2">
+                                            @if (!is_null($submission))
+                                                <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}" target="_blank"
+                                                    class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
+                                                    title="View document">
+                                                    <i
+                                                        class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
+                                                    View
+                                                </x-nav-link>
+                                                <button type="button" id="open-verify-modal-btn"
+                                                    onclick="openVerifyModal({{ $doc->id }})"
+                                                    class="flex flex-row gap-2 justify-center items-center text-[14px] text-white py-2 px-3 rounded-md bg-[#34A853] hover:ring-1 ring-[#34A853]/60 font-medium"
+                                                    title="Accept document">
+                                                    <i
+                                                        class="fi fi-rs-check text-[16px] flex justify-center items-center"></i>
+                                                    Verify
+                                                </button>
+                                                <form action="/asdsada" method="POST" class="inline-block">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button
+                                                        class="flex flex-row gap-1 justify-center items-center text-[14px] text-white py-2 px-3 rounded-md bg-[#EA4335] hover:ring-1 ring-[#EA4335]/60 font-semibold"
+                                                        title="Reject document">
+                                                        <i
+                                                            class="fi fi-rs-cross-small text-[16px] flex justify-center items-center"></i>
+                                                        Reject
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <p>-</p>
+                                            @endif
+                                            {{-- Are you sure you want to reject this document? This action will mark the document as invalid and notify the relevant parties. --}}
 
 
-                                </td>
-                                <td
-                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    asd
-                                </td>
-                                <td
-                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
-                                    <div class="flex flex-row justify-center items-center gap-2">
-                                        <x-nav-link href="/required-docs/edit/"
-                                            class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
-                                            title="View document">
-                                            <i class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
-                                            View
-                                        </x-nav-link>
-                                        {{-- Are you sure you want to reject this document? This action will mark the document as invalid and notify the relevant parties. --}}
+
+                                        </div>
+                                    </td>
+                                @endif
 
 
-                                        <button type="button" id="open-verify-modal-btn"
-                                            onclick="openVerifyModal({{ $doc->id }})"
-                                            class="flex flex-row gap-2 justify-center items-center text-[14px] text-white py-2 px-3 rounded-md bg-[#34A853] hover:ring-1 ring-[#34A853]/60 font-medium"
-                                            title="Accept document">
-                                            <i class="fi fi-rs-check text-[16px] flex justify-center items-center"></i>
-                                            Verify
-                                        </button>
 
-
-                                        <form action="/asdsada" method="POST" class="inline-block">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button
-                                                class="flex flex-row gap-1 justify-center items-center text-[14px] text-white py-2 px-3 rounded-md bg-[#EA4335] hover:ring-1 ring-[#EA4335]/60 font-semibold"
-                                                title="Reject document">
-                                                <i
-                                                    class="fi fi-rs-cross-small text-[16px] flex justify-center items-center"></i>
-                                                Reject
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
                                 {{-- @dd($pending_applicant->applicationForm->id) --}}
                             </tr>
                         @endforeach
@@ -248,7 +267,7 @@
 
             function openVerifyModal(docId) {
                 document.getElementById('verify-doc-form').action = `/submit-document/${docId}`;
-                
+
                 // Your modal opening logic
                 //document.getElementById('verify-doc-modal').style.display = 'block';
             }

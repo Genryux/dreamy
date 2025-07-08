@@ -13,12 +13,7 @@ class DocumentSeeder extends Seeder
     public function run(): void
     {
         
-        \App\Models\Documents::factory()->count(10)->create([
-            'type' => 'Passport',
-            'description' => 'A valid passport is required for international applicants.',
-            'file_type_restriction' => 'pdf',
-            'max_file_size' => 2000, // in KB
-        ]);
+        \App\Models\Documents::factory()->count(5)->create();
 
     }
 }

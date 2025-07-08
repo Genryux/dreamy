@@ -33,6 +33,7 @@ class AdmissionDashboardController extends Controller
                 'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
                 'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                 'applicant' => $data['applicant'] ?? null,
+                'documents' => $data['documents'] ?? null
             ]);
         }
 

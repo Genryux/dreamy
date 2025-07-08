@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionSeeder::class,
             RegistrarSeeder::class,
             AcademicTermSeeder::class,
+            DocumentSeeder::class
         ]);
 
     }
