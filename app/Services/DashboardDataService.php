@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Documents;
+use App\Models\DocumentSubmissions;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardDataService
@@ -11,7 +12,8 @@ class DashboardDataService
         protected AcademicTermService $academicTermService,
         protected EnrollmentPeriodService $enrollmentPeriodService,
         protected ApplicationFormService $applicationFormService,
-        protected Documents $documents
+        protected Documents $documents,
+        protected ApplicantService $applicant
     ) {}
 
     public function getAdminDashboardData()
@@ -62,7 +64,7 @@ class DashboardDataService
     public function getAdmissionDashboardData()
     {
 
-        $applicant = Auth::user()->applicant;
+        $applicant = $this->applicant->fetchAuthenticatedApplicant();
 
         if ($applicant) {
             $applicant->load('interview');
@@ -109,11 +111,14 @@ class DashboardDataService
             ];
         }
 
+        $documentSubmissions = DocumentSubmissions::where('applicants_id', $applicant->id)->get()->keyBy('documents_id');
+
         return [
             'currentAcadTerm' => $currentAcadTerm,
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
             'applicant' => $applicant,
-            'documents' => $documents
+            'documents' => $documents,
+            'submissions' => $documentSubmissions
         ];
     }
 }

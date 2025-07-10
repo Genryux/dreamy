@@ -62,6 +62,21 @@
         </x-slot>
 
     </x-modal>
+<x-modal modal_id="view-doc-modal" modal_name="Verification confirmation" close_btn_id="view-doc-close-btn">
+    <div style="max-height: 70vh; overflow-y: auto; overflow-x: auto; padding: 10px;">
+        <canvas id="pdfViewerCanvas"></canvas>
+    </div>
+    <x-slot name="modal_buttons">
+        <button id="cancel-btn"
+            class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+            Cancel
+        </button>
+        <button type="submit" name="action" value="view"
+            class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+            Confirm
+        </button>
+    </x-slot>
+</x-modal>
 @endsection
 
 @section('header')
@@ -154,7 +169,7 @@
 
 
                     <tbody>
-                        @foreach ($required_docs as $doc)
+                        @foreach ($required_docs as $index => $doc)
                             @php
                                 $submission = $submissions[$doc->id] ?? null;
 
@@ -163,7 +178,6 @@
                                 <td class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                     {{ $doc->type }}
                                 </td>
-
                                 @if (is_null($submission))
                                     <td
                                         class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
@@ -205,13 +219,29 @@
                                         class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
                                         <div class="flex flex-row justify-center items-center gap-2">
                                             @if (!is_null($submission))
-                                                <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}" target="_blank"
+                                                {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
+                                                    target="_blank"
                                                     class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
                                                     title="View document">
                                                     <i
                                                         class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
                                                     View
-                                                </x-nav-link>
+                                                </x-nav-link> --}}
+                                                <button id="open-view-modal-btn-{{$index}}"
+                                                    data-file-url="{{ asset('storage/' . $submission->file_path) }}"
+                                                    data-file-type="{{ pathinfo($submission->file_path, PATHINFO_EXTENSION) }}"
+                                                    class="view-document-btn flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
+                                                    title="View document">
+                                                    View
+                                                </button>
+                                                {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
+                                                    target="_blank"
+                                                    class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
+                                                    title="View document">
+                                                    <i
+                                                        class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
+
+                                                </x-nav-link> --}}
                                                 <button type="button" id="open-verify-modal-btn"
                                                     onclick="openVerifyModal({{ $doc->id }})"
                                                     class="flex flex-row gap-2 justify-center items-center text-[14px] text-white py-2 px-3 rounded-md bg-[#34A853] hover:ring-1 ring-[#34A853]/60 font-medium"
@@ -255,6 +285,7 @@
 @endsection
 
 @push('scripts')
+
     <script type="module">
         import {
             initModal
@@ -313,13 +344,104 @@
 
 
 
-
+            initModal('view-doc-modal', 'open-view-modal-btn', 'view-doc-close-btn', 'cancel-btn');
             initModal('verify-doc-modal', 'open-verify-modal-btn', 'verify-doc-close-btn', 'cancel-btn');
 
 
 
+document.querySelectorAll('.view-document-btn').forEach((button, index) => {
 
+    initModal('view-doc-modal', `open-view-modal-btn-${index}`, 'view-doc-close-btn', 'cancel-btn');
 
+    button.addEventListener('click', async () => {
+        const fileUrl = button.getAttribute('data-file-url');
+        const fileType = button.getAttribute('data-file-type').toLowerCase();
+        if (fileType !== 'pdf') {
+            alert('This viewer only supports PDFs.');
+            return;
+        }
+        
+        const canvas = document.getElementById('pdfViewerCanvas');
+        // Reset canvas styling to allow proper scrolling
+        canvas.style.width = 'auto';
+        canvas.style.height = 'auto';
+        canvas.style.maxWidth = '100%';
+        canvas.style.display = 'block';
+        canvas.style.margin = '0 auto';
+        const context = canvas.getContext('2d');
+        
+        // Load PDF
+        const loadingTask = pdfjsLib.getDocument(fileUrl);
+        loadingTask.promise.then(function(pdf) {
+            const numPages = pdf.numPages;
+            let totalHeight = 0;
+            const pageGap = 20; // Space between pages
+            const scale = 1.5;
+            
+            // Get page dimensions first to calculate total height
+            const pagePromises = [];
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                pagePromises.push(pdf.getPage(pageNum).then(function(page) {
+                    const viewport = page.getViewport({ scale: scale });
+                    return {
+                        page: page,
+                        viewport: viewport,
+                        pageNum: pageNum
+                    };
+                }));
+            }
+            
+            Promise.all(pagePromises).then(function(pages) {
+                // Calculate total height and set canvas size
+                const maxWidth = Math.max(...pages.map(p => p.viewport.width));
+                totalHeight = pages.reduce((sum, p) => sum + p.viewport.height + pageGap, 0) - pageGap;
+                
+                canvas.width = maxWidth;
+                canvas.height = totalHeight;
+                
+                // Clear canvas
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Render pages sequentially to avoid canvas conflicts
+                async function renderPagesSequentially() {
+                    let currentY = 0;
+                    
+                    for (let i = 0; i < pages.length; i++) {
+                        const pageData = pages[i];
+                        
+                        // Add page separator and number (except for first page)
+                        if (i > 0) {
+                            context.fillStyle = '#ccc';
+                            context.font = '12px Arial';
+                            context.fillRect(0, currentY - pageGap/2, canvas.width, 1);
+                            context.fillText(`Page ${pageData.pageNum}`, 10, currentY - 5);
+                        }
+                        
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: pageData.viewport,
+                            transform: [1, 0, 0, 1, 0, currentY]
+                        };
+                        
+                        // Wait for each page to render before moving to next
+                        await pageData.page.render(renderContext).promise;
+                        currentY += pageData.viewport.height + pageGap;
+                    }
+                }
+                
+                renderPagesSequentially();
+            });
+        });
+        
+        document.getElementById('view-doc-modal').style.display = 'flex';
+    });
+});
+
+// Optional: Add zoom functionality
+function zoomPDF(zoomLevel) {
+    // Re-render with new zoom level
+    // This would require storing the PDF instance and re-running the rendering logic
+}
 
 
             initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn');

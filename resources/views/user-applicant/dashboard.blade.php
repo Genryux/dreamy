@@ -717,10 +717,81 @@
                 </p>
 
                 <div
-                    class="w-[75%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md ">
+                    class="w-[80%] flex flex-col justify-center items-center space-y-2 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md ">
+                    <p class="self-start font-bold opacity-80">Required Documents</p>
+                    <div class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/10 ">
 
-                    <div class="flex flex-col w-full space-y-2 ">
-                        @if ($documents)
+
+                        <table id="docs-table" class="w-full table-fixed ">
+                            <thead class="text-[14px]">
+                                <tr>
+                                    <th
+                                        class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-md px-4 py-2 cursor-pointer ">
+                                        <span class="mr-2">Documents</span>
+                                    </th>
+                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2">Submit Before</span>
+                                    </th>
+                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2">Date Submitted</span>
+                                    </th>
+                                    <th
+                                        class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-md px-4 py-2">
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+
+                                @if ($documents)
+                                    @foreach ($documents as $doc)
+                                        @php
+                                            $submission = $submissions[$doc->id] ?? null;
+
+                                        @endphp
+
+                                        <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                            <td
+                                                class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                {{ $doc->type }}
+                                            </td>
+                                            <td
+                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+
+
+
+                                            </td>
+                                            <td
+                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                -
+                                            </td>
+                                            <td
+                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                                <div class="flex flex-row justify-center items-center gap-2">
+
+
+
+                                                    {{ $submission->status }}
+
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div
+                    class="w-[80%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md ">
+
+                    <div class="flex flex-col w-full space-y-2">
+
+                        {{-- @if ($documents)
                             <div class="w-full flex-wrap flex flex-row gap-2">
                                 @foreach ($documents as $doc)
                                     <div
@@ -729,7 +800,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                        @endif
+                        @endif --}}
                         <p class="font-bold opacity-80">Document type</p>
                         <label for="document-option"
                             class="bg-[#f8f8f8] border border-[#1e1e1e]/15 w-full py-2 rounded-md px-4 focus-within:border-[#1A73E8] transition duration-150 focus-within:ring ring-[#1A73E8]/20">
@@ -737,7 +808,7 @@
                             <select name="document-option" id="document-option"
                                 class="bg-transparent w-full text-[16px] ">
                                 @if ($documents)
-                                    <option selected>Select document type...</option>
+                                    <option selected disabled>Select document type...</option>
                                     @foreach ($documents as $doc)
                                         <option value="{{ $doc->id }}">{{ $doc->type }}</option>
                                     @endforeach
@@ -748,8 +819,8 @@
 
                     <form id="uploadForm" class="flex flex-col items-center justify-center w-full space-y-2">
                         <p class="self-start font-bold opacity-80">Upload File</p>
-                        <label for="fileInput"
-                            class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg cursor-pointer bg-[#E7F0FD] hover:bg-blue-100 ">
+                        <label for="fileInput" id="fileInputLabel"
+                            class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg bg-[#E7F0FD] hover:bg-blue-100 opacity-40 cursor-pointer cursor-not-allowed select-none">
 
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                 <svg class="w-8 h-8 mb-4 text-[#1A73E8]" aria-hidden="true"
@@ -766,12 +837,12 @@
                                 class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Choose
                                 Files</span>
 
-                            <input id="fileInput" type="file" class="hidden" />
+                            <input id="fileInput" type="file" class="hidden" disabled />
                         </label>
                     </form>
                 </div>
 
-                <div class="uploaded-files w-[75%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md "
+                <div class="uploaded-files w-[80%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-md "
                     id="uploadedFiles">
                     <h2 class="section-title self-start font-bold opacity-80">Uploaded Documents</h2>
                     <div id="filesList" class="w-full space-y-2">
@@ -779,76 +850,33 @@
                     </div>
                 </div>
 
+                <label class="w-[80%] flex flex-row justify-center items-center bg-[#E3ECFF] p-6 border border-[#1e1e1e]/5 rounded-md text-[14px] gap-2 hover:ring ring-blue-400/20 hover:border-blue-500 hover:shadow-md transition duration-200">
+                    <input type="checkbox" name="consent" class="size-[30px]" required>
+
+                    <p>
+                        I confirm that the documents I am uploading are accurate and belong to me. I understand that
+                        these
+                        may
+                        contain personal or sensitive information, and I consent to the school securely reviewing and
+                        processing
+                        them for my application, in accordance with the
+                        <a href="/privacy-policy" target="_blank" class="underline text-blue-500 visited:text-purple-400">Privacy Policy</a>.
+                    </p>
+
+
+
+                </label>
 
                 <div class="w-[75%] flex justify-center items-center">
                     <button form="uploadForm"
-                        class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Upload</button>
+                        class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Submit
+                        All Documents</button>
                 </div>
 
                 @if (session('success'))
                     <p style="color: green;">{{ session('success') }}</p>
                 @endif
-                {{-- <div class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15 p-4">
-                    <div class="w-full">
-                        <table id="docs-table" class="w-full table-fixed">
-                            <thead class="text-[14px]">
-                                <tr>
-                                    <th
-                                        class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 cursor-pointer ">
-                                        <span class="mr-2">Document</span>
-                                        <i class="fi fi-ss-sort text-[12px] opacity-60"></i>
-                                    </th>
-                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                        <span class="mr-2">Status</span>
-                                        <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                                    </th>
-                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                        <span class="mr-2">Date Submitted</span>
-                                        <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                                    </th>
-                                    <th
-                                        class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
 
-
-                            <tbody>
-
-
-                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                    <td
-                                        class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-
-                                    </td>
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-
-
-
-                                    </td>
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        asd
-                                    </td>
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
-                                        <div class="flex flex-row justify-center items-center gap-2">
-
-                                            <button>
-
-                                                Upload
-
-                                            </button>
-
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> --}}
 
 
 
@@ -866,37 +894,36 @@
             let docs = @json($documents);
 
             const btn = document.getElementById('upload-btn');
-
             const input = document.getElementById('fileInput');
             const doc_option = document.getElementById('document-option');
-
+            const fileInputLabel = document.getElementById('fileInputLabel');
             const container = document.getElementById('filesList');
 
-            const uploadedFiles = [];
-            const attachedFiles = [];
-            if (uploadedFiles.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state flex flex-col justify-center items-center gap-4">
-                        <img src="{{ asset('images/clipboard.png') }}" class="h-[70px] opacity-60" alt="">
-                        <div class="opacity-60">No documents uploaded yet</div>
-                    </div>
-                `;
+            let uploadedFiles = [];
+            let attachedFiles = [];
 
+            updateFileUploadInput()
+            updateUploadedFilesList()
+
+            doc_option.addEventListener('change', (event) => {
+                updateFileUploadInput()
+            })
+
+            function updateFileUploadInput() {
+                if (doc_option.options[doc_option.selectedIndex].text !== 'Select document type...') {
+                    fileInputLabel.classList.remove('opacity-40')
+                    fileInputLabel.classList.remove('cursor-not-allowed')
+                    input.disabled = false;
+                } else {
+                    fileInputLabel.classList.add('opacity-40')
+                    fileInputLabel.classList.add('cursor-not-allowed')
+                    input.disabled = true;
+                }
             }
 
             input.addEventListener('change', (event) => {
 
-                // Access the selected files (can be one or multiple)
                 const files = Array.from(event.target.files);
-
-                console.log(files)
-                console.log(doc_option.value)
-                console.log(doc_option.options[doc_option.selectedIndex].text)
-
-                const newDoc = {
-
-                }
-
 
                 files.forEach(file => {
                     uploadedFiles.push({
@@ -913,55 +940,106 @@
                     });
                 });
 
+                updateUploadedFilesList()
+                updateButton()
+
+                let optionId = doc_option.options[doc_option.selectedIndex].value;
+                disableSelection(optionId)
+
+            })
+
+            function updateUploadedFilesList() {
+
                 container.innerHTML = '';
 
-
-
-                uploadedFiles.forEach((file, index) => {
+                attachedFiles.forEach((file, index) => {
+                    const docTypeInfo = attachedFiles.find(req => req.docId === file.docId);
                     const item = document.createElement('div');
                     item.className = 'uploaded-file';
 
-                    const fileIcon = '📄';
-
                     item.innerHTML = `
-                        <div
-                            class="flex flex-row justify-between items-center gap-2 bg-[#E7F0FD]/60 border border-[#1e1e1e]/10 px-4 py-2 rounded-md">
-                            <div class="flex flex-row items-center gap-2 flex-1">
-                                <!-- Icon -->
-                                <div class="size-10 bg-blue-500 rounded-lg flex justify-center items-center text-white">
-                                    <i class="fi fi-ss-document text-[24px]"></i>
+                            <div
+                                class="flex flex-row justify-between items-center gap-2 bg-[#E7F0FD]/60 border border-[#1e1e1e]/10 px-4 py-2 rounded-md">
+                                <div class="flex flex-row items-center gap-2 flex-1">
+                                    <!-- Icon -->
+                                    <div class="size-10 bg-blue-500 rounded-lg flex justify-center items-center text-white">
+                                        <i class="fi fi-ss-document flex justify-center items-center text-[24px]"></i>
+                                    </div>
+
+                                    <!-- Text container -->
+                                    <div class="flex flex-col justify-center items-start overflow-hidden">
+                                        <p class="font-bold opacity-80 leading-tight truncate max-w-[300px]">
+                                            ${file.name}
+                                        </p>
+                                        <p class="opacity-60">${file.assignedTo}</p>
+                                    </div>
                                 </div>
 
-                                <!-- Text container -->
-                                <div class="flex flex-col justify-center items-start overflow-hidden">
-                                    <p class="font-bold opacity-80 leading-tight truncate max-w-[300px]">
-                                        ${file.name}
-                                    </p>
-                                    <p class="opacity-60">${file.assignedTo}</p>
+                                <!-- Remove Button -->
+                                <div class="shrink-0">
+                                    <button
+                                        id="${file.docId}"
+                                        class="remove-btn border border-red-500/30 hover:bg-red-500 rounded-lg flex justify-center items-center text-red-500 px-3 py-2 gap-1 hover:text-white hover:ring ring-red-200 transition duration-200">
+                                        <i class="fi fi-ss-trash text-[16px]"></i>
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
-
-                            <!-- Remove Button -->
-                            <div class="shrink-0">
-                                <button onclick="removeDocument(${file.docId})"
-                                    class="border border-red-500/30 hover:bg-red-500 rounded-lg flex justify-center items-center text-red-500 px-3 py-2 gap-1 hover:text-white hover:ring ring-red-200 transition duration-200">
-                                    <i class="fi fi-ss-trash text-[16px]"></i>
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                `;
+                    `;
                     container.appendChild(item);
                     console.log(uploadedFiles)
+
                 });
 
-                // const newInput = input.cloneNode(true); // clone the node (structure and attributes)
-                // input.parentNode.replaceChild(newInput, input); // replace the old input with the clone
-            })
+                if (uploadedFiles.length === 0) {
+                    container.innerHTML = `
+                    <div class="empty-state flex flex-col justify-center items-center gap-4">
+                        <img src="{{ asset('images/clipboard.png') }}" class="h-[70px] opacity-60" alt="">
+                        <div class="opacity-60">No documents uploaded yet</div>
+                    </div>
+                `;
+
+                }
+            }
+
+            function updateButton() {
+                const removeButton = document.querySelectorAll('.remove-btn');
+
+                removeButton.forEach((button, index) => {
+
+                    button.addEventListener('click', () => {
+                        let docId = button.id;
+                        removeDocument(docId);
+                    })
+
+                })
+            }
 
             function removeDocument(docId) {
-                uploadedDocuments = uploadedDocuments.filter(doc => doc.id !== docId);
+                let optionId = doc_option.options[doc_option.selectedIndex].value;
+                uploadedFiles = uploadedFiles.filter(doc => doc.assignedTo !== docId);
+                attachedFiles = attachedFiles.filter(doc => doc.docId !== docId);
+                console.log(uploadedFiles)
+                updateUploadedFilesList()
+                updateButton()
+                enableSelection(docId)
+            }
 
+            function disableSelection(optionId) {
+                const foundItem = uploadedFiles.find(item => item.assignedTo === optionId);
+                const foundOption = Array.from(doc_option.options).find(
+                    option => option.value === foundItem.assignedTo
+                );
+                foundOption.disabled = true
+                doc_option.selectedIndex = 0;
+            }
+
+            function enableSelection(optionId) {
+                const foundOption = Array.from(doc_option.options).find(
+                    option => option.value === optionId
+                );
+                foundOption.disabled = false
+                doc_option.selectedIndex = 0;
             }
 
             const form = document.getElementById('uploadForm')
@@ -972,7 +1050,6 @@
 
                 const fileInput = document.getElementById('fileInput');
                 const files = fileInput.files;
-
 
                 const formData = new FormData();
 

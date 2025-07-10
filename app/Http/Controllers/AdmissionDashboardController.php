@@ -23,7 +23,7 @@ class AdmissionDashboardController extends Controller
     {
         $data = $this->dashboardDataService->getAdmissionDashboardData();
 
-        //dd($data['applicant']->interview->id);
+        //==dd($data['applicant']->interview->id);
 
         // $interviews = 
         
@@ -33,7 +33,8 @@ class AdmissionDashboardController extends Controller
                 'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
                 'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                 'applicant' => $data['applicant'] ?? null,
-                'documents' => $data['documents'] ?? null
+                'documents' => $data['documents'] ?? null,
+                'submissions' => $data['submissions'] ?? null
             ]);
         }
 
