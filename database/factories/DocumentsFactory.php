@@ -19,7 +19,7 @@ class DocumentsFactory extends Factory
         return [
             'type' => $this->faker->word(),
             'description' => $this->faker->sentence(),
-            'file_type_restriction' => $this->faker->fileExtension(),
+            'file_type_restriction' => $this->faker->randomElement(['jpg', 'png','pdf']),
             'max_file_size' => $this->faker->numberBetween(100, 5000), // in KB
         ];
     }

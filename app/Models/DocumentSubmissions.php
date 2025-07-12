@@ -10,7 +10,7 @@ class DocumentSubmissions extends Model
     protected $fillable = [
         'academic_terms_id',
         'enrollment_period_id',
-        'document_id',
+        'documents_id',
         'applicants_id',
         'file_path',
         'status',

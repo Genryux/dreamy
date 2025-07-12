@@ -85,17 +85,28 @@ class DocumentsSubmissionController extends Controller
             $path = $doc->store('applicants', 'public');
 
             $uploadedFiles[] = [
-                'academic_terms_id' => $currentAcadTermId,
-                'enrollment_period_id' => $enrollment_period->id,
-                'applicants_id' => $applicant->id,
-                'documents_id'    => $documents_id[$index] ?? null,
-                'status' => 'Pending',
-                'file_path'     => $path,
+                'academic_terms_id'     => $currentAcadTermId,
+                'enrollment_period_id'  => $enrollment_period->id,
+                'applicants_id'         => $applicant->id,
+                'documents_id'          => intval($documents_id[$index]),
+                'status'                => 'Pending',
+                'file_path'             => $path,
             ];
         }
 
-        DocumentSubmissions::insert($uploadedFiles);
+        foreach ($uploadedFiles as $file) {
+        //return response()->json(['files' => $file['documents_id']]);
+            DocumentSubmissions::updateOrCreate(
+                [
+                    'applicants_id' => $file['applicants_id'],
+                    'documents_id'  => $file['documents_id'],
+                ],
+                $file
+            );
 
+        }
+
+        //DocumentSubmissions::insert($uploadedFiles);
         return response()->json(['files' => $uploadedFiles]);
     }
 

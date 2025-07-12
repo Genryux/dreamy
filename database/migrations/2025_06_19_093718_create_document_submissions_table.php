@@ -20,8 +20,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(AcademicTerms::class)->constrained();
             $table->foreignIdFor(EnrollmentPeriod::class)->constrained();
-            $table->foreignIdFor(Applicants::class)->constrained();
-            $table->foreignIdFor(Documents::class)->constrained();
+            $table->foreignIdFor(Applicants::class)->constrained()->onDelete('cascade');;
+            $table->foreignIdFor(Documents::class)->constrained()->onDelete('cascade');;
             $table->string('status'); 
             $table->string('file_path')->nullable(); // optional
             $table->text('review_notes')->nullable(); // optional

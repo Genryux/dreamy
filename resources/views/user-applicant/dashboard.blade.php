@@ -729,9 +729,7 @@
                                         class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-md px-4 py-2 cursor-pointer ">
                                         <span class="mr-2">Documents</span>
                                     </th>
-                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                        <span class="mr-2">Submit Before</span>
-                                    </th>
+
                                     <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                         <span class="mr-2">Date Submitted</span>
                                     </th>
@@ -757,27 +755,42 @@
                                                 class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                                 {{ $doc->type }}
                                             </td>
-                                            <td
-                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            @if (!is_null($submission))
+                                                <td
+                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                    {{ \Carbon\Carbon::parse($doc->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
+                                                </td>
+
+                                                <td
+                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+
+                                                    @if ($submission->status == 'Pending')
+                                                        <span
+                                                            class="bg-[#FFF4E5] text-[#FBBC04] px-2 py-1 rounded-md font-medium">
+                                                            Pending
+                                                        </span>
+                                                    @elseif ($submission->status == 'Verified')
+                                                        <span
+                                                            class="bg-[#E6F4EA] text-[#34A853] px-2 py-1 rounded-md font-medium">
+                                                            Verified
+                                                        </span>
+                                                    @elseif ($submission->status == 'Rejected')
+                                                        <span
+                                                            class="bg-[#FCE8E6] text-[#EA4335] px-2 py-1 rounded-md font-medium">
+                                                            Rejected
+                                                        </span>
+                                                    @endif
 
 
-
-                                            </td>
-                                            <td
-                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                                -
-                                            </td>
-                                            <td
-                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                                </td>
+                                            @else
                                                 <div class="flex flex-row justify-center items-center gap-2">
-
-
-
-                                                    {{ $submission->status }}
-
-
+                                                    -
                                                 </div>
-                                            </td>
+                                                <div class="flex flex-row justify-center items-center gap-2">
+                                                    -
+                                                </div>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 @endif
@@ -850,8 +863,9 @@
                     </div>
                 </div>
 
-                <label class="w-[80%] flex flex-row justify-center items-center bg-[#E3ECFF] p-6 border border-[#1e1e1e]/5 rounded-md text-[14px] gap-2 hover:ring ring-blue-400/20 hover:border-blue-500 hover:shadow-md transition duration-200">
-                    <input type="checkbox" name="consent" class="size-[30px]" required>
+                <label
+                    class="w-[80%] flex flex-row justify-center items-center bg-[#E3ECFF] p-6 border border-[#1e1e1e]/5 rounded-md text-[14px] gap-2 hover:ring ring-blue-400/20 hover:border-blue-500 hover:shadow-md transition duration-200">
+                    <input type="checkbox" name="consent" id="consent" class="size-[30px]" required>
 
                     <p>
                         I confirm that the documents I am uploading are accurate and belong to me. I understand that
@@ -860,7 +874,8 @@
                         contain personal or sensitive information, and I consent to the school securely reviewing and
                         processing
                         them for my application, in accordance with the
-                        <a href="/privacy-policy" target="_blank" class="underline text-blue-500 visited:text-purple-400">Privacy Policy</a>.
+                        <a href="/privacy-policy" target="_blank"
+                            class="underline text-blue-500 visited:text-purple-400">Privacy Policy</a>.
                     </p>
 
 
@@ -868,8 +883,9 @@
                 </label>
 
                 <div class="w-[75%] flex justify-center items-center">
-                    <button form="uploadForm"
-                        class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Submit
+                    <button form="uploadForm" id="submitBtn"
+                        class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200 opacity-50 cursor-not-allowed"
+                        disabled>Submit
                         All Documents</button>
                 </div>
 
@@ -891,13 +907,46 @@
     <script type="module">
         document.addEventListener('DOMContentLoaded', function() {
 
-            let docs = @json($documents);
+
+
+            let submittedDocs = @json($submissions);
+
+            let requiredDocs = @json($documents);
+            let submittedDocsArr = Object.values(submittedDocs);
+
+            // console.log("submitteddDocsArr")
+            // console.log(submittedDocsArr)
+            // console.log("requiredDocs")
+            // console.log(requiredDocs)
+
+
+
+
 
             const btn = document.getElementById('upload-btn');
             const input = document.getElementById('fileInput');
             const doc_option = document.getElementById('document-option');
             const fileInputLabel = document.getElementById('fileInputLabel');
             const container = document.getElementById('filesList');
+
+            const submittedDocsWithStatus = submittedDocsArr.filter(item => ['Pending', 'Verified'].includes(item
+                .status));
+
+            let requiredDocsIds = new Set(requiredDocs.map(item => item.id));
+
+            const matchedItems = submittedDocsWithStatus.filter(item => requiredDocsIds.has(item.documents_id));
+
+            matchedItems.forEach(docs => {
+
+                //find options with a value matched with the documents_id of the docs
+                const foundOption = Array.from(doc_option.options).find(
+                    option => option.value === String(docs.documents_id)
+                )
+
+                foundOption.disabled = true;
+
+            })
+
 
             let uploadedFiles = [];
             let attachedFiles = [];
@@ -940,12 +989,17 @@
                     });
                 });
 
+                console.log(uploadedFiles)
+
                 updateUploadedFilesList()
                 updateButton()
 
                 let optionId = doc_option.options[doc_option.selectedIndex].value;
                 disableSelection(optionId)
-
+                updateFileUploadInput()
+                updateSubmitButton()
+                //checkboxState()
+                //setupSubmitButtonWatcher()
             })
 
             function updateUploadedFilesList() {
@@ -1023,6 +1077,8 @@
                 updateUploadedFilesList()
                 updateButton()
                 enableSelection(docId)
+                updateSubmitButton()
+                //setupSubmitButtonWatcher()
             }
 
             function disableSelection(optionId) {
@@ -1040,6 +1096,55 @@
                 );
                 foundOption.disabled = false
                 doc_option.selectedIndex = 0;
+            }
+
+            function updateSubmitButton() {
+                const submitBtn = document.getElementById('submitBtn');
+                const checkbox = document.getElementById('consent');
+
+                if (uploadedFiles.length <= 0) {
+                    disableSubmitButton()
+                } else if (uploadedFiles.length > 0 && checkbox.checked === true) {
+                    enableSubmitButton()
+                } else {
+                    checkboxState()
+                }
+
+            }
+
+            (function checkboxState() {
+
+                const checkbox = document.getElementById('consent');
+
+                checkbox.addEventListener('change', () => {
+
+                    if (uploadedFiles.length <= 0 && checkbox.checked === true) {
+                        disableSubmitButton()
+                    } else if (uploadedFiles.length > 0 && checkbox.checked ===
+                        true) {
+                        enableSubmitButton()
+                    } else {
+                        disableSubmitButton()
+                    }
+
+                })
+
+            })()
+
+            function enableSubmitButton() {
+                submitBtn.classList.remove('opacity-50');
+                submitBtn.classList.remove('cursor-not-allowed');
+                submitBtn.disabled = false
+            }
+
+            function disableSubmitButton() {
+                submitBtn.classList.add('opacity-50');
+                submitBtn.classList.add('cursor-not-allowed');
+                submitBtn.disabled = true
+            }
+
+            function disableSelectWithSubmission() {
+
             }
 
             const form = document.getElementById('uploadForm')
@@ -1075,10 +1180,14 @@
                     })
                     .then(response => {
                         console.log('Upload successful:', response.data);
+                        console.log(response.headers['content-type']);
+                        window.location.reload();
                     })
                     .catch(error => {
                         console.error('Upload failed:', error.response?.data || error.message);
+                        window.location.reload();
                     });
+
             });
 
 
