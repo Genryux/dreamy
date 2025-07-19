@@ -24,6 +24,11 @@ class Applicants extends Model
         return $this->hasOne(ApplicationForm::class);
     }
 
+    public function getFullNameAttribute()
+    {
+        return "{$this->last_name}, {$this->first_name}";
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

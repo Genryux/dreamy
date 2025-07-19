@@ -1,23 +1,34 @@
-@props(['modal_id', 'modal_name', 'modal_buttons', 'close_btn_id'])
+@props(['modal_id', 'modal_className', 'modal_icon', 'modal_name', 'modal_buttons', 'close_btn_id'])
 
-<div id="{{ $modal_id }}" class="absolute bottom-0 left-0 bg-[#0f111c]/40 h-0 w-full z-20 ease-in-out duration-150 overflow-hidden">
+<div id="{{ $modal_id }}"
+    class="{{ $modal_className ?? '' }} absolute bottom-0 left-0 bg-[#0f111c]/70 h-0 w-full z-20 ease-in-out duration-150 overflow-hidden">
 
     <div class="flex items-center justify-center h-screen w-screen">
-        <div class="bg-[#f8f8f8] flex flex-col rounded-md w-[40%]" onclick="event.stopPropagation()">
+        <div class="bg-[#f8f8f8] flex flex-col rounded-md w-[40%] shadow-lg" onclick="event.stopPropagation()">
             <span class="px-6 py-4 flex flex-row items-center justify-between">
-                <p class="font-bold">{{ $modal_name}}</p>
-                <i id="{{ $close_btn_id }}" class="fi fi-rs-cross-small text-[20px] flex items-center rounded-full cursor-pointer hover:ring hover:ring-[#1e1e1e]/15"></i>
+                <div class="flex flex-row justify-center items-center gap-2">
+                    {{ $modal_icon ?? '' }}
+                    <p class="font-bold">{{ $modal_name }}</p>
+                </div>
+                <i id="{{ $close_btn_id }}"
+                    class="fi fi-rs-cross-small text-[20px] flex items-center rounded-full cursor-pointer hover:ring hover:ring-[#1e1e1e]/15"></i>
             </span>
 
-            <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
+            <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
 
             {{ $slot }}
 
-            <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
 
-            <div class="flex justify-end px-6 py-4 space-x-1">
-                {{ $modal_buttons }}
-            </div>
+            @if (isset($modal_buttons))
+                <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
+
+                <div class="flex justify-end px-6 py-4 space-x-1">
+                    {{ $modal_buttons }}
+                </div>
+
+            @endif
+
+
         </div>
     </div>
 </div>

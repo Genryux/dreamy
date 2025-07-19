@@ -133,3 +133,52 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        let table;
+        let pendingApplications = document.querySelector('#pending-application');
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            table = new DataTable('#pendingTable', {
+                paging: true,
+                pageLength: 20,
+                searching: false,
+                autoWidth: false,
+                order: [
+                    [6, 'desc']
+                ],
+                columnDefs: [{
+                    width: '16.66%',
+                    targets: '_all'
+                }],
+                layout: {
+                    topStart: null,
+                    bottomStart: 'info',
+                    bottomEnd: 'paging',
+                }
+            });
+
+            table.on('draw', function() {
+                let newRow = document.querySelector('#myTable tbody tr:first-child');
+
+                // Select all td elements within the new row
+                let cells = newRow.querySelectorAll('td');
+
+                cells.forEach(function(cell) {
+                    cell.classList.add(
+                        'px-4', // Horizontal padding
+                        'py-2', // Vertical padding
+                        'text-start', // Align text to the start (left)
+                        'font-regular',
+                        'text-[14px]',
+                        'opacity-80',
+                        'truncate'
+                    );
+                });
+
+            });
+        });
+    </script>
+@endpush

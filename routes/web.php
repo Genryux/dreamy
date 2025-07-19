@@ -3,6 +3,7 @@
 use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdmissionDashboardController;
+use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\DocumentsSubmissionController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\StudentsController;
 use App\Models\Applicant;
 use App\Models\Applicants;
 use App\Models\Documents;
@@ -79,8 +81,13 @@ Route::post('/required-docs', [DocumentsController::class, 'store'])->name('docu
 // document submission
 
 Route::post('/submit-document', [DocumentsSubmissionController::class, 'store'])->name('documents.store');
-Route::patch('/submit-document/{submittedDocuments}', [DocumentsSubmissionController::class, 'update']);
+Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update']);
 
+Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
+
+
+//enrolled students
+Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
 
 
 

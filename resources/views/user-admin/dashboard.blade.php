@@ -621,9 +621,7 @@
                 console.log(event.total_applications);
                 totalApplications.innerHTML = event.total_applications;
 
-                let formattedDate = moment(event.application.created_at)
-                    .tz('Asia/Manila')
-                    .format('MMM. D - h:mm A');
+
 
                 let row = table.row.add([
                     event.application.lrn,
@@ -632,7 +630,7 @@
                     event.application.birthdate,
                     event.application.desired_program,
                     event.application.grade_level,
-                    formattedDate,
+                    event.created_at,
                     `<a href="/pending-application/form-details/${event.application.id}">View</a>`
                 ]).order([6, 'desc']).draw();
 

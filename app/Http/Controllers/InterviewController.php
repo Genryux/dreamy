@@ -15,7 +15,7 @@ class InterviewController extends Controller
     public function __construct(
         protected ApplicantService $applicant,
         protected InterviewService $interviewService
-        
+
     ) {}
     /**
      * Display a listing of the resource.
@@ -120,11 +120,29 @@ class InterviewController extends Controller
     public function update(Request $request)
     {
 
-
-
-        $interview = Interview::where('applicants_id', $request->id)->firstOrFail();
         $applicant = $this->applicant->fetchAuthenticatedApplicant();
-        // dd($applicant->id);
+        $interview = Interview::where('id', $request->id)
+                                ->where('applicants_id', $applicant->id)
+                                ->first();
+
+
+        // FOR FUTURE REFACTORING
+        // match ($request->action) {
+        //     'status-change' => match ($request->status) {
+        //         'enrolled' => $applicant->update(['application_status' => 'Officially Enrolled']),
+        //         'declined' => $applicant->update(['application_status' => 'Declined']),
+        //         default => abort(400, 'Invalid status'),
+        //     },
+
+        //     'send-notification' => match ($request->type) {
+        //         'email' => $this->sendEmail($applicant),
+        //         'sms' => $this->sendSms($applicant),
+        //         default => abort(400, 'Invalid notification type'),
+        //     },
+
+        //     default => abort(400, 'Invalid action'),
+        // };
+
         if ($request->input('action') === 'record-result') {
 
             if ($request->input('result') === 'Interview-Failed') {
@@ -185,12 +203,11 @@ class InterviewController extends Controller
                 'add_info' => $validated['add_info'],
                 'status' => 'Scheduled'
             ]);
-        }
-        else if ($request->input('action') === 'update-docs') {
+        } else if ($request->input('action') === 'update-docs') {
 
             $this->interviewService->updateInterviewStatus($applicant->id, $request->status);
 
-        //dd('tangenamo');
+            //dd('tangenamo');
         }
         return redirect()->back();
     }

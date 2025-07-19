@@ -13,7 +13,6 @@ class AdmissionDashboardController extends Controller
     {
 
         $this->dashboardDataService = $dashboardDataService;
-
     }
 
     /**
@@ -23,22 +22,42 @@ class AdmissionDashboardController extends Controller
     {
         $data = $this->dashboardDataService->getAdmissionDashboardData();
 
-        //==dd($data['applicant']->interview->id);
+        //dd($data['applicant']->interview());
 
-        // $interviews = 
-        
-        // Fallback values in case the data is not set
-        if ($data) {
-            return view('user-applicant.dashboard', [
-                'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
-                'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
-                'applicant' => $data['applicant'] ?? null,
-                'documents' => $data['documents'] ?? null,
-                'submissions' => $data['submissions'] ?? null
-            ]);
+        $applicant = $data['applicant'] ?? null;
+
+        if (!$applicant) {
+            return null;
         }
 
-        return null;
+        $application_status = $applicant->application_status;
+        $interview_status = optional($applicant->interview)->status;
+        $viewData = ['applicant' => $applicant];
+
+        if ($application_status === "Selected") {
+            return view('user-applicant.dashboard', $viewData);
+        } else if ($application_status === "Pending-Documents") {
+
+            if ($interview_status === 'Interview-Passed') {
+                return view('user-applicant.dashboard', $viewData);
+            }
+
+            if ($interview_status === 'Interview-Completed') {
+                return view('user-applicant.dashboard', [
+                    'applicant' => $data['applicant'] ?? null,
+                    'documents' => $data['documents'] ?? null,
+                    'submissions' => $data['submissions'] ?? null
+                ]);
+            }
+        } else if ($application_status === "Officially Enrolled") {
+            return view('user-applicant.dashboard', $viewData);
+        }
+
+        return view('user-applicant.dashboard', [
+            'applicant' => $data['applicant'] ?? null,
+            'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+            'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+        ]);
     }
 
     /**

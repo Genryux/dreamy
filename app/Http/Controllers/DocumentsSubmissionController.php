@@ -71,12 +71,12 @@ class DocumentsSubmissionController extends Controller
             return response()->json(['message' => 'No documents received']);
         }
 
-        $request->validate([
-            'documents' => 'required|array',
-            'documents.*' => 'file|max:10240', // adjust max size (in KB) as needed
-            'documents_id' => 'required|array',
-            'documents_id.*' => 'integer|exists:documents,id',
-        ]);
+        // $request->validate([
+        //     'documents' => 'required|array',
+        //     'documents.*' => 'file|max:10240', // adjust max size (in KB) as needed
+        //     'documents_id' => 'required|array',
+        //     'documents_id.*' => 'integer|exists:documents,id',
+        // ]);
 
         $uploadedFiles = [];
 
@@ -139,9 +139,31 @@ class DocumentsSubmissionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DocumentSubmissions $submittedDocuments)
+    public function update(Request $request, Applicants $applicant)
     {
-        dd($request->all(), $submittedDocuments->id);
+        //dd($request->all(), $submittedDocuments->id);
+
+        $submittedDocuments = $applicant->submissions()
+            ->where('documents_id', $request->document_id)
+            ->first();
+
+
+        if ($request->action == "verify") {
+
+            // $request->validate([
+
+            // ]);
+
+            $submittedDocuments->update(
+                ['status' => 'Verified']
+            );
+
+
+
+        }
+
+        return redirect()->back();
+
     }
 
     /**
