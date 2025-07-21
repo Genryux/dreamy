@@ -9,6 +9,7 @@ use App\Models\Interview;
 use App\Services\ApplicantService;
 use App\Services\InterviewService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class InterviewController extends Controller
 {
@@ -100,9 +101,12 @@ class InterviewController extends Controller
         $applicantDetails = $applicant->applicationForm;
         $interviewDetails = $applicant->interview;
 
+        //dd($interviewDetails);
+
         return view('user-admin.selected.interview-details', [
-            'applicant_details' => $applicantDetails,
-            'interview_details' => $interviewDetails
+            'applicant_form' => $applicantDetails,
+            'interview_details' => $interviewDetails,
+            'applicant' => $applicant
         ]);
     }
 
@@ -120,11 +124,16 @@ class InterviewController extends Controller
     public function update(Request $request)
     {
 
-        $applicant = $this->applicant->fetchAuthenticatedApplicant();
-        $interview = Interview::where('id', $request->id)
-                                ->where('applicants_id', $applicant->id)
-                                ->first();
 
+        //dd(Auth::user());
+        //dd($request->all());
+        $applicant = $this->applicant->fetchApplicant($request->applicant_id);
+       // dd($applicant);
+        $interview = Interview::where('id', $request->id)
+            ->where('applicants_id', $applicant->id)
+            ->first();
+        // dd($request->id, $applicant->id);
+        // dd($interview);
 
         // FOR FUTURE REFACTORING
         // match ($request->action) {
@@ -194,6 +203,7 @@ class InterviewController extends Controller
                 'time' => ['required'],
                 'location' => ['required'],
                 'add_info' => ['required'],
+                'applicant_id' => 'required|exists:interviews,applicants_id'
             ]);
 
             $interview->update([

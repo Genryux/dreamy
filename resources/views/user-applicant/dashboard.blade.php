@@ -145,7 +145,7 @@
                     </div>
                 @elseif ($applicant->interview->status == 'Scheduled')
                     <div
-                        class="bg-[#E7F0FD] border border-[#1A73E8]/60 flex flex-row justify-center items-center py-1 px-2 rounded-md gap-2">
+                        class="bg-[#E7F0FD] border border-[#1A73E8]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
                         <i class="fi fi-ss-check-circle text-[#1A73E8] flex justify-center items-center"></i>
                         <p class="text-[#1A73E8] font-semibold">Approved-Scheduled</p>
                     </div>
@@ -227,8 +227,9 @@
 
             @if ($applicant->interview)
                 <div
-                    class="flex flex-row justify-center items-center gap-2 {{ ($applicant->application_status == 'Pending-Documents' &&
-                        in_array(optional($applicant->interview)->status, ['Interview-Passed', 'Interview-Completed'])) ||
+                    class="flex flex-row justify-center items-center gap-2 
+                    {{ ($applicant->application_status == 'Pending-Documents' &&
+                        ($applicant->interview->status == 'Interview-Passed' || $applicant->interview->status == 'Interview-Completed')) ||
                     $applicant->application_status == 'Officially Enrolled'
                         ? 'opacity-100'
                         : 'opacity-30' }}">
@@ -821,10 +822,11 @@
                                                 </td>
 
                                                 <td
-                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
-                                                    <div class="flex flex-row justify-center items-center gap-2">
-                                                        -
-                                                    </div>
+                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                    <span
+                                                        class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
+                                                        Not submitted
+                                                    </span>
                                                 </td>
                                             @endif
                                         </tr>

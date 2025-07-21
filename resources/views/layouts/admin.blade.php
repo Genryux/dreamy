@@ -27,7 +27,8 @@
                     class="cursor-pointer overflow-hidden ease-in-out duration-150 h-[40px] transition-all rounded-md">
                     <div class="px-4 w-full h-[41px] flex flex-row items-center space-x-4 hover:bg-[#199BCF]/30">
                         <div class="w-full h-[4px] flex flex-row items-center space-x-4 text-gray-300/80">
-                            <i class="fi fi-rs-memo-circle-check text-[20px] flex justify-center items-center flex-shrink-0"></i>
+                            <i
+                                class="fi fi-rs-memo-circle-check text-[20px] flex justify-center items-center flex-shrink-0"></i>
                             <p class="font-semibold text-[16px] nav-text truncate select-none">Applications</p>
                         </div>
                         <div>
@@ -73,7 +74,8 @@
                 <x-nav-link href="/admin" :active="request()->is('enrolled-students')">
 
                     <span class="flex flex-row items-center space-x-4">
-                        <i class="fi fi-rs-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
+                        <i
+                            class="fi fi-rs-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
 
                         <p class="font-semibold text-[16px] nav-text truncate">Enrolled Students</p>
                     </span>
@@ -107,12 +109,13 @@
                 @yield('header')
                 @yield('stat')
 
-                <section class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15">
+                <section class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/15">
 
                     @yield('content')
 
-                </section>
 
+                </section>
+                @yield('ongoing-interviews')
                 @yield('docs_submission_progress')
 
             </main>

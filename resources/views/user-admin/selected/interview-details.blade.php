@@ -40,10 +40,11 @@
         {{-- Schedule Interview Modal --}}
         <x-modal modal_id="sched-interview-modal" modal_name="Schedule Interview" close_btn_id="sched-interview-close-btn">
 
-            <form action="/set-interview/{{ $applicant_details->id }}" method="post" id="interview-form"
+            <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
                 class="flex flex-col space-y-2 px-4 py-2">
                 @csrf
                 @method('PATCH')
+                <input type="hidden" name="applicant_id" value="{{ $applicant->id }}">
                 <div class="flex flex-row space-x-2">
                     <div class="flex-1 space-y-1">
 
@@ -115,8 +116,7 @@
                     class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
                     Cancel
                 </button>
-                <button form="interview-form"
-                    name="action" value="schedule-interview"
+                <button form="interview-form" name="action" value="schedule-interview"
                     class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
                     Confirm
                 </button>
@@ -145,9 +145,10 @@
                     <input type="radio" name="result" id="failed" value="Interview-Failed" class="">
                 </label>
 
-                <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant</p>
+                <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant
+                </p>
 
-                
+
 
             </form>
 
@@ -167,7 +168,7 @@
         {{-- Edit Interview Schedule Modal --}}
         <x-modal modal_id="edit-sched-modal" modal_name="Edit Interview Schedule" close_btn_id="edit-sched-close-btn">
 
-            <form action="/set-interview/{{ $applicant_details->id }}" method="post" id="interview-form"
+            <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
                 class="flex flex-col space-y-2 px-4 py-2">
                 @csrf
                 @method('PATCH')
@@ -246,100 +247,121 @@
     @endif
 @endsection
 
+@section('header')
+    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
+        <h1 class="text-[20px] font-black">Interview Details</h1>
+        <p class="text-[14px]  text-gray-900/60">Manage approved applicants, set interview schedules, and record interview
+            results.</p>
+    </div>
+@endsection
+
 @section('content')
-    <div class="flex flex-col">
-        @error('date')
-            {{ $message }}
-        @enderror
-        @error('time')
-            {{ $message }}
-        @enderror
-        @error('location')
-            {{ $message }}
-        @enderror
-        <div class="flex flex-row items-center space-x-2 text-start pl-[14px] py-[10px]">
-            <i class="fi fi-rs-member-list flex text-[#0f111c] flex flex-row items-center"></i>
-            <p class="text-[14px] md:text-[16px] font-medium">Interview details: <span
-                    class="font-bold">{{ $applicant_details->full_name }}</span></p>
+    <div class="flex flex-col p-6 text-[14px] gap-4">
+        <div class="flex flex-row justify-between items-center">
+            <div class="flex flex-row gap-2 justify-center items-center">
+                <div class="rounded-full overflow-hidden bg-gray-200 ">
+                    <img src="{{ asset('images/business-man.png') }}" alt="user-icon" class="size-16 user-select-none">
+                </div>
+                <div>
+                    <p class="font-bold text-[18px]">{{ $applicant->getFullNameAttribute() }}</p>
+                    <div class="flex flex-row items-center justify-start gap-1">
+                        <p class="text-[16px] opacity-70 font-medium">Applicant ID: </p>
+                        <span class="text-[16px] font-black">{{ $applicant->applicant_id }}</span>
+                    </div>
+
+                </div>
+            </div>
+            <div>
+
+                {{-- @if ($applicant->application_status === 'Officially Enrolled')
+                    <button type="button" id="open-enroll-student-modal-btn" disabled
+                        class="py-2 px-4 bg-gray-300 text-gray-400 rounded-xl font-bold transition duration-200 cursor-not-allowed">
+                        Enroll applicant
+                    </button>
+                @else
+                    <button type="button" id="open-enroll-student-modal-btn"
+                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">
+                        Enroll applicant
+                    </button>
+                @endif --}}
+                @if ($interview_details->status === 'Pending')
+                    <button id="record-btn"
+                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule
+                        Interview</button>
+                @elseif ($interview_details->status === 'Scheduled')
+                    <button id="interview-btn"
+                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Start Interview
+                    </button>
+                @elseif ($interview_details->status === 'Ongoing-Interview')
+                    <div class="flex flex-row justify-center items-center gap-2">
+                        <button id="edit-sched-btn"
+                            class="py-2 px-4 bg-[#f8f8f8] text-[#0f111c] border border-[#1e1e1e]/10 rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Edit</button>
+                        <button id="record-interview-btn"
+                            class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Record
+                            Interview Result
+                        </button>
+                    </div>
+                @endif
+
+            </div>
+
         </div>
-        <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
-        <div class="flex flex-row pl-[14px] py-[16px] text-[14px]">
+        <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
+        <div class="flex flex-row">
             <div class="flex flex-col flex-1 space-y-4">
                 <span>
                     <p class="opacity-80">Grade</p>
-                    <p class="font-bold">{{ $applicant_details->grade_level }}</p>
+                    <p class="font-bold">Grade 11</p>
                 </span>
                 <span>
                     <p class="opacity-80">Track</p>
-                    <p class="font-bold">{{ $applicant_details->desired_program }}</p>
+                    <p class="font-bold">HUMSS</p>
                 </span>
+
+            </div>
+            <div class="flex flex-col flex-1 space-y-4">
                 <span>
                     <p class="opacity-80">Contact</p>
-                    <p class="font-bold">{{ $applicant_details->contact ?? '-' }}</p>
+                    <p class="font-bold">091234789</p>
+                </span>
+                <span>
+                    <p class="opacity-80">Interview Date</p>
+                    <p class="font-bold">June 21, 2025</p>
+                </span>
+
                 </span>
             </div>
             <div class="flex flex-col flex-1 space-y-4">
                 <span>
-                    <p class="opacity-80">Interview Date</p>
-                    <p class="font-bold">{{ $interview_details->date ?? '-' }}</p>
-                </span>
-                <span>
                     <p class="opacity-80">Interview Time</p>
-                    <p class="font-bold">{{ $interview_details->time ?? '-' }}</p>
+                    <p class="font-bold">10:30 AM</p>
                 </span>
                 <span>
                     <p class="opacity-80">Location</p>
-                    <p class="font-bold">{{ $interview_details->location ?? '-' }}</p>
-                </span>
+                    <p class="font-bold">First floor, Room 301</p>
             </div>
             <div class="flex flex-col flex-1 space-y-4">
                 <span>
                     <p class="opacity-80">Interviewer</p>
-                    <p class="font-bold">{{ $interview_details->interviewer ?? '-' }}</p>
+                    <p class="font-bold">Peter Dela Cruz</p>
                 </span>
                 <span>
                     <p class="opacity-80">Status</p>
-                    @if ($interview_details->status === 'Pending')
-                        <p class="font-bold text-[#FBBC04]">{{ $interview_details->status ?? '-' }}</p>
-                    @elseif ($interview_details->status === 'Scheduled')
-                        <p class="font-bold text-[#1A73E8]">{{ $interview_details->status ?? '-' }}</p>
-                    @elseif ($interview_details->status === 'Completed-Passed')
-                        <p class="font-bold text-[#34A853]">{{ $interview_details->status ?? '-' }}</p>
-                    @elseif ($interview_details->status === 'Completed-Failed')
-                        <p class="font-bold text-[#EA4335]">{{ $interview_details->status ?? '-' }}</p>
-                    @endif
-                </span>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Remarks</p>
-                    <p class="font-bold">{{ $interview_details->remarks ?? '-' }}</p>
+                    <p class="font-bold">{{ $applicant->application_status }}</p>
                 </span>
             </div>
         </div>
-        <x-divider color="#1e1e1e" opacity="0.15"></x-divider>
-        <div class="flex flex-row items-center justify-between px-[14px] py-[10px] text-[14px] font-medium">
-            <button id="show-details-btn"
-                class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80">View
-                Applicant's Full Details <i
-                    class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
-            @if ($interview_details->status === 'Pending')
-                <button id="record-btn"
-                    class="border border-[#1e1e1e]/15 bg-[#199BCF] text-[#f8f8f8] rounded-md px-2 py-1">Schedule
-                    Interview</button>
-            @elseif ($interview_details->status === 'Scheduled')
-                <div>
-                    <button id="edit-sched-btn"
-                        class="border border-[#1e1e1e]/15 text-[#0f111c]/80 font-bold rounded-md px-3 py-1">Edit</button>
-                    <button id="record-interview-btn"
-                        class="border border-[#1e1e1e]/15 bg-[#199BCF] text-[#f8f8f8] rounded-md px-2 py-1">Record
-                        Interview Result</button>
-                </div>
-            @endif
 
-        </div>
     </div>
+    <div
+        class="flex flex-row items-center justify-between px-[14px] py-[10px] text-[14px] font-medium transition duration-150">
+        <button id="show-details-btn"
+            class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80 ">View
+            Applicant's Full Details <i
+                class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
 
+
+    </div>
     <div id="details-container" class="hidden flex-col px-[14px] py-[14px] space-y-3 ">
         <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
             <table class="text-[#0f111c] w-full">
@@ -542,10 +564,10 @@
                 detailsContainer.classList.toggle('hidden');
                 if (detailsContainer.classList.contains('hidden')) {
                     showDetailsBtn.innerHTML =
-                        'View Applicant\'s Full Details <i class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i>';
+                        'View Applicant\'s Full Details <i class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80 transition duration-150"></i>';
                 } else {
                     showDetailsBtn.innerHTML =
-                        'Hide Applicant\'s Full Details <i class="fi fi-rs-angle-small-up flex flex-row items-center text-[18px] text-[#0f111c]/80"></i>';
+                        'Hide Applicant\'s Full Details <i class="fi fi-rs-angle-small-up flex flex-row items-center text-[18px] text-[#0f111c]/80 transition duration-150"></i>';
                 }
             });
 

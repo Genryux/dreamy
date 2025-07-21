@@ -305,7 +305,7 @@
                                                 </button>
 
                                                 @if ($submission->status !== 'Verified')
-                                                    <button type="button" id="open-verify-modal-btn-{{ $index }}"
+                                                    <button type="button" id="open-verify-modal-btn-{{ $doc->id }}"
                                                         data-document-id="{{ $doc->id }}"
                                                         class="verify-document-btn flex flex-row gap-2 justify-center items-center text-[14px] text-[#34A853] py-2 px-3 rounded-xl bg-[#34A853]/10 hover:ring hover:ring-[#34A853]/20 hover:bg-[#34A853] hover:text-white font-bold transition duration-200"
                                                         title="Accept document">
@@ -442,7 +442,9 @@
 
 
             document.querySelectorAll('.verify-document-btn').forEach((button, index) => {
-                initModal('verify-doc-modal', `open-verify-modal-btn-${index}`, 'verify-doc-close-btn',
+
+                let id = button.getAttribute('data-document-id');
+                initModal('verify-doc-modal', `open-verify-modal-btn-${id}`, 'verify-doc-close-btn',
                     'cancel-btn');
 
                 button.addEventListener('click', () => {
@@ -455,7 +457,13 @@
                     input.name = "document_id";
                     form.appendChild(input)
 
-                    console.log(form)
+
+
+                    //console.log(form)
+                   
+                    console.log(button);
+                    console.log(index);
+
                 })
 
 
