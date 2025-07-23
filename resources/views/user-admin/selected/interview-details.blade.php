@@ -133,16 +133,17 @@
 
                 @csrf
                 @method('PATCH')
+                <input type="hidden" name="applicant_id" value="{{ $applicant->id }}">
                 <label for="passed"
                     class="flex items-center justify-between has-checked:bg-red-500 has-checked:ring-red-500">
                     <p>Passed</p>
-                    <input type="radio" name="result" id="passed" value="Interview-Passed" checked class="">
+                    <input type="radio" name="result" id="passed" value="Interview-Passed" checked>
                 </label>
 
                 <label for="failed"
                     class="flex items-center justify-between has-checked:ring-2 has-checked:ring-red-500">
                     <p>Failed</p>
-                    <input type="radio" name="result" id="failed" value="Interview-Failed" class="">
+                    <input type="radio" name="result" id="failed" value="Interview-Failed">
                 </label>
 
                 <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant
@@ -288,11 +289,7 @@
                     <button id="record-btn"
                         class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule
                         Interview</button>
-                @elseif ($interview_details->status === 'Scheduled')
-                    <button id="interview-btn"
-                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Start Interview
-                    </button>
-                @elseif ($interview_details->status === 'Ongoing-Interview')
+                @elseif ($interview_details->status === 'Scheduled' || $interview_details->status === 'Ongoing-Interview')
                     <div class="flex flex-row justify-center items-center gap-2">
                         <button id="edit-sched-btn"
                             class="py-2 px-4 bg-[#f8f8f8] text-[#0f111c] border border-[#1e1e1e]/10 rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Edit</button>
@@ -301,6 +298,10 @@
                             Interview Result
                         </button>
                     </div>
+                @else
+                    <button id="interview-btn" disabled
+                        class="py-2 px-4 bg-gray-200 text-gray-300 rounded-xl font-bold cursor-not-allowed">Start Interview
+                    </button>
                 @endif
 
             </div>

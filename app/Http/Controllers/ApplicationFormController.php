@@ -49,11 +49,20 @@ class ApplicationFormController extends Controller
 
     public function selected()
     {
+        $applicants = Applicants::with('interview')->get();
+
+        //$ongoingInterviews = $this->applicationFormService->fetchApplicationWithStatus('Ongoing')->get();
+        //dd($ongoingInterviews);
 
         $selected_applicants = Applicants::where('application_status', 'Selected')->get();
+        // $scheduled_applicants = Applicants::with('interview')->where('application_status', 'Scheduled')->get();
+        // $interview_details = $scheduled_applicants->interview;
+
+        //dd($interview_details);
 
         return view('user-admin.selected.selected-application', [
-            'selected_applicants' => $selected_applicants
+            'selected_applicants' => $selected_applicants,
+            'applicants' => $applicants
         ]);
     }
 

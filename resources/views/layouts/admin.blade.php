@@ -106,6 +106,7 @@
                 class="flex-1 py-4 px-6 relative overflow-auto h-full flex flex-col text-[#0f111c] relative space-y-4">
 
                 @yield('breadcrumbs')
+                @yield('dashboard-acad-term')
                 @yield('header')
                 @yield('stat')
 

@@ -37,7 +37,15 @@
     margin-bottom: 15px;
 }
 
-#myTable_info, #pendingTable_info {
+.dt-empty {
+    text-align: center;
+    opacity: 80%;
+    padding-inline: '100px';
+    padding-block: 6px;
+    font-size: 14px;
+}
+
+#myTable_info, #pendingTable_info, #selectedTable_info, #ongoingTable_info  {
     font-size: 14px;
     counter-reset: #0f111c;
     opacity: 80%;

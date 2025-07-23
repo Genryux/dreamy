@@ -170,6 +170,14 @@
     {{-- end enrollment period modal --}}
 @endsection
 
+@section('dashboard-acad-term')
+    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
+        <h1 class="text-[20px] font-black">Dashboard</h1>
+        <p class="text-[14px]  text-gray-900/60">Monitor and manage application activity for the current academic term.
+        </p>
+    </div>
+@endsection
+
 @section('header')
     <x-header-container>
         {{-- <div class="flex flex-row items-center space-x-2 px-[14px] py-[10px]">
@@ -229,18 +237,19 @@
 
     </div>            --}}
 
-        <div class="flex flex-row items-center justify-between space-x-2 px-[14px] py-4">
+        <div class="flex flex-row items-center justify-between space-x-2 px-4 py-3">
             <div class="flex flex-row items-center space-x-1">
-                <p>Academic Term:</p>
                 <button
-                    class="font-bold flex flex-row items-center space-x-2 text-[16px] text-[#1A73E8] hover:text-[#199BCF] ease-in-out duration-150">
-                    {{ $currentAcadTerm->full_name ?? '-' }}
+                    class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150">
+                    <span class="font-bold text-[18px] ">Academic Year {{$currentAcadTerm->year}}</span>
+                    <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
                 </button>
             </div>
             <div>
                 <button id="acad-term-btn"
-                    class="border border-[#1A73E8] bg-[#1A73E8] px-3 py-1 text-[14px] font-bold text-[#f8f8f8] rounded-md">Add
-                    Academic term</button>
+                    class="flex flex-row justify-center items-center gap-1 py-1 px-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">
+                    <i class="fi fi-rs-plus-small flex justify-center items-center text-[20px]"></i>Add
+                    new term</button>
 
             </div>
         </div>
@@ -249,10 +258,8 @@
 
 @section('stat')
 
-
-
     <div class="flex flex-row space-x-2">
-        <div class="bg-[#f8f8f8] flex-1 rounded-md px-[16px] py-4 shadow-sm border border-[#1e1e1e]/15">
+        <div class="bg-[#f8f8f8] flex-1 rounded-xl px-[16px] py-4 shadow-sm border border-[#1e1e1e]/15">
             <div class="flex flex-row justify-between">
                 <span class="font-bold">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
@@ -273,7 +280,7 @@
             @if ($activeEnrollmentPeriod)
                 <div class="flex flex-row py-2 justify-between">
                     <div class="flex flex-col">
-                        <span class="font-bold text-[16px]">{{ $activeEnrollmentPeriod->name }}</span>
+                        <span class="font-semibold text-[16px] opacity-90">{{ $activeEnrollmentPeriod->name }}</span>
                         <span
                             class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
                     </div>
@@ -303,7 +310,7 @@
                 <div class="flex flex-row justify-evenly py-8">
                     <div class="flex flex-row gap-4 items-center">
                         <div class="bg-[#E6F4EA] px-4 py-3 rounded-full">
-                            <i class="fi fi-ss-calendar-check text-[20px] text-[#34A853]"></i>
+                            <i class="fi fi-sr-calendar-check text-[22px] text-[#34A853]"></i>
                         </div>
                         <div class="flex flex-col">
                             <span
@@ -316,7 +323,7 @@
                     </span>
                     <div class="flex flex-row gap-4 items-center">
                         <div class="bg-[#FCE8E6] px-4 py-3 rounded-full">
-                            <i class="fi fi-ss-calendar-xmark text-[20px] text-[#EA4335]"></i>
+                            <i class="fi fi-sr-calendar-xmark text-[22px] text-[#EA4335]"></i>
                         </div>
                         <div class="flex flex-col">
                             <span
@@ -363,16 +370,14 @@
                 </span>
                 <div>
                     <button id="end-enrollment-btn"
-                        class="border border-[#F97316] px-3 py-1 rounded-md text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End
-                        Enrollment
-                        Period
+                        class="border border-[#F97316] px-3 py-1 rounded-xl text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End Period
                     </button>
                 </div>
             </div>
         @endif
     </div>
     {{-- Application overview --}}
-    <div class="bg-[#f8f8f8] flex-1  rounded-md px-[16px] py-4 space-y-3 shadow-sm border border-[#1e1e1e]/15">
+    <div class="bg-[#f8f8f8] flex-1  rounded-xl px-[16px] py-4 space-y-3 shadow-sm border border-[#1e1e1e]/15">
         <span class="font-bold">Application Overview</span>
         <div class="flex flex-row space-x-3">
 
@@ -479,19 +484,11 @@
                         <tr>
                             <th
                                 class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
-                                <span class="mr-2">LRN</span>
+                                <span class="mr-2">Applicant Id</span>
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                 <span class="mr-2">Full Name</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Age</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Birthdate</span>
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
@@ -521,12 +518,6 @@
                                     <td
                                         class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                         {{ $application->applicationForm->full_name }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $application->applicationForm->age }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $application->applicationForm->birthdate }}</td>
                                     <td
                                         class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                         {{ $application->applicationForm->desired_program }}</td>
@@ -699,27 +690,27 @@
 
             window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                 event) => {
-                    console.log(event.enrollmentPeriod.status);
-                    let epDetails = document.querySelector('#ep-details');
-                    let epTime = document.querySelector('#ep-time');
-                    let statusSpan = document.querySelector('#status-span');
+                console.log(event.enrollmentPeriod.status);
+                let epDetails = document.querySelector('#ep-details');
+                let epTime = document.querySelector('#ep-time');
+                let statusSpan = document.querySelector('#status-span');
 
-                    if (event.enrollmentPeriod.status == 'Paused') {
-                        epDetails.classList.add('opacity-30');
-                        epTime.classList.add('opacity-30');
-                        statusSpan.innerHTML = event.enrollmentPeriod.status;
-                        statusSpan.classList.remove('text-[#34A853]');
-                        statusSpan.classList.add('text-[#EA4335]');
-                    } else if (event.enrollmentPeriod.status == 'Ongoing') {
-                        epDetails.classList.remove('opacity-30');
-                        epTime.classList.remove('opacity-30');
-                        statusSpan.innerHTML = event.enrollmentPeriod.status;
-                        statusSpan.classList.remove('text-[#EA4335]');
-                        statusSpan.classList.add('text-[#34A853]');
-                    }
+                if (event.enrollmentPeriod.status == 'Paused') {
+                    epDetails.classList.add('opacity-30');
+                    epTime.classList.add('opacity-30');
+                    statusSpan.innerHTML = event.enrollmentPeriod.status;
+                    statusSpan.classList.remove('text-[#34A853]');
+                    statusSpan.classList.add('text-[#EA4335]');
+                } else if (event.enrollmentPeriod.status == 'Ongoing') {
+                    epDetails.classList.remove('opacity-30');
+                    epTime.classList.remove('opacity-30');
+                    statusSpan.innerHTML = event.enrollmentPeriod.status;
+                    statusSpan.classList.remove('text-[#EA4335]');
+                    statusSpan.classList.add('text-[#34A853]');
+                }
 
 
-                });
+            });
 
 
 

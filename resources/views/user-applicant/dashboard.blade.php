@@ -704,7 +704,7 @@
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="Interview-Completed">
-
+                    <input type="hidden" name="applicant_id" value="{{ $applicant->id }}">
                     <button name="action" value="update-docs"
                         class="hover:ring ring-[#1A73E8]/30 bg-[#1A73E8] text-[#f8f8f8] px-4 py-3 rounded-xl flex flex-row justify-center items-center gap-2 font-medium mt-10 hover:bg-[#1A73E8]/90 hover:text-white transition duration-200">
                         Submit Required Documents<i

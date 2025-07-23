@@ -124,11 +124,12 @@ class InterviewController extends Controller
     public function update(Request $request)
     {
 
+        //dd($request->id, $request->applicant_id);
 
         //dd(Auth::user());
-        //dd($request->all());
+        //dd($request->$request->applicant_id);
         $applicant = $this->applicant->fetchApplicant($request->applicant_id);
-       // dd($applicant);
+        //dd($applicant);
         $interview = Interview::where('id', $request->id)
             ->where('applicants_id', $applicant->id)
             ->first();
@@ -214,6 +215,11 @@ class InterviewController extends Controller
                 'status' => 'Scheduled'
             ]);
         } else if ($request->input('action') === 'update-docs') {
+
+            $validated = $request->validate([
+                'status' => 'required|string|in:Interview-Completed',
+                'applicant_id' => 'required|exists:interviews,applicants_id'
+            ]);
 
             $this->interviewService->updateInterviewStatus($applicant->id, $request->status);
 
