@@ -111,7 +111,7 @@
 @endsection
 
 @section('content')
-    <div class="flex flex-col p-6 text-[14px] gap-4">
+    <div class="flex flex-col p-6 text-[14px] gap-4 bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10">
         <div class="flex flex-row justify-between items-center">
             <div class="flex flex-row gap-2 justify-center items-center">
                 <div class="rounded-full overflow-hidden bg-gray-200 ">
@@ -135,7 +135,7 @@
                     </button>
                 @else
                     <button type="button" id="open-enroll-student-modal-btn"
-                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">
+                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-200">
                         Enroll applicant
                     </button>
                 @endif
@@ -193,9 +193,9 @@
 @endsection
 
 @section('docs_submission_progress')
-    <div class="flex flex-col text-[14px] shadow-md">
+    <div class="flex flex-col text-[14px] shadow-sm">
 
-        <div class="bg-[#f8f8f8] flex flex-col rounded-md border shadow-sm border-[#1e1e1e]/15 p-4 gap-2">
+        <div class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-2">
             <div>
                 <div class="flex flex-row justify-start items-center text-start pb-2">
                     <p class="text-[18px] font-semibold">Documents Submission Progress</p>
@@ -203,7 +203,7 @@
                 <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
             </div>
 
-            <div class="w-full">
+            <div class="w-full ">
                 <table id="docs-table" class="w-full table-fixed">
                     <thead class="text-[14px]">
                         <tr>

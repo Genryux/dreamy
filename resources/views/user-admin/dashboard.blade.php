@@ -237,17 +237,17 @@
 
     </div>            --}}
 
-        <div class="flex flex-row items-center justify-between space-x-2 px-4 py-3">
+        <div class="flex flex-row items-center justify-between space-x-2 p-6">
             <div class="flex flex-row items-center space-x-1">
                 <button
                     class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150">
-                    <span class="font-bold text-[18px] ">Academic Year {{$currentAcadTerm->year}}</span>
+                    <span class="font-bold text-[18px] ">Academic Year {{ $currentAcadTerm->year }}</span>
                     <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
                 </button>
             </div>
             <div>
                 <button id="acad-term-btn"
-                    class="flex flex-row justify-center items-center gap-1 py-1 px-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">
+                    class="flex flex-row justify-center items-center gap-1 py-2 px-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">
                     <i class="fi fi-rs-plus-small flex justify-center items-center text-[20px]"></i>Add
                     new term</button>
 
@@ -258,10 +258,10 @@
 
 @section('stat')
 
-    <div class="flex flex-row space-x-2">
-        <div class="bg-[#f8f8f8] flex-1 rounded-xl px-[16px] py-4 shadow-sm border border-[#1e1e1e]/15">
+    <div class="flex flex-row space-x-4">
+        <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 shadow-sm border border-[#1e1e1e]/10">
             <div class="flex flex-row justify-between">
-                <span class="font-bold">Active Enrollment Period</span>
+                <span class="font-semibold text-[18px] opacity-90">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
                     @if ($activeEnrollmentPeriod->status == 'Ongoing')
                         <span id="status-span" class="text-[14px] font-bold text-[#34A853]">Ongoing</span>
@@ -280,7 +280,7 @@
             @if ($activeEnrollmentPeriod)
                 <div class="flex flex-row py-2 justify-between">
                     <div class="flex flex-col">
-                        <span class="font-semibold text-[16px] opacity-90">{{ $activeEnrollmentPeriod->name }}</span>
+                        <span class="font-semibold text-[16px] opacity-80">{{ $activeEnrollmentPeriod->name }}</span>
                         <span
                             class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
                     </div>
@@ -370,75 +370,76 @@
                 </span>
                 <div>
                     <button id="end-enrollment-btn"
-                        class="border border-[#F97316] px-3 py-1 rounded-xl text-[14px] text-[#F97316] font-bold hover:bg-[#F97316] hover:text-[#f8f8f8] ease-in-out duration-150">End Period
+                        class="bg-red-100 text-red-500 px-3 py-1 rounded-xl text-[14px] font-semibold hover:bg-red-500 hover:text-white hover:ring hover:ring-red-200 ease-in-out duration-150">End
+                        Period
                     </button>
                 </div>
             </div>
         @endif
     </div>
-    {{-- Application overview --}}
-    <div class="bg-[#f8f8f8] flex-1  rounded-xl px-[16px] py-4 space-y-3 shadow-sm border border-[#1e1e1e]/15">
-        <span class="font-bold">Application Overview</span>
-        <div class="flex flex-row space-x-3">
+        {{-- Application overview --}}
+        <div class="bg-[#f8f8f8] flex-1  rounded-xl p-6 space-y-3 shadow-sm border border-[#1e1e1e]/10">
+            <span class="font-semibold text-[18px] opacity-80">Application Overview</span>
+            <div class="flex flex-row space-x-3">
 
-            <div class="w-1/3 flex flex-col space-y-5">
-                <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
-                    <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
-                            class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
-                    <span class="font-medium opacity-60">Total Applications</span>
-                </span>
+                <div class="w-1/3 flex flex-col space-y-5">
+                    <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
+                        <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
+                                class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
+                        <span class="font-medium opacity-60">Total Applications</span>
+                    </span>
 
-                <span class="w-full space-y-2">
-                    <div class="w-full">
-                        <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
-                            <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
+                    <span class="w-full space-y-2">
+                        <div class="w-full">
+                            <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
+                                <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-[14px]">0% of Max applications</div>
-                </span>
-            </div>
-
-            <div class="w-2/3 grid grid-cols-2 gap-2">
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                            {{ $pending_applications ?? '0' }}</div>
-                        <p class="font-medium text-[16px]">Pending</p>
-                    </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                </div>
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                            {{ $selected_applications ?? '0' }}</div>
-                        <p class="font-medium text-[16px]">Selected
-                    </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                        <div class="text-[14px]">0% of Max applications</div>
+                    </span>
                 </div>
 
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                    <div class="flex flex-row items-center gap-2">
-                        <div
-                            class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                            0</div>
-                        <p class="font-medium text-[15px]">Pending Docs</p>
+                <div class="w-2/3 grid grid-cols-2 gap-2">
+                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                        <div class="flex flex-row items-center gap-3">
+                            <div
+                                class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                                {{ $pending_applications ?? '0' }}</div>
+                            <p class="font-medium text-[16px]">Pending</p>
+                        </div>
+                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
                     </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                </div>
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
-                            0</div>
-                        <p class="font-medium text-[16px]">Enrolled</p>
+                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                        <div class="flex flex-row items-center gap-3">
+                            <div
+                                class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                                {{ $selected_applications ?? '0' }}</div>
+                            <p class="font-medium text-[16px]">Selected
+                        </div>
+                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
                     </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+
+                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                        <div class="flex flex-row items-center gap-2">
+                            <div
+                                class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                                0</div>
+                            <p class="font-medium text-[15px]">Pending Docs</p>
+                        </div>
+                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                    </div>
+                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                        <div class="flex flex-row items-center gap-3">
+                            <div
+                                class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
+                                0</div>
+                            <p class="font-medium text-[16px]">Enrolled</p>
+                        </div>
+                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection
 
@@ -466,83 +467,128 @@
         <div class="text-red-500 text-[14px] font-bold">{{ session('error') }}</div>
     @endif
 
-    <div class="flex flex-col">
-        <div class="text-start border-b border-[#1e1e1e]/10 pl-[14px] py-[10px]">
-            <p class="text-[16px] md:text-[18px] font-bold">Recent Applications</p>
-        </div>
 
-        <div class="flex flex-col items-center flex-grow px-[14px] py-[10px] space-y-2">
-            <div class="border border-[#1e1e1e]/15 self-start my-custom-search">
-                <i class="fi fi-rs-search text-[#0f111c]"></i>
-                <input type="search" name="" id="myCustomSearch" class="bg-transparent"
-                    placeholder="Search...">
+    <div class="flex flex-row gap-4">
+
+        <div class="flex flex-col w-[70%] h-full bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+
+            <span class="text-[16px] md:text-[18px] font-semibold opacity-90">Recent Applications</span>
+
+
+            <div class="flex flex-col items-center flex-grow space-y-2">
+
+                <div class="w-full">
+                    <table id="myTable" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th
+                                    class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
+                                    <span class="mr-2">Applicant Id</span>
+                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2">Full Name</span>
+                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2">Program</span>
+                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2">Grade Level</span>
+                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2">Created at</span>
+                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                </th>
+                                <th
+                                    class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if ($applications != null)
+                                @foreach ($applications as $application)
+                                    <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                        <td
+                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ $application->applicationForm->lrn }}</td>
+                                        <td
+                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ $application->applicationForm->full_name }}</td>
+                                        <td
+                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ $application->applicationForm->desired_program }}</td>
+                                        <td
+                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ $application->applicationForm->grade_level }}</td>
+                                        <td
+                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
+                                        </td>
+
+                                        <td
+                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            <a
+                                                href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+        <div class="w-[30%] h-full space-y-4">
+            <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+                <span class="font-semibold text-[18px]">Quick Actions</span>
+                <div class="flex flex-col justify-center items-center  gap-2 text-center">
+                    <x-nav-link href="/pending-documents"
+                        class="w-full bg-blue-500 py-2 px-4 rounded-xl font-medium text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 hover:shadow-md transition duration-150">
+                        Create Document
+                    </x-nav-link>
+                    <x-nav-link
+                        class="w-full bg-blue-500 py-2 px-4 rounded-xl font-medium text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 hover:shadow-md transition duration-150">
+                        Create Document
+                    </x-nav-link>
+                    <x-nav-link
+                        class="w-full bg-blue-500 py-2 px-4 rounded-xl font-medium text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 hover:shadow-md transition duration-150">
+                        Create Document
+                    </x-nav-link>
+                </div>
+            </div>
+            <div
+                class="flex-1 flex flex-col bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-md p-6 gap-4 text-white">
+                <span class="font-semibold text-[18px]">Today's Summary</span>
+                <div class="flex flex-col gap-2">
+                    <div class="flex flex-row justify-between items-center">
+                        <span class="opacity-70">New Applications</span>
+                        <span class="font-bold">20</span>
+                    </div>
+                    <div class="flex flex-row justify-between items-center">
+                        <span class="opacity-70">Interviews Completed</span>
+                        <span class="font-bold">20</span>
+                    </div>
+                    <div class="flex flex-row justify-between items-center">
+                        <span class="opacity-70">Documents Verified</span>
+                        <span class="font-bold">20</span>
+                    </div>
+                    <div class="flex flex-row justify-between items-center">
+                        <span class="opacity-70">Enrollments Finalized</span>
+                        <span class="font-bold">20</span>
+                    </div>
 
-            <div class="w-full">
-                <table id="myTable" class="w-full table-fixed">
-                    <thead class="text-[14px]">
-                        <tr>
-                            <th
-                                class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
-                                <span class="mr-2">Applicant Id</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Full Name</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Program</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Grade Level</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Created at</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th
-                                class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if ($applications != null)
-                            @foreach ($applications as $application)
-                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $application->applicationForm->lrn }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $application->applicationForm->full_name }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $application->applicationForm->desired_program }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $application->applicationForm->grade_level }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
-                                    </td>
 
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <a
-                                            href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
 
-                    </tbody>
-                </table>
+
+                </div>
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
@@ -561,7 +607,7 @@
             table = new DataTable('#myTable', {
                 paging: false,
                 pageLength: 10,
-                searching: true,
+                searching: false,
                 autoWidth: false,
                 order: [
                     [6, 'desc']
@@ -596,15 +642,6 @@
             initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn');
-
-            //Overriding default search input
-            const customSearch = document.getElementById("myCustomSearch");
-            const defaultSearch = document.querySelector(".dt-search");
-
-            defaultSearch.remove();
-            customSearch.addEventListener("input", function(e) {
-                table.search(this.value).draw();
-            });
 
             console.log(window.Echo);
 

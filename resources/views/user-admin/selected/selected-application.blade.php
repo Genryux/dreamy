@@ -120,7 +120,7 @@
 @endsection
 
 @section('content')
-    <div class="flex flex-col">
+    <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10">
         <div class="flex flex-col items-center flex-grow p-5 space-y-2">
             <label for="myCustomSearch"
                 class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 self-start rounded-xl py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150">
@@ -223,7 +223,7 @@
         <h1 class="text-[20px] font-black">Ongoing Interviews</h1>
         </p>
     </div>
-    <div class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/15 p-2 gap-2">
+    <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-2 gap-2">
         <div class="flex flex-col">
             <div class="flex flex-col items-center flex-grow px-[14px] py-[10px] space-y-2">
 

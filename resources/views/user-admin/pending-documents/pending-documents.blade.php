@@ -33,7 +33,7 @@
 @endsection
 
 @section('content')
-    <div class="flex flex-col">
+    <div class="flex flex-col bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10">
 
         <div class="flex flex-col items-center flex-grow px-[14px] py-[10px] space-y-2">
             <div class="border border-[#1e1e1e]/15 self-start my-custom-search">

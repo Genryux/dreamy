@@ -110,12 +110,12 @@
                 @yield('header')
                 @yield('stat')
 
-                <section class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/15">
+                {{-- <section class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/15"> --}}
 
-                    @yield('content')
+                @yield('content')
 
 
-                </section>
+                {{-- </section> --}}
                 @yield('ongoing-interviews')
                 @yield('docs_submission_progress')
 

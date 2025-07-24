@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AcademicTermController;
-use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdmissionDashboardController;
 use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\ApplicationFormController;
@@ -12,12 +11,7 @@ use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\StudentsController;
-use App\Models\Applicant;
 use App\Models\Applicants;
-use App\Models\Documents;
-use App\Models\EnrollmentPeriod;
-use App\Models\Interview;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 

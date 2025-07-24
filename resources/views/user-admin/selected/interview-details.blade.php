@@ -257,24 +257,26 @@
 @endsection
 
 @section('content')
-    <div class="flex flex-col p-6 text-[14px] gap-4">
-        <div class="flex flex-row justify-between items-center">
-            <div class="flex flex-row gap-2 justify-center items-center">
-                <div class="rounded-full overflow-hidden bg-gray-200 ">
-                    <img src="{{ asset('images/business-man.png') }}" alt="user-icon" class="size-16 user-select-none">
+    <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-2 text-[14px]">
+        <div class="flex flex-col p-6 text-[14px] gap-4">
+            <div class="flex flex-row justify-between items-center">
+                <div class="flex flex-row gap-2 justify-center items-center">
+                    <div class="rounded-full overflow-hidden bg-gray-200 ">
+                        <img src="{{ asset('images/business-man.png') }}" alt="user-icon"
+                            class="size-16 user-select-none">
+                    </div>
+                    <div>
+                        <p class="font-bold text-[18px]">{{ $applicant->getFullNameAttribute() }}</p>
+                        <div class="flex flex-row items-center justify-start gap-1">
+                            <p class="text-[16px] opacity-70 font-medium">Applicant ID: </p>
+                            <span class="text-[16px] font-black">{{ $applicant->applicant_id }}</span>
+                        </div>
+
+                    </div>
                 </div>
                 <div>
-                    <p class="font-bold text-[18px]">{{ $applicant->getFullNameAttribute() }}</p>
-                    <div class="flex flex-row items-center justify-start gap-1">
-                        <p class="text-[16px] opacity-70 font-medium">Applicant ID: </p>
-                        <span class="text-[16px] font-black">{{ $applicant->applicant_id }}</span>
-                    </div>
 
-                </div>
-            </div>
-            <div>
-
-                {{-- @if ($applicant->application_status === 'Officially Enrolled')
+                    {{-- @if ($applicant->application_status === 'Officially Enrolled')
                     <button type="button" id="open-enroll-student-modal-btn" disabled
                         class="py-2 px-4 bg-gray-300 text-gray-400 rounded-xl font-bold transition duration-200 cursor-not-allowed">
                         Enroll applicant
@@ -285,263 +287,271 @@
                         Enroll applicant
                     </button>
                 @endif --}}
-                @if ($interview_details->status === 'Pending')
-                    <button id="record-btn"
-                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule
-                        Interview</button>
-                @elseif ($interview_details->status === 'Scheduled' || $interview_details->status === 'Ongoing-Interview')
-                    <div class="flex flex-row justify-center items-center gap-2">
-                        <button id="edit-sched-btn"
-                            class="py-2 px-4 bg-[#f8f8f8] text-[#0f111c] border border-[#1e1e1e]/10 rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Edit</button>
-                        <button id="record-interview-btn"
-                            class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Record
-                            Interview Result
+                    @if ($interview_details->status === 'Pending')
+                        <button id="record-btn"
+                            class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule
+                            Interview</button>
+                    @elseif ($interview_details->status === 'Scheduled' || $interview_details->status === 'Ongoing-Interview')
+                        <div class="flex flex-row justify-center items-center gap-2">
+                            <button id="edit-sched-btn"
+                                class="py-2 px-4 bg-[#f8f8f8] text-[#0f111c] border border-[#1e1e1e]/10 rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Edit</button>
+                            <button id="record-interview-btn"
+                                class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Record
+                                Interview Result
+                            </button>
+                        </div>
+                    @else
+                        <button id="interview-btn" disabled
+                            class="py-2 px-4 bg-gray-200 text-gray-300 rounded-xl font-bold cursor-not-allowed">Start
+                            Interview
                         </button>
-                    </div>
-                @else
-                    <button id="interview-btn" disabled
-                        class="py-2 px-4 bg-gray-200 text-gray-300 rounded-xl font-bold cursor-not-allowed">Start Interview
-                    </button>
-                @endif
+                    @endif
 
+                </div>
+
+            </div>
+            <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
+            <div class="flex flex-row">
+                <div class="flex flex-col flex-1 space-y-4">
+                    <span>
+                        <p class="opacity-80">Grade</p>
+                        <p class="font-bold">Grade 11</p>
+                    </span>
+                    <span>
+                        <p class="opacity-80">Track</p>
+                        <p class="font-bold">HUMSS</p>
+                    </span>
+
+                </div>
+                <div class="flex flex-col flex-1 space-y-4">
+                    <span>
+                        <p class="opacity-80">Contact</p>
+                        <p class="font-bold">091234789</p>
+                    </span>
+                    <span>
+                        <p class="opacity-80">Interview Date</p>
+                        <p class="font-bold">June 21, 2025</p>
+                    </span>
+
+                    </span>
+                </div>
+                <div class="flex flex-col flex-1 space-y-4">
+                    <span>
+                        <p class="opacity-80">Interview Time</p>
+                        <p class="font-bold">10:30 AM</p>
+                    </span>
+                    <span>
+                        <p class="opacity-80">Location</p>
+                        <p class="font-bold">First floor, Room 301</p>
+                </div>
+                <div class="flex flex-col flex-1 space-y-4">
+                    <span>
+                        <p class="opacity-80">Interviewer</p>
+                        <p class="font-bold">Peter Dela Cruz</p>
+                    </span>
+                    <span>
+                        <p class="opacity-80">Status</p>
+                        <p class="font-bold">{{ $applicant->application_status }}</p>
+                    </span>
+                </div>
             </div>
 
         </div>
-        <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
-        <div class="flex flex-row">
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Grade</p>
-                    <p class="font-bold">Grade 11</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Track</p>
-                    <p class="font-bold">HUMSS</p>
-                </span>
+        <div
+            class="flex flex-row items-center justify-between px-[14px] py-2 text-[14px] font-medium transition duration-150">
+            <button id="show-details-btn"
+                class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80 ">View
+                Applicant's Full Details <i
+                    class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
 
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Contact</p>
-                    <p class="font-bold">091234789</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Interview Date</p>
-                    <p class="font-bold">June 21, 2025</p>
-                </span>
 
-                </span>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Interview Time</p>
-                    <p class="font-bold">10:30 AM</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Location</p>
-                    <p class="font-bold">First floor, Room 301</p>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Interviewer</p>
-                    <p class="font-bold">Peter Dela Cruz</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Status</p>
-                    <p class="font-bold">{{ $applicant->application_status }}</p>
-                </span>
-            </div>
         </div>
-
-    </div>
-    <div
-        class="flex flex-row items-center justify-between px-[14px] py-[10px] text-[14px] font-medium transition duration-150">
-        <button id="show-details-btn"
-            class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80 ">View
-            Applicant's Full Details <i
-                class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
-
-
-    </div>
-    <div id="details-container" class="hidden flex-col px-[14px] py-[14px] space-y-3 ">
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
-            <table class="text-[#0f111c] w-full">
-                <thead class="">
-                    <tr class="">
-                        <th class="px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px]">Learner Information</th>
-                        <th class="bg-[#E3ECFF] text-start rounded-tr-[8px]"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b border-t border-[#1e1e1e]/15 opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px]">Returning (Balik-Aral):</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">With
-                            LRN:<span class="font-bold"> Yes</span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN: <span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to
-                            Enroll:<span class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary Track:<span
-                                class="font-bold"> </span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
-                                class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
-                                class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:<span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span
-                                class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span class="font-bold">
-                            </span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of Birth:<span
-                                class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:<span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP
-                            community:<span class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span
-                                class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px]">Learner with disability:</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
-            <table class="text-[#0f111c] w-full">
-                <thead class="">
-                    <tr class="">
-                        <th
-                            class="border-r border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
-                            Current Address</th>
-                        <th class="px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">Permanent Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">House No:
-                        </td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:<span
-                                class="font-bold"></span> </td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:
-                        </td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Municipality/City:
-                        </td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code:</td>
-                        <td class="px-4 py-2 text-[14px] w-1/2">Zip Code:</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
-            <table class="text-[#0f111c] w-full table-fixed">
-                <thead class="">
-                    <tr class="">
-                        <th
-                            class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
-                            Parent/Guardian's Information</th>
-                        <th class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start text-[16px]"></th>
-                        <th
-                            class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Mother's
-                            Information:</td>
-                        <td class="px-4 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Father's
-                            Information:<span class="font-bold"></span></td>
-                        <td class="px-4 py-2 text-[16px] border-b border-[#1e1e1e]/15 font-bold">Guardian's
-                            Information:<span class="font-bold"></span></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
-                        <td class="px-4 py-2 text-[14px] w-1/2">Contact Number:</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
-            <table class="text-[#0f111c] w-full">
-                <thead class="">
-                    <tr class="">
-                        <th
-                            class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
-                            Other Informations </th>
-                        <th
-                            class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Preferred Class
-                            Schedule:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
-                    </tr>
-                    <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Parent/Guardian's Signature:
-                        </td>
-                        <td class="px-4 py-2 text-[14px] w-1/2">Date Applied:</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div id="details-container" class="hidden flex-col px-[14px] py-[14px] space-y-3 ">
+            <div class=" border border-[#1e1e1e]/10 rounded-xl shadow-sm">
+                <table class="text-[#0f111c] w-full">
+                    <thead class="">
+                        <tr class="">
+                            <th class="px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px]">Learner Information</th>
+                            <th class="bg-[#E3ECFF] text-start rounded-tr-[8px]"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-t border-[#1e1e1e]/15 opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px]">Returning (Balik-Aral):</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">With
+                                LRN:<span class="font-bold"> Yes</span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN: <span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to
+                                Enroll:<span class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary
+                                Track:<span class="font-bold"> </span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
+                                    class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
+                                    class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:<span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span
+                                    class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span
+                                    class="font-bold">
+                                </span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of
+                                Birth:<span class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:<span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP
+                                community:<span class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span
+                                    class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px]">Learner with disability:</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+                <table class="text-[#0f111c] w-full">
+                    <thead class="">
+                        <tr class="">
+                            <th
+                                class="border-r border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
+                                Current Address</th>
+                            <th class="px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">Permanent Address
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">House
+                                No:
+                            </td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:<span
+                                    class="font-bold"></span> </td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Sitio/Street
+                                Name:
+                            </td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
+                                Municipality/City:
+                            </td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code:</td>
+                            <td class="px-4 py-2 text-[14px] w-1/2">Zip Code:</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+                <table class="text-[#0f111c] w-full table-fixed">
+                    <thead class="">
+                        <tr class="">
+                            <th
+                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
+                                Parent/Guardian's Information</th>
+                            <th class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start text-[16px]"></th>
+                            <th
+                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Mother's
+                                Information:</td>
+                            <td class="px-4 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Father's
+                                Information:<span class="font-bold"></span></td>
+                            <td class="px-4 py-2 text-[16px] border-b border-[#1e1e1e]/15 font-bold">Guardian's
+                                Information:<span class="font-bold"></span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
+                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
+                            <td class="px-4 py-2 text-[14px] w-1/2">Contact Number:</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+                <table class="text-[#0f111c] w-full">
+                    <thead class="">
+                        <tr class="">
+                            <th
+                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
+                                Other Informations </th>
+                            <th
+                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Preferred Class
+                                Schedule:</td>
+                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Parent/Guardian's
+                                Signature:
+                            </td>
+                            <td class="px-4 py-2 text-[14px] w-1/2">Date Applied:</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 @endsection
