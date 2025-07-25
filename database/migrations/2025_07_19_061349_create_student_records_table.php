@@ -29,7 +29,6 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->text('current_address');
             $table->text('permanent_address');
-            $table->string('contact_number');
 
             // Parent/Guardian Info
             $table->string('father_name')->nullable();

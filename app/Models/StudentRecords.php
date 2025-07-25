@@ -19,7 +19,6 @@ class StudentRecords extends Model
         'email',
         'current_address',
         'permanent_address',
-        'contact_number',
 
         'father_name',
         'father_contact_number',

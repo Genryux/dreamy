@@ -93,12 +93,59 @@ class ApplicationFormService
     public function validateData(array $data): array
     {
         return validator($data, [
-            'lrn' => ['required', 'digits:12', 'unique:application_forms,lrn'],
-            'full_name' => ['required', 'string'],
-            'age' => ['required', 'integer'],
-            'birthdate' => ['required', 'date'],
-            'desired_program' => ['required', 'string'],
-            'grade_level' => ['required']
+
+            'preferred_sched'            => 'required|string',
+            'is_returning'               => 'required|boolean',
+            'lrn'                        => 'nullable|digits:12|unique:application_forms,lrn',
+            'grade_level'                => 'required|string',
+            'primary_track'              => 'required|string',
+            'secondary_track'            => 'nullable|string',
+            'last_name'                  => 'required|string',
+            'first_name'                 => 'required|string',
+            'middle_name'                => 'nullable|string',
+            'extension_name'             => 'nullable|string',
+            'birthdate'                  => 'required|date|before:today',
+            'age'                        => 'required|integer',
+            'place_of_birth'             => 'required|string',
+            'mother_tongue'              => 'nullable|string',
+            'belongs_to_ip'              => 'nullable|boolean',
+            'is_4ps_beneficiary'         => 'nullable|boolean',
+
+            'cur_house_no'               => 'required|string',
+            'cur_street'                 => 'nullable|string',
+            'cur_barangay'               => 'required|string',
+            'cur_city'                   => 'required|string',
+            'cur_province'               => 'required|string',
+            'cur_country'                => 'required|string',
+            'cur_zip_code'               => 'required|numeric',
+
+            'perm_house_no'              => 'required|string',
+            'perm_street'                => 'nullable|string',
+            'perm_barangay'              => 'required|string',
+            'perm_city'                  => 'required|string',
+            'perm_province'              => 'required|string',
+            'perm_country'               => 'required|string',
+            'perm_zip_code'              => 'required|numeric',
+
+            'father_last_name'           => 'required|string',
+            'father_first_name'          => 'required|string',
+            'father_middle_name'         => 'nullable|string',
+            'father_contact_number'      => 'nullable|string',
+            'mother_last_name'           => 'required|string',
+            'mother_first_name'          => 'required|string',
+            'mother_middle_name'         => 'nullable|string',
+            'mother_contact_number'      => 'nullable|string',
+            'guardian_last_name'         => 'required|string',
+            'guardian_first_name'        => 'required|string',
+            'guardian_middle_name'       => 'nullable|string',
+            'guardian_contact_number'    => 'required|string',
+            'has_special_needs'          => 'nullable|boolean',
+            'special_needs'              => 'nullable|array',
+
+            'last_grade_level_completed' => 'nullable|integer',
+            'last_school_attended'       => 'nullable|string',
+            'last_school_year_completed' => 'nullable|date|before:now',
+            'school_id'                  => 'nullable|string',
         ])->validate();
     }
 
@@ -111,7 +158,7 @@ class ApplicationFormService
     public function saveApplication(array $data): ApplicationForm
     {
         $form = new ApplicationForm();
-      // dd($form);
+        // dd($form);
         $form->fill($data);
 
         if (!$form->save()) {
@@ -119,7 +166,7 @@ class ApplicationFormService
             throw new \Exception('Application form could not be saved.');
             dd("alsddkadklasdjklasjkl");
         }
-        
+
         return $form;
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\StudentRecordController;
 use App\Http\Controllers\StudentsController;
 use App\Models\Applicants;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('home');
 });
+
+
+Route::get('/test', function () {
+    return view('test');
+});
+
+Route::post('/test/{id}', [StudentRecordController::class, 'store']);
 
 Route::get('/portal/login', [SessionController::class, 'create'])
     ->name('login')->middleware('guest');
@@ -83,10 +91,13 @@ Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']
 //enrolled students
 Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
 
+//enrolled students
+Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
+
 
 
 Route::get('/student', function () {
-    return view('layouts.student');
+    return view('user-student.student');
 })->name('student')->middleware('auth');
 
 

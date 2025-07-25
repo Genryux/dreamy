@@ -241,8 +241,20 @@
             <div class="flex flex-row items-center space-x-1">
                 <button
                     class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150">
-                    <span class="font-bold text-[18px] ">Academic Year {{ $currentAcadTerm->year }}</span>
-                    <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
+
+                    @if (@isset($currentAcadTerm->year))
+                        @if ($currentAcadTerm->year === null)
+                            <span class="font-bold text-[18px] ">No active academic year yet.</span>
+                        @else
+                            <span class="font-bold text-[18px] ">Academic Year {{ $currentAcadTerm->year }}</span>
+                            <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
+                        @endif
+                    @else
+                        <span class="font-bold text-[18px] ">No academic year found, please create first.</span>
+                    @endif
+
+
+
                 </button>
             </div>
             <div>
@@ -377,69 +389,69 @@
             </div>
         @endif
     </div>
-        {{-- Application overview --}}
-        <div class="bg-[#f8f8f8] flex-1  rounded-xl p-6 space-y-3 shadow-sm border border-[#1e1e1e]/10">
-            <span class="font-semibold text-[18px] opacity-80">Application Overview</span>
-            <div class="flex flex-row space-x-3">
+    {{-- Application overview --}}
+    <div class="bg-[#f8f8f8] flex-1  rounded-xl p-6 space-y-3 shadow-sm border border-[#1e1e1e]/10">
+        <span class="font-semibold text-[18px] opacity-80">Application Overview</span>
+        <div class="flex flex-row space-x-3">
 
-                <div class="w-1/3 flex flex-col space-y-5">
-                    <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
-                        <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
-                                class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
-                        <span class="font-medium opacity-60">Total Applications</span>
-                    </span>
+            <div class="w-1/3 flex flex-col space-y-5">
+                <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
+                    <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
+                            class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
+                    <span class="font-medium opacity-60">Total Applications</span>
+                </span>
 
-                    <span class="w-full space-y-2">
-                        <div class="w-full">
-                            <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
-                                <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
-                            </div>
+                <span class="w-full space-y-2">
+                    <div class="w-full">
+                        <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
+                            <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
                         </div>
-                        <div class="text-[14px]">0% of Max applications</div>
-                    </span>
+                    </div>
+                    <div class="text-[14px]">0% of Max applications</div>
+                </span>
+            </div>
+
+            <div class="w-2/3 grid grid-cols-2 gap-2">
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-3">
+                        <div
+                            class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                            {{ $pending_applications ?? '0' }}</div>
+                        <p class="font-medium text-[16px]">Pending</p>
+                    </div>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                </div>
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-3">
+                        <div
+                            class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                            {{ $selected_applications ?? '0' }}</div>
+                        <p class="font-medium text-[16px]">Selected
+                    </div>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
 
-                <div class="w-2/3 grid grid-cols-2 gap-2">
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-3">
-                            <div
-                                class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                {{ $pending_applications ?? '0' }}</div>
-                            <p class="font-medium text-[16px]">Pending</p>
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-2">
+                        <div
+                            class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                            0</div>
+                        <p class="font-medium text-[15px]">Pending Docs</p>
                     </div>
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-3">
-                            <div
-                                class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                {{ $selected_applications ?? '0' }}</div>
-                            <p class="font-medium text-[16px]">Selected
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                </div>
+                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                    <div class="flex flex-row items-center gap-3">
+                        <div
+                            class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
+                            0</div>
+                        <p class="font-medium text-[16px]">Enrolled</p>
                     </div>
-
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-2">
-                            <div
-                                class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                                0</div>
-                            <p class="font-medium text-[15px]">Pending Docs</p>
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                    </div>
-                    <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                        <div class="flex flex-row items-center gap-3">
-                            <div
-                                class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
-                                0</div>
-                            <p class="font-medium text-[16px]">Enrolled</p>
-                        </div>
-                        <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                    </div>
+                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 @endsection
 

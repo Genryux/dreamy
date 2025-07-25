@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class);
-            $table->foreignId('section_id')->constrained()->onDelete('set null');
-            $table->foreignId('program_id')->constrained()->onDelete('set null');
+            // $table->foreignId('section_id')->constrained()->onDelete('set null');
+            // $table->foreignId('program_id')->constrained()->onDelete('set null');
             $table->string('lrn')->nullable();
             $table->string('grade_level');
             $table->date('enrollment_date')->nullable();

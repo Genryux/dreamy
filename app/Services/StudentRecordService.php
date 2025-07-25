@@ -13,8 +13,10 @@ class StudentRecordService
 
         try {
             $form = $applicant->applicationForm->get();
+            $user_id = $applicant->user->id;
 
             StudentRecords::firstOrCreate([
+                'user_id'                 => $user_id,
                 'first_name'              => $form->first_name,
                 'last_name'               => $form->last_name,
                 'middle_name'             => $form->middle_name,

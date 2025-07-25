@@ -1,5 +1,5 @@
 @extends('layouts.admission')
 
 @section('header')
-    <p>Application Status: {{ $status }}</p>
+    <p>Application Status: </p>
 @endsection

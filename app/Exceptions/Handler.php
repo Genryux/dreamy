@@ -46,7 +46,7 @@ class Handler extends ExceptionHandler
                 ], $exception->getCode() ?: 422);
             }
 
-            return response()->view('some-view', [
+            return response()->view('/', [
                 'message' => $exception->getMessage(),
             ], $exception->getCode() ?: 422);
 
