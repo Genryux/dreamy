@@ -170,8 +170,8 @@
     @enderror
 
 
-    <div class="px-[14px] py-[14px] space-y-3">
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+    <div class="space-y-3 bg-[#f8f8f8] rounded-xl p-6 shadow-md">
+        <div class=" border border-[#1e1e1e]/15 rounded-[8px] shadow-lg">
             <table class="text-[#0f111c] w-full">
                 <thead class="">
                     <tr class="">
@@ -197,21 +197,21 @@
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary Track:<span
-                                class="font-bold"> {{ $form->desired_program }}</span></td>
+                                class="font-bold"> {{ $form->primary_track }}</span></td>
                         <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->secondary_track }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->first_name }}</span></td>
                         <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->second_name }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->middle_name }}</span></td>
                         <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->extension_name }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span
@@ -221,15 +221,15 @@
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of Birth:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->place_of_birth }}</span></td>
                         <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->mother_tongue }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP
-                            community:<span class="font-bold">{{ $form->lrn }}</span></td>
+                            community:<span class="font-bold">{{ $form->belong_to_ip }}</span></td>
                         <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span
-                                class="font-bold">{{ $form->lrn }}</span></td>
+                                class="font-bold">{{ $form->is_4ps_beneficiary }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px]">Learner with disability:</td>
@@ -237,7 +237,7 @@
                 </tbody>
             </table>
         </div>
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+        <div class=" border border-[#1e1e1e]/15 rounded-[8px] shadow-lg">
             <table class="text-[#0f111c] w-full">
                 <thead class="">
                     <tr class="">
@@ -249,37 +249,49 @@
                 </thead>
                 <tbody>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">House No:
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">House
+                            No:<span class="font-bold">{{ $form->cur_house_no }}</span>
                         </td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:<span
-                                class="font-bold"></span> </td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:
+                            <span class="font-bold">{{ $form->perm_house_no }}</span>
+                        </td>
                     </tr>
                     <tr class="opacity-[0.87]">
                         <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:
+                            <span class="font-bold">{{ $form->perm_house_no }}</span>
                         </td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street
+                            Name:<span class="font-bold">{{ $form->perm_house_no }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:<span
+                                class="font-bold">{{ $form->perm_house_no }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay: <span
+                                class="font-bold">{{ $form->perm_house_no }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Municipality/City:
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
+                            Municipality/City:<span class="font-bold">{{ $form->perm_house_no }}</span>
                         </td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:<span
+                                class="font-bold">{{ $form->perm_house_no }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:<span
+                                class="font-bold">{{ $form->perm_house_no }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:<span
+                                class="font-bold">{{ $form->perm_house_no }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code:</td>
-                        <td class="px-4 py-2 text-[14px] w-1/2">Zip Code:</td>
+                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code: <span
+                                class="font-bold">{{ $form->cur_house_no }}</span></td>
+                        <td class="px-4 py-2 text-[14px] w-1/2">Zip Code: <span
+                                class="font-bold">{{ $form->perm_house_no }}</span></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+        <div class=" border border-[#1e1e1e]/15 rounded-[8px] shadow-lg">
             <table class="text-[#0f111c] w-full table-fixed">
                 <thead class="">
                     <tr class="">
@@ -302,29 +314,29 @@
                             Information:<span class="font-bold"></span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span class="font-bold">{{ $form->mother_last_name }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span class="font-bold">{{ $form->father_last_name }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:<span class="font-bold">{{ $form->guardian_last_name }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:<span class="font-bold">{{ $form->mother_first_name }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:<span class="font-bold">{{ $form->father_first_name }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span class="font-bold">{{ $form->guardian_first_name }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span class="font-bold">{{ $form->mother_middle_name ?? 'N/A' }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span class="font-bold">{{ $form->father_middle_name ?? 'N/A' }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:<span class="font-bold">{{ $form->guardian_middle_name ?? 'N/A' }}</span></td>
                     </tr>
                     <tr class="opacity-[0.87]">
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
-                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
+                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:<span class="font-bold">{{ $form->perm_house_no }}</span></td>
+                        <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:<span class="font-bold">{{ $form->perm_house_no }}</span></td>
                         <td class="px-4 py-2 text-[14px] w-1/2">Contact Number:</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+        <div class=" border border-[#1e1e1e]/15 rounded-[8px] shadow-lg">
             <table class="text-[#0f111c] w-full">
                 <thead class="">
                     <tr class="">
@@ -349,12 +361,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <div class="flex flex-row items-center justify-end space-x-1">
-            <button id="accept-btn"
-                class="my-2 border border-[#1e1e1e]/15 bg-[#199BCF] px-4 py-2 rounded-md text-[#f8f8f8] text-[14px] font-bold">Accept...</button>
-            <button id="reject-btn"
-                class="my-2 border border-[#1e1e1e]/15 px-4 py-2 rounded-md text-[#0f111c]/80 text-[14px] font-bold">Reject</button>
         </div>
     </div>
 @endsection

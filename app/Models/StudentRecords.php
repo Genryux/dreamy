@@ -37,7 +37,8 @@ class StudentRecords extends Model
         'is_4ps_beneficiary'
     ];
 
-    public function getFullName() {
+    public function getFullName()
+    {
         return "{$this->last_name}, {$this->first_name} {$this->middle_name}";
     }
 
@@ -46,5 +47,13 @@ class StudentRecords extends Model
         return $this->belongsTo(Students::class);
     }
 
+    public function currentAddress()
+    {
+        return "{$this->house_no} {$this->street}, {$this->barangay}, {$this->city}, {$this->province}, {$this->zip_code}, {$this->country}";
+    }
 
+    public function permanentAddress()
+    {
+        return "{$this->house_no} {$this->street}, {$this->barangay}, {$this->city}, {$this->province}, {$this->zip_code}, {$this->country}";
+    }
 }

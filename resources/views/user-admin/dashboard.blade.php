@@ -259,7 +259,7 @@
             </div>
             <div>
                 <button id="acad-term-btn"
-                    class="flex flex-row justify-center items-center gap-1 py-2 px-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">
+                    class="flex flex-row justify-center items-center gap-1 py-2 px-3 bg-blue-100 text-blue-500 rounded-xl font-bold hover:bg-blue-500 hover:text-white hover:ring hover:ring-blue-200 transition duration-200">
                     <i class="fi fi-rs-plus-small flex justify-center items-center text-[20px]"></i>Add
                     new term</button>
 
@@ -495,28 +495,23 @@
                             <tr>
                                 <th
                                     class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
-                                    <span class="mr-2">Applicant Id</span>
-                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                    <span class="mr-2 font-medium opacity-70">Applicant Id</span>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Full Name</span>
-                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-70">Full Name</span>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Program</span>
-                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-70">Program</span>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Grade Level</span>
-                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-70">Grade Level</span>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Created at</span>
-                                    <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-70">Created at</span>
                                 </th>
                                 <th
-                                    class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
-                                    Actions</th>
+                                    class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-70">Actions</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -524,24 +519,24 @@
                                 @foreach ($applications as $application)
                                     <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                                         <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                             {{ $application->applicationForm->lrn }}</td>
                                         <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $application->applicationForm->full_name }}</td>
+                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ $application->applicationForm->fullName() }}</td>
                                         <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $application->applicationForm->desired_program }}</td>
+                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            {{ $application->applicationForm->primary_track }}</td>
                                         <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                             {{ $application->applicationForm->grade_level }}</td>
                                         <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                             {{ \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
                                         </td>
 
                                         <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                            class="w-1/8 text-center font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                             <a
                                                 href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
                                         </td>

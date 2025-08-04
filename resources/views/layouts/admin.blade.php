@@ -71,7 +71,7 @@
                 <span class='flex items-center mt-4'>
                     <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
                 </span>
-                <x-nav-link href="/admin" :active="request()->is('enrolled-students')">
+                <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
 
                     <span class="flex flex-row items-center space-x-4">
                         <i

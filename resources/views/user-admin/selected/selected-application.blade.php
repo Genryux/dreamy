@@ -140,35 +140,31 @@
                         <tr>
                             <th
                                 class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
-                                <span class="mr-2">Applicant Id</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <span class="mr-2 font-medium opacity-70">Applicant Id</span>
+                                <i class="fi fi-sr-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Full Name</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <span class="mr-2 font-medium opacity-70">Full Name</span>
+                                <i class="fi fi-sr-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Age</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <span class="mr-2 font-medium opacity-70">Program</span>
+                                <i class="fi fi-sr-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Birthdate</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <span class="mr-2 font-medium opacity-70">Grade Level</span>
+                                <i class="fi fi-sr-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Program</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <span class="mr-2 font-medium opacity-70">Status</span>
+                                <i class="fi fi-sr-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Grade Level</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                <span class="mr-2">Created at</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <span class="mr-2 font-medium opacity-70">Created at</span>
+                                <i class="fi fi-sr-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
                             <th
-                                class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                                class="w-1/7 text-center font-medium bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
                                 Actions</th>
                         </tr>
                     </thead>
@@ -177,25 +173,23 @@
                             @if ($selected_applicant->interview->status == 'Scheduled' || $selected_applicant->interview->status == 'Pending')
                                 <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                                     <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        class="w-1/8 text-start font-regular py-[8px] font-semibold text-[14px] opacity-80 px-4 py-2 truncate">
                                         {{ $selected_applicant->applicant_id }}</td>
                                     <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $selected_applicant->applicationForm->full_name }}</td>
+                                        class="w-1/8 text-start font-regular py-[8px] font-semibold text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $selected_applicant->applicationForm->fullName() }}</td>
+
                                     <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $selected_applicant->applicationForm->age }}</td>
+                                        class="w-1/8 text-start font-regular py-[8px] font-semibold text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $selected_applicant->applicationForm->primary_track }}</td>
                                     <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $selected_applicant->applicationForm->birthdate }}</td>
+                                        class="w-1/8 text-start font-regular py-[8px] font-semibold text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $selected_applicant->applicationForm->grade_level }}</td>
                                     <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $selected_applicant->applicationForm->desired_program }}</td>
-                                    <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        class="w-1/8 text-start font-regular py-[8px] font-semibold text-[14px] opacity-80 px-4 py-2 truncate">
                                         {{ $selected_applicant->interview->status }}</td>
                                     <td
-                                        class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        class="w-1/8 text-start font-regular py-[8px] font-semibold text-[14px] opacity-80 px-4 py-2 truncate">
                                         {{ \Carbon\Carbon::parse($selected_applicant->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
                                     </td>
 
@@ -220,7 +214,7 @@
 
 @section('ongoing-interviews')
     <div class="flex flex-col justify-center items-start text-start px-[14px]">
-        <h1 class="text-[20px] font-black">Ongoing Interviews</h1>
+        <h1 class="text-[18px] font-semibold">Ongoing Interviews</h1>
         </p>
     </div>
     <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-2 gap-2">
@@ -245,51 +239,53 @@
                             <tr>
                                 <th
                                     class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
-                                    <span class="mr-2">Applicant Id</span>
+                                    <span class="mr-2 font-medium">Applicant Id</span>
                                     <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                                 </th>
                                 <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Full Name</span>
+                                    <span class="mr-2 font-medium">Full Name</span>
                                     <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                                 </th>
                                 <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Interviewer</span>
+                                    <span class="mr-2 font-medium">Interviewer</span>
                                     <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                                 </th>
                                 <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Status</span>
+                                    <span class="mr-2 font-medium">Status</span>
                                     <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                                 </th>
                                 <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2">Action</span>
+                                    <span class="mr-2 font-medium">Action</span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($applicants as $applicant)
-                                @if ($applicant->interview->status === 'Ongoing')
-                                    <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                        <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $applicant->applicant_id }}</td>
-                                        <td
-                                            class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $applicant->applicationForm->full_name }}</td>
-                                        <td
-                                            class="w-1/8 text-center font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $applicant->applicationForm->age }}</td>
-                                        <td
-                                            class="w-1/8 text-center font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $applicant->applicationForm->birthdate }}</td>
-                                        <td class="w-1/8 text-center font-regular py-[8px] text-[14px] px-4 py-2 truncate">
-                                            <button data-applicant-id="{{ $applicant->id }}"
-                                                id="open-interview-details-btn-{{ $applicant->id }}"
-                                                class="open-interview-details-btn py-1 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Details
-                                            </button>
-                                        </td>
+                                @isset($applicant->interview)
+                                    @if ($applicant->interview->status === 'Ongoing')
+                                        <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                            <td
+                                                class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                {{ $applicant->applicant_id }}</td>
+                                            <td
+                                                class="w-1/8 text-start font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                {{ $applicant->applicationForm->full_name }}</td>
+                                            <td
+                                                class="w-1/8 text-center font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                {{ $applicant->applicationForm->age }}</td>
+                                            <td
+                                                class="w-1/8 text-center font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                {{ $applicant->applicationForm->birthdate }}</td>
+                                            <td class="w-1/8 text-center font-regular py-[8px] text-[14px] px-4 py-2 truncate">
+                                                <button data-applicant-id="{{ $applicant->id }}"
+                                                    id="open-interview-details-btn-{{ $applicant->id }}"
+                                                    class="open-interview-details-btn py-1 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Details
+                                                </button>
+                                            </td>
 
-                                    </tr>
-                                @endif
+                                        </tr>
+                                    @endif
+                                @endisset
                             @endforeach
                         </tbody>
                     </table>
@@ -386,7 +382,7 @@
 
             table1 = new DataTable('#selectedTable', {
                 paging: true,
-                pageLength: 20,
+                pageLength: 10,
                 searching: true,
                 autoWidth: false,
                 order: [

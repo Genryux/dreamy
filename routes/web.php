@@ -91,6 +91,8 @@ Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']
 //enrolled students
 Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
 
+Route::get('/users', [StudentsController::class, 'getUsers']);
+
 //enrolled students
 Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
 

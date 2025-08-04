@@ -32,9 +32,13 @@
 }
 
 .dt-layout-full {
-    border: 1px solid rgba(30, 30, 30, 0.15);
-    border-radius: 10px;
+    border: 1px solid rgba(30, 30, 30, 0.10);
+    border-radius: 13px;
     margin-bottom: 15px;
+    background-color: rgb(227, 236, 255, 0.10);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
 }
 
 .dt-empty {
@@ -45,7 +49,11 @@
     font-size: 14px;
 }
 
-#myTable_info, #pendingTable_info, #selectedTable_info, #ongoingTable_info  {
+#myTable_info,
+#pendingTable_info,
+#selectedTable_info,
+#ongoingTable_info,
+#enrolledStudents_info {
     font-size: 14px;
     counter-reset: #0f111c;
     opacity: 80%;
