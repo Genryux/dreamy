@@ -2,7 +2,7 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="bg-[#E4EAF9]">
+<body class="bg-[#E4EAF9]/70">
 
     <div id="main-container" class="min-h-screen hidden md:flex relative">
 
