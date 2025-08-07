@@ -968,20 +968,28 @@
                         <p class="font-bold text-[18px]">🚀 Ready to Get Started?</p>
                     </div>
                     <div class="space-y-2 w-full ">
-                        <button
-                            class="w-full flex flex-row justify-start items-center gap-3 border border-[#1e1e1e]/15 rounded-lg p-4 text-start bg-[#f8f8f8] hover:ring hover:ring-blue-200 hover:border-blue-500 hover:shadow-lg transition duration-150">
-                            <div
-                                class="flex justify-center items-center border border-[#1e1e1e]/15 p-2 rounded-lg bg-[#199BCF] text-white">
-                                <i class="fi fi-ss-site-alt text-[24px] flex justify-center items-center"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold">Access Student Portal</p>
-                                <p class="opacity-70 font-medium">View your class schedule, subjects, and other
-                                    academic-related informations.
-                                </p>
-                            </div>
+                        <form method="post" action="/students/{{ $applicant->id }}"
+                            class="w-full gap-3 border border-[#1e1e1e]/15 rounded-lg p-4 text-start bg-[#f8f8f8] cursor-pointer hover:ring hover:ring-blue-200 hover:border-blue-500 hover:shadow-lg transition duration-150">
+                            @csrf
+                            <label for="submit-form"
+                                class="w-full h-full cursor-pointer flex flex-row justify-start items-center gap-3">
+                                <div
+                                    class="flex justify-center items-center border border-[#1e1e1e]/15 p-2 rounded-lg bg-[#199BCF] text-white">
+                                    <i class="fi fi-ss-site-alt text-[24px] flex justify-center items-center"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold">Access Student Portal</p>
+                                    <p class="opacity-70 font-medium">View your class schedule, subjects, and other
+                                        academic-related informations.
+                                    </p>
+                                </div>
+                            </label>
 
-                        </button>
+                            <input type="submit" value="" class="hidden" id="submit-form">
+
+
+
+                        </form>
                         <div
                             class="flex flex-row justify-between items-center w-full bg-[#E7F0FD] ring-1 ring-[#1A73E8]/40 p-2 rounded-lg text-[#1A73E8]">
                             <i class="fi fi-ss-info flex justify-center items-center text-[18px] text-[#1A73E8]/80"></i>

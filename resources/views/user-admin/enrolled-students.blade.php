@@ -11,25 +11,32 @@
 @section('stat')
     <div class="flex flex-row gap-4">
         <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-6">
-            <div class="flex flex-col justify-center items-start space-y-4">
+            <div class="flex flex-col justify-center items-start space-y-2">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
                         <div class="bg-gray-200 flex justify-center items-center p-1 rounded-lg">
-                            <i
-                                class="fi fi-rr-chart-simple flex justify-center items-center text-[18px] text-gray-500"></i>
+                            <i class="fi fi-rr-chart-simple flex justify-center items-center text-[16px] text-gray-500"></i>
                         </div>
-                        <span class="font-medium text-gray-700 text-[18px]">Total</span>
+                        <span class="font-medium text-gray-700 text-[16px]">Total</span>
                     </div>
                     <div class="flex flex-row justify-center items-center">
                         <i class="fi fi-rs-info flex justify-center items-center text-[16px] text-gray-500"
                             title="tabgubano tabgubanotabgubanotabgubanotabgubano tabgubano"></i>
                     </div>
                 </div>
-                <div class="flex flex-row justify-center items-center gap-4">
-                    <span class="font-semibold text-[32px] text-gray-700">200</span>
-                    <div class="bg-green-100 px-3 py-1 rounded-lg ">
-                        <span class="text-green-500 text-[12px] flex justify-center items-center gap-1">42 New enrollees <i
-                                class="fi fi-bs-arrow-up-right text-[10px] flex justify-center items-center"></i></span>
+                {{-- chart --}}
+                <canvas id="total_chart" width="180" height="180" class="self-center"></canvas>
+
+                <div class="flex flex-row justify-between items-center w-full">
+                    <div class="flex flex-col">
+                        <span class="font-regular text-gray-600 text-[14px]">New Students</span>
+                        <span class="font-regular text-gray-600 text-[14px]">Old Students</span>
+                        <span class="font-regular text-gray-600 text-[14px]">Total</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-gray-600 text-[14px]">100</span>
+                        <span class="font-bold text-gray-600 text-[14px]">100</span>
+                        <span class="font-bold text-gray-600 text-[14px]">200</span>
                     </div>
                 </div>
 
@@ -45,11 +52,13 @@
                         </div>
                         <span class="font-medium text-gray-700 text-[16px]">By Grade Level</span>
                     </div>
-                    <div class="flex flex-row justify-center items-center" title="Total number of enrolled students per grade level">
-                        <i class="fi fi-rs-info flex justify-center items-center text-[18px] text-gray-500"
-                            ></i>
+                    <div class="flex flex-row justify-center items-center"
+                        title="Total number of enrolled students per grade level">
+                        <i class="fi fi-rs-info flex justify-center items-center text-[18px] text-gray-500"></i>
                     </div>
                 </div>
+                {{-- chart --}}
+                <canvas id="grade_level_chart" width="180" height="180" class="self-center"></canvas>
 
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-col">
@@ -78,7 +87,8 @@
                             title="tabgubano tabgubanotabgubanotabgubanotabgubano tabgubano"></i>
                     </div>
                 </div>
-
+                {{-- chart --}}
+                <canvas id="program_chart" width="180" height="180" class="self-center"></canvas>
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-col">
                         <span class="font-regular text-gray-600">HUMSS</span>
@@ -96,9 +106,9 @@
 @endsection
 
 @section('content')
-    <div class="flex flex-row gap-4">
+    <div class="flex flex-row justify-center items-start gap-4">
         <div
-            class="flex flex-col items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 w-[40%]">
+            class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 w-[40%]">
             <div class="flex flex-row justify-between items-center w-full">
 
                 <div class="w-full flex flex-row justify-between items-center gap-4">
@@ -172,7 +182,7 @@
                 </button>
             </div>
 
-            <div class="w-full ">
+            <div class="w-full">
                 <table id="enrolledStudents" class="w-full table-fixed ">
                     <thead class="text-[14px]">
                         <tr>
@@ -185,11 +195,15 @@
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Last Name</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Grade Level</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Email</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>                                                        
+                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Contact</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
@@ -205,48 +219,7 @@
                 </table>
             </div>
         </div>
-        <div class="flex flex-col gap-4 justify-start items-center w-[25%] ">
-            <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-6 w-full">
-                <div class="flex flex-col justify-center items-start space-y-2">
-                    <div class="flex flex-row justify-between items-center w-full">
-                        <div class="flex flex-row justify-center items-center gap-2">
-                            <div class="bg-gray-200 flex justify-center items-center p-1 rounded-lg">
-                                <i
-                                    class="fi fi-rr-graduation-cap flex justify-center items-center text-[16px] text-gray-500"></i>
-                            </div>
-                            <span class="font-medium text-gray-700 text-[16px]">Program Overview</span>
-                        </div>
-                        <div class="flex flex-row justify-center items-center">
-                            <i class="fi fi-rs-info flex justify-center items-center text-[18px] text-gray-500"
-                                title="tabgubano tabgubanotabgubanotabgubanotabgubano tabgubano"></i>
-                        </div>
-                    </div>
 
-                    <canvas id="myChart" width="200" height="200" class="self-center"></canvas>
-
-                </div>
-            </div>
-            <div
-                class="flex flex-col justify-center items-center bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-6 w-full">
-                <div class="flex flex-col justify-center items-start space-y-2 h-full w-full">
-                    <div class="flex flex-row justify-between items-center w-full">
-                        <div class="flex flex-row justify-center items-center gap-2">
-                            <div class="bg-gray-200 flex justify-center items-center p-1 rounded-lg">
-                                <i
-                                    class="fi fi-rr-book-bookmark flex justify-center items-center text-[16px] text-gray-500"></i>
-                            </div>
-                            <span class="font-medium text-gray-700 text-[16px]">Grade Level Overview</span>
-                        </div>
-                        <div class="flex flex-row justify-center items-center">
-                            <i class="fi fi-rs-info flex justify-center items-center text-[18px] text-gray-500"
-                                title="tabgubano tabgubanotabgubanotabgubanotabgubano tabgubano"></i>
-                        </div>
-                    </div>
-
-                    <canvas id="myChart2" width="200" height="200" class="self-center"></canvas>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 
@@ -270,7 +243,7 @@
 
             table1 = new DataTable('#enrolledStudents', {
                 paging: true,
-                pageLength: 20,
+                pageLength: 10,
                 searching: true,
                 autoWidth: false,
                 serverSide: true,
@@ -298,16 +271,19 @@
                     bottomEnd: 'paging',
                 },
                 columns: [{
-                        data: 'id'
+                        data: 'lrn'
                     },
                     {
-                        data: 'first_name'
+                        data: 'full_name'
                     },
                     {
-                        data: 'last_name'
+                        data: 'grade_level'
                     },
                     {
-                        data: 'email'
+                        data: 'program'
+                    },
+                    {
+                        data: 'contact'
                     },
                     {
                         data: 'id', // pass ID for rendering the link
@@ -399,9 +375,9 @@
                 table1.draw();
 
                 let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A73E8]'];
+                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
                 let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                let gradeSelectionAdd = ['text-[#1A73E8]'];
+                let gradeSelectionAdd = ['text-[#1A3165]'];
                 let gradeContainerRem = ['bg-gray-100'];
                 let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
                     'hover:bg-[#1A73E8]/25'
@@ -433,9 +409,9 @@
 
                     clearGradeFilterBtn.classList.add('fi-rr-caret-down');
                     gradeContainer.classList.add('bg-gray-100')
-                    gradeSelection.classList.remove('text-blue-900')
+                    gradeSelection.classList.remove('text-[#1A3165]')
                     gradeSelection.classList.add('text-gray-700')
-                    clearGradeFilterBtn.classList.remove('text-blue-900')
+                    clearGradeFilterBtn.classList.remove('text-[#1A3165]')
                     clearGradeFilterBtn.classList.add('text-gray-500')
 
 
@@ -453,14 +429,14 @@
             }
 
 
+            const totalChartCtx = document.getElementById('total_chart').getContext('2d');
+            const gradeLevelChartCtx = document.getElementById('grade_level_chart').getContext('2d');
+            const programChartCtx = document.getElementById('program_chart').getContext('2d');
 
-            const ctx = document.getElementById('myChart').getContext('2d');
-            const ctx2 = document.getElementById('myChart2').getContext('2d');
-
-            const myChart = new Chart(ctx, {
+            const gradeLevelChart = new Chart(gradeLevelChartCtx, {
                 type: 'pie', // change to 'pie' for pie chart
                 data: {
-                    labels: ['HUMSS', 'ABM'],
+
                     datasets: [{
                         label: 'Students',
                         data: [19, 3],
@@ -474,10 +450,28 @@
                 }
             });
 
-            const myChart2 = new Chart(ctx2, {
+            const programChart = new Chart(programChartCtx, {
                 type: 'pie', // change to 'pie' for pie chart
                 data: {
-                    labels: ['G-11', 'G-12'],
+
+                    datasets: [{
+                        label: 'Students',
+                        data: [20, 265],
+                        backgroundColor: ['#199BCF', '#1A3165'],
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    cutout: '70%'
+                    // makes it a donut; remove for a pie chart
+                }
+            });
+
+            const totalChart = new Chart(totalChartCtx, {
+                type: 'pie', // change to 'pie' for pie chart
+                data: {
+
                     datasets: [{
                         label: 'Students',
                         data: [20, 265],

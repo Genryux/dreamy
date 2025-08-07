@@ -11,7 +11,9 @@ class StudentsController extends Controller
 
     public function getUsers(Request $request)
     {
-        $query = User::query();
+        $query = Students::with('record');
+
+        //dd($query->get());
 
         // search filter
         if ($search = $request->input('search.value')) {
@@ -33,10 +35,9 @@ class StudentsController extends Controller
             $query->where('email', 'like', "%{$grade}%");
         }
 
-
         // Sorting
         // Column mapping: must match order of your <th> and JS columns
-        $columns = ['id', 'first_name', 'last_name', 'grade_level', 'program'];
+        $columns = ['lrn', 'full_name', 'gender', 'grade_level', 'program', 'contact'];
 
         // Get sort column index and direction
         $orderColumnIndex = $request->input('order.0.column');
@@ -51,19 +52,25 @@ class StudentsController extends Controller
         $total = $query->count();
         $filtered = $total;
 
+        $limit = $request->input('length', 10);  // default to 10 per page
+        $offset = $request->input('start', 0);
+
         $data = $query
-            ->offset($request->start)
-            ->limit($request->length)
-            ->get(['id', 'first_name', 'last_name', 'email'])
+            ->offset($offset)
+            ->limit($limit)
+            ->get(['lrn', 'grade_level'])
             ->map(function ($item) {
                 return [
-                    'id' => $item->id,
-                    'first_name' => $item->first_name,
-                    'last_name' => $item->last_name,
-                    'email' => $item->email,
+                    'lrn' => $item->lrn,
+                    'full_name' => $item->record->getFullName,
+                    'grade_level' => $item->grade_level,
+                    'program' => $item->record->program,
+                    'contact' => $item->record->guardian_contact_number,
                     'id' => $item->id
                 ];
             });
+
+        dd($data);
 
         return response()->json([
             'draw' => intval($request->draw),

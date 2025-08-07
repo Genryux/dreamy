@@ -39,7 +39,9 @@ return new class extends Migration
             $table->string('guardian_contact_number')->nullable();
 
             // Academic Info
-            $table->string('semester')->nullable();
+            
+            $table->string('grade_level')->nullable();
+            $table->string('program')->nullable();
             $table->string('current_school')->nullable();
             $table->string('previous_school')->nullable();
             $table->string('school_contact_info')->nullable();

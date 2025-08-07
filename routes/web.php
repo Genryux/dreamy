@@ -96,6 +96,8 @@ Route::get('/users', [StudentsController::class, 'getUsers']);
 //enrolled students
 Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
 
+Route::post('/students/{id}', [StudentRecordController::class, 'store']);
+
 
 
 Route::get('/student', function () {

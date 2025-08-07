@@ -27,7 +27,8 @@ class StudentRecords extends Model
         'guardian_name',
         'guardian_contact_number',
 
-        'semester',
+        'grade_level',
+        'program',
         'current_school',
         'previous_school',
         'school_contact_info',
