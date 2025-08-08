@@ -33,13 +33,13 @@ class StudentRecordController extends Controller
     public function store(Request $request)
     {
 
-        $applicant = Applicants::find($request->id);
+        $applicant = Applicants::where('applicants.id', $request->id)->first();
 
-        //dd($applicant->applicationForm->get(), $form->first_name);
+        //dd($applicant->applicationForm);
         try {
 
             DB::transaction(function () use ($applicant) {
-                $form = $applicant->applicationForm->first();
+                $form = $applicant->applicationForm;
                 $user = $applicant->user;
 
 
@@ -56,7 +56,6 @@ class StudentRecordController extends Controller
 
                 StudentRecords::firstOrCreate([
                     'students_id'             => $studentId,
-                    'user_id'                 => $user->id,
                     'first_name'              => $form->first_name,
                     'last_name'               => $form->last_name,
                     'middle_name'             => $form->middle_name,
@@ -78,7 +77,6 @@ class StudentRecordController extends Controller
                     'current_school'          => 'Dreamy School Philippines',
                     'previous_school'         => $form->last_school_attended,
                     'has_special_needs'       => $form->has_special_needs,
-                    'special_needs'           => $form->special_needs,
                     'belongs_to_ip'           => $form->belongs_to_ip,
                     'is_4ps_beneficiary'      => $form->is_4ps_beneficiary,
                 ]);

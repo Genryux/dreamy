@@ -145,8 +145,8 @@
                             <select name="grade_selection" id="grade_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                 <option value="" disabled selected>Grade</option>
-                                <option value="" data-putanginamo="emoore@example.net">Grade 11</option>
-                                <option value="" data-putanginamo="example.com">Grade 12</option>
+                                <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                <option value="" data-putanginamo="Grade 12">Grade 12</option>
                             </select>
                             <i id="clear-grade-filter-btn"
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
