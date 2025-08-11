@@ -34,12 +34,14 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('extension_name')->nullable();
+            $table->string('gender')->nullable(); //
             $table->date('birthdate')->nullable();
             $table->unsignedTinyInteger('age')->nullable();
             $table->string('place_of_birth')->nullable();
             $table->string('mother_tongue')->nullable();
             $table->boolean('belongs_to_ip')->nullable();
             $table->boolean('is_4ps_beneficiary')->nullable();
+            $table->string('contact_number')->nullable(); //
 
             // Current Address
             $table->string('cur_house_no')->nullable();

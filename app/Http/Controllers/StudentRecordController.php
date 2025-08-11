@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\StudentRecordException;
+use App\Imports\StudentsImport;
 use App\Models\Applicants;
 use App\Models\StudentRecords;
 use App\Models\Students;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentRecordController extends Controller
 {
@@ -27,6 +29,17 @@ class StudentRecordController extends Controller
         //
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv'
+        ]);
+
+        Excel::import(new StudentsImport, $request->file('file'));
+
+        return back()->with('success', 'Imported successfully');
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -43,13 +56,22 @@ class StudentRecordController extends Controller
                 $user = $applicant->user;
 
 
-                $student = Students::firstOrCreate([
-                    'user_id' => $user->id,
-                    'lrn' => $form->lrn,
-                    'grade_level' => $form->grade_level,
-                    'enrollment_date' => $form->created_by,
-                    'status' => 'Officially Enrolled'
-                ]);
+                $student = Students::firstOrCreate(
+                    [
+                        'user_id'         => $user->id,
+                    ],
+                    [
+
+                        'lrn'             => $form->lrn,
+                        'full_name'       => $user->getfullNameAttribute,
+                        'grade_level'     => $form->grade_level,
+                        'age'             => $form->age,
+                        'contact_number'  => $form->contact_number,
+                        'email_addres'    => $applicant->user->email,
+                        'enrollment_date' => $form->created_by,
+                        'status'          => 'Officially Enrolled'
+                    ]
+                );
 
                 $user->syncRoles('student');
                 $studentId = $student->id;
@@ -61,8 +83,10 @@ class StudentRecordController extends Controller
                     'middle_name'             => $form->middle_name,
                     'extension_name'          => $form->extension_name,
                     'birthdate'               => $form->birthdate,
+                    'gender'                  => $form->gender,
                     'age'                     => $form->age,
                     'place_of_birth'          => $form->place_of_birth,
+                    'contact_number'          => $form->contact_number,
                     'email'                   => $applicant->user->email,
                     'current_address'         => $form->currentAddress(),
                     'permanent_address'       => $form->permanentAddress(),

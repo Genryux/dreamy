@@ -26,11 +26,18 @@ class User extends Authenticatable
         'password',
     ];
 
-    public function applicant() {
+    public function applicant()
+    {
         return $this->hasOne(Applicants::class);
     }
 
-    public function getFullNameAttribute() {
+    public function student()
+    {
+        return $this->hasOne(Students::class);
+    }
+
+    public function getFullNameAttribute()
+    {
         return "{$this->last_name}, {$this->first_name}";
     }
 

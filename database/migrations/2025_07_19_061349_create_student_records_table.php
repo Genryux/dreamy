@@ -21,14 +21,16 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('middle_name')->nullable();
             $table->string('extension_name')->nullable();
-            $table->date('birthdate');
-            $table->integer('age');
-            $table->string('place_of_birth');
+            $table->date('birthdate')->nullable();
+            $table->string('gender')->nullable(); //
+            $table->integer('age')->nullable();
+            $table->string('place_of_birth')->nullable();
 
             // Contact Info
             $table->string('email')->nullable();
-            $table->text('current_address');
-            $table->text('permanent_address');
+            $table->string('contact_number')->nullable();
+            $table->text('current_address')->nullable();
+            $table->text('permanent_address')->nullable();
 
             // Parent/Guardian Info
             $table->string('father_name')->nullable();
@@ -47,9 +49,9 @@ return new class extends Migration
             $table->string('school_contact_info')->nullable();
 
             // Additional Info
-            $table->boolean('has_special_needs')->default(false);
-            $table->boolean('belongs_to_ip')->default(false);
-            $table->boolean('is_4ps_beneficiary')->default(false);
+            $table->boolean('has_special_needs')->default(false)->nullable();
+            $table->boolean('belongs_to_ip')->default(false)->nullable();
+            $table->boolean('is_4ps_beneficiary')->default(false)->nullable();
             $table->timestamps();
         });
     }

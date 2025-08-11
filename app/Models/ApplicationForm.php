@@ -24,12 +24,14 @@ class ApplicationForm extends Model
         'first_name',
         'middle_name',
         'extension_name',
+        'gender', //
         'birthdate',
         'age',
         'place_of_birth',
         'mother_tongue',
         'belongs_to_ip',
         'is_4ps_beneficiary',
+        'contact_number', //
 
         'cur_house_no',
         'cur_street',

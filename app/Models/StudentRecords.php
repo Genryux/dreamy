@@ -13,10 +13,12 @@ class StudentRecords extends Model
         'last_name',
         'middle_name',
         'birthdate',
+        'gender',
         'age',
         'place_of_birth',
 
         'email',
+        'contact_number',
         'current_address',
         'permanent_address',
 
@@ -34,7 +36,7 @@ class StudentRecords extends Model
         'school_contact_info',
 
         'has_special_needs',
-        'belong_to_ip',
+        'belongs_to_ip',
         'is_4ps_beneficiary'
     ];
 

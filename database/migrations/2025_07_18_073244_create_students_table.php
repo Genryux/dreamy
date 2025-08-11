@@ -18,7 +18,12 @@ return new class extends Migration
             // $table->foreignId('section_id')->constrained()->onDelete('set null');
             // $table->foreignId('program_id')->constrained()->onDelete('set null');
             $table->string('lrn')->nullable();
-            $table->string('grade_level');
+            $table->string('full_name')->nullable();
+            $table->string('grade_level')->nullable();
+            $table->string('age')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('contact_number')->nullable();
+            $table->string('email_address')->nullable();
             $table->date('enrollment_date')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();

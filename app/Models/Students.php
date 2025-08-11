@@ -13,6 +13,10 @@ class Students extends Model
         'section_id',
         'program_id',
         'lrn',
+        'full_name',
+        'age',
+        'contact_number',
+        'email_address',
         'grade_level',
         'enrollment_date',
         'status'
@@ -20,6 +24,10 @@ class Students extends Model
 
     public function record() {
         return $this->hasOne(StudentRecords::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 
 }

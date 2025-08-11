@@ -94,10 +94,13 @@ Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('st
 Route::get('/users', [StudentsController::class, 'getUsers']);
 
 //enrolled students
+
+
+Route::post('/students/import', [StudentRecordController::class, 'import']);
+
 Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
 
 Route::post('/students/{id}', [StudentRecordController::class, 'store']);
-
 
 
 Route::get('/student', function () {
