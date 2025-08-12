@@ -17,11 +17,12 @@ class StudentsController extends Controller
         // search filter
         if ($search = $request->input('search.value')) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
+                $q->where('lrn', 'like', "%{$search}%")
+                    ->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('email_address', 'like', "%{$search}%")
                     ->orWhere('grade_level', 'like', "%{$search}%")
-                    ->orWhere('program', 'like', "%{$search}%");
+                    ->orWhere('contact_number', 'like', "%{$search}%");
             });
         }
 
@@ -36,7 +37,7 @@ class StudentsController extends Controller
 
         // Sorting
         // Column mapping: must match order of your <th> and JS columns
-        $columns = ['lrn', 'full_name', 'gender', 'grade_level', 'program', 'contact'];
+        $columns = ['lrn', 'first_name', 'grade_level', 'contact_number', 'email_address'];
 
         // Get sort column index and direction
         $orderColumnIndex = $request->input('order.0.column');
@@ -57,15 +58,16 @@ class StudentsController extends Controller
         $data = $query
             ->offset($request->start)
             ->limit($request->length)
-            ->get(['id', 'lrn', 'grade_level'])
+            ->get(['id', 'lrn', 'first_name', 'last_name', 'grade_level', 'contact_number', 'email_address'])
             ->map(function ($item) {
                 // dd($item);
                 return [
                     'lrn' => $item->lrn,
-                    'full_name' => $item->record->getFullName(),
+                    'full_name' => $item->first_name . ' ' . $item->last_name,
                     'grade_level' => $item->grade_level,
                     'program' => $item->record->program,
-                    'contact' => $item->record->guardian_contact_number,
+                    'contact' => $item->contact_number,
+                    'email' => $item->email_address,
                     'id' => $item->id
                 ];
             });

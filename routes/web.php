@@ -98,6 +98,9 @@ Route::get('/users', [StudentsController::class, 'getUsers']);
 
 Route::post('/students/import', [StudentRecordController::class, 'import']);
 
+Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
+
+
 Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
 
 Route::post('/students/{id}', [StudentRecordController::class, 'store']);

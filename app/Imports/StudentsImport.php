@@ -40,7 +40,8 @@ class StudentsImport implements ToModel, WithHeadingRow
             $students = $user->student()->firstOrCreate(
                 ['lrn'            => $row['lrn']],
                 [
-                    'full_name'     => $row['first_name'] . ' ' . $row['last_name'],
+                    'first_name'     => $row['first_name'],
+                    'last_name'      => $row['last_name'],
                     'grade_level'    => $row['grade_level'],
                     'age'            => $row['age'],
                     'contact_number' => $row['contact_number'],

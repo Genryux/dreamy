@@ -1,5 +1,57 @@
 @extends('layouts.admin')
 
+@section('modal')
+    <x-modal modal_id="import-modal" modal_name="Import Students" close_btn_id="import-modal-close-btn">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
+
+        </x-slot>
+
+        <form action="/students/import" method="POST" enctype="multipart/form-data" id="import-form" class="p-6">
+            @csrf
+            <label for="fileInput" id="fileInputLabel"
+                class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg bg-[#E7F0FD] hover:bg-blue-100 cursor-pointer cursor-not-allowed select-none transition duration-150">
+
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg class="w-8 h-8 mb-4 text-[#1A73E8]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 20 16">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                    </svg>
+                    <p class="mb-2 text-sm text-[#0f111c]/80"><span class="font-semibold">Choose files to
+                            upload</span></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Supported Formats: .xlsx, .xls, .csv</p>
+                </div>
+                <span
+                    class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Choose
+                    Files</span>
+
+                <input type="file" id="fileInput" name="file" class="hidden" accept=".xlsx,.xls,.csv" required>
+                <span id="fileName" class="text-gray-500 italic">No file chosen</span>
+            </label>
+        </form>
+
+        <x-slot name="modal_info">
+            <i class="fi fi-rs-info flex justify-center items-center"></i>
+            <a href="{{ asset('templates/students_import_template.xlsx') }}" download>Click here to download the
+                template</a>
+        </x-slot>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="import-form" name="action" value="verify"
+                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                Import
+            </button>
+        </x-slot>
+
+    </x-modal>
+@endsection
+
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
         <h1 class="text-[20px] font-black">Officially Enrolled Students</h1>
@@ -168,22 +220,36 @@
                 </div>
 
 
-                <button
-                    class="group relative inline-flex items-center gap-2 bg-blue-500 text-white font-semibold px-4 py-1 rounded-xl hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-150">
+                <div id="dropdown_btn"
+                    class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
 
-                    <span class="relative w-4 h-4">
-                        <i
-                            class="fi fi-rr-user-add flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[14px]"></i>
-                        <i
-                            class="fi fi-sr-user-add flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[14px]"></i>
-                    </span>
+                    <div
+                        class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                        <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
+                    </div>
 
-                    Import
-                </button>
+                    <div id="dropdown_selection"
+                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1
+    opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                        <button id="import-modal-btn"
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                        </button>
+                        <x-nav-link href="/students/export/excel"
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                        </x-nav-link>
+                        <button
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                        </button>
+                    </div>
+
+                </div>
             </div>
 
             <div class="w-full">
-                <table id="enrolledStudents" class="w-full table-fixed ">
+                <table id="enrolledStudents" class="w-full table-fixed">
                     <thead class="text-[14px]">
                         <tr>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
@@ -201,14 +267,17 @@
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>                                                        
+                            </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Contact</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Contact No.</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Email Address</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Actions</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
                             </th>
 
                         </tr>
@@ -228,6 +297,9 @@
         import {
             clearSearch
         } from "/js/clearSearch.js"
+        import {
+            initModal
+        } from "/js/modal.js";
 
         let table1;
         let selectedGrade = '';
@@ -237,6 +309,15 @@
 
 
         document.addEventListener("DOMContentLoaded", function() {
+
+            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn');
+
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
+
+            fileInput.addEventListener('change', function() {
+                fileName.textContent = this.files.length > 0 ? this.files[0].name : 'No file chosen';
+            });
 
             //Overriding default search input
             const customSearch1 = document.getElementById("myCustomSearch");
@@ -286,12 +367,15 @@
                         data: 'contact'
                     },
                     {
+                        data: 'email'
+                    },
+                    {
                         data: 'id', // pass ID for rendering the link
                         render: function(data, type, row) {
                             return `
-                            <div class='flex flex-row justify-center items-center'>
+                            <div class='flex flex-row justify-center items-center opacity-100'>
 
-                                <a href="/users/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                <a href="/users/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
 
                                     <span class="relative w-4 h-4">
                                         <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
@@ -395,9 +479,6 @@
                 console.log(email);
             })
 
-
-
-
             function handleClearGradeFilter(selectedOption) {
 
                 clearGradeFilterBtn.addEventListener('click', () => {
@@ -427,6 +508,16 @@
                 gradeSelection.selectedIndex = 0
                 programSelection.selectedIndex = 0
             }
+
+            let dropDownBtn = document.querySelector('#dropdown_btn');
+            let dropdownselection = document.querySelector('#dropdown_selection');
+
+            dropDownBtn.addEventListener('click', () => {
+                dropdownselection.classList.toggle('opacity-0');
+                dropdownselection.classList.toggle('scale-95');
+                dropdownselection.classList.toggle('pointer-events-none');
+                dropdownselection.classList.toggle('translate-y-1');
+            })
 
 
             const totalChartCtx = document.getElementById('total_chart').getContext('2d');
@@ -485,6 +576,8 @@
                     // makes it a donut; remove for a pie chart
                 }
             });
+
+
 
 
         });

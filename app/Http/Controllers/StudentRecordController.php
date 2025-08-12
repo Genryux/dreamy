@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\StudentRecordException;
+use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
 use App\Models\Applicants;
 use App\Models\StudentRecords;
@@ -27,6 +28,11 @@ class StudentRecordController extends Controller
     public function create()
     {
         //
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new StudentsExport, 'students.xlsx');
     }
 
     public function import(Request $request)
@@ -63,7 +69,8 @@ class StudentRecordController extends Controller
                     [
 
                         'lrn'             => $form->lrn,
-                        'full_name'       => $user->getfullNameAttribute,
+                        'first_name'      => $user->first_name,
+                        'last_name'       => $user->last_name,
                         'grade_level'     => $form->grade_level,
                         'age'             => $form->age,
                         'contact_number'  => $form->contact_number,
