@@ -4,12 +4,14 @@ namespace App\Imports;
 
 use App\Models\Students;
 use App\Models\User;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class StudentsImport implements ToModel, WithHeadingRow
+class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue
 {
     /**
      * @param array $row
@@ -87,5 +89,10 @@ class StudentsImport implements ToModel, WithHeadingRow
 
             return $students;
         });
+    }
+
+    public function chunkSize(): int
+    {
+        return 500;
     }
 }

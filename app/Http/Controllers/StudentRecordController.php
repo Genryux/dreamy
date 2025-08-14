@@ -41,7 +41,7 @@ class StudentRecordController extends Controller
             'file' => 'required|file|mimes:xlsx,xls,csv'
         ]);
 
-        Excel::import(new StudentsImport, $request->file('file'));
+        Excel::queueImport(new StudentsImport, $request->file('file'));
 
         return back()->with('success', 'Imported successfully');
     }
