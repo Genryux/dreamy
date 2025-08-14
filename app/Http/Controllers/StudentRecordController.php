@@ -10,6 +10,8 @@ use App\Models\StudentRecords;
 use App\Models\Students;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Excel as ExcelExcel;
 use Maatwebsite\Excel\Facades\Excel;
 
 class StudentRecordController extends Controller
@@ -41,9 +43,12 @@ class StudentRecordController extends Controller
             'file' => 'required|file|mimes:xlsx,xls,csv'
         ]);
 
-        Excel::queueImport(new StudentsImport, $request->file('file'));
 
-        return back()->with('success', 'Imported successfully');
+        $path = $request->file('file')->store('imports');
+
+        Excel::queueImport(new StudentsImport, $path, 'local');
+
+        return back()->with('info', 'Your import is being processed in the background and may take a few moments. You can continue working and check back later for the results.');
     }
 
     /**

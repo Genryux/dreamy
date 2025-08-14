@@ -2,7 +2,7 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="bg-[#E4EAF9]/70">
+<body class="bg-[#E4EAF9]/70 relative">
 
     <div id="main-container" class="min-h-screen hidden md:flex relative">
 
@@ -85,7 +85,7 @@
         </x-side-nav-bar>
 
         <!-- Main content area -->
-        <div id="content" class="flex-1 flex flex-col transition-all duration-300 w-full">
+        <div id="content" class="relative flex-1 flex flex-col transition-all duration-300 w-full">
             <!-- Top Navigation Bar -->
             <header id="top-nav-bar"
                 class="z-10 bg-[#f8f8f8] h-[60px] px-[10px] flex justify-between items-center gap-2 sticky top-0 shadow-sm border-b border-[#1e1e1e]/15">

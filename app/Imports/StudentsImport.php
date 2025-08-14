@@ -7,17 +7,50 @@ use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Validators\Failure;
 
 class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue
 {
+
+    use Importable;
+    use \Maatwebsite\Excel\Concerns\SkipsFailures;
+    use \Maatwebsite\Excel\Concerns\SkipsErrors;
     /**
      * @param array $row
      *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
+
+    // validate required columns per row
+    public function rules(): array
+    {
+        return [
+            'lrn'            => ['required'],
+            'email_address'  => ['required', 'email'],
+            // Allow either full_name OR first_name + last_name
+            'full_name'      => ['required_without_all:first_name,last_name'],
+            'first_name'     => ['required_without:full_name'],
+            'last_name'      => ['required_without:full_name'],
+            'grade_level'    => ['nullable', 'integer', 'between:1,12'],
+            'age'            => ['nullable', 'integer', 'between:3,100'],
+        ];
+    }
+
+    public function customValidationMessages()
+    {
+        return [
+            'full_name.required_without_all' => 'Provide full_name or first_name + last_name.',
+            'first_name.required_without'    => 'Provide first_name if full_name is missing.',
+            'last_name.required_without'     => 'Provide last_name if full_name is missing.',
+        ];
+    }
+
     public function model(array $row)
     {
         if (empty($row['email_address']) || empty($row['lrn'])) {
@@ -89,6 +122,19 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, Shoul
 
             return $students;
         });
+    }
+
+    public function onFailure(Failure ...$failures)
+    {
+        // Row-level validation errors are logged (import continues for other rows)
+        foreach ($failures as $f) {
+            Log::warning('Student import validation failure', [
+                'row' => $f->row(),
+                'attribute' => $f->attribute(),
+                'errors' => $f->errors(),
+                'values' => $f->values(),
+            ]);
+        }
     }
 
     public function chunkSize(): int
