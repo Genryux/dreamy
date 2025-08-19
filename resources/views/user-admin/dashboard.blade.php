@@ -2,7 +2,7 @@
 
 @section('modal')
     {{-- academic term modal --}}
-    <x-modal modal_id="acad-term-modal" modal_name="Add new academic term" close_btn_id="at-close-btn">
+    <x-modal modal_id="acad-term-modal" modal_name="Add new academic term" close_btn_id="at-close-btn" modal_container_id="modal-container-1">
         <form action="/academic-terms" method="POST" id="academic-term-form" class="pt-2 pb-4 px-4 space-y-2">
             @csrf
             <div class="flex flex-row space-x-2">
@@ -74,7 +74,7 @@
         </x-slot>
     </x-modal>
     {{-- enrollment period modal --}}
-    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn">
+    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn" modal_container_id="modal-container-2">
         <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="pt-2 pb-4 px-4 space-y-2">
             @csrf
             <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
@@ -145,7 +145,7 @@
     </x-modal>
     @if ($activeEnrollmentPeriod)
         <x-modal modal_id="end-enrollment-modal" modal_name="End enrollment period confirmation"
-            close_btn_id="end-enrollment-close-btn">
+            close_btn_id="end-enrollment-close-btn" modal_container_id="modal-container-3">
             <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="end-enrollment-form"
                 class="pt-2 pb-4 px-4 space-y-2">
                 @csrf
@@ -480,9 +480,9 @@
     @endif
 
 
-    <div class="flex flex-row gap-4">
+    <div class="flex flex-row justify-center items-start gap-4">
 
-        <div class="flex flex-col w-[70%] h-full bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+        <div class="flex flex-col w-[70%] h-auto bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
 
             <span class="text-[16px] md:text-[18px] font-semibold opacity-90">Recent Applications</span>
 
@@ -494,7 +494,7 @@
                         <thead class="text-[14px]">
                             <tr>
                                 <th
-                                    class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-[9px] px-4 py-2">
+                                    class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Applicant Id</span>
                                 </th>
                                 <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
@@ -510,7 +510,7 @@
                                     <span class="mr-2 font-medium opacity-70">Created at</span>
                                 </th>
                                 <th
-                                    class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                                    class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Actions</span></th>
                             </tr>
                         </thead>
@@ -645,10 +645,10 @@
 
             });
 
-            initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn');
-            initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn');
+            initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn', 'modal-container-1');
+            initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn', 'modal-container-2');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
-                'end-enrollment-cancel-btn');
+                'end-enrollment-cancel-btn', 'modal-container-3');
 
             console.log(window.Echo);
 

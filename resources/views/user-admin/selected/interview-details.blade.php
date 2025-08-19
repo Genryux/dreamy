@@ -38,7 +38,7 @@
 @section('modal')
     @if ($interview_details->status === 'Pending')
         {{-- Schedule Interview Modal --}}
-        <x-modal modal_id="sched-interview-modal" modal_name="Schedule Interview" close_btn_id="sched-interview-close-btn">
+        <x-modal modal_id="sched-interview-modal" modal_name="Schedule Interview" close_btn_id="sched-interview-close-btn" modal_container_id="modal-container-1">
 
             <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
                 class="flex flex-col space-y-2 px-4 py-2">
@@ -126,7 +126,7 @@
     @elseif ($interview_details->status === 'Scheduled')
         {{-- Record Interview Result Modal --}}
         <x-modal modal_id="record-interview-modal" modal_name="Record Interview Result"
-            close_btn_id="record-interview-close-btn">
+            close_btn_id="record-interview-close-btn" modal_container_id='modal-container-2'>
 
             <form action="/set-interview/{{ $interview_details->id }}" method="post" class="py-2 px-4 space-y-2"
                 form="interview-form" id="interview-form">
@@ -167,7 +167,7 @@
         </x-modal>
 
         {{-- Edit Interview Schedule Modal --}}
-        <x-modal modal_id="edit-sched-modal" modal_name="Edit Interview Schedule" close_btn_id="edit-sched-close-btn">
+        <x-modal modal_id="edit-sched-modal" modal_name="Edit Interview Schedule" close_btn_id="edit-sched-close-btn" modal_container_id='modal-container-3'>
 
             <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
                 class="flex flex-col space-y-2 px-4 py-2">
@@ -564,9 +564,9 @@
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            initModal('edit-sched-modal', 'edit-sched-btn', 'edit-sched-close-btn', 'cancel-btn');
-            initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn');
-            initModal('sched-interview-modal', 'record-btn', 'sched-interview-close-btn', 'cancel-btn');
+            initModal('edit-sched-modal', 'edit-sched-btn', 'edit-sched-close-btn', 'cancel-btn', 'modal-container-3');
+            initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn', 'modal-container-2');
+            initModal('sched-interview-modal', 'record-btn', 'sched-interview-close-btn', 'cancel-btn', 'modal-container-1');
 
             const detailsContainer = document.getElementById('details-container');
             const showDetailsBtn = document.getElementById('show-details-btn');

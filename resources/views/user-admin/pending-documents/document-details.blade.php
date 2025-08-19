@@ -36,7 +36,7 @@
 @endsection
 
 @section('modal')
-    <x-modal modal_id="verify-doc-modal" modal_name="Verification confirmation" close_btn_id="verify-doc-close-btn">
+    <x-modal modal_id="verify-doc-modal" modal_name="Verification confirmation" close_btn_id="verify-doc-close-btn" modal_container_id='modal-container-1'>
         <x-slot name="modal_icon">
             <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
         </x-slot>
@@ -69,10 +69,11 @@
     {{-- View document modal --}}
     <x-modal modal_id="view-doc-modal" modal_name="Verification confirmation" close_btn_id="view-doc-close-btn">
 
-        asdasdsa
+        WORK IN PROGRESS
+
     </x-modal>
     {{-- Enroll student modal --}}
-    <x-modal modal_id="enroll-student-modal" modal_name="Enrollment confirmation" close_btn_id="enroll-student-close-btn">
+    <x-modal modal_id="enroll-student-modal" modal_name="Enrollment confirmation" close_btn_id="enroll-student-close-btn" modal_container_id='modal-container-2'>
         <x-slot name="modal_icon">
             <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
         </x-slot>
@@ -363,7 +364,7 @@
         } from "/js/modal.js";
 
         initModal('enroll-student-modal', 'open-enroll-student-modal-btn', 'enroll-student-close-btn',
-            'putanginamo_cancel-btn');
+            'putanginamo_cancel-btn', 'modal-container-2');
 
         let table;
         let pendingApplications = document.querySelector('#pending-application');
@@ -445,7 +446,7 @@
 
                 let id = button.getAttribute('data-document-id');
                 initModal('verify-doc-modal', `open-verify-modal-btn-${id}`, 'verify-doc-close-btn',
-                    'cancel-btn');
+                    'cancel-btn', 'modal-container-1');
 
                 button.addEventListener('click', () => {
                     let form = document.getElementById('verify-doc-form')
