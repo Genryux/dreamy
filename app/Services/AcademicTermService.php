@@ -42,7 +42,7 @@ class AcademicTermService
      */
     public function fetchCurrentAcademicTerm()
     {
-        // Placeholder for actual fetching logic, e.g., 
         return AcademicTerms::where('is_active', true)->first();
     }
+
 }
