@@ -1,13 +1,24 @@
 @extends('layouts.admin')
 
+{{-- @section('skeleton')
+    <div id="skeleton" class="fixed inset-0 bg-white flex flex-col justify-center items-center z-50">
+        <!-- Example skeleton shapes -->
+        <div class="h-8 w-1/3 bg-gray-300 rounded mb-4 animate-pulse"></div>
+        <div class="h-6 w-1/2 bg-gray-300 rounded mb-2 animate-pulse"></div>
+        <div class="h-6 w-2/3 bg-gray-300 rounded mb-2 animate-pulse"></div>
+        <div class="h-6 w-1/4 bg-gray-300 rounded animate-pulse"></div>
+    </div>
+@endsection --}}
+
 @section('modal')
-    <x-modal modal_id="import-modal" modal_name="Import Students" close_btn_id="import-modal-close-btn">
+    <x-modal modal_id="import-modal" modal_name="Import Students" close_btn_id="import-modal-close-btn"
+        modal_container_id="modal-container-1">
         <x-slot name="modal_icon">
             <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
 
         </x-slot>
 
-        <form action="/students/import" method="POST" enctype="multipart/form-data" id="import-form" class="p-6">
+        <form enctype="multipart/form-data" id="import-form" class="p-6">
             @csrf
             <label for="fileInput" id="fileInputLabel"
                 class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg bg-[#E7F0FD] hover:bg-blue-100 cursor-pointer cursor-not-allowed select-none transition duration-150">
@@ -158,29 +169,8 @@
 @endsection
 
 @section('content')
-    @if (session()->has('info') || session()->has('error'))
-        {{-- <div id="alert-container" class="alert {{ session()->has('error') ? 'alert-danger' : 'alert-info' }}">
-            {{ session('error') ?? session('info') }}
-        </div> --}}
-        <div id="alert-container"
-            class="{{ session()->has('error') ? 'bg-red-100 ring-2 ring-red-300' : 'bg-green-100 ring-2 ring-green-300' }} opacity-0 fixed top-0 left-1/2 -translate-x-1/2 flex flex-row justify-center items-center gap-4 p-4 rounded-lg shadow-lg text-center z-10  text-gray-700 transition ease-in-out duration-200 pointer-events-none text-start">
 
-
-            <i
-                class="fi {{ session()->has('error') ? 'fi-sr-cross-circle' : 'fi-sr-check-circle' }} flex justify-center items-center text-[24px] {{ session()->has('error') ? 'text-red-500' : 'text-green-500' }}  self-start"></i>
-
-            <div class="flex flex-col justify-start items-start gap-1">
-                <p class="font-bold leading-none">{{ session()->has('error') ? 'Failed' : 'Success' }}</p>
-                <p class="opacity-70 font-regular text-[14px] self-start">{{ session('error') ?? session('info') }}
-                </p>
-            </div>
-
-            <button id="alert-close-btn">
-                <i class="fi fi-ss-cross-small text-[20px] flex justify-center items-center"></i>
-            </button>
-
-        </div>
-    @endif
+    <x-alert />
 
     <div class="flex flex-row justify-center items-start gap-4">
         <div
@@ -207,8 +197,8 @@
                             <select name="" id="program_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
                                 <option value="" selected disabled>Program</option>
-                                <option value="" data-id="ar">HUMSS</option>
-                                <option value="" data-id="2">ABM</option>
+                                <option value="" data-id="HUMSS">HUMSS</option>
+                                <option value="" data-id="ABM">ABM</option>
                             </select>
                             <i id="clear-program-filter-btn"
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
@@ -253,8 +243,7 @@
                     </div>
 
                     <div id="dropdown_selection"
-                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1
-    opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
                         <button id="import-modal-btn"
                             class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
                             <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
@@ -324,17 +313,23 @@
         import {
             initModal
         } from "/js/modal.js";
+        import {
+            showAlert
+        } from "/js/alert.js";
+        import {
+            showLoader,
+            hideLoader
+        } from "/js/loader.js";
 
         let table1;
         let selectedGrade = '';
         let selectedProgram = '';
         let selectedGender = '';
 
-
-
         document.addEventListener("DOMContentLoaded", function() {
 
-            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn');
+            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
+                'modal-container-1');
 
             const fileInput = document.getElementById('fileInput');
             const fileName = document.getElementById('fileName');
@@ -527,34 +522,10 @@
 
             }
 
-
             window.onload = function() {
                 gradeSelection.selectedIndex = 0
                 programSelection.selectedIndex = 0
             }
-
-
-
-            const alertContainer = document.querySelector('#alert-container');
-            const alertCloseBtn = document.querySelector('#alert-close-btn');
-
-            if (alertContainer) {
-                alertContainer.classList.toggle('opacity-100');
-                alertContainer.classList.toggle('scale-95');
-                alertContainer.classList.toggle('pointer-events-none');
-                alertContainer.classList.toggle('translate-y-5');
-            }
-
-            if (alertCloseBtn && alertContainer) {
-                alertCloseBtn.addEventListener('click', () => {
-                    alertContainer.classList.toggle('opacity-100');
-                    alertContainer.classList.toggle('scale-95');
-                    alertContainer.classList.toggle('pointer-events-none');
-                    alertContainer.classList.toggle('translate-y-5');
-                });
-            }
-
-
 
             let dropDownBtn = document.querySelector('#dropdown_btn');
             let dropdownselection = document.querySelector('#dropdown_selection');
@@ -565,6 +536,47 @@
                 dropdownselection.classList.toggle('pointer-events-none');
                 dropdownselection.classList.toggle('translate-y-1');
             })
+
+
+            document.getElementById('import-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                closeModal();
+
+                let form = e.target;
+                let formData = new FormData(form);
+
+                // Show loader
+                showLoader("Importing...");
+
+                fetch("/students/import", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+
+                        console.log(data)
+
+                        if (data.success) {
+
+                            showAlert('success', data.success);
+                            table1.draw();
+
+                        } else if (data.error) {
+
+                            showAlert('error', data.error);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        showAlert('error', 'Something went wrong');
+                    });
+            });
 
 
             const totalChartCtx = document.getElementById('total_chart').getContext('2d');
@@ -624,6 +636,27 @@
                 }
             });
 
+            function closeModal() {
+
+                let modal = document.querySelector('#import-modal')
+                let body = document.querySelector('#modal-container-1');
+
+                if (modal && body) {
+                    modal.classList.remove('opacity-100', 'scale-100');
+                    modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                    body.classList.remove('opacity-100');
+                    body.classList.add('opacity-0', 'pointer-events-none');
+                }
+
+            }
+
+            function openAlert() {
+                const alertContainer = document.querySelector('#alert-container');
+                alertContainer.classList.toggle('opacity-100');
+                alertContainer.classList.toggle('scale-95');
+                alertContainer.classList.toggle('pointer-events-none');
+                alertContainer.classList.toggle('translate-y-5');
+            }
 
 
 

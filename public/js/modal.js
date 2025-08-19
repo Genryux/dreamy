@@ -1,48 +1,40 @@
-export function initModal(modalId, openButtonId, closeButtonId, cancelButtonId) {
+export function initModal(modalId, openButtonId, closeButtonId, cancelButtonId, modalContainerId) {
     let modal = document.querySelector(`#${modalId}`);
     let openButton = document.querySelector(`#${openButtonId}`);
     let closeButton = document.querySelector(`#${closeButtonId}`);
     let cancelButton = document.querySelector(`#${cancelButtonId}`);
-    let body = document.querySelector('body');
-    
-    if (openButton) {
-        openButton.addEventListener('click', function() {
+    let body = document.querySelector(`#${modalContainerId}`);
 
-            if (modal.classList.contains('h-0')) {
+    if (openButton && body) {
 
-                modal.classList.remove('h-0');
-                modal.classList.add('h-full');
-                body.classList.add('overflow-hidden')
+        const openModal = () => {
+            modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            modal.classList.add('opacity-100', 'scale-100');
+            body.classList.remove('opacity-0', 'pointer-events-none');
+            body.classList.add('opacity-100');
+            console.log('modal opened')
+        };
 
-            }
+        const closeModal = () => {
+            modal.classList.remove('opacity-100', 'scale-100');
+            modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            body.classList.remove('opacity-100');
+            body.classList.add('opacity-0', 'pointer-events-none');
+        };
 
-            if (!modal.classList.contains('h-0')) {
+        // Open modal
+        openButton.addEventListener('click', openModal);
 
-                closeButton.addEventListener('click', () => {
-                    
-                    modal.classList.remove('h-full');
-                    modal.classList.add('h-0');
-                    body.classList.remove('overflow-hidden')
-                    
-                })
+        // Close modal with buttons
+        if (closeButton) closeButton.addEventListener('click', closeModal);
+        if (cancelButton) cancelButton.addEventListener('click', closeModal);
 
-                modal.addEventListener('click', () => {
-                    
-                    modal.classList.remove('h-full');
-                    modal.classList.add('h-0');
-                    body.classList.remove('overflow-hidden')
-                    
-                })
+        // Close modal when clicking outside content
+        modal.addEventListener('click', (e) => {
 
-                cancelButton.addEventListener('click', () => {
-                    
-                    modal.classList.remove('h-full');
-                    modal.classList.add('h-0');
-                    body.classList.remove('overflow-hidden')
-                    
-                })
-            }
-        })
+            closeModal();
+
+        });
     }
 
 }

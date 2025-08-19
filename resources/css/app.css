@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 /* Custom font weight utilities */
+
 .font-regular {
     font-weight: 400;
 }

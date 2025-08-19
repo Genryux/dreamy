@@ -2,9 +2,11 @@
 <html lang="en">
 <x-head></x-head>
 
-<body class="bg-[#E4EAF9]/70 relative">
+<body class="bg-[#E4EAF9]/70 relative h-screen">
 
-    <div id="main-container" class="min-h-screen hidden md:flex relative">
+    @include('components.skeleton')
+
+    <div id="main-container" class="h-full hidden md:flex relative">
 
         @yield('modal')
 
@@ -121,7 +123,27 @@
 
             </main>
         </div>
+
     </div>
+
+    <x-loader />
+    
+    <script>
+        document.body.style.overflow = 'hidden';
+
+        window.addEventListener('load', function() {
+
+            const skeleton = document.getElementById('skeleton');
+            if (!skeleton) return;
+
+            skeleton.style.transition = 'opacity 0.5s';
+            skeleton.style.opacity = 0;
+
+            setTimeout(() => {
+                skeleton.remove();
+            }, 200);
+        });
+    </script>
 
     @stack('scripts')
 </body>

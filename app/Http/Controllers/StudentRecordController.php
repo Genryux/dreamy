@@ -11,8 +11,12 @@ use App\Models\Students;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Excel as ExcelExcel;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\HeadingRowImport;
+use Maatwebsite\Excel\Imports\HeadingRowExtractor;
+use Maatwebsite\Excel\Validators\ValidationException as ValidatorsValidationException;
 
 class StudentRecordController extends Controller
 {
@@ -40,16 +44,73 @@ class StudentRecordController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv'
+            'file' => 'required|mimes:xlsx,xls,csv',
         ]);
 
+        try {
+            // Read just the heading row (array per sheet)
+            $headingsArray = (new HeadingRowImport(6))->toArray($request->file('file'));
+            // Assuming you only need the first sheet
+            $headings = $headingsArray[0][0] ?? [];
 
-        $path = $request->file('file')->store('imports');
 
-        Excel::queueImport(new StudentsImport, $path, 'local');
+            $required = [
+                'lrn',
+                'last_name',
+                'first_name',
+                'grade_level',
+                'program',
+                'contact_number',
+                'email_address'
+            ];
 
-        return back()->with('info', 'Your import is being processed in the background and may take a few moments. You can continue working and check back later for the results.');
+            foreach ($required as $col) {
+                if (! in_array($col, $headings)) {
+                    return response()->json(
+                        [
+                            'error' =>
+                            "The uploaded file does not match the required template. Missing required column: {$col}"
+                        ],
+                        422
+                    );
+                }
+            }
+
+            // Check succeeding rows after row 6
+            $rows = Excel::toArray(new \stdClass, $request->file('file'))[0];
+            $dataRows = array_slice($rows, 6); // rows after heading row
+
+            // Filter out rows that are completely empty
+            $nonEmptyRows = array_filter($dataRows, function ($row) {
+                return array_filter($row); // remove empty values, see if anything left
+            });
+
+            if (count($nonEmptyRows) === 0) {
+                return response()->json(
+                    [
+                        'success' =>
+                        "Import completed successfully, but no student data was found."
+                    ],
+                    422
+                );
+            }
+
+            // Use the job instead of Excel::queueImport
+            Excel::import(new StudentsImport, $request->file('file'));
+
+            return response()->json(['success' => 'Import completed successfully']);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => "Some data fields in your uploaded file are not valid."
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => "Something went wrong during import. Please try again."
+            ], 500);
+        }
     }
+
+
 
     /**
      * Store a newly created resource in storage.

@@ -28,7 +28,7 @@ class StudentsController extends Controller
 
         // Filtering
         if ($program = $request->input('program_filter')) {
-            $query->where('first_name', 'like', "%{$program}%");
+             $query->whereHas('record', fn($q) => $q->where('program', $program));
         }
 
         if ($grade = $request->input('grade_filter')) {
@@ -37,7 +37,7 @@ class StudentsController extends Controller
 
         // Sorting
         // Column mapping: must match order of your <th> and JS columns
-        $columns = ['lrn', 'first_name', 'grade_level', 'contact_number', 'email_address'];
+        $columns = ['lrn', 'first_name', 'grade_level', 'program', 'contact_number', 'email_address'];
 
         // Get sort column index and direction
         $orderColumnIndex = $request->input('order.0.column');
@@ -58,14 +58,14 @@ class StudentsController extends Controller
         $data = $query
             ->offset($request->start)
             ->limit($request->length)
-            ->get(['id', 'lrn', 'first_name', 'last_name', 'grade_level', 'contact_number', 'email_address'])
+            ->get(['id', 'lrn', 'first_name', 'last_name', 'grade_level', 'program' , 'contact_number', 'email_address'])
             ->map(function ($item) {
                 // dd($item);
                 return [
                     'lrn' => $item->lrn,
                     'full_name' => $item->first_name . ' ' . $item->last_name,
                     'grade_level' => $item->grade_level,
-                    'program' => $item->record->program,
+                    'program' => $item->program,
                     'contact' => $item->contact_number,
                     'email' => $item->email_address,
                     'id' => $item->id
