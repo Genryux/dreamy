@@ -44,7 +44,8 @@
 
         <x-slot name="modal_info">
             <i class="fi fi-bs-download flex justify-center items-center"></i>
-            <a href="{{ asset('templates/Officially_Enrolled_Students_Import_Template.xlsx') }}" download>Click here to download the
+            <a href="{{ asset('templates/Officially_Enrolled_Students_Import_Template.xlsx') }}" download>Click here to
+                download the
                 template</a>
         </x-slot>
 
@@ -73,7 +74,7 @@
 
 @section('stat')
     <div class="flex flex-row gap-4">
-        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-6">
+        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
             <div class="flex flex-col justify-center items-start space-y-2">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
@@ -105,7 +106,7 @@
 
             </div>
         </div>
-        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-6">
+        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
             <div class="flex flex-col justify-center items-start space-y-4">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
@@ -135,7 +136,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-6">
+        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
             <div class="flex flex-col justify-center items-start space-y-4">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
@@ -169,12 +170,11 @@
 @endsection
 
 @section('content')
-
     <x-alert />
 
     <div class="flex flex-row justify-center items-start gap-4">
         <div
-            class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 w-[40%]">
+            class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
             <div class="flex flex-row justify-between items-center w-full">
 
                 <div class="w-full flex flex-row justify-between items-center gap-4">
@@ -191,7 +191,21 @@
                         </button>
                     </label>
                     <div class="flex flex-row justify-start items-center w-full gap-2">
-
+                        <div
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            <select name="pageLength" id="page-length-selection"
+                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                <option selected disabled>Entries</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="150">150</option>
+                                <option value="200">200</option>
+                            </select>
+                            <i id="clear-gender-filter-btn"
+                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                        </div>
                         <div
                             class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
                             <select name="" id="program_selection"
@@ -218,17 +232,7 @@
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
 
                         </div>
-                        <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                            <select name="" id=""
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                <option value="" disabled selected>Gender</option>
-                                <option value="">Male</option>
-                                <option value="">Female</option>
-                            </select>
-                            <i id="clear-gender-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-                        </div>
+
 
                     </div>
                 </div>
@@ -265,6 +269,9 @@
                 <table id="enrolledStudents" class="w-full table-fixed">
                     <thead class="text-[14px]">
                         <tr>
+                            <th class="text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                            </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">LRN</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
@@ -324,7 +331,7 @@
         let table1;
         let selectedGrade = '';
         let selectedProgram = '';
-        let selectedGender = '';
+        let selectedPageLength = '';
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -353,16 +360,47 @@
 
                         d.grade_filter = selectedGrade;
                         d.program_filter = selectedProgram;
-                        d.gender_filter = selectedGender;
+                        d.pageLength = selectedPageLength;
                     }
                 },
                 order: [
                     [6, 'desc']
                 ],
                 columnDefs: [{
-                    width: '16.66%',
-                    targets: '_all',
-                }],
+                        width: '3.5%',
+                        targets: 0,
+                        className: 'text-center'
+                    }, // Index column
+                    {
+                        width: '13.5%',
+                        targets: 1
+                    }, // LRN
+                    {
+                        width: '13.5%',
+                        targets: 2
+                    }, // Full Name
+                    {
+                        width: '13.5%',
+                        targets: 3
+                    }, // Grade Level
+                    {
+                        width: '13.5%',
+                        targets: 4
+                    }, // Program
+                    {
+                        width: '13.5%',
+                        targets: 5
+                    }, // Contact
+                    {
+                        width: '13.5%',
+                        targets: 6
+                    }, // Email
+                    {
+                        width: '13.5%',
+                        targets: 7,
+                        className: 'text-center'
+                    } // Actions
+                ],
                 layout: {
                     topStart: null,
                     topEnd: null,
@@ -370,6 +408,9 @@
                     bottomEnd: 'paging',
                 },
                 columns: [{
+                        data: 'index'
+                    },
+                    {
                         data: 'lrn'
                     },
                     {
@@ -453,6 +494,7 @@
 
             let programSelection = document.querySelector('#program_selection');
             let gradeSelection = document.querySelector('#grade_selection');
+            let pageLengthSelection = document.querySelector('#page-length-selection');
 
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
             let gradeContainer = document.querySelector('#grade_selection_container');
@@ -465,7 +507,16 @@
                 selectedProgram = id;
                 table1.draw();
 
-                console.log(id);
+                //console.log(id);
+            })
+
+            pageLengthSelection.addEventListener('change', (e) => {
+
+                let selectedPageLength = parseInt(e.target.value, 10);
+
+                table1.page.len(selectedPageLength).draw();
+
+                //console.log(id);
             })
 
             gradeSelection.addEventListener('change', (e) => {
@@ -494,7 +545,6 @@
 
 
                 handleClearGradeFilter(selectedOption)
-                console.log(email);
             })
 
             function handleClearGradeFilter(selectedOption) {
@@ -524,6 +574,7 @@
             window.onload = function() {
                 gradeSelection.selectedIndex = 0
                 programSelection.selectedIndex = 0
+                pageLengthSelection.selectedIndex = 0
             }
 
             let dropDownBtn = document.querySelector('#dropdown_btn');

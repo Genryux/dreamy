@@ -12,6 +12,11 @@ class StudentsController extends Controller
 
     public function getUsers(Request $request)
     {
+
+        //dd($request->all());
+
+        //return response()->json(['ewan' => $request->all()]);
+
         $query = Students::with('record');
         //dd($query->get());
 
@@ -31,7 +36,7 @@ class StudentsController extends Controller
 
         // Filtering
         if ($program = $request->input('program_filter')) {
-             $query->whereHas('record', fn($q) => $q->where('program', $program));
+            $query->whereHas('record', fn($q) => $q->where('program', $program));
         }
 
         if ($grade = $request->input('grade_filter')) {
@@ -58,15 +63,18 @@ class StudentsController extends Controller
         // $limit = $request->input('length', 10);  // default to 10 per page
         // $offset = $request->input('start', 0);
 
+        $start = $request->input('start', 0);
+
         $data = $query
-            ->offset($request->start)
+            ->offset($start)
             ->limit($request->length)
-            ->get(['id', 'lrn', 'first_name', 'last_name', 'grade_level', 'program' , 'contact_number', 'email_address'])
-            ->map(function ($item) {
+            ->get(['id', 'lrn', 'first_name', 'last_name', 'grade_level', 'program', 'contact_number', 'email_address'])
+            ->map(function ($item, $key) use ($start) {
                 // dd($item);
                 return [
+                    'index' => $start + $key + 1,
                     'lrn' => $item->lrn,
-                    'full_name' => $item->first_name . ' ' . $item->last_name,
+                    'full_name' => $item->last_name .', ' .$item->first_name ,
                     'grade_level' => $item->grade_level,
                     'program' => $item->program,
                     'contact' => $item->contact_number,
