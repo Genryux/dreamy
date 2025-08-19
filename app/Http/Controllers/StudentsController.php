@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Students;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentsController extends Controller
 {
@@ -21,8 +22,10 @@ class StudentsController extends Controller
                     ->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email_address', 'like', "%{$search}%")
+                    ->orWhere('program', 'like', "%{$search}%")
                     ->orWhere('grade_level', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");;
             });
         }
 

@@ -43,8 +43,8 @@
         </form>
 
         <x-slot name="modal_info">
-            <i class="fi fi-rs-info flex justify-center items-center"></i>
-            <a href="{{ asset('templates/students_import_template.xlsx') }}" download>Click here to download the
+            <i class="fi fi-bs-download flex justify-center items-center"></i>
+            <a href="{{ asset('templates/Officially_Enrolled_Students_Import_Template.xlsx') }}" download>Click here to download the
                 template</a>
         </x-slot>
 
@@ -184,7 +184,7 @@
                         <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                         <input type="search" name="" id="myCustomSearch"
                             class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
-                            placeholder="Search by applicant id, name, interviewer">
+                            placeholder="Search by lrn, name, grade level, etc.">
                         <button id="clear-btn"
                             class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
                             <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
@@ -343,7 +343,6 @@
 
             table1 = new DataTable('#enrolledStudents', {
                 paging: true,
-                pageLength: 10,
                 searching: true,
                 autoWidth: false,
                 serverSide: true,

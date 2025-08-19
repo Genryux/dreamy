@@ -24,12 +24,18 @@ class Students extends Model
         'status'
     ];
 
-    public function record() {
+    public function getFullNameAttribute()
+    {
+        return "{$this->last_name}, {$this->first_name}";
+    }
+
+    public function record()
+    {
         return $this->hasOne(StudentRecords::class);
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-
 }
