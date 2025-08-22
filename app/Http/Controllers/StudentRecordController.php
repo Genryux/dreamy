@@ -138,9 +138,9 @@ class StudentRecordController extends Controller
                         'first_name'      => $user->first_name,
                         'last_name'       => $user->last_name,
                         'grade_level'     => $form->grade_level,
-                        'age'             => $form->age,
+                        'program'         => $form->primary_track,
                         'contact_number'  => $form->contact_number,
-                        'email_addres'    => $applicant->user->email,
+                        'email_address'   => $applicant->user->email,
                         'enrollment_date' => $form->created_by,
                         'status'          => 'Officially Enrolled'
                     ]
@@ -163,6 +163,18 @@ class StudentRecordController extends Controller
                     'email'                   => $applicant->user->email,
                     'current_address'         => $form->currentAddress(),
                     'permanent_address'       => $form->permanentAddress(),
+                    'acad_term_applied'       => $form->acad_term_applied,
+                    'semester_applied'        => $form->semester_applied,
+                    'admission_date'          => $form->admission_date,
+
+                    'house_no'                => $form->cur_house_no,
+                    'street'                  => $form->cur_street,
+                    'barangay'                => $form->cur_barangay,
+                    'city'                    => $form->cur_city,
+                    'province'                => $form->cur_province,
+                    'country'                 => $form->cur_country,
+                    'zip_code'                => $form->cur_zip_code,
+
                     'father_name'             => $form->fatherFullName(),
                     'father_contact_number'   => $form->father_contact_number,
                     'mother_name'             => $form->motherFullName(),
@@ -190,7 +202,20 @@ class StudentRecordController extends Controller
      */
     public function show(StudentRecords $studentRecord)
     {
-        //
+
+        // $email = $studentRecord->student;
+
+        // $student = $studentRecord->students;
+
+        // $record = $student->record;
+
+        // dd($student, $record);
+        // dd($studentRecord->student(), $email);
+
+        // $record = $studentRecordId->all();
+
+        // dd($record, $studentRecordId)
+        return view('user-admin.enrolled-students.show', compact('studentRecord'));
     }
 
     /**

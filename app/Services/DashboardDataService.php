@@ -12,7 +12,6 @@ class DashboardDataService
         protected AcademicTermService $academicTermService,
         protected EnrollmentPeriodService $enrollmentPeriodService,
         protected ApplicationFormService $applicationFormService,
-        protected Documents $documents,
         protected ApplicantService $applicant
     ) {}
 
@@ -99,26 +98,30 @@ class DashboardDataService
             ];
         }
 
-        $documents = $this->documents->all();
+        $assignedDocuments = $applicant->assignedDocuments;
 
-        if (!$documents) {
+        if (!$assignedDocuments) {
 
             return [
                 'currentAcadTerm' => $currentAcadTerm,
                 'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
                 'applicant' => $applicant,
-                'documents' => null
+                'assignedDocuments' => null
             ];
         }
 
-        $documentSubmissions = DocumentSubmissions::where('applicants_id', $applicant->id)->get()->keyBy('documents_id');
+        // dd($applicant->submissions-get);
+
+        //$documentSubmissions = DocumentSubmissions::where('applicants_id', $applicant->id)->get()->keyBy('documents_id');
+
+
 
         return [
             'currentAcadTerm' => $currentAcadTerm,
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
             'applicant' => $applicant,
-            'documents' => $documents,
-            'submissions' => $documentSubmissions
+            'assignedDocuments' => $assignedDocuments,
+            // 'submissions' => $applicant->submissions
         ];
     }
 }

@@ -146,6 +146,9 @@
                     <input type="radio" name="result" id="failed" value="Interview-Failed">
                 </label>
 
+                <label for="due-date">Submit before</label>
+                <input type="date" name="due-date" id="due-date">
+
                 <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant
                 </p>
 

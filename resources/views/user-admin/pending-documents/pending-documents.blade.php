@@ -122,7 +122,7 @@
                                 <td
                                     class="w-1/8 text-center font-regular py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
                                     <a
-                                        href="/pending-documents/document-details/{{ $pending_document->applicationForm->id }}">View</a>
+                                        href="/pending-documents/document-details/{{ $pending_document->id }}">View</a>
                                 </td>
                                 {{-- @dd($pending_applicant->applicationForm->id) --}}
                             </tr>

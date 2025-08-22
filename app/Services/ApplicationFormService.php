@@ -106,6 +106,8 @@ class ApplicationFormService
             'extension_name'             => 'nullable|string',
             'birthdate'                  => 'required|date|before:today',
             'age'                        => 'required|integer',
+            'gender'                     => 'required|string',
+            'contact_number'             => 'required|string',
             'place_of_birth'             => 'required|string',
             'mother_tongue'              => 'nullable|string',
             'belongs_to_ip'              => 'nullable|boolean',

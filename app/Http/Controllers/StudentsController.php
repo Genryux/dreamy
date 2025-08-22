@@ -106,7 +106,7 @@ class StudentsController extends Controller
 
         // dd($data);
 
-        return view('user-admin.enrolled-students');
+        return view('user-admin.enrolled-students.index');
     }
 
     public function create() {}
@@ -115,7 +115,11 @@ class StudentsController extends Controller
 
     public function update() {}
 
-    public function show() {}
+    public function show() {
+
+        
+
+    }
 
     public function edit() {}
 }

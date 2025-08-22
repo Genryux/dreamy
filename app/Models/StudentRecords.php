@@ -22,6 +22,14 @@ class StudentRecords extends Model
         'current_address',
         'permanent_address',
 
+        'house_no',
+        'street',
+        'barangay',
+        'city',
+        'province',
+        'country',
+        'zip_code',
+
         'father_name',
         'father_contact_number',
         'mother_name',
@@ -34,6 +42,9 @@ class StudentRecords extends Model
         'current_school',
         'previous_school',
         'school_contact_info',
+        'acad_term_applied',
+        'semester_applied',
+        'admission_date',
 
         'has_special_needs',
         'belongs_to_ip',
@@ -45,7 +56,7 @@ class StudentRecords extends Model
         return "{$this->last_name}, {$this->first_name} {$this->middle_name}";
     }
 
-    public function record()
+    public function students()
     {
         return $this->belongsTo(Students::class);
     }

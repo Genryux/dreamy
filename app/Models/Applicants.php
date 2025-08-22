@@ -54,9 +54,9 @@ class Applicants extends Model
         return $this->hasMany(DocumentSubmissions::class);
     }
 
-    public function documents()
+    public function assignedDocuments() 
     {
-        return $this->belongsToMany(Documents::class, 'applicants_documents');
+        return $this->hasMany(ApplicantDocuments::class);
     }
 
     public function scopeWithAnyStatus($query, $status = [])

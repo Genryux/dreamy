@@ -10,6 +10,8 @@ use App\Services\ApplicantService;
 use App\Services\InterviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class InterviewController extends Controller
 {
@@ -166,18 +168,48 @@ class InterviewController extends Controller
                 ]);
             } else if ($request->input('result') === 'Interview-Passed') {
 
-                $interview->update([
-                    'status' => 'Interview-Passed'
-                ]);
+                try {
 
-                $applicant->update([
-                    'application_status' => 'Pending-Documents'
-                ]);
+                    DB::transaction(function () use ($interview, $applicant, $request) {
 
-                $required_docs = Documents::all();
-                $applicant->documents()->sync($required_docs->pluck('id')->toArray()); // Associate all required documents with the applicant
-                $applicant->submissions()->delete(); // Clear previous submissions if any
+                        $interview->update([
+                            'status' => 'Interview-Passed'
+                        ]);
 
+                        $applicant->update([
+                            'application_status' => 'Pending-Documents'
+                        ]);
+
+                        $submit_before = $request->input('due-date');
+                        $required_docs = Documents::all();
+                        $applicant->assignedDocuments()->delete();
+
+                        // Assign fresh requirements
+                        foreach ($required_docs as $doc) {
+                            $applicant->assignedDocuments()->create([
+                                'documents_id'  => $doc->id,
+                                'status'        => 'not-submitted', // default
+                                'submit-before' =>  $submit_before,
+                            ]);
+                        }
+
+                        $applicant->submissions()->delete(); // Clear previous submissions if any
+                    });
+                    return response()->json(
+                        [
+                            'success' =>
+                            "Required dcuments successfully assigned and statuses updated."
+                        ]
+                    );
+                } catch (\Throwable $th) {
+                    Log::error('Error assigning applicant documents: ' . $th->getMessage(), [
+                        'trace' => $th->getTraceAsString()
+                    ]);
+
+                    return response()->json([
+                        'message' => 'Something went wrong while updating applicant documents. Please try again later.'
+                    ], 500);
+                }
             }
         } else if ($request->input('action') === 'edit-interview') {
 

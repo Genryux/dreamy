@@ -314,52 +314,64 @@
                                         class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">
                                         With LRN:<span class="font-bold"> Yes</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN:
-                                        <span class="font-bold"></span>
+                                        <span class="font-bold">{{ $application_form->lrn ?? '-' }}</span>
                                     </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade
                                         Level
-                                        to Enroll:<span class="font-bold"> </span></td>
+                                        to Enroll:<span class="font-bold">
+                                            {{ $application_form->grade_level ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span
-                                            class="font-bold"></span></td>
+                                            class="font-bold"> {{ $application_form->semester_applied ?? '-' }}</span>
+                                    </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary
-                                        Track:<span class="font-bold"> </span></td>
+                                        Track:<span class="font-bold">
+                                            {{ $application_form->primary_track ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary
-                                        Track:<span class="font-bold"></span></td>
+                                        Track:<span class="font-bold">
+                                            {{ $application_form->secondary_track ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last
-                                        Name:<span class="font-bold"></span></td>
+                                        Name:<span class="font-bold"> {{ $application_form->last_name ?? '-' }}</span>
+                                    </td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                            class="font-bold"></span></td>
+                                            class="font-bold">{{ $application_form->first_name ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle
-                                        Name:<span class="font-bold"></span></td>
+                                        Name:<span class="font-bold"> {{ $application_form->middle_name ?? '-' }}</span>
+                                    </td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension
-                                        Name:<span class="font-bold"></span></td>
+                                        Name:<span class="font-bold">
+                                            {{ $application_form->extension_name ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
-                                        Birthdate:<span class="font-bold"> </span></td>
+                                        Birthdate:<span class="font-bold">
+                                            {{ $application_form->birthdate ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span
-                                            class="font-bold"> </span></td>
+                                            class="font-bold"> {{ $application_form->age ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of
-                                        Birth:<span class="font-bold"></span></td>
+                                        Birth:<span class="font-bold">
+                                            {{ $application_form->place_of_birth ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother
-                                        Tongue:<span class="font-bold"></span></td>
+                                        Tongue:<span class="font-bold">
+                                            {{ $application_form->mother_tongue ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to
                                         any
-                                        IP community:<span class="font-bold"></span></td>
+                                        IP community:<span class="font-bold">
+                                            {{ $application_form->belongs_to_ip ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of
-                                        4Ps:<span class="font-bold"></span></td>
+                                        4Ps:<span class="font-bold">
+                                            {{ $application_form->is_4ps_beneficiary ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px]">Learner with disability:</td>
@@ -382,36 +394,48 @@
                                 <tr class="opacity-[0.87]">
                                     <td
                                         class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">
-                                        House No:</td>
+                                        House No: <span class="font-bold">
+                                            {{ $application_form->cur_house_no ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:<span
-                                            class="font-bold"></span> </td>
+                                            class="font-bold"> <span class="font-bold">
+                                                {{ $application_form->perm_house_no ?? '-' }}</span></span> </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
                                         Sitio/Street
-                                        Name:</td>
+                                        Name: <span class="font-bold"> {{ $application_form->cur_street ?? '-' }}</span>
+                                    </td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:
+                                        <span class="font-bold"> {{ $application_form->perm_street ?? '-' }}</span>
                                     </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:
+                                        <span class="font-bold"> {{ $application_form->cur_barangay ?? '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay:</td>
+                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay: <span
+                                            class="font-bold"> {{ $application_form->perm_barangay ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
-                                        Municipality/City:</td>
+                                        Municipality/City: <span class="font-bold">
+                                            {{ $application_form->cur_city ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:
+                                        <span class="font-bold"> {{ $application_form->perm_city ?? '-' }}</span>
                                     </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:
+                                        <span class="font-bold"> {{ $application_form->cur_country ?? '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:</td>
+                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country: <span
+                                            class="font-bold"> {{ $application_form->perm_country ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
-                                    <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code:</td>
-                                    <td class="px-4 py-2 text-[14px] w-1/2">Zip Code:</td>
+                                    <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code: <span
+                                            class="font-bold"> {{ $application_form->cur_zip_code ?? '-' }}</span></td>
+                                    <td class="px-4 py-2 text-[14px] w-1/2">Zip Code: <span class="font-bold">
+                                            {{ $application_form->perm_zip_code ?? '-' }}</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -443,37 +467,54 @@
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last
-                                        Name:
+                                        Name: <span class="font-bold">
+                                            {{ $application_form->mother_last_name ?? '-' }}</span>
                                     </td>
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last
-                                        Name:
+                                        Name: <span class="font-bold">
+                                            {{ $application_form->father_last_name ?? '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:</td>
+                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name: <span
+                                            class="font-bold"> {{ $application_form->guardian_last_name ?? '-' }}</span>
+                                    </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First
-                                        Name:
+                                        Name: <span class="font-bold">
+                                            {{ $application_form->mother_first_name ?? '-' }}</span>
                                     </td>
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First
-                                        Name:
+                                        Name: <span class="font-bold">
+                                            {{ $application_form->father_first_name ?? '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name: <span
+                                            class="font-bold"> {{ $application_form->guardian_first_name ?? '-' }}</span>
+                                    </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle
-                                        Name:
+                                        Name: <span class="font-bold">
+                                            {{ $application_form->mother_middle_name ?? '-' }}</span>
                                     </td>
                                     <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle
-                                        Name:
+                                        Name: <span class="font-bold">
+                                            {{ $application_form->father_middle_name ?? '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
+                                    <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name: <span
+                                            class="font-bold"> {{ $application_form->guardian_middle_name ?? '-' }}</span>
+                                    </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:
+                                        <span class="font-bold">
+                                            {{ $application_form->mother_contact_number ?? '-' }}</span>
                                     </td>
                                     <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:
+                                        <span class="font-bold">
+                                            {{ $application_form->father_contact_number ?? '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-2 text-[14px] w-1/2">Contact Number:</td>
+                                    <td class="px-4 py-2 text-[14px] w-1/2">Contact Number: <span class="font-bold">
+                                            {{ $application_form->guardian_contact_number ?? '-' }}</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -494,13 +535,15 @@
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">
                                         Preferred
-                                        Class Schedule:</td>
+                                        Class Schedule: <span class="font-bold">
+                                            {{ $application_form->preferred_sched ?? '-' }}</span></td>
                                     <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Parent/Guardian's
                                         Signature:</td>
-                                    <td class="px-4 py-2 text-[14px] w-1/2">Date Applied:</td>
+                                    <td class="px-4 py-2 text-[14px] w-1/2">Date Applied: <span class="font-bold">
+                                            {{ $application_form->admission_date ?? '-' }}</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -759,7 +802,9 @@
                                         class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tl-md px-4 py-2 cursor-pointer ">
                                         <span class="mr-2">Documents</span>
                                     </th>
-
+                                    <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2">Submit Before</span>
+                                    </th>
                                     <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                         <span class="mr-2">Date Submitted</span>
                                     </th>
@@ -769,66 +814,57 @@
                                     </th>
                                 </tr>
                             </thead>
-
-
                             <tbody>
 
-                                @if ($documents)
-                                    @foreach ($documents as $doc)
-                                        @php
-                                            $submission = $submissions[$doc->id] ?? null;
-
-                                        @endphp
+                                @if ($assignedDocuments)
+                                    @foreach ($assignedDocuments as $doc)
+                                    
 
                                         <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                                             <td
                                                 class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                                {{ $doc->type }}
+                                                {{ $doc->documents->type }}
                                             </td>
-                                            @if (!is_null($submission))
-                                                <td
-                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                                    {{ \Carbon\Carbon::parse($doc->updated_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
-                                                </td>
 
-                                                <td
-                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                            <td
+                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                {{ $doc->submit_before ?? '-' }}
+                                            </td>
+                                            <td
+                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                @forelse ($doc->submissions as $submission)
+                                                    {{ $submission->submitted_at->timezone('Asia/Manila')->format('M. d - g:i A') }}<br>
+                                                @empty
+                                                    -
+                                                @endforelse
+                                            </td>
+                                            <td
+                                                class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
 
-                                                    @if ($submission->status == 'Pending')
-                                                        <span
-                                                            class="bg-[#FFF4E5] text-[#FBBC04] px-2 py-1 rounded-md font-medium">
-                                                            Pending
-                                                        </span>
-                                                    @elseif ($submission->status == 'Verified')
-                                                        <span
-                                                            class="bg-[#E6F4EA] text-[#34A853] px-2 py-1 rounded-md font-medium">
-                                                            Verified
-                                                        </span>
-                                                    @elseif ($submission->status == 'Rejected')
-                                                        <span
-                                                            class="bg-[#FCE8E6] text-[#EA4335] px-2 py-1 rounded-md font-medium">
-                                                            Rejected
-                                                        </span>
-                                                    @endif
-
-
-                                                </td>
-                                            @else
-                                                <td
-                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
-                                                    <div class="flex flex-row justify-center items-center gap-2">
-                                                        -
-                                                    </div>
-                                                </td>
-
-                                                <td
-                                                    class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                                @if ($doc->status == 'not-submitted')
                                                     <span
-                                                        class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
-                                                        Not submitted
+                                                        class="bg-gray-200 text-gray-500 px-2 py-1 rounded-md font-medium">
+                                                        Not Submitted
                                                     </span>
-                                                </td>
-                                            @endif
+                                                @elseif ($doc->status == 'submitted')
+                                                    <span
+                                                        class="bg-yellow-100 text-yellow-500 px-2 py-1 rounded-md font-medium">
+                                                        Submitted-Pending
+                                                    </span>
+                                                @elseif ($doc->status == 'verified')
+                                                    <span
+                                                        class="bg-[#E6F4EA] text-[#34A853] px-2 py-1 rounded-md font-medium">
+                                                        Verified
+                                                    </span>
+                                                @elseif ($doc->status == 'rejected')
+                                                    <span
+                                                        class="bg-[#FCE8E6] text-[#EA4335] px-2 py-1 rounded-md font-medium">
+                                                        Rejected
+                                                    </span>
+                                                @endif
+
+
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif
@@ -858,10 +894,10 @@
 
                             <select name="document-option" id="document-option"
                                 class="bg-transparent w-full text-[16px] ">
-                                @if ($documents)
+                                @if ($assignedDocuments)
                                     <option selected disabled>Select document type...</option>
-                                    @foreach ($documents as $doc)
-                                        <option value="{{ $doc->id }}">{{ $doc->type }}</option>
+                                    @foreach ($assignedDocuments as $doc)
+                                        <option value="{{ $doc->id }}">{{ $doc->documents->type }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -1051,18 +1087,32 @@
 
             if (applicant.application_status === 'Pending-Documents') {
 
-                let submittedDocs = @json($submissions ?? null);
-                let requiredDocs = @json($documents ?? null);
+                let submittedDocs = @json($applicant->submissions ?? null);
+
+                // console.log(submittedDocs);
+
+
+
+                let requiredDocs = @json($assignedDocuments ?? null);
+
+                // convert objects into array
                 let submittedDocsArr = Object.values(submittedDocs);
 
+                // find documents with only pending or verified status
+                const submittedDocsWithStatus = requiredDocs.filter(item => ['submitted', 'verified']
+                    .includes(
+                        item
+                        .status));
 
-                const submittedDocsWithStatus = submittedDocsArr.filter(item => ['Pending', 'Verified'].includes(
-                    item
-                    .status));
+                console.log(submittedDocsWithStatus);
 
-                let requiredDocsIds = new Set(requiredDocs.map(item => item.id));
+                let submittedDocsId = new Set(submittedDocs.map(item => item.documents_id));
 
-                const matchedItems = submittedDocsWithStatus.filter(item => requiredDocsIds.has(item.documents_id));
+
+
+                const matchedItems = submittedDocsWithStatus.filter(item => submittedDocsId.has(item.documents_id));
+
+                console.log(matchedItems);
 
                 matchedItems.forEach(docs => {
 

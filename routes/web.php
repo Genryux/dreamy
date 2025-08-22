@@ -93,6 +93,8 @@ Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('st
 
 Route::get('/users', [StudentsController::class, 'getUsers']);
 
+Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
+
 //enrolled students
 
 

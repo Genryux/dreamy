@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApplicantDocuments;
 use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\DocumentSubmissions;
 use App\Services\AcademicTermService;
 use App\Services\ApplicantService;
 use App\Services\EnrollmentPeriodService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Comment\Doc;
@@ -27,14 +29,22 @@ class DocumentsSubmissionController extends Controller
     public function index(Applicants $applicant)
     {
 
-        $required_docs = Documents::all();
-        $documentSubmissions = DocumentSubmissions::where('applicants_id', $applicant->id)->get()->keyBy('documents_id');
 
-        return view('user-admin.pending-documents.document-details', [
-            'required_docs' => $required_docs,
-            'submissions' => $documentSubmissions,
-            'applicant' => $applicant,
-        ]);
+
+
+
+        $assignedDocuments = $applicant->assignedDocuments()->get();
+        $submittedDocuments = $assignedDocuments->flatMap->submissions;
+
+        // dd($assignedDocuments);
+
+        // $submittedDocuments = $assignedDocuments->submissions;
+        // dd($submittedDocuments);
+
+
+
+
+        return view('user-admin.pending-documents.document-details', compact('applicant', 'submittedDocuments', 'assignedDocuments'));
     }
 
     /**
@@ -80,6 +90,8 @@ class DocumentsSubmissionController extends Controller
 
         $uploadedFiles = [];
 
+        // return response()->json(['files' => $documents]);
+
         foreach ($documents as $index => $doc) {
 
             $path = $doc->store('applicants', 'public');
@@ -89,21 +101,27 @@ class DocumentsSubmissionController extends Controller
                 'enrollment_period_id'  => $enrollment_period->id,
                 'applicants_id'         => $applicant->id,
                 'documents_id'          => intval($documents_id[$index]),
-                'status'                => 'Pending',
                 'file_path'             => $path,
             ];
         }
 
         foreach ($uploadedFiles as $file) {
-        //return response()->json(['files' => $file['documents_id']]);
-            DocumentSubmissions::updateOrCreate(
+            //return response()->json(['files' => $file['documents_id']]);
+            $applicant_document = ApplicantDocuments::updateOrCreate(
+                [
+                    'applicants_id' => $file['applicants_id'],
+                    'documents_id'  => $file['documents_id'],
+                ],
+                ['status' => 'submitted']
+            );
+
+            $applicant_document->submissions()->updateOrCreate(
                 [
                     'applicants_id' => $file['applicants_id'],
                     'documents_id'  => $file['documents_id'],
                 ],
                 $file
             );
-
         }
 
         //DocumentSubmissions::insert($uploadedFiles);
@@ -141,12 +159,14 @@ class DocumentsSubmissionController extends Controller
      */
     public function update(Request $request, Applicants $applicant)
     {
-        //dd($request->all(), $submittedDocuments->id);
 
-        $submittedDocuments = $applicant->submissions()
-            ->where('documents_id', $request->document_id)
+
+
+        $assignedDocuments = $applicant->assignedDocuments()
+            ->where('id', $request->document_id)
             ->first();
 
+        // dd($assignedDocuments);
 
         if ($request->action == "verify") {
 
@@ -154,16 +174,12 @@ class DocumentsSubmissionController extends Controller
 
             // ]);
 
-            $submittedDocuments->update(
-                ['status' => 'Verified']
+            $assignedDocuments->update(
+                ['status' => 'verified']
             );
-
-
-
         }
 
         return redirect()->back();
-
     }
 
     /**

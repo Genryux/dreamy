@@ -32,6 +32,15 @@ return new class extends Migration
             $table->text('current_address')->nullable();
             $table->text('permanent_address')->nullable();
 
+            // Address
+            $table->string('house_no')->nullable();
+            $table->string('street')->nullable();
+            $table->string('barangay')->nullable();
+            $table->string('city')->nullable();
+            $table->string('province')->nullable();
+            $table->string('country')->nullable();
+            $table->string('zip_code')->nullable();
+
             // Parent/Guardian Info
             $table->string('father_name')->nullable();
             $table->string('father_contact_number')->nullable();
@@ -41,12 +50,15 @@ return new class extends Migration
             $table->string('guardian_contact_number')->nullable();
 
             // Academic Info
-            
+
             $table->string('grade_level')->nullable();
             $table->string('program')->nullable();
             $table->string('current_school')->nullable();
             $table->string('previous_school')->nullable();
             $table->string('school_contact_info')->nullable();
+            $table->string('acad_term_applied')->nullable();
+            $table->string('semester_applied')->nullable();
+            $table->dateTime('admission_date')->nullable();
 
             // Additional Info
             $table->boolean('has_special_needs')->default(false)->nullable();

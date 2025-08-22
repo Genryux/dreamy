@@ -25,6 +25,7 @@ class AdmissionDashboardController extends Controller
         //dd($data['applicant']->interview());
 
         $applicant = $data['applicant'] ?? null;
+        $application_form = $applicant->applicationForm;
 
         if (!$applicant) {
             return null;
@@ -34,7 +35,9 @@ class AdmissionDashboardController extends Controller
         $interview_status = optional($applicant->interview)->status;
         $viewData = ['applicant' => $applicant];
 
-        if ($application_status === "Selected") {
+        if ($application_status === "Pending") {
+            return view('user-applicant.dashboard', compact('application_form', 'applicant'));
+        } else if ($application_status === "Selected") {
             return view('user-applicant.dashboard', $viewData);
         } else if ($application_status === "Pending-Documents") {
 
@@ -45,8 +48,8 @@ class AdmissionDashboardController extends Controller
             if ($interview_status === 'Interview-Completed') {
                 return view('user-applicant.dashboard', [
                     'applicant' => $data['applicant'] ?? null,
-                    'documents' => $data['documents'] ?? null,
-                    'submissions' => $data['submissions'] ?? null
+                    'assignedDocuments' => $data['assignedDocuments'] ?? null,
+                    // 'submissions' => $data['submissions'] ?? null
                 ]);
             }
         } else if ($application_status === "Officially Enrolled") {

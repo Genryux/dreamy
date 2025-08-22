@@ -20,14 +20,17 @@
             <input type="radio" name="is_returning" id="false" value="0" placeholder="is_returning">
         </div>
 
-        <input type="number" maxlength="12" minlength="12" pattern="\d{12}" name="lrn" id="lrn" placeholder="lrn">
+        <input type="number" maxlength="12" minlength="12" pattern="\d{12}" name="lrn" id="lrn"
+            placeholder="lrn">
         <input type="text" name="grade_level" id="grade_level" placeholder="grade_level">
         <input type="text" name="primary_track" id="primary_track" placeholder="primary_track">
         <input type="text" name="secondary_track" id="secondary_track" placeholder="secondary_track">
 
-        <input type="text" name="first_name" id="first_name" placeholder="first_name">
-        <input type="text" name="last_name" id="last_name" placeholder="last_name">
-        <input type="text" name="last_name" id="last_name" placeholder="last_name">
+        <input type="text" value="{{ $user->first_name }}" disabled>
+        <input type="text" value="{{ $user->last_name }}" disabled>
+        <input type="hidden" name="first_name" value="{{ $user->first_name }}">
+        <input type="hidden" name="last_name" value="{{ $user->last_name }}">
+
         <input type="text" name="middle_name" id="middle_name" placeholder="middle_name">
         <input type="text" name="extension_name" id="extension_name" placeholder="extension_name">
         <input type="date" name="birthdate" id="birthdate" placeholder="birthdate">
@@ -35,6 +38,15 @@
         <input type="text" name="place_of_birth" id="place_of_birth" placeholder="place_of_birth">
         <input type="text" name="mother_tongue" id="mother_tongue" placeholder="mother_tongue">
         <input type="email" name="email" id="email" placeholder="email">
+        <input type="number" name="contact_number" id="contact_number" placeholder="contact_number">
+
+        <div>
+            <p>Gender</p>
+            <label for="male">Male</label>
+            <input type="radio" name="gender" id="male" value="male" placeholder="Gender">
+            <label for="female">Female</label>
+            <input type="radio" name="gender" id="female" value="female" placeholder="Gender">
+        </div>
 
         <div>
             <p>is 4ps</p>
@@ -98,13 +110,17 @@
         <div>
             <p>special_needs</p>
             <label for="special_needs1">special_needs1</label>
-            <input type="checkbox" name="special_needs[]" id="special_needs1" value="special_needs1" placeholder="special_needs">
+            <input type="checkbox" name="special_needs[]" id="special_needs1" value="special_needs1"
+                placeholder="special_needs">
             <label for="special_needs2">special_needs2</label>
-            <input type="checkbox" name="special_needs[]" id="special_needs2" value="special_needs2" placeholder="special_needs">
+            <input type="checkbox" name="special_needs[]" id="special_needs2" value="special_needs2"
+                placeholder="special_needs">
             <label for="special_needs3">special_needs3</label>
-            <input type="checkbox" name="special_needs[]" id="special_needs3" value="special_needs3" placeholder="special_needs">
+            <input type="checkbox" name="special_needs[]" id="special_needs3" value="special_needs3"
+                placeholder="special_needs">
             <label for="special_needs4">special_needs4</label>
-            <input type="checkbox" name="special_needs[]" id="special_needs4" value="special_needs4" placeholder="special_needs">
+            <input type="checkbox" name="special_needs[]" id="special_needs4" value="special_needs4"
+                placeholder="special_needs">
         </div>
 
         <input type="number" name="last_grade_level_completed" id="last_grade_level_completed"

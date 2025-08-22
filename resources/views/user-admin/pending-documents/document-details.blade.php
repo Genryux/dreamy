@@ -36,7 +36,8 @@
 @endsection
 
 @section('modal')
-    <x-modal modal_id="verify-doc-modal" modal_name="Verification confirmation" close_btn_id="verify-doc-close-btn" modal_container_id='modal-container-1'>
+    <x-modal modal_id="verify-doc-modal" modal_name="Verification confirmation" close_btn_id="verify-doc-close-btn"
+        modal_container_id='modal-container-1'>
         <x-slot name="modal_icon">
             <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
         </x-slot>
@@ -73,7 +74,8 @@
 
     </x-modal>
     {{-- Enroll student modal --}}
-    <x-modal modal_id="enroll-student-modal" modal_name="Enrollment confirmation" close_btn_id="enroll-student-close-btn" modal_container_id='modal-container-2'>
+    <x-modal modal_id="enroll-student-modal" modal_name="Enrollment confirmation" close_btn_id="enroll-student-close-btn"
+        modal_container_id='modal-container-2'>
         <x-slot name="modal_icon">
             <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
         </x-slot>
@@ -201,7 +203,6 @@
                 <div class="flex flex-row justify-start items-center text-start pb-2">
                     <p class="text-[18px] font-semibold">Documents Submission Progress</p>
                 </div>
-                <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
             </div>
 
             <div class="w-full ">
@@ -222,82 +223,65 @@
                                 <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
                             </th>
 
-                            <th
-                                class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 rounded-tr-[9px] px-4 py-2">
+                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                 Actions
                             </th>
                         </tr>
                     </thead>
 
-
-
                     <tbody>
-                        @foreach ($required_docs as $index => $doc)
-                            @php
-                                $submission = $submissions[$doc->id] ?? null;
-
-                            @endphp
-                            <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                <td
-                                    class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                    {{ $doc->type }}
-                                </td>
-                                @if (is_null($submission))
+                        @if ($assignedDocuments)
+                            @forelse ($assignedDocuments as $index => $doc)
+                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                                     <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <span class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
-                                            Not submitted
-                                        </span>
+                                        class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $doc->documents->type }}
                                     </td>
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <p>-</p>
-                                    </td>
-                                    <td
-                                        class="w-1/8 flex justify-center items-center text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
-
-                                        <button
-                                            class="flex justify-center items-center gap-2 bg-orange-200 text-orange-500 font-bold py-2 px-20 rounded-xl hover:bg-orange-400 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
-                                            <i class="fi fi-rs-bell flex justify-center items-center"></i>
-                                            Send reminder
-                                        </button>
-                                    </td>
-                                @else
                                     <td class="w-1/8 text-center font-medium py-[8px] text-[14px] px-4 py-2 truncate">
-                                        @if ($submission->status == 'Pending')
-                                            <span class="bg-[#FFF4E5] text-[#FBBC04] px-2 py-1 rounded-md font-semibold">
-                                                Pending
+                                        @if ($doc->status == 'not-submitted')
+                                            <span class="bg-gray-200 text-gray-500 px-2 py-1 rounded-md font-semibold">
+                                                Not Submitted
                                             </span>
-                                        @elseif ($submission->status == 'Verified')
+                                        @elseif ($doc->status == 'submitted')
+                                            <span class="bg-yellow-100 text-yellow-500 px-2 py-1 rounded-md font-semibold">
+                                                Submitted-Pending
+                                            </span>
+                                        @elseif ($doc->status == 'verified')
                                             <span class="bg-[#E6F4EA] text-[#34A853] px-2 py-1 rounded-md font-semibold">
                                                 Verified
                                             </span>
-                                        @elseif ($submission->status == 'rejected')
+                                        @elseif ($doc->status == 'rejected')
                                             <span class="bg-[#FCE8E6] text-[#EA4335] px-2 py-1 rounded-md font-semibold">
                                                 Rejected
                                             </span>
                                         @endif
 
                                     </td>
+
                                     <td
                                         class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ \Carbon\Carbon::parse($doc->updated_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
+                                        @forelse ($doc->submissions as $submission)
+                                            {{ $submission->submitted_at->timezone('Asia/Manila')->format('M. d - g:i A') }}<br>
+                                        @empty
+                                            -
+                                        @endforelse
                                     </td>
+
                                     <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-100 px-4 py-2 truncate">
+                                        class="w-1/8 text-center font-medium text-[14px] opacity-100 px-4 py-1 truncate">
+
                                         <div class="flex flex-row justify-center items-center gap-2">
-                                            @if (!is_null($submission))
+                                            @forelse ($doc->submissions as $submission)
                                                 {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
-                                                    target="_blank"
-                                                    class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
-                                                    title="View document">
-                                                    <i
-                                                        class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
-                                                    View
-                                                </x-nav-link> --}}
-                                                <button id="open-view-modal-btn-{{ $index }}"
-                                                    data-file-url="{{ asset('storage/' . $submission->file_path) }}"
-                                                    data-file-type="{{ pathinfo($submission->file_path, PATHINFO_EXTENSION) }}"
+                                                target="_blank"
+                                                class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
+                                                title="View document">
+                                                <i
+                                                    class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
+                                                View
+                                            </x-nav-link> --}}
+                                                <button id="open-view-modal-btn-{{ $index }}" {{-- data-file-url="{{ asset('storage/' . $submission->file_path) }}" --}}
+                                                    {{-- data-file-type="{{ pathinfo($submission->file_path, PATHINFO_EXTENSION) }}" --}}
                                                     class="view-document-btn flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-xl bg-[#1A73E8]/10 hover:ring hover:ring-[#1A73E8]/20 hover:bg-[#1A73E8] hover:text-white text-[#1A73E8] font-bold transition duration-200"
                                                     title="View document">
                                                     <i
@@ -305,7 +289,7 @@
                                                     View
                                                 </button>
 
-                                                @if ($submission->status !== 'Verified')
+                                                @if ($doc->status !== 'verified')
                                                     <button type="button" id="open-verify-modal-btn-{{ $doc->id }}"
                                                         data-document-id="{{ $doc->id }}"
                                                         class="verify-document-btn flex flex-row gap-2 justify-center items-center text-[14px] text-[#34A853] py-2 px-3 rounded-xl bg-[#34A853]/10 hover:ring hover:ring-[#34A853]/20 hover:bg-[#34A853] hover:text-white font-bold transition duration-200"
@@ -327,29 +311,56 @@
                                                     </form>
                                                 @endif
                                                 {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
-                                                    target="_blank"
-                                                    class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
-                                                    title="View document">
-                                                    <i
-                                                        class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
+                                                target="_blank"
+                                                class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
+                                                title="View document">
+                                                <i
+                                                    class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
 
-                                                </x-nav-link> --}}
-                                            @else
-                                                <p>-</p>
-                                            @endif
-                                            {{-- Are you sure you want to reject this document? This action will mark the document as invalid and notify the relevant parties. --}}
+                                            </x-nav-link> --}}
+                                                {{-- Are you sure you want to reject this document? This action will mark the document as invalid and notify the relevant parties. --}}
 
+
+
+                                            @empty
+                                                <button
+                                                    class="flex justify-center items-center gap-2 bg-orange-200 text-orange-500 font-bold py-2 px-20 rounded-xl hover:bg-orange-400 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
+                                                    <i class="fi fi-rs-bell flex justify-center items-center"></i>
+                                                    Send reminder
+                                                </button>
+                                            @endforelse
 
 
                                         </div>
+
                                     </td>
-                                @endif
+
+                                </tr>
+                            @empty
+                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                    <td
+                                        class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        {{ $doc->type }}
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        <span class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
+                                            Not submitted
+                                        </span>
+                                    </td>
+                                    <td
+                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                        <p>-</p>
+                                    </td>
 
 
+                                </tr>
+                            @endforelse
+                        @else
+                            @foreach ($assignedDocuments as $index => $doc)
+                            @endforeach
+                        @endif
 
-                                {{-- @dd($pending_applicant->applicationForm->id) --}}
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -410,26 +421,21 @@
 
             });
 
-            let requiredDocs = @json($required_docs);
-            let submittedDocs = @json($submissions);
-            let submittedDocsArr = Object.values(submittedDocs)
+            let requiredDocs = @json($assignedDocuments);
+            let submittedDocs = @json($submittedDocuments);
+            let submittedDocsArr = Object.values(requiredDocs)
 
-            //filter array with only verified status
-            const verifiedDocs = submittedDocsArr.filter(item => ['Verified'].includes(item
-                .status));
-
-            console.log(requiredDocs)
-            console.log(verifiedDocs)
+            const approvedCount = submittedDocsArr.filter(doc => doc.status === "verified").length;
 
             let enrollMsg = document.querySelector('#enroll-msg')
 
             document.querySelector('#open-enroll-student-modal-btn').addEventListener('click', () => {
 
-                if (submittedDocsArr.length < requiredDocs.length) {
+                if (approvedCount.length < requiredDocs.length) {
                     enrollMsg.innerHTML = `The applicant has <strong>not</strong> yet <strong>completed</strong> the required document submission.
                     Are you sure you want to proceed with officially enrolling this applicant?`
-                } else if (submittedDocsArr.length === requiredDocs.length && verifiedDocs.length <
-                    submittedDocsArr.length) {
+                } else if (submittedDocs.length === requiredDocs.length && approvedCount.length <
+                    requiredDocs.length) {
                     enrollMsg.innerHTML = `The applicant's submitted documents have <strong>not</strong> been <strong>fully verified</strong>.
                     Are you sure you want to proceed with officially enrolling this applicant?`
                 } else {
@@ -461,7 +467,7 @@
 
 
                     //console.log(form)
-                   
+
                     console.log(button);
                     console.log(index);
 

@@ -14,10 +14,13 @@ use App\Services\AcademicTermService;
 use App\Services\ApplicationFormService;
 use App\Services\DashboardDataService;
 use App\Services\EnrollmentPeriodService;
+use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Console\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -27,7 +30,8 @@ class ApplicationFormController extends Controller
         protected AcademicTermService $academicTermService,
         protected DashboardDataService $dashboardDataService,
         protected EnrollmentPeriodService $enrollmentPeriodService,
-        protected ApplicationFormService $applicationFormService
+        protected ApplicationFormService $applicationFormService,
+        protected UserService $userService
     ) {}
 
     public function pending()
@@ -71,6 +75,8 @@ class ApplicationFormController extends Controller
 
         $pending_documents = Applicants::where('application_status', 'Pending-Documents')->get();
 
+        // dd($pending_documents);
+
 
         //  dd($pending_documents[0]->id);
 
@@ -108,7 +114,9 @@ class ApplicationFormController extends Controller
      */
     public function create()
     {
-        return view('user-applicant.application-form');
+        $user = $this->userService->fetchAuthenticatedUser();
+        // dd($user->first_name);
+        return view('user-applicant.application-form', compact('user'));
     }
 
     /**
@@ -117,106 +125,106 @@ class ApplicationFormController extends Controller
     public function store(Request $request)
     {
 
-        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
-        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
-
-        $validated = $this->applicationFormService->validateData($request->all());
-
         //dd($request->all());
 
+        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
+        $validated = $this->applicationFormService->validateData($request->all());
+        $now = Carbon::now();
+
+
+        $applicant = Applicants::where('user_id', Auth::user()->id)->first();
 
         try {
 
-            $applicant = Applicants::where('user_id', Auth::user()->id)->first();
+            DB::transaction(function () use ($applicant, $validated, $currentAcadTerm, $now, $activeEnrollmentPeriod) {
+                $form = $this->applicationFormService->saveApplication(
+                    [
+                        'applicants_id'              => $applicant->id,
+                        'academic_terms_id'          => $currentAcadTerm->id,
+                        'enrollment_period_id'       => $activeEnrollmentPeriod->id,
+
+                        'preferred_sched'            => $validated['preferred_sched'],
+                        'is_returning'               => $validated['is_returning'],
+                        'lrn'                        => $validated['lrn'],
+                        'grade_level'                => $validated['grade_level'],
+                        'primary_track'              => $validated['primary_track'],
+                        'secondary_track'            => $validated['secondary_track'],
+                        'acad_term_applied'          => $currentAcadTerm->year,
+                        'semester_applied'           => $currentAcadTerm->semester,
+                        'admission_date'             => $now,
+
+                        'last_name'                  => $validated['last_name'],
+                        'first_name'                 => $validated['first_name'],
+                        'middle_name'                => $validated['middle_name'],
+                        'extension_name'             => $validated['extension_name'],
+                        'gender'                     => $validated['gender'],
+                        'birthdate'                  => $validated['birthdate'],
+                        'age'                        => $validated['age'],
+                        'place_of_birth'             => $validated['place_of_birth'],
+                        'mother_tongue'              => $validated['mother_tongue'],
+                        'belongs_to_ip'              => $validated['belongs_to_ip'],
+                        'is_4ps_beneficiary'         => $validated['is_4ps_beneficiary'],
+                        'contact_number'             => $validated['contact_number'],
+
+                        'cur_house_no'               => $validated['cur_house_no'],
+                        'cur_street'                 => $validated['cur_street'],
+                        'cur_barangay'               => $validated['cur_barangay'],
+                        'cur_city'                   => $validated['cur_city'],
+                        'cur_province'               => $validated['cur_province'],
+                        'cur_country'                => $validated['cur_country'],
+                        'cur_zip_code'               => $validated['cur_zip_code'],
+
+                        'perm_house_no'              => $validated['perm_house_no'],
+                        'perm_street'                => $validated['perm_street'],
+                        'perm_barangay'              => $validated['perm_barangay'],
+                        'perm_city'                  => $validated['perm_city'],
+                        'perm_province'              => $validated['perm_province'],
+                        'perm_country'               => $validated['perm_country'],
+                        'perm_zip_code'              => $validated['perm_zip_code'],
+
+                        'father_last_name'           => $validated['father_last_name'],
+                        'father_first_name'          => $validated['father_first_name'],
+                        'father_middle_name'         => $validated['father_middle_name'],
+                        'father_contact_number'      => $validated['father_contact_number'],
+                        'mother_last_name'           => $validated['mother_last_name'],
+                        'mother_first_name'          => $validated['mother_first_name'],
+                        'mother_middle_name'         => $validated['mother_middle_name'],
+                        'mother_contact_number'      => $validated['mother_contact_number'],
+                        'guardian_last_name'         => $validated['guardian_last_name'],
+                        'guardian_first_name'        => $validated['guardian_first_name'],
+                        'guardian_middle_name'       => $validated['guardian_middle_name'],
+                        'guardian_contact_number'    => $validated['guardian_contact_number'],
+                        'has_special_needs'          => $validated['has_special_needs'],
+                        'special_needs'              => $validated['special_needs'] ?? null,
+
+                        'last_grade_level_completed' => $validated['last_grade_level_completed'],
+                        'last_school_attended'       => $validated['last_school_attended'],
+                        'last_school_year_completed' => $validated['last_school_year_completed'],
+                        'school_id'                  => $validated['school_id'],
+
+                    ]
+                );
+
+                $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
+
+                // event(new ApplicationFormSubmitted($form));
+                event(new RecentApplicationTableUpdated($form, $total_applications));
 
 
-
-            $form = $this->applicationFormService->saveApplication(
-                [
-                    'applicants_id'              => $applicant->id ?? null,
-                    'academic_terms_id'          => $currentAcadTerm->id ?? null,
-                    'enrollment_period_id'       => $activeEnrollmentPeriod->id ?? null,
-
-                    'preferred_sched'            => $validated['preferred_sched'],
-                    'is_returning'               => $validated['is_returning'],
-                    'lrn'                        => $validated['lrn'],
-                    'grade_level'                => $validated['grade_level'],
-                    'primary_track'              => $validated['primary_track'],
-                    'secondary_track'            => $validated['secondary_track'],
-                    'last_name'                  => $validated['last_name'],
-                    'first_name'                 => $validated['first_name'],
-                    'middle_name'                => $validated['middle_name'],
-                    'extension_name'             => $validated['extension_name'],
-                    'gender'                     => null,
-                    'birthdate'                  => $validated['birthdate'],
-                    'age'                        => $validated['age'],
-                    'place_of_birth'             => $validated['place_of_birth'],
-                    'mother_tongue'              => $validated['mother_tongue'],
-                    'belongs_to_ip'              => $validated['belongs_to_ip'],
-                    'is_4ps_beneficiary'         => $validated['is_4ps_beneficiary'],
-                    'contact_number'             => null,
-
-                    'cur_house_no'               => $validated['cur_house_no'],
-                    'cur_street'                 => $validated['cur_street'],
-                    'cur_barangay'               => $validated['cur_barangay'],
-                    'cur_city'                   => $validated['cur_city'],
-                    'cur_province'               => $validated['cur_province'],
-                    'cur_country'                => $validated['cur_country'],
-                    'cur_zip_code'               => $validated['cur_zip_code'],
-
-                    'perm_house_no'              => $validated['perm_house_no'],
-                    'perm_street'                => $validated['perm_street'],
-                    'perm_barangay'              => $validated['perm_barangay'],
-                    'perm_city'                  => $validated['perm_city'],
-                    'perm_province'              => $validated['perm_province'],
-                    'perm_country'               => $validated['perm_country'],
-                    'perm_zip_code'              => $validated['perm_zip_code'],
-
-                    'father_last_name'           => $validated['father_last_name'],
-                    'father_first_name'          => $validated['father_first_name'],
-                    'father_middle_name'         => $validated['father_middle_name'],
-                    'father_contact_number'      => $validated['father_contact_number'],
-                    'mother_last_name'           => $validated['mother_last_name'],
-                    'mother_first_name'          => $validated['mother_first_name'],
-                    'mother_middle_name'         => $validated['mother_middle_name'],
-                    'mother_contact_number'      => $validated['mother_contact_number'],
-                    'guardian_last_name'         => $validated['guardian_last_name'],
-                    'guardian_first_name'        => $validated['guardian_first_name'],
-                    'guardian_middle_name'       => $validated['guardian_middle_name'],
-                    'guardian_contact_number'    => $validated['guardian_contact_number'],
-                    'has_special_needs'          => $validated['has_special_needs'],
-                    'special_needs'              => $validated['special_needs'] ?? null,
-
-                    'last_grade_level_completed' => $validated['last_grade_level_completed'],
-                    'last_school_attended'       => $validated['last_school_attended'],
-                    'last_school_year_completed' => $validated['last_school_year_completed'],
-                    'school_id'                  => $validated['school_id'],
-
-                ]
-            );
-
-
-
-            if ($applicant) {
-                $applicant->update([
-                    'application_status' => 'Pending'
-                ]);
-            }
+                if ($applicant) {
+                    $applicant->update([
+                        'application_status' => 'Pending'
+                    ]);
+                }
+            });
+            return redirect('admission')->with('success', 'Application submitted successfully!');
         } catch (\Throwable $th) {
 
             Log::error('Application form submission failed', ['error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
             throw new \Exception($th);
             return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
         }
-
-
-        $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
-
-        // event(new ApplicationFormSubmitted($form));
-        event(new RecentApplicationTableUpdated($form, $total_applications));
-
-
-        return redirect('admission')->with('success', 'Application submitted successfully!');
     }
 
     /**

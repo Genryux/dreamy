@@ -21,14 +21,20 @@ class Documents extends Model
     ];
     protected $table = 'documents';
 
-    public function submissions()
+    // public function submissions()
+    // {
+    //     return $this->hasMany(DocumentSubmissions::class);
+    // }
+
+    // one document type can be assigned for many applicants
+    public function applicantDocuments()
     {
-        return $this->hasMany(DocumentSubmissions::class);
+        return $this->hasMany(ApplicantDocuments::class);
     }
 
-    public function applicants()
-    {
-        return $this->belongsToMany(Applicants::class, 'applicants_documents');
-    }
+    // public function applicants()
+    // {
+    //     return $this->belongsToMany(Applicants::class, 'applicants_documents');
+    // }
 
 }

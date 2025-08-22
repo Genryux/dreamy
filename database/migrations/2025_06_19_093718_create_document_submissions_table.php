@@ -2,6 +2,7 @@
 
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
+use App\Models\ApplicantDocuments;
 use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\EnrollmentPeriod;
@@ -20,11 +21,11 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(AcademicTerms::class)->constrained();
             $table->foreignIdFor(EnrollmentPeriod::class)->constrained();
-            $table->foreignIdFor(Applicants::class)->constrained()->onDelete('cascade');;
-            $table->foreignIdFor(Documents::class)->constrained()->onDelete('cascade');;
-            $table->string('status'); 
-            $table->string('file_path')->nullable(); // optional
-            $table->text('review_notes')->nullable(); // optional
+            $table->foreignIdFor(Applicants::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Documents::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(ApplicantDocuments::class)->constrained()->onDelete('cascade');
+            $table->string('file_path')->nullable();
+            $table->timestamp('submitted_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamps();
         });
     }

@@ -19,11 +19,13 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Documents::class)
                 ->constrained()
                 ->onDelete('cascade');
-            $table->timestamps();
+            $table->date('submit_before')->nullable();
+            $table->enum('status', ['not-submitted', 'submitted', 'verified', 'rejected'])->default('not-submitted');
+            $table->timestamps(); 
         });
     }
 
-    /**
+    /*
      * Reverse the migrations.
      */
     public function down(): void

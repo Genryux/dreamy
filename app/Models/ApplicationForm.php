@@ -19,6 +19,9 @@ class ApplicationForm extends Model
         'grade_level',
         'primary_track',
         'secondary_track',
+        'acad_term_applied',
+        'semester_applied',
+        'admission_date',
 
         'last_name',
         'first_name',
