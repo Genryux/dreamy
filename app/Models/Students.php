@@ -34,6 +34,16 @@ class Students extends Model
         return $this->hasOne(StudentRecords::class);
     }
 
+    public function assignedDocuments()
+    {
+        return $this->hasMany(StudentDocument::class);
+    }
+
+    public function submissions()
+    {
+        return $this->morphMany(DocumentSubmissions::class, 'owner');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

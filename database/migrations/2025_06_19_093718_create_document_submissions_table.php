@@ -19,11 +19,10 @@ return new class extends Migration
     {
         Schema::create('document_submissions', function (Blueprint $table) {
             $table->id();
+            $table->morphs('owner');
             $table->foreignIdFor(AcademicTerms::class)->constrained();
             $table->foreignIdFor(EnrollmentPeriod::class)->constrained();
-            $table->foreignIdFor(Applicants::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Documents::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(ApplicantDocuments::class)->constrained()->onDelete('cascade');
             $table->string('file_path')->nullable();
             $table->timestamp('submitted_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamps();

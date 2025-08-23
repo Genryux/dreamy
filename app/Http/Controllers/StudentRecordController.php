@@ -6,6 +6,7 @@ use App\Exceptions\StudentRecordException;
 use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
 use App\Models\Applicants;
+use App\Models\DocumentSubmissions;
 use App\Models\StudentRecords;
 use App\Models\Students;
 use Illuminate\Http\Request;
@@ -149,8 +150,7 @@ class StudentRecordController extends Controller
                 $user->syncRoles('student');
                 $studentId = $student->id;
 
-                StudentRecords::firstOrCreate([
-                    'students_id'             => $studentId,
+                $student->record()->firstOrCreate([
                     'first_name'              => $form->first_name,
                     'last_name'               => $form->last_name,
                     'middle_name'             => $form->middle_name,
@@ -189,6 +189,19 @@ class StudentRecordController extends Controller
                     'belongs_to_ip'           => $form->belongs_to_ip,
                     'is_4ps_beneficiary'      => $form->is_4ps_beneficiary,
                 ]);
+
+                foreach ($applicant->assignedDocuments as $doc) {
+                    $student->assignedDocuments()->create([
+                        'documents_id'   => $doc->documents_id,
+                        'status'        => $doc->status,
+                        'submit_before' => $doc->submit_before,
+                    ]);
+                }
+
+                $applicant->submissions()->update([
+                    'owner_id'   => $student->id,
+                    'owner_type' => Students::class,
+                ]);
             });
 
             return response()->json(['message' => 'Student record created.']);
@@ -209,13 +222,29 @@ class StudentRecordController extends Controller
 
         // $record = $student->record;
 
-        // dd($student, $record);
-        // dd($studentRecord->student(), $email);
+        $student = $studentRecord->students;
 
-        // $record = $studentRecordId->all();
+        $assignedDocuments = $student->assignedDocuments()
+            ->with(['documents', 'submissions'])
+            ->get();
+
+        // dd($assignedDocuments);
+
+        // Preload submissions for this student
+        $submissions = DocumentSubmissions::where('owner_id', $student->id)
+            ->where('owner_type', Students::class)
+            ->get()
+            ->groupBy('documents_id');
+
+        // // Map assigned docs to include latest submission
+        $assignedDocuments->each(function ($doc) use ($submissions) {
+            $doc->latest_submission = $submissions->get($doc->documents_id)
+                ? $submissions->get($doc->documents_id)->sortByDesc('submitted_at')->first()
+                : null;
+        });
 
         // dd($record, $studentRecordId)
-        return view('user-admin.enrolled-students.show', compact('studentRecord'));
+        return view('user-admin.enrolled-students.show', compact('studentRecord', 'assignedDocuments'));
     }
 
     /**

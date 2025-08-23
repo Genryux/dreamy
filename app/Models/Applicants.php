@@ -51,7 +51,7 @@ class Applicants extends Model
 
     public function submissions()
     {
-        return $this->hasMany(DocumentSubmissions::class);
+        return $this->morphMany(DocumentSubmissions::class, 'owner');
     }
 
     public function assignedDocuments() 

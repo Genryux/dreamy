@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Documents;
 use App\Models\Students;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -64,6 +65,8 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
     public function model(array $row)
     {
 
+        $required_docs = Documents::all();
+
         $user = User::firstOrCreate(
             ['email' => $row['email_address']],
             [
@@ -125,6 +128,21 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
                 'is_4ps_beneficiary'      => null,
             ]
         );
+
+
+        // assign documents to student
+        foreach ($required_docs as $doc) {
+            $students->assignedDocuments()->create([
+                'documents_id'  => $doc->id,
+                'status'        => 'not-submitted', // default
+                'submit-before' =>  null,
+            ]);
+        }
+
+        $students->submissions()->update([
+            'owner_id'   => $students->id,
+            'owner_type' => Students::class,
+        ]);
 
         return $students;
     }

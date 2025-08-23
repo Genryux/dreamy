@@ -897,7 +897,7 @@
                                 @if ($assignedDocuments)
                                     <option selected disabled>Select document type...</option>
                                     @foreach ($assignedDocuments as $doc)
-                                        <option value="{{ $doc->id }}">{{ $doc->documents->type }}</option>
+                                        <option value="{{ $doc->documents->id }}">{{ $doc->documents->type }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -1358,7 +1358,7 @@
                             window.location.reload();
                         })
                         .catch(error => {
-                            console.error('Upload failed:', error.response?.data || error.message);
+                            console.error('Upload failed:', error.response?.data || error.error);
                             window.location.reload();
                         });
 

@@ -4,20 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ApplicantDocuments extends Model
+class StudentDocument extends Model
 {
-    //
 
-    protected $table = "applicants_documents";
+    protected $table = "student_documents";
 
     protected $fillable = [
-        'applicants_id',
+        'students_id',
         'documents_id',
         'submit_before',
-        'status'
+        'status',
     ];
 
-    public function applicant()
+    public function student()
     {
         return $this->belongsTo(Applicants::class);
     }
@@ -29,8 +28,11 @@ class ApplicantDocuments extends Model
 
     public function submissions()
     {
+        $submissionTable = (new DocumentSubmissions())->getTable();
+        $localTable      = $this->getTable();
+
         return $this->hasMany(DocumentSubmissions::class, 'documents_id', 'documents_id')
-            ->where('owner_id', $this->applicants_id)
-            ->where('owner_type', Applicants::class);
+            ->where('owner_type', Students::class)
+            ->where('owner_id', $this->students_id);
     }
 }

@@ -100,6 +100,8 @@ class DashboardDataService
 
         $assignedDocuments = $applicant->assignedDocuments;
 
+        $documents = Documents::all();
+
         if (!$assignedDocuments) {
 
             return [
@@ -121,7 +123,7 @@ class DashboardDataService
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
             'applicant' => $applicant,
             'assignedDocuments' => $assignedDocuments,
-            // 'submissions' => $applicant->submissions
+            'documents' => $documents
         ];
     }
 }

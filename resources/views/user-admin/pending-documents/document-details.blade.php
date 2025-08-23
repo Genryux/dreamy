@@ -231,7 +231,7 @@
 
                     <tbody>
                         @if ($assignedDocuments)
-                            @forelse ($assignedDocuments as $index => $doc)
+                            @foreach ($assignedDocuments as $index => $doc)
                                 <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                                     <td
                                         class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
@@ -336,26 +336,8 @@
                                     </td>
 
                                 </tr>
-                            @empty
-                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                    <td
-                                        class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $doc->type }}
-                                    </td>
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <span class="bg-[#E8EAED] text-[#5F6368] px-2 py-1 rounded-md font-medium">
-                                            Not submitted
-                                        </span>
-                                    </td>
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        <p>-</p>
-                                    </td>
-
-
-                                </tr>
-                            @endforelse
+        
+                            @endforeach
                         @else
                             @foreach ($assignedDocuments as $index => $doc)
                             @endforeach

@@ -23,7 +23,12 @@ class DocumentSubmissions extends Model
         'file_path' => 'string',
     ];
 
-    public function document()
+    public function owner()
+    {
+        return $this->morphTo(); // Applicant OR Student
+    }
+
+    public function documents()
     {
         return $this->belongsTo(Documents::class);
     }

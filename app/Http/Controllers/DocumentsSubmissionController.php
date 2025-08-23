@@ -92,37 +92,42 @@ class DocumentsSubmissionController extends Controller
 
         // return response()->json(['files' => $documents]);
 
-        foreach ($documents as $index => $doc) {
+        try {
+            DB::transaction(function () use ($documents, $currentAcadTermId, $enrollment_period, $applicant, $documents_id) {
+                foreach ($documents as $index => $doc) {
 
-            $path = $doc->store('applicants', 'public');
+                    $path = $doc->store('applicants', 'public');
 
-            $uploadedFiles[] = [
-                'academic_terms_id'     => $currentAcadTermId,
-                'enrollment_period_id'  => $enrollment_period->id,
-                'applicants_id'         => $applicant->id,
-                'documents_id'          => intval($documents_id[$index]),
-                'file_path'             => $path,
-            ];
+                    $uploadedFiles[] = [
+                        'academic_terms_id'     => $currentAcadTermId,
+                        'enrollment_period_id'  => $enrollment_period->id,
+                        'documents_id'          => intval($documents_id[$index]),
+                        'file_path'             => $path,
+                    ];
+                }
+
+                foreach ($uploadedFiles as $file) {
+                    //return response()->json(['files' => $file['documents_id']]);
+                    $applicant_document = ApplicantDocuments::updateOrCreate(
+                        [
+                            'applicants_id' => $applicant->id,
+                            'documents_id'  => $file['documents_id'],
+                        ],
+                        ['status' => 'submitted']
+                    );
+
+                    $applicant->submissions()->updateOrCreate(
+                        [
+                            'documents_id'  => $file['documents_id'],
+                        ],
+                        $file
+                    );
+                }
+            });
+        } catch (\Throwable $th) {
+            return response()->json(['error'=> $th->getMessage()]);
         }
 
-        foreach ($uploadedFiles as $file) {
-            //return response()->json(['files' => $file['documents_id']]);
-            $applicant_document = ApplicantDocuments::updateOrCreate(
-                [
-                    'applicants_id' => $file['applicants_id'],
-                    'documents_id'  => $file['documents_id'],
-                ],
-                ['status' => 'submitted']
-            );
-
-            $applicant_document->submissions()->updateOrCreate(
-                [
-                    'applicants_id' => $file['applicants_id'],
-                    'documents_id'  => $file['documents_id'],
-                ],
-                $file
-            );
-        }
 
         //DocumentSubmissions::insert($uploadedFiles);
         return response()->json(['files' => $uploadedFiles]);
