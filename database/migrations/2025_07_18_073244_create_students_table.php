@@ -15,11 +15,10 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class);
-            // $table->foreignId('section_id')->constrained()->onDelete('set null');
-            // $table->foreignId('program_id')->constrained()->onDelete('set null');
+            $table->foreignId('section_id')->nullable()->constrained()->onDelete('set null');
             $table->string('lrn')->nullable();
             $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
+            $table->string('last_name');
             $table->string('grade_level')->nullable();
             $table->string('program')->nullable();
             $table->string('age')->nullable();

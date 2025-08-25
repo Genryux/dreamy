@@ -11,7 +11,6 @@ class Students extends Model
     protected $fillable = [
         'user_id',
         'section_id',
-        'program_id',
         'lrn',
         'first_name',
         'last_name',
@@ -32,6 +31,11 @@ class Students extends Model
     public function record()
     {
         return $this->hasOne(StudentRecords::class);
+    }
+
+    public function section()
+    {
+        return $this->hasOne(Section::class);
     }
 
     public function assignedDocuments()

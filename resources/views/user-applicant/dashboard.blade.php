@@ -198,7 +198,7 @@
                 @endif
 
                 <p class="text-[16px] font-semibold">Fill out form</p>
-
+                <div>—</div>
                 <x-divider></x-divider>
 
             </div>
@@ -218,8 +218,8 @@
                     </div>
                 @endif
 
-                <p class="text-[16px] font-semibold">Answer interview</p>
-
+                <p class="text-[16px] font-semibold">Take examination</p>
+                <div>—</div>
                 <x-divider></x-divider>
             </div>
 
@@ -247,6 +247,7 @@
                 </div>
             @endif
             <p class="text-[16px] font-semibold">Result</p>
+            <div>—</div>
             <x-divider></x-divider>
         </div>
 
@@ -563,10 +564,10 @@
             <div class="flex flex-row justify-start items-center gap-2">
 
                 <div class="text-[24px] text-white bg-[#0f111c] size-[35px] rounded-full flex justify-center items-center">
-                    1
+                    2
                 </div>
                 <div class="flex flex-col justify-center items-start">
-                    <p class="text-[16px]/5 font-bold">Take oral or document-based interview at School</p>
+                    <p class="text-[16px]/5 font-bold">Take admission exam at school</p>
                     <p class="text-[14px]/5 opacity-60 font-semibold">Date: June 16, 2025</p>
                 </div>
 
@@ -576,7 +577,7 @@
             @if ($applicant->interview() && $applicant->interview->status === 'Pending')
                 <div class="flex flex-col justify-center items-center space-y-4 py-14">
 
-                    <p>Your interview schedule will be available soon. Please check back or contact the admissions office
+                    <p>Your schedule will be available soon. Please check back or contact the admissions office
                         for
                         updates.</p>
                     <img src="{{ asset('images/Waiting.svg') }}" alt=""
@@ -586,7 +587,7 @@
             @elseif ($applicant->interview() && $applicant->interview->status === 'Scheduled')
                 <div class="flex flex-col justify-center items-center space-y-4 py-8 ">
 
-                    <p class="font-black text-[22px]">Your interview has been scheduled! 🎉</p>
+                    <p class="font-black text-[22px]">Your admission exam has been scheduled! 🎉</p>
                     <p class="opacity-70">Everything is set up for your upcoming interview. Please review the details below
                         and make sure to
                         arrive on time. </p>
@@ -818,8 +819,6 @@
 
                                 @if ($assignedDocuments)
                                     @foreach ($assignedDocuments as $doc)
-                                    
-
                                         <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
                                             <td
                                                 class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">

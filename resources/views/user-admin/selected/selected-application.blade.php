@@ -214,7 +214,7 @@
 
 @section('ongoing-interviews')
     <div class="flex flex-col justify-center items-start text-start px-[14px]">
-        <h1 class="text-[18px] font-semibold">Ongoing Interviews</h1>
+        <h1 class="text-[18px] font-semibold">Completed/Currently taking exams</h1>
         </p>
     </div>
     <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-2 gap-2">

@@ -55,7 +55,8 @@
 #pendingTable_info,
 #selectedTable_info,
 #ongoingTable_info,
-#enrolledStudents_info {
+#enrolledStudents_info,
+#sections_info {
     font-size: 14px;
     counter-reset: #0f111c;
     opacity: 80%;

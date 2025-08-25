@@ -8,10 +8,13 @@ use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\DocumentsSubmissionController;
 use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
+use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\StudentRecordController;
 use App\Http\Controllers\StudentsController;
+use App\Http\Controllers\SubjectController;
 use App\Models\Applicants;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -113,7 +116,18 @@ Route::get('/student', function () {
 })->name('student')->middleware('auth');
 
 
+Route::get('/programs', [ProgramController::class, 'index']);
 
+Route::get('/sections', [SectionController::class, 'index']);
+Route::get('/getSections', [SectionController::class, 'getSections']);
+Route::get('/getStudents/{section}', [SectionController::class, 'getStudents']);
+
+Route::get('/section/{section}', [SectionController::class, 'show']);
+
+Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
+
+
+Route::get('/subjects', [SubjectController::class, 'index']);
 
 //admission
 
@@ -139,8 +153,6 @@ Route::get('/admission/status', function () {
     return view('user-applicant.status', [
         'status' => $application_status
     ]);
-
-
 })->name('status')->middleware('auth');
 
 

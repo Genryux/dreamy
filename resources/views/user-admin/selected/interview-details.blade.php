@@ -29,7 +29,7 @@
             </li>
 
             <li>
-                <a href="#" class="block transition-colors hover:text-gray-900"> Interview Details </a>
+                <a href="#" class="block transition-colors hover:text-gray-900"> Applicant Details </a>
             </li>
         </ol>
     </nav>
@@ -38,7 +38,7 @@
 @section('modal')
     @if ($interview_details->status === 'Pending')
         {{-- Schedule Interview Modal --}}
-        <x-modal modal_id="sched-interview-modal" modal_name="Schedule Interview" close_btn_id="sched-interview-close-btn" modal_container_id="modal-container-1">
+        <x-modal modal_id="sched-interview-modal" modal_name="Schedule" close_btn_id="sched-interview-close-btn" modal_container_id="modal-container-1">
 
             <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
                 class="flex flex-col space-y-2 px-4 py-2">
@@ -253,8 +253,8 @@
 
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Interview Details</h1>
-        <p class="text-[14px]  text-gray-900/60">Manage approved applicants, set interview schedules, and record interview
+        <h1 class="text-[20px] font-black">Applicant Details</h1>
+        <p class="text-[14px]  text-gray-900/60">Manage approved applicants, set schedules, and record
             results.</p>
     </div>
 @endsection
@@ -292,15 +292,14 @@
                 @endif --}}
                     @if ($interview_details->status === 'Pending')
                         <button id="record-btn"
-                            class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule
-                            Interview</button>
+                            class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule</button>
                     @elseif ($interview_details->status === 'Scheduled' || $interview_details->status === 'Ongoing-Interview')
                         <div class="flex flex-row justify-center items-center gap-2">
                             <button id="edit-sched-btn"
                                 class="py-2 px-4 bg-[#f8f8f8] text-[#0f111c] border border-[#1e1e1e]/10 rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Edit</button>
                             <button id="record-interview-btn"
                                 class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Record
-                                Interview Result
+                                Admission Result
                             </button>
                         </div>
                     @else

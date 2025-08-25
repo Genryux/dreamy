@@ -40,7 +40,7 @@
                     <img src="{{ asset('images/business-man.png') }}" alt=""
                         class="size-20 rounded-md ring ring-gray-200">
                     <div class="pt-1">
-                        <p class="text-lg font-bold">{{ $studentRecord->getFullName() ?? '-' }}asasass asasass</p>
+                        <p class="text-lg font-bold">{{ $studentRecord->getFullName() ?? '-' }}</p>
                         <p class="text-sm font-medium opacity-60">#{{ $studentRecord->students->lrn ?? '-' }}</p>
                     </div>
                 </div>

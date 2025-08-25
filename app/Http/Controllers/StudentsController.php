@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Section;
 use App\Models\Students;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,6 +10,29 @@ use Illuminate\Support\Facades\DB;
 
 class StudentsController extends Controller
 {
+    public function assignSection(Section $section, Request $request)
+    {
+
+        $selectedStudents = array_map('intval', $request->input('student'));
+
+        try {
+            Students::whereIn('id', $selectedStudents)
+                ->update(['section_id' => $section->id]);
+
+            return response()->json([
+                'success' => 'Section successfully assigned to the selected students'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage(),
+                'request' => $request->all()
+            ]);
+        }
+
+        return response()->json([
+            'request' => $request->all()
+        ]);
+    }
 
     public function getUsers(Request $request)
     {
@@ -74,7 +98,7 @@ class StudentsController extends Controller
                 return [
                     'index' => $start + $key + 1,
                     'lrn' => $item->lrn,
-                    'full_name' => $item->last_name .', ' .$item->first_name ,
+                    'full_name' => $item->last_name . ', ' . $item->first_name,
                     'grade_level' => $item->grade_level,
                     'program' => $item->program,
                     'contact' => $item->contact_number,
@@ -92,9 +116,6 @@ class StudentsController extends Controller
             'data' => $data,
         ]);
     }
-
-
-
 
     public function index()
     {
@@ -115,11 +136,7 @@ class StudentsController extends Controller
 
     public function update() {}
 
-    public function show() {
-
-        
-
-    }
+    public function show() {}
 
     public function edit() {}
 }

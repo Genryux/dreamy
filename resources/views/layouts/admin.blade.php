@@ -66,6 +66,7 @@
 
                     </div>
 
+
                 </div>
 
             </div>
@@ -77,9 +78,42 @@
 
                     <span class="flex flex-row items-center space-x-4">
                         <i
-                            class="fi fi-rs-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
+                            class="fi fi-rr-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
 
                         <p class="font-semibold text-[16px] nav-text truncate">Enrolled Students</p>
+                    </span>
+
+                </x-nav-link>
+                <x-nav-link href="/admin" :active="request()->is('documents')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
+
+                        <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
+                    </span>
+
+                </x-nav-link>
+                <x-nav-link href="/programs" :active="request()->is('programs')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-lesson text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">Programs</p>
+                    </span>
+
+                </x-nav-link>
+                <x-nav-link href="/sections" :active="request()->is('sections')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-users-class text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">Sections</p>
+                    </span>
+
+                </x-nav-link>
+                <x-nav-link href="/subjects" :active="request()->is('subjects')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">Subjects</p>
                     </span>
 
                 </x-nav-link>
@@ -127,7 +161,7 @@
     </div>
 
     <x-loader />
-    
+
     <script>
         document.body.style.overflow = 'hidden';
 
