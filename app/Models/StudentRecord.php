@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StudentRecords extends Model
+class StudentRecord extends Model
 {
     protected $table = 'student_records';
     protected $fillable = [
-        'students_id',
+        'student_id',
         'first_name',
         'last_name',
         'middle_name',
@@ -56,9 +56,9 @@ class StudentRecords extends Model
         return "{$this->last_name}, {$this->first_name} {$this->middle_name}";
     }
 
-    public function students()
+    public function student()
     {
-        return $this->belongsTo(Students::class);
+        return $this->belongsTo(Student::class);
     }
 
     public function currentAddress()

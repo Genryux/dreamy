@@ -3,7 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Documents;
-use App\Models\Students;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
@@ -141,7 +141,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
 
         $students->submissions()->update([
             'owner_id'   => $students->id,
-            'owner_type' => Students::class,
+            'owner_type' => Student::class,
         ]);
 
         return $students;

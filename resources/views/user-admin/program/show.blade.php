@@ -16,14 +16,13 @@
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
                 <div class="flex flex-col items-start justify-end gap-2 pt-4">
-                    <h1 class="text-[40px] font-black" id="section_name">Academic Programs Overview</h1>
-                    <p class="text-[16px]  text-white/60">Senior High School tracks and strands for the current academic
-                            year
+                    <h1 class="text-[40px] font-black" id="section_name">{{ $program->code }}</h1>
+                    <p class="text-[16px]  text-white/60">{{ $program->name }}
                     </p>
                 </div>
 
                 <div class="flex flex-col items-end justify-center">
-                    <p id="studentCount" class="text-[50px] font-bold ">{{ $programCount }}
+                    <p id="studentCount" class="text-[50px] font-bold ">
                     </p>
                     <div class="flex flex-row justify-center items-center opacity-70 gap-2 text-[14px]">
                         {{-- <i class="fi fi-sr-graduation-cap flex justify-center items-center "></i> --}}
@@ -40,7 +39,7 @@
                         <i class="fi fi-rr-star flex justify-center items-center"></i>
                         <p class="text-[14px]">Total Students</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $totalStudents }}</p>
+                    <p class="font-bold text-[24px]"></p>
                 </div>
 
                 <div
@@ -49,7 +48,7 @@
                         <i class="fi fi-rr-lesson flex flex-row justify-center items-center"></i>
                         <p class="text-[14px]">Active Sections</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $activeSections }}</p>
+                    <p class="font-bold text-[24px]"></p>
                 </div>
 
                 <div
@@ -58,7 +57,7 @@
                         <i class="fi fi-rr-school flex justify-center items-center"></i>
                         <p class="text-[14px]">Faculty Members</p>
                     </div>
-                    <p class="font-bold text-[24px]" id="section_room">{{ $asjdks ?? '-' }}</p>
+                    <p class="font-bold text-[24px]" id="section_room"></p>
                 </div>
 
                 <div
@@ -67,7 +66,7 @@
                         <i class="fi fi-rr-employee-man-alt flex justify-center items-center"></i>
                         <p class="text-[14px] truncate">Specialized + Applied Subjects</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $specializedSubjects }}</p>
+                    <p class="font-bold text-[24px]"></p>
                 </div>
             </div>
 
@@ -78,6 +77,25 @@
 @endsection
 @section('content')
     <x-alert />
+
+
+
+    <div
+        class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+                <a href="#"
+                    class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Sections</a>
+            </li>
+            <li class="me-2">
+                <a href="#"
+                    class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500"
+                    aria-current="page">Subjects</a>
+            </li>
+
+        </ul>
+    </div>
+
 
     <div class="flex flex-row justify-center items-start gap-4">
         <div

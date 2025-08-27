@@ -15,7 +15,7 @@
 
     <!-- Custom Scripts -->
     <script src="{{ asset('js/sidebar-toggle.js') }}"></script> 
-    <script src="{{ asset('js/dropdown.js') }}"></script>
+    <script src="{{ asset('js/dropdownNav.js') }}"></script>
 
 
     <!-- Custom Styles -->
@@ -1272,9 +1272,9 @@
             }
         </style>
     @endif
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             AOS.init();
         });
-    </script>
+    </script> --}}
 </head>

@@ -10,7 +10,7 @@ class StudentDocument extends Model
     protected $table = "student_documents";
 
     protected $fillable = [
-        'students_id',
+        'student_id',
         'documents_id',
         'submit_before',
         'status',
@@ -32,7 +32,7 @@ class StudentDocument extends Model
         $localTable      = $this->getTable();
 
         return $this->hasMany(DocumentSubmissions::class, 'documents_id', 'documents_id')
-            ->where('owner_type', Students::class)
+            ->where('owner_type', Student::class)
             ->where('owner_id', $this->students_id);
     }
 }

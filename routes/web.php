@@ -117,6 +117,9 @@ Route::get('/student', function () {
 
 
 Route::get('/programs', [ProgramController::class, 'index']);
+Route::get('/program/{program}', [ProgramController::class, 'show'])->name('program.show');
+
+Route::get('/getPrograms', [ProgramController::class, 'getPrograms']);
 
 Route::get('/sections', [SectionController::class, 'index']);
 Route::get('/getSections', [SectionController::class, 'getSections']);
@@ -125,6 +128,8 @@ Route::get('/getStudents/{section}', [SectionController::class, 'getStudents']);
 Route::get('/section/{section}', [SectionController::class, 'show']);
 
 Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
+
+Route::post('/section/{section}', [SectionController::class, 'update']);
 
 
 Route::get('/subjects', [SubjectController::class, 'index']);

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Section;
-use App\Models\Students;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +16,14 @@ class StudentsController extends Controller
         $selectedStudents = array_map('intval', $request->input('student'));
 
         try {
-            Students::whereIn('id', $selectedStudents)
+            Student::whereIn('id', $selectedStudents)
                 ->update(['section_id' => $section->id]);
 
+            $studentCount = $section->students->count();
+
             return response()->json([
-                'success' => 'Section successfully assigned to the selected students'
+                'success' => 'Section successfully assigned to the selected students',
+                'count'   => $studentCount
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -41,7 +44,7 @@ class StudentsController extends Controller
 
         //return response()->json(['ewan' => $request->all()]);
 
-        $query = Students::with('record');
+        $query = Student::with('record');
         //dd($query->get());
 
         // search filter

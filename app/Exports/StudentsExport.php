@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Students;
+use App\Models\Student;
 use App\Services\AcademicTermService;
 use App\Services\DashboardDataService;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -21,7 +21,7 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
      */
     public function collection()
     {
-        return Students::select(
+        return Student::select(
             'lrn',
             'first_name',
             'last_name',

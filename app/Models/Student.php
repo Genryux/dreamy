@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Students extends Model
+class Student extends Model
 {
     //
     protected $table = 'students';
@@ -30,12 +30,12 @@ class Students extends Model
 
     public function record()
     {
-        return $this->hasOne(StudentRecords::class);
+        return $this->hasOne(StudentRecord::class);
     }
 
-    public function section()
+    public function sections()
     {
-        return $this->hasOne(Section::class);
+        return $this->belongsTo(Section::class, 'section_id', 'id');
     }
 
     public function assignedDocuments()

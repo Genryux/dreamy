@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\StudentRecordException;
-use App\Models\StudentRecords;
+use App\Models\StudentRecord;
 
 class StudentRecordService
 {
@@ -15,7 +15,7 @@ class StudentRecordService
             $form = $applicant->applicationForm->get();
             $user_id = $applicant->user->id;
 
-            StudentRecords::firstOrCreate([
+            StudentRecord::firstOrCreate([
                 'user_id'                 => $user_id,
                 'first_name'              => $form->first_name,
                 'last_name'               => $form->last_name,

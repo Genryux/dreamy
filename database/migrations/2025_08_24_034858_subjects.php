@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Program;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('program_id')->nullable()->constrained('programs')->nullOnDelete();
+            $table->foreignIdFor(Program::class)->nullable()->constrained()->nullOnDelete();
             $table->string('grade_level')->nullable();
             $table->string('days_of_the_week')->nullable(); // e.g., MWF, TTh, etc.
             $table->enum('category', ['core', 'applied', 'specialized'])->nullable();

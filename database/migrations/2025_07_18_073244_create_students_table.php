@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Section;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +16,7 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class);
-            $table->foreignId('section_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(Section::class)->nullable()->constrained()->onDelete('set null');
             $table->string('lrn')->nullable();
             $table->string('first_name')->nullable();
             $table->string('last_name');

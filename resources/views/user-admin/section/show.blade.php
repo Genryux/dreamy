@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('breadcrumbs')
-    <nav aria-label="Breadcrumb" class="mb-4 mt-2">
+    <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
             <li>
                 <a href="/enrolled-students" class="block transition-colors hover:text-gray-900"> Sections </a>
@@ -15,11 +15,42 @@
             </li>
 
             <li>
-                <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Student Information
+                <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Section details
                 </a>
             </li>
 
         </ol>
+        {{-- <div class="flex flex-row justify-center items-center h-full">
+            <div id="dropdown_btn"
+                class="relative space-y-10 h-full flex flex-col justify-center items-center gap-4 cursor-pointer">
+
+                <div
+                    class="group relative inline-flex items-center gap-2 border border-[#1e1e1e]/0 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:shadow-sm hover:bg-gray-100 hover:border-[#1e1e1e]/15 transition ease-out duration-300">
+                    <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
+                </div>
+
+                <div id="dropdown_selection"
+                    class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-4 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                    <button id="edit-section-modal-btn"
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                        <i class="fi fi-rr-pen-clip text-[16px] flex justify-center item-center"></i>Edit Section
+                    </button>
+                    <x-nav-link href="/students/export/excel"
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-red-200 hover:text-red-500 truncate">
+                        <i class="fi fi-rr-remove-user text-[16px] flex justify-center item-center"></i>Remove Student
+                    </x-nav-link>
+                    <button
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                        <i class="fi fi-rr-box text-[16px] flex justify-center item-center"></i>Archive Section
+                    </button>
+                    <button
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                        <i class="fi fi-rr-trash text-[16px] flex justify-center item-center"></i>Delete Section
+                    </button>
+                </div>
+
+            </div>
+        </div> --}}
     </nav>
 @endsection
 @section('modal')
@@ -75,6 +106,46 @@
 
     </x-modal>
 
+    {{-- Edit section modal --}}
+    <x-modal modal_id="edit-section-modal" modal_name="Edit Section" close_btn_id="edit-section-close-btn"
+        modal_container_id="modal-container-3">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
+
+        </x-slot>
+
+        <form enctype="multipart/form-data" id="edit-section-form" class="p-6">
+            @csrf
+
+            <div class="flex flex-row gap-2">
+                <div class="flex-1 flex flex-col ">
+                    <label for="name">Section Name</label>
+                    <input type="text" name="name" id="name" placeholder="{{ $section->name }}">
+                </div>
+                <div class="flex-1 flex flex-col ">
+                    <label for="room">Room</label>
+                    <input type="text" name="room" id="room"
+                        placeholder="{{ $section->room ?? 'Not Assigned Yet' }}">
+                </div>
+
+
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="edit-section-cancel-btn"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="edit-section-form" name="action" value="verify"
+                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                Import
+            </button>
+        </x-slot>
+
+    </x-modal>
+
     {{-- add student modal --}}
     <x-modal modal_id="add-student-modal" modal_name="Add Students" close_btn_id="add-student-modal-close-btn"
         modal_container_id="modal-container-2">
@@ -86,14 +157,15 @@
         <form enctype="multipart/form-data" id="add-student-form" class="p-6">
             @csrf
 
-            <span>These are the list of {{ $section->year_level }} students enrolled in
-                {{ $section->program->code }}</span>
+            <span>Below is the list of {{ $section->year_level }} {{ $section->program->code }} students who are currently
+                unassigned to a section.
+            </span>
             <div class="relative flex flex-col justify-start items-center overflow-y-auto max-h-[400px]">
                 <div class="sticky top-0 flex flex-row justify-center items-start bg-[#f8f8f8] w-full shadow-xl">
                     <div>index</div>
                     <div>Full Name</div>
                 </div>
-                @foreach ($students as $index => $student)
+                @forelse ($students as $index => $student)
                     <div class="flex flex-row justify-center items-center gap-2 w-full  peer-checked:bg-green-300 ">
                         {{ $index + 1 }}
                         <input type="checkbox" name="student[]" id="lrn-{{ $student->lrn }}" value="{{ $student->id }}"
@@ -104,11 +176,12 @@
                         </label>
 
                     </div>
-                @endforeach
-                <div class="sticky bottom-0 flex flex-row justify-center items-start bg-[#f8f8f8] w-full shadow-xl">
-                    <div>index</div>
-                    <div>Full Name</div>
-                </div>
+                @empty
+                    <div class="py-8">
+                        <span>No student found to be assign.</span>
+                    </div>
+                @endforelse
+
             </div>
 
         </form>
@@ -121,13 +194,13 @@
         </x-slot>
 
         <x-slot name="modal_buttons">
-            <button id="cancel-btn"
+            <button id="add-student-cancel-btn"
                 class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="add-student-form" name="action" value="verify"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                class="bg-[#1A3165] text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-500 transition duration-150 shadow-sm">
                 Continue
             </button>
         </x-slot>
@@ -135,10 +208,112 @@
     </x-modal>
 @endsection
 @section('header')
-    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Section Information</h1>
-        <p class="text-[14px]  text-gray-900/60">View and manage section details and assigned students.
-        </p>
+    <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
+        <div>
+            <h1 class="text-[20px] font-black">Section Information</h1>
+            <p class="text-[14px]  text-gray-900/60">View and manage section details and assigned students.
+            </p>
+        </div>
+
+        <div class="flex flex-row justify-center items-center h-full">
+            <div id="dropdown_btn"
+                class="relative space-y-12 h-full flex flex-col justify-center items-center gap-4 cursor-pointer">
+
+                <div
+                    class="group relative inline-flex items-center gap-2 border border-[#1e1e1e]/0 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:shadow-sm hover:bg-gray-100 hover:border-[#1e1e1e]/15 transition ease-out duration-300">
+                    <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
+                </div>
+
+                <div id="dropdown_selection"
+                    class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-4 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                    <button id="edit-section-modal-btn"
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-blue-200 hover:text-blue-600 truncate">
+                        <i class="fi fi-rr-pen-clip text-[16px] flex justify-center item-center"></i>Edit Section
+                    </button>
+                    <x-nav-link href="/students/export/excel"
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-red-200 hover:text-red-500 truncate">
+                        <i class="fi fi-rr-remove-user text-[16px] flex justify-center item-center"></i>Remove Student
+                    </x-nav-link>
+                    <button
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-yellow-200 hover:text-yellow-600 truncate">
+                        <i class="fi fi-rr-box text-[16px] flex justify-center item-center"></i>Archive Section
+                    </button>
+                    <button
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-red-200 hover:text-red-500 truncate">
+                        <i class="fi fi-rr-trash text-[16px] flex justify-center item-center"></i>Delete Section
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('stat')
+    <div class="flex justify-center items-center">
+        <div
+            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-600 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+
+            <div class="flex flex-row items-start justify-between w-full gap-4 py-2 rounded-lg">
+
+                <div class="flex flex-col items-start justify-center">
+                    <h1 class="text-[45px] font-black" id="section_name">{{ $section->name }}</h1>
+                    <p class="text-[16px]  text-white/60">{{ $section->program->name }}
+                    </p>
+                </div>
+
+                <div class="flex flex-col items-end justify-center">
+                    <p id="studentCount" class="text-[50px] font-bold ">{{ $section->students->count() }}
+                    </p>
+                    <div class="flex flex-row justify-center items-center opacity-70 gap-2 text-[14px]">
+                        {{-- <i class="fi fi-sr-graduation-cap flex justify-center items-center "></i> --}}
+                        <p class="text-[16px]">Total Students</p>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="flex flex-row justify-center items-center w-full gap-4">
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-150">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-star flex justify-center items-center"></i>
+                        <p class="text-[14px]">Year Level</p>
+                    </div>
+                    <p class="font-bold text-[20px]">{{ $section->year_level }}</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-lesson flex flex-row justify-center items-center"></i>
+                        <p class="text-[14px]">Program</p>
+                    </div>
+                    <p class="font-bold text-[20px]">{{ $section->program->code }}</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-school flex justify-center items-center"></i>
+                        <p class="text-[14px]">Room Assignment</p>
+                    </div>
+                    <p class="font-bold text-[20px]" id="section_room">{{ $section->room ?? 'Not assigned yet' }}</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-employee-man-alt flex justify-center items-center"></i>
+                        <p class="text-[14px]">Class Adviser</p>
+                    </div>
+                    <p class="font-bold text-[20px]">{{ $section->teacher->name ?? 'Not assigned yet' }}</p>
+                </div>
+            </div>
+
+
+
+        </div>
     </div>
 @endsection
 
@@ -214,13 +389,13 @@
 
                     <div class="flex flex-row justify-center items-center truncate">
                         <button id="add-student-modal-btn"
-                            class="bg-blue-500 p-2 rounded-lg text-[14px] flex justify-center items-center gap-2 text-white">
+                            class="bg-[#1A3165] p-2 rounded-lg text-[14px] flex justify-center items-center gap-2 text-white">
                             <i class="fi fi-rr-user-add flex justify-center items-center"></i>
                             Add Student
                         </button>
                     </div>
 
-                    <div id="dropdown_btn"
+                    <div id="dropdown_2"
                         class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
 
                         <div
@@ -228,7 +403,7 @@
                             <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
                         </div>
 
-                        <div id="dropdown_selection"
+                        <div id="dropdown_selection2"
                             class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
                             <button id="import-modal-btn"
                                 class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
@@ -295,6 +470,9 @@
 @push('scripts')
     <script type="module">
         import {
+            dropDown
+        } from "/js/dropDown.js";
+        import {
             clearSearch
         } from "/js/clearSearch.js"
         import {
@@ -303,6 +481,7 @@
         import {
             showAlert
         } from "/js/alert.js";
+
         import {
             showLoader,
             hideLoader
@@ -313,6 +492,7 @@
         let selectedProgram = '';
         let selectedPageLength = '';
 
+
         let sectionId = @json($section->id);
 
         console.log(sectionId);
@@ -321,8 +501,16 @@
 
             initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
                 'modal-container-1');
-            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn', 'cancel-btn',
+            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn',
+                'add-student-cancel-btn',
                 'modal-container-2');
+            initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn',
+                'edit-section-cancel-btn',
+                'modal-container-3');
+
+            let studentCount = document.querySelector('#studentCount');
+            let sectionName = document.querySelector('#section_name');
+            let sectionRoom = document.querySelector('#section_room');
 
             // const fileInput = document.getElementById('fileInput');
             // const fileName = document.getElementById('fileName');
@@ -562,15 +750,56 @@
                 pageLengthSelection.selectedIndex = 0
             }
 
-            let dropDownBtn = document.querySelector('#dropdown_btn');
-            let dropdownselection = document.querySelector('#dropdown_selection');
+            dropDown('dropdown_2', 'dropdown_selection2');
+            dropDown('dropdown_btn', 'dropdown_selection');
 
-            dropDownBtn.addEventListener('click', () => {
-                dropdownselection.classList.toggle('opacity-0');
-                dropdownselection.classList.toggle('scale-95');
-                dropdownselection.classList.toggle('pointer-events-none');
-                dropdownselection.classList.toggle('translate-y-1');
-            })
+
+
+            document.getElementById('edit-section-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                closeModal();
+
+                let form = e.target;
+                let formData = new FormData(form);
+
+                // Show loader
+                showLoader("Edit...");
+
+                fetch(`/section/${sectionId}`, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+
+                        console.log(data)
+
+                        if (data.success) {
+
+                            sectionName.innerHTML = data.newData['newSectionName'];
+                            sectionRoom.innerHTML = data.newData['newRoom'] || 'Not assigned yet';
+                            closeModal('edit-section-modal', 'modal-container-3');
+                            showAlert('success', data.success);
+                            table1.draw();
+
+                        } else if (data.error) {
+
+                            closeModal('edit-section-modal', 'modal-container-3');
+                            showAlert('error', data.error);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+
+                        closeModal('add-student-modal', 'modal-container-2');
+                        showAlert('error', 'Something went wrong');
+                    });
+            });
 
 
             document.getElementById('add-student-form').addEventListener('submit', function(e) {
@@ -599,6 +828,7 @@
 
                         if (data.success) {
 
+                            studentCount.innerHTML = data.count;
                             closeModal('add-student-modal', 'modal-container-2');
                             showAlert('success', data.success);
                             table1.draw();
@@ -639,6 +869,7 @@
                 alertContainer.classList.toggle('pointer-events-none');
                 alertContainer.classList.toggle('translate-y-5');
             }
+
 
 
 

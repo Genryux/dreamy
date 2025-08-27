@@ -7,8 +7,8 @@ use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
 use App\Models\Applicants;
 use App\Models\DocumentSubmissions;
-use App\Models\StudentRecords;
-use App\Models\Students;
+use App\Models\StudentRecord;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -106,7 +106,8 @@ class StudentRecordController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => "Something went wrong during import. Please try again."
+                'error' => "Something went wrong during import. Please try again.",
+                'code' => $e->getMessage()
             ], 500);
         }
     }
@@ -129,7 +130,7 @@ class StudentRecordController extends Controller
                 $user = $applicant->user;
 
 
-                $student = Students::firstOrCreate(
+                $student = Student::firstOrCreate(
                     [
                         'user_id'         => $user->id,
                     ],
@@ -200,7 +201,7 @@ class StudentRecordController extends Controller
 
                 $applicant->submissions()->update([
                     'owner_id'   => $student->id,
-                    'owner_type' => Students::class,
+                    'owner_type' => Student::class,
                 ]);
             });
 
@@ -213,7 +214,7 @@ class StudentRecordController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StudentRecords $studentRecord)
+    public function show(StudentRecord $studentRecord)
     {
 
         // $email = $studentRecord->student;
@@ -222,7 +223,13 @@ class StudentRecordController extends Controller
 
         // $record = $student->record;
 
-        $student = $studentRecord->students;
+        $student = $studentRecord->student;
+
+        // // $student = Student::find(95);
+
+        // // $s = StudentRecord::find(95);
+
+        // dd($students);
 
         $assignedDocuments = $student->assignedDocuments()
             ->with(['documents', 'submissions'])
@@ -232,7 +239,7 @@ class StudentRecordController extends Controller
 
         // Preload submissions for this student
         $submissions = DocumentSubmissions::where('owner_id', $student->id)
-            ->where('owner_type', Students::class)
+            ->where('owner_type', Student::class)
             ->get()
             ->groupBy('documents_id');
 
@@ -250,7 +257,7 @@ class StudentRecordController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(StudentRecords $studentRecord)
+    public function edit(StudentRecord $studentRecord)
     {
         //
     }
@@ -258,7 +265,7 @@ class StudentRecordController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, StudentRecords $studentRecord)
+    public function update(Request $request, StudentRecord $studentRecord)
     {
         //
     }
@@ -266,7 +273,7 @@ class StudentRecordController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StudentRecords $studentRecord)
+    public function destroy(StudentRecord $studentRecord)
     {
         //
     }

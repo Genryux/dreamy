@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Program;
+use App\Models\Teacher;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,8 +17,8 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('program_id')->constrained('programs')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->nullable()->constrained('teachers')->nullOnDelete();
+            $table->foreignIdFor(Program::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Teacher::class)->nullable()->constrained()->nullOnDelete();
             $table->string('year_level')->nullable();
             $table->string('room')->nullable();
             $table->unsignedInteger('total_enrolled_students')->default(0)->nullable();

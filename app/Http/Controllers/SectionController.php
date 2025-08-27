@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Section;
-use App\Models\Students;
+use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SectionController extends Controller
 {
@@ -98,7 +99,7 @@ class SectionController extends Controller
 
         //return response()->json(['ewan' => $request->all()]);
 
-        $query = Students::query()->where('section_id', $section->id);
+        $query = Student::query()->where('section_id', $section->id);
         // dd($query->get());
 
         // // search filter
@@ -149,13 +150,13 @@ class SectionController extends Controller
         $data = $query
             ->offset($start)
             ->limit($request->length)
-            ->get(['id', 'lrn', 'last_name','first_name', 'age', 'gender', 'contact_number'])
+            ->get(['id', 'lrn', 'last_name', 'first_name', 'age', 'gender', 'contact_number'])
             ->map(function ($item, $key) use ($start) {
                 // dd($item);
                 return [
                     'index' => $start + $key + 1,
                     'lrn' => $item->lrn,
-                    'full_name' => $item->last_name.', '.$item->first_name,
+                    'full_name' => $item->last_name . ', ' . $item->first_name,
                     'age' => $item->age ?? '-',
                     'gender' => $item->gender ?? '-',
                     'contact_number' => $item->contact_number ?? '-',
@@ -208,35 +209,48 @@ class SectionController extends Controller
         $year_level = $section->year_level;
         $program = $section->program->code;
 
-        $students = Students::where('grade_level', $year_level)
+        $students = Student::where('grade_level', $year_level)
             ->where('program', $program)
             ->where('section_id', null)
             ->get();
-
-        // dd($students);
-
-        // dd($students->where('section_id', $section->id)->get());
 
         return view('user-admin.section.show', compact('section', 'students'));
     }
 
     public function edit(Section $section)
     {
+
+
+
         return response()->json(['message' => 'Show form to edit program', 'section' => $section]);
     }
 
     public function update(Request $request, Section $section)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'program_id' => 'required|exists:programs,id',
-            'teacher_id' => 'nullable|exists:teachers,id',
-            'year_level' => 'required|string',
-            'room' => 'nullable|string|max:50',
-            'total_enrolled_students' => 'nullable|integer|min:0',
-        ]);
 
-        $section->update($validated);
+        try {
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'teacher_id' => 'nullable|exists:teachers,id',
+                'room' => 'nullable|string|max:50',
+            ]);
+
+            $section->update($validated);
+
+            $newSectionName = $section->name;
+            $newRoom = $section->room;
+
+            return response()->json([
+                'success' => 'Section successfully updated',
+                'newData' => ['newSectionName' => $newSectionName, 'newRoom' => $newRoom]
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage(),
+            ]);
+        }
 
         return response()->json($section);
     }

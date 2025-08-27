@@ -3,14 +3,106 @@
 namespace App\Http\Controllers;
 
 use App\Models\Program;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
 {
+    public function getPrograms(Request $request)
+    {
+        // dd($section->id);
+
+        //return response()->json(['ewan' => $request->all()]);
+
+        $query = Program::query();
+
+        // dd($query->get());
+
+        // // search filter
+        // if ($search = $request->input('search.value')) {
+        //     $query->where(function ($q) use ($search) {
+        //         $q->where('lrn', 'like', "%{$search}%")
+        //             ->where('first_name', 'like', "%{$search}%")
+        //             ->orWhere('last_name', 'like', "%{$search}%")
+        //             ->orWhere('email_address', 'like', "%{$search}%")
+        //             ->orWhere('program', 'like', "%{$search}%")
+        //             ->orWhere('grade_level', 'like', "%{$search}%")
+        //             ->orWhere('contact_number', 'like', "%{$search}%")
+        //             ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");;
+        //     });
+        // }
+
+        // // Filtering
+        // if ($program = $request->input('program_filter')) {
+        //     $query->whereHas('record', fn($q) => $q->where('program', $program));
+        // }
+
+        // if ($grade = $request->input('grade_filter')) {
+        //     $query->whereHas('record', fn($q) => $q->where('grade_level', $grade));
+        // }
+
+        // // Sorting
+        // // Column mapping: must match order of your <th> and JS columns
+        // $columns = ['lrn', 'first_name', 'grade_level', 'program', 'contact_number', 'email_address'];
+
+        // // Get sort column index and direction
+        // $orderColumnIndex = $request->input('order.0.column');
+        // $orderDir = $request->input('order.0.dir', 'asc');
+
+        // // Map to actual column name
+        // $sortColumn = $columns[$orderColumnIndex] ?? 'id';
+
+        // // Apply sorting
+        // $query->orderBy($sortColumn, $orderDir);
+
+        $total = $query->count();
+        $filtered = $total;
+
+        // $limit = $request->input('length', 10);  // default to 10 per page
+        // $offset = $request->input('start', 0);
+
+        $start = $request->input('start', 0);
+
+        $data = $query
+            ->offset($start)
+            ->limit($request->length)
+            ->get(['id', 'code', 'name', 'created_at',])
+            ->map(function ($item, $key) use ($start) {
+                // dd($item);
+                return [
+                    'index' => $start + $key + 1,
+                    'code' => $item->code,
+                    'name' => $item->name,
+                    'created_at' => optional($item->created_at)->translatedFormat('M d, Y') ?? '-',
+                    'id' => $item->id
+                ];
+            });
+
+        //dd($data);
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
+    }
+
     public function index()
     {
-        $programs = Program::all();
-        return response()->json($programs);
+        $programCount = Program::count();
+        $code = Program::pluck('code')->toArray();
+        $programIds = Program::pluck('id')->toArray();
+
+        $totalStudents = Student::whereIn('program', $code)->count();
+        $activeSections = Section::whereIn('program_id', $programIds)->count();
+        $specializedSubjects = Subject::whereIn('program_id', $programIds)
+            ->whereIn('category', ['specialized', 'applied'])
+            ->count();
+
+        return view('user-admin.program.index', compact('totalStudents', 'activeSections', 'specializedSubjects', 'programCount'));
     }
 
     public function create()
@@ -33,6 +125,7 @@ class ProgramController extends Controller
 
     public function show(Program $program)
     {
+        return view('user-admin.program.show', compact('program'));
         return response()->json($program);
     }
 

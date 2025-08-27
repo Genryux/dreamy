@@ -9,6 +9,8 @@ class Section extends Model
 {
     use HasFactory;
 
+    protected $table = 'sections';
+
     protected $fillable = [
         'name',
         'program_id',
@@ -28,7 +30,7 @@ class Section extends Model
 
     public function students()
     {
-        return $this->belongsTo(Students::class);
+        return $this->hasMany(Student::class, 'section_id', 'id');
     }
 
     /**
