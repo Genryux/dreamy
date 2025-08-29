@@ -1,11 +1,71 @@
 @extends('layouts.admin')
+@section('breadcrumbs')
+    <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
+        <ol class="flex items-center gap-1 text-sm text-gray-700">
+            <li class="rtl:rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </li>
+            <li>
+                <a href="/programs" class="block transition-colors hover:text-gray-900"> Programs </a>
+            </li>
+
+            <li class="rtl:rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </li>
+
+            <li>
+                <a href="#" class="block transition-colors hover:text-gray-900">
+                    {{ $program->code . ' - ' . $program->name }}
+                </a>
+            </li>
+
+        </ol>
+        {{-- <div class="flex flex-row justify-center items-center h-full">
+            <div id="dropdown_btn"
+                class="relative space-y-10 h-full flex flex-col justify-center items-center gap-4 cursor-pointer">
+
+                <div
+                    class="group relative inline-flex items-center gap-2 border border-[#1e1e1e]/0 text-gray-700 font-semibold py-2 px-3 rounded-lg hover:shadow-sm hover:bg-gray-100 hover:border-[#1e1e1e]/15 transition ease-out duration-300">
+                    <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
+                </div>
+
+                <div id="dropdown_selection"
+                    class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-4 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                    <button id="edit-section-modal-btn"
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                        <i class="fi fi-rr-pen-clip text-[16px] flex justify-center item-center"></i>Edit Section
+                    </button>
+                    <x-nav-link href="/students/export/excel"
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-red-200 hover:text-red-500 truncate">
+                        <i class="fi fi-rr-remove-user text-[16px] flex justify-center item-center"></i>Remove Student
+                    </x-nav-link>
+                    <button
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                        <i class="fi fi-rr-box text-[16px] flex justify-center item-center"></i>Archive Section
+                    </button>
+                    <button
+                        class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                        <i class="fi fi-rr-trash text-[16px] flex justify-center item-center"></i>Delete Section
+                    </button>
+                </div>
+
+            </div>
+        </div> --}}
+    </nav>
+@endsection
 @section('header')
-    <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
-        <div>
-            <h1 class="text-[20px] font-black">Academic Programs</h1>
-            <p class="text-[14px]  text-gray-900/60">View and manage program details and associated sections.
-            </p>
-        </div>
+    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
+        <h1 class="text-[20px] font-black">Program Details</h1>
+        <p class="text-[14px]  text-gray-900/60">View and manage program details and associated sections and subjects.
+        </p>
     </div>
 @endsection
 @section('stat')
@@ -81,163 +141,310 @@
 
 
     <div
-        class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-300">
         <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-                <a href="#"
-                    class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Sections</a>
+                <a href="{{ route('program.sections', 1) }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg 
+              {{ Route::is('program.sections') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Sections
+                </a>
             </li>
+
             <li class="me-2">
-                <a href="#"
-                    class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500"
-                    aria-current="page">Subjects</a>
+                <a href="{{ route('program.subjects', 1) }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg 
+              {{ Route::is('program.subjects') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Subjects
+                </a>
             </li>
+
+
 
         </ul>
     </div>
 
-
-    <div class="flex flex-row justify-center items-start gap-4">
-        <div
-            class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-            <div class="flex flex-row justify-between items-center w-full">
-
-                <div class="w-full flex flex-row justify-between items-center gap-4">
-
-                    <label for="myCustomSearch"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
-                        <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
-                        <input type="search" name="" id="myCustomSearch"
-                            class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
-                            placeholder="Search by lrn, name, grade level, etc.">
-                        <button id="clear-btn"
-                            class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
-                            <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
-                        </button>
-                    </label>
-                    <div class="flex flex-row justify-start items-center w-full gap-2">
-                        <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                            <select name="pageLength" id="page-length-selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                <option selected disabled>Entries</option>
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="150">150</option>
-                                <option value="200">200</option>
-                            </select>
-                            <i id="clear-gender-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-                        </div>
-                        <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
-                            <select name="" id="program_selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
-                                <option value="" selected disabled>Program</option>
-                                <option value="" data-id="HUMSS">HUMSS</option>
-                                <option value="" data-id="ABM">ABM</option>
-                            </select>
-                            <i id="clear-program-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-                        </div>
-
-
-                        <div id="grade_selection_container"
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-
-                            <select name="grade_selection" id="grade_selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                <option value="" disabled selected>Grade</option>
-                                <option value="" data-putanginamo="Grade 11">Grade 11</option>
-                                <option value="" data-putanginamo="Grade 12">Grade 12</option>
-                            </select>
-                            <i id="clear-grade-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-
-                        </div>
-
-
-                    </div>
+    @if (Route::is('program.sections'))
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="font-semibold text-[18px]">
+                        Section List
+                    </span>
                 </div>
+                <div class="flex flex-row justify-between items-center w-full">
 
-                <div class="flex flex-row justify-center items-center gap-2">
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
 
-                    <div class="flex flex-row justify-center items-center truncate">
-                        <button id="add-student-modal-btn"
-                            class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
-                            <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                            Create Program
-                        </button>
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by lrn, name, grade level, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                            <div id="grade_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="grade_selection" id="grade_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Grade</option>
+                                    <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                    <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+
+                        </div>
                     </div>
 
-                    <div id="dropdown_2"
-                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                        </div>
-
-                        <div id="dropdown_selection2"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="import-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                            </button>
-                            <x-nav-link href="/students/export/excel"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                            </x-nav-link>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                    <div class="flex flex-row justify-center items-center gap-2">
+                        <div class="flex flex-row justify-center items-center truncate">
+                            <button id="add-student-modal-btn"
+                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
+                                Create Section
                             </button>
                         </div>
+                        <div id="dropdown_btn"
+                            class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
 
+                            <div
+                                class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                                <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
+                            </div>
+
+                            <div id="dropdown_selection"
+                                class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                                <button id="import-modal-btn"
+                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                    <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                                </button>
+                                <x-nav-link href="/students/export/excel"
+                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                    <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                                </x-nav-link>
+                                <button
+                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                    <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                                </button>
+                            </div>
+
+                        </div>
                     </div>
+
+
                 </div>
 
+                <div class="w-full">
+                    <table id="sections" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Adviser</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Year Level</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Room</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Total Students</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="w-full">
-                <table id="sections" class="w-full table-fixed">
-                    <thead class="text-[14px]">
-                        <tr>
-                            <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
-                            </th>
+        </div>
+    @endif
+    @if (Route::is('program.subjects'))
+        <div class="flex flex-row justify-center items-start gap-4 border border-red-500">
+            <div
+                class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-row justify-between items-center w-full">
 
-                            <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Program Code</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
 
-                            <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by lrn, name, grade level, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected disabled>Program</option>
+                                    <option value="" data-id="HUMSS">HUMSS</option>
+                                    <option value="" data-id="ABM">ABM</option>
+                                </select>
+                                <i id="clear-program-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
 
-                            <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Created At</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
 
-                            <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
-                    </tbody>
-                </table>
+                            <div id="grade_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="grade_selection" id="grade_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Grade</option>
+                                    <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                    <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <div class="flex flex-row justify-center items-center gap-2">
+
+                        <div class="flex flex-row justify-center items-center truncate">
+                            <button id="add-student-modal-btn"
+                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
+                                Create Program
+                            </button>
+                        </div>
+
+                        <div id="dropdown_2"
+                            class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+                            <div
+                                class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                                <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
+                            </div>
+
+                            <div id="dropdown_selection2"
+                                class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                                <button id="import-modal-btn"
+                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                    <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                                </button>
+                                <x-nav-link href="/students/export/excel"
+                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                    <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                                </x-nav-link>
+                                <button
+                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                    <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="w-full">
+                    <table id="sections" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+
+                                <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program Code</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Created At</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-    </div>
+    @endif
 @endsection
 
 @push('scripts')
@@ -254,6 +461,9 @@
         import {
             showAlert
         } from "/js/alert.js";
+        import {
+            initCustomDataTable
+        } from "/js/initTable.js";
 
         import {
             showLoader,
@@ -261,10 +471,82 @@
         } from "/js/loader.js";
 
         let table1;
-        let selectedGrade = '';
-        let selectedProgram = '';
-        let selectedPageLength = '';
+        window.selectedGrade = '';
+        window.selectedProgram = '';
+        window.selectedPageLength = 10;
 
+        const programId = @json($program->id);
+
+        console.log(programId);
+
+        // function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInputId, extraAjaxData = {}, columnDefs = []) {
+        //     const customSearch = document.getElementById(searchInputId);
+
+        //     let table = new DataTable(tableId, {
+        //         paging: true,
+        //         searching: true,
+        //         autoWidth: false,
+        //         serverSide: true,
+        //         processing: true,
+        //         ajax: {
+        //             url: ajaxUrl,
+        //             data: function(d) {
+        //                 Object.assign(d, extraAjaxData);
+        //             }
+        //         },
+        //         order: order,
+        //         columnDefs: columnDefs, // 🔥 dynamically injected
+        //         layout: {
+        //             topStart: null,
+        //             topEnd: null,
+        //             bottomStart: 'info',
+        //             bottomEnd: 'paging',
+        //         },
+        //         columns: columns,
+        //     });
+
+
+        //     // Custom search input
+        //     if (customSearch) {
+        //         customSearch.addEventListener("input", function() {
+        //             table.search(this.value).draw();
+        //         });
+        //     }
+
+
+        //     // Custom row styling
+        //     table.on('draw', function() {
+        //         let rows = document.querySelectorAll(`${tableId} tbody tr`);
+
+        //         rows.forEach(function(row) {
+        //             row.classList.add(
+        //                 'hover:bg-gray-200', 'transition', 'duration-150'
+        //             );
+
+        //             let cells = row.querySelectorAll('td');
+        //             cells.forEach(function(cell) {
+        //                 cell.classList.add(
+        //                     'px-4', 'py-1', 'text-start', 'font-regular',
+        //                     'text-[14px]', 'opacity-80', 'truncate',
+        //                     'border-t', 'border-[#1e1e1e]/10', 'font-semibold'
+        //                 );
+        //             });
+        //         });
+        //     });
+
+        //     // Remove default search box
+        //     table.on("init", function() {
+        //         const defaultSearch = document.querySelector("#dt-search-0");
+        //         if (defaultSearch) {
+        //             defaultSearch.remove();
+        //         }
+        //     });
+
+        //     // Optional clear button handler
+        //     clearSearch('clear-btn', searchInputId, table);
+
+        //     return table;
+        // }
 
 
 
@@ -291,74 +573,44 @@
             // });
 
             //Overriding default search input
-            const customSearch1 = document.getElementById("myCustomSearch");
 
-            table1 = new DataTable('#sections', {
-                paging: true,
-                searching: true,
-                autoWidth: false,
-                serverSide: true,
-                processing: true,
-                ajax: {
-                    url: `/getPrograms`,
-                    data: function(d) {
-
-                        d.grade_filter = selectedGrade;
-                        d.program_filter = selectedProgram;
-                        d.pageLength = selectedPageLength;
-                    }
-                },
-                order: [
-                    [6, 'desc']
-                ],
-                columnDefs: [{
+            let sectionTable = initCustomDataTable(
+                'sections',
+                `/getSections/${programId}`,
+                [{
+                        data: 'index',
                         width: '3%',
-                        targets: 0,
-                        className: 'text-center'
-                    }, // index
+                        searchable: true
+                    },
                     {
+                        data: 'name',
+                        width: '15%'
+                    },
+                    {
+                        data: 'adviser',
+                        width: '15%'
+                    },
+                    {
+                        data: 'year_level',
+                        width: '15%'
+                    },
+                    {
+                        data: 'room',
+                        width: '15%'
+                    },
+                    {
+                        data: 'total_enrolled_students',
+                        width: '15%'
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
                         width: '15%',
-                        targets: 1
-                    }, // code
-                    {
-                        width: '50%',
-                        targets: 2
-                    }, // name
-                    {
-                        width: '20%',
-                        targets: 3
-                    }, // created at
-                    {
-                        width: '15%',
-                        targets: 4,
-                        className: 'text-center'
-                    } // actions
-                ],
-                layout: {
-                    topStart: null,
-                    topEnd: null,
-                    bottomStart: 'info',
-                    bottomEnd: 'paging',
-                },
-                columns: [{
-                        data: 'index'
-                    },
-                    {
-                        data: 'code'
-                    },
-                    {
-                        data: 'name'
-                    },
-                    {
-                        data: 'created_at'
-                    },
-                    {
-                        data: 'id', // pass ID for rendering the link
                         render: function(data, type, row) {
                             return `
                             <div class='flex flex-row justify-center items-center opacity-100'>
 
-                                <a href="/program/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+                                <a href="/section/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
 
                                     <span class="relative w-4 h-4">
                                         <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
@@ -375,78 +627,164 @@
                         orderable: false,
                         searchable: false
                     }
+
                 ],
-            });
 
-            customSearch1.addEventListener("input", function() {
-                table1.search(this.value).draw();
-            });
-
-            table1.on('draw', function() {
-                let rows = document.querySelectorAll('#sections tbody tr');
-
-                rows.forEach(function(row) {
-                    // Add hover style to the row
-                    row.classList.add(
-                        'hover:bg-gray-200',
-                        'transition',
-                        'duration-150'
-                    );
-
-                    // Style all cells in the row
-                    let cells = row.querySelectorAll('td');
-                    cells.forEach(function(cell) {
-                        cell.classList.add(
-                            'px-4', // Horizontal padding
-                            'py-1', // Vertical padding
-                            'text-start', // Align text left
-                            'font-regular',
-                            'text-[14px]',
-                            'opacity-80',
-                            'truncate',
-                            'border-t',
-                            'border-[#1e1e1e]/10',
-                            'font-semibold'
-                        );
-                    });
-                });
-            });
-
-            table1.on("init", function() {
-                const defaultSearch = document.querySelector("#dt-search-0");
-                if (defaultSearch) {
-                    defaultSearch.remove();
+                [
+                    [0, 'desc']
+                ],
+                'myCustomSearch', {
+                    grade_filter: selectedGrade,
+                    program_filter: selectedProgram,
+                    pageLength: selectedPageLength
                 }
 
-            });
+            )
 
-            clearSearch('clear-btn', 'myCustomSearch', table1)
 
-            let programSelection = document.querySelector('#program_selection');
+
+            const customSearch1 = document.getElementById("myCustomSearch");
+
+            // table1 = new DataTable('#sections', {
+            //     paging: true,
+            //     searching: true,
+            //     autoWidth: false,
+            //     serverSide: true,
+            //     processing: true,
+            //     ajax: {
+            //         url: `/getPrograms`,
+            //         data: function(d) {
+
+            //             d.grade_filter = selectedGrade;
+            //             d.program_filter = selectedProgram;
+            //             d.pageLength = selectedPageLength;
+            //         }
+            //     },
+            //     order: [
+            //         [6, 'desc']
+            //     ],
+            //     columnDefs: [{
+            //             width: '3%',
+            //             targets: 0,
+            //             className: 'text-center'
+            //         }, // index
+            //         {
+            //             width: '15%',
+            //             targets: 1
+            //         }, // code
+            //         {
+            //             width: '50%',
+            //             targets: 2
+            //         }, // name
+            //         {
+            //             width: '20%',
+            //             targets: 3
+            //         }, // created at
+            //         {
+            //             width: '15%',
+            //             targets: 4,
+            //             className: 'text-center'
+            //         } // actions
+            //     ],
+            //     layout: {
+            //         topStart: null,
+            //         topEnd: null,
+            //         bottomStart: 'info',
+            //         bottomEnd: 'paging',
+            //     },
+            //     columns: [{
+            //             data: 'index'
+            //         },
+            //         {
+            //             data: 'code'
+            //         },
+            //         {
+            //             data: 'name'
+            //         },
+            //         {
+            //             data: 'created_at'
+            //         },
+            //         {
+            //             data: 'id', // pass ID for rendering the link
+            //             render: function(data, type, row) {
+            //                 return `
+        //                 <div class='flex flex-row justify-center items-center opacity-100'>
+
+        //                     <a href="/program/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+
+        //                         <span class="relative w-4 h-4">
+        //                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+        //                             <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+        //                         </span>
+
+        //                         View
+        //                     </a>
+
+        //                 </div>
+
+        //                 `;
+            //             },
+            //             orderable: false,
+            //             searchable: false
+            //         }
+            //     ],
+            // });
+
+            // customSearch1.addEventListener("input", function() {
+            //     table1.search(this.value).draw();
+            // });
+
+            // table1.on('draw', function() {
+            //     let rows = document.querySelectorAll('#sections tbody tr');
+
+            //     rows.forEach(function(row) {
+            //         // Add hover style to the row
+            //         row.classList.add(
+            //             'hover:bg-gray-200',
+            //             'transition',
+            //             'duration-150'
+            //         );
+
+            //         // Style all cells in the row
+            //         let cells = row.querySelectorAll('td');
+            //         cells.forEach(function(cell) {
+            //             cell.classList.add(
+            //                 'px-4', // Horizontal padding
+            //                 'py-1', // Vertical padding
+            //                 'text-start', // Align text left
+            //                 'font-regular',
+            //                 'text-[14px]',
+            //                 'opacity-80',
+            //                 'truncate',
+            //                 'border-t',
+            //                 'border-[#1e1e1e]/10',
+            //                 'font-semibold'
+            //             );
+            //         });
+            //     });
+            // });
+
+            // table1.on("init", function() {
+            //     const defaultSearch = document.querySelector("#dt-search-0");
+            //     if (defaultSearch) {
+            //         defaultSearch.remove();
+            //     }
+
+            // });
+
+            clearSearch('clear-btn', 'myCustomSearch', sectionTable)
+
             let gradeSelection = document.querySelector('#grade_selection');
             let pageLengthSelection = document.querySelector('#page-length-selection');
 
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
             let gradeContainer = document.querySelector('#grade_selection_container');
 
-            programSelection.addEventListener('change', (e) => {
-
-                let selectedOption = e.target.selectedOptions[0];
-                let id = selectedOption.getAttribute('data-id');
-
-                selectedProgram = id;
-                table1.draw();
-
-                //console.log(id);
-            })
-
             pageLengthSelection.addEventListener('change', (e) => {
 
                 let selectedPageLength = parseInt(e.target.value, 10);
+                sectionTable.page.len(selectedPageLength).draw();
 
-                table1.page.len(selectedPageLength).draw();
-
-                //console.log(id);
             })
 
             gradeSelection.addEventListener('change', (e) => {
@@ -455,7 +793,7 @@
                 let email = selectedOption.getAttribute('data-putanginamo');
 
                 selectedGrade = email;
-                table1.draw();
+                sectionTable.draw();
 
                 let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
                 let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
@@ -496,14 +834,13 @@
 
                     gradeSelection.selectedIndex = 0
                     selectedGrade = '';
-                    table1.draw();
+                    sectionTable.draw();
                 })
 
             }
 
             window.onload = function() {
                 gradeSelection.selectedIndex = 0
-                programSelection.selectedIndex = 0
                 pageLengthSelection.selectedIndex = 0
             }
 

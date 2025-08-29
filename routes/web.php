@@ -118,11 +118,16 @@ Route::get('/student', function () {
 
 Route::get('/programs', [ProgramController::class, 'index']);
 Route::get('/program/{program}', [ProgramController::class, 'show'])->name('program.show');
+Route::get('/program/{program}/sections', [ProgramController::class, 'show'])->name('program.sections');
+Route::get('/program/{program}/subjects', [ProgramController::class, 'show'])->name('program.subjects');
 
 Route::get('/getPrograms', [ProgramController::class, 'getPrograms']);
 
 Route::get('/sections', [SectionController::class, 'index']);
-Route::get('/getSections', [SectionController::class, 'getSections']);
+
+// get sections by program id
+Route::get('/getSections/{program}', [SectionController::class, 'getSections']);
+
 Route::get('/getStudents/{section}', [SectionController::class, 'getStudents']);
 
 Route::get('/section/{section}', [SectionController::class, 'show']);

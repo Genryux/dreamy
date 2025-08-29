@@ -3,7 +3,7 @@
     <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
         <div>
             <h1 class="text-[20px] font-black">Academic Programs</h1>
-            <p class="text-[14px]  text-gray-900/60">View and manage program details and associated sections.
+            <p class="text-[14px]  text-gray-900/60">View and manage program list and associated sections and subjects.
             </p>
         </div>
     </div>
@@ -18,7 +18,7 @@
                 <div class="flex flex-col items-start justify-end gap-2 pt-4">
                     <h1 class="text-[40px] font-black" id="section_name">Academic Programs Overview</h1>
                     <p class="text-[16px]  text-white/60">Senior High School tracks and strands for the current academic
-                            year
+                        year
                     </p>
                 </div>
 
@@ -81,9 +81,11 @@
 
     <div class="flex flex-row justify-center items-start gap-4">
         <div
-            class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+            class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+            <span class="font-semibold text-[18px]">
+                Program List
+            </span>
             <div class="flex flex-row justify-between items-center w-full">
-
                 <div class="w-full flex flex-row justify-between items-center gap-4">
 
                     <label for="myCustomSearch"
@@ -340,7 +342,7 @@
                             return `
                             <div class='flex flex-row justify-center items-center opacity-100'>
 
-                                <a href="/program/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+                                <a href="/program/${data}/sections" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
 
                                     <span class="relative w-4 h-4">
                                         <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>

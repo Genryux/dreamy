@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Program;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
@@ -11,38 +12,29 @@ use Illuminate\Support\Facades\DB;
 class SectionController extends Controller
 {
 
-    public function getSections(Request $request)
+    public function getSections(Program $program, Request $request)
     {
 
         //dd($request->all());
 
         //return response()->json(['ewan' => $request->all()]);
 
-        $query = Section::query();
+        $query = Section::query()->where('program_id', $program->id);
         //dd($query);
 
-        // // search filter
-        // if ($search = $request->input('search.value')) {
-        //     $query->where(function ($q) use ($search) {
-        //         $q->where('lrn', 'like', "%{$search}%")
-        //             ->where('first_name', 'like', "%{$search}%")
-        //             ->orWhere('last_name', 'like', "%{$search}%")
-        //             ->orWhere('email_address', 'like', "%{$search}%")
-        //             ->orWhere('program', 'like', "%{$search}%")
-        //             ->orWhere('grade_level', 'like', "%{$search}%")
-        //             ->orWhere('contact_number', 'like', "%{$search}%")
-        //             ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");;
-        //     });
-        // }
+        // search filter
+        if ($search = $request->input('search.value')) {
+            $query->whereAny(['name', 'year_level', 'room'], 'like', "%{$search}%");
+        }
 
         // // Filtering
         // if ($program = $request->input('program_filter')) {
         //     $query->whereHas('record', fn($q) => $q->where('program', $program));
         // }
 
-        // if ($grade = $request->input('grade_filter')) {
-        //     $query->whereHas('record', fn($q) => $q->where('grade_level', $grade));
-        // }
+        if ($grade = $request->input('grade_filter')) {
+            $query->where('year_level', $grade);
+        }
 
         // // Sorting
         // // Column mapping: must match order of your <th> and JS columns
@@ -245,7 +237,6 @@ class SectionController extends Controller
                 'success' => 'Section successfully updated',
                 'newData' => ['newSectionName' => $newSectionName, 'newRoom' => $newRoom]
             ]);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => $th->getMessage(),

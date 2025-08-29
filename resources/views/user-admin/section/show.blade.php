@@ -2,8 +2,31 @@
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
+
+            <li class="rtl:rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </li>
+
             <li>
-                <a href="/enrolled-students" class="block transition-colors hover:text-gray-900"> Sections </a>
+                <a href="/programs" class="block transition-colors hover:text-gray-900">Programs </a>
+            </li>
+
+            <li class="rtl:rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </li>
+
+            <li>
+                <a href="{{ url()->previous() }}" class="block transition-colors hover:text-gray-900">
+                    {{ $section->program->code }}
+                </a>
             </li>
 
             <li class="rtl:rotate-180">
@@ -252,7 +275,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-600 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
 
             <div class="flex flex-row items-start justify-between w-full gap-4 py-2 rounded-lg">
 
@@ -324,6 +347,22 @@
         <div
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
             <div class="flex flex-row justify-between items-center w-full">
+                <span class="font-semibold text-[18px] opacity-80">
+                    Student List
+                </span>
+
+                <div class="flex flex-row justify-center items-center truncate">
+                    <button id="add-student-modal-btn"
+                        class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                        <i class="fi fi-rr-plus flex justify-center items-center "></i>
+                        Add Student
+                    </button>
+                </div>
+
+            </div>
+            <div class="px-5 text-sm w-full font-medium text-center text-[#1e1e1e]/10 border-b border-[#1e1e1e]/10 ">
+            </div>
+            <div class="flex flex-row justify-between items-center w-full">
 
                 <div class="w-full flex flex-row justify-between items-center gap-4">
 
@@ -386,14 +425,6 @@
                 </div>
 
                 <div class="flex flex-row justify-center items-center gap-2">
-
-                    <div class="flex flex-row justify-center items-center truncate">
-                        <button id="add-student-modal-btn"
-                            class="bg-[#1A3165] p-2 rounded-lg text-[14px] flex justify-center items-center gap-2 text-white">
-                            <i class="fi fi-rr-user-add flex justify-center items-center"></i>
-                            Add Student
-                        </button>
-                    </div>
 
                     <div id="dropdown_2"
                         class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">

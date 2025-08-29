@@ -7,6 +7,8 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route as FacadesRoute;
 
 class ProgramController extends Controller
 {
@@ -125,7 +127,14 @@ class ProgramController extends Controller
 
     public function show(Program $program)
     {
-        return view('user-admin.program.show', compact('program'));
+        // if (FacadesRoute::is('program.sections')) {
+        //     $msg = 'sections';
+
+        // } else if (FacadesRoute::is('program.subjects')) {
+        //     $msg = 'subjects';
+        // }
+
+        return view('user-admin.program.show', compact('program',));
         return response()->json($program);
     }
 
