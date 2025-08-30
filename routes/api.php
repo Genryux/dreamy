@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Api\StudentController;
+use App\Http\Controllers\Api\ProgramsController;
+use App\Http\Controllers\Api\SectionsController;
+use App\Http\Controllers\Api\SubjectsController;
+use App\Http\Controllers\Api\StudentDocumentsController;
+use App\Http\Controllers\Api\DocumentSubmissionsController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\SectionSubjectsController;
+
+Route::get('/tite', function () {
+    return response()->json(['message' => 'API routes are working']);
+});
+
+// Public auth endpoints
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+	// Authenticated user helpers
+	Route::post('/auth/logout', [AuthController::class, 'logout']);
+	Route::get('/auth/user', [AuthController::class, 'user']);
+
+	// Student self data (mobile app can pass their student id)
+	Route::get('/students/{student}', [StudentController::class, 'show']);
+	Route::patch('/students/{student}', [StudentController::class, 'update']);
+
+	// Academic info (read-only)
+	Route::get('/programs/{program}', [ProgramsController::class, 'show']);
+	Route::get('/sections/{section}', [SectionsController::class, 'show']);
+	Route::get('/subjects', [SubjectsController::class, 'index']);
+	Route::get('/subjects/{subject}', [SubjectsController::class, 'show']);
+
+	// Section Subjects (subject scheduling and teacher assignments)
+	Route::get('/section-subjects', [SectionSubjectsController::class, 'index']);
+	Route::get('/section-subjects/{sectionSubject}', [SectionSubjectsController::class, 'show']);
+
+	// Documents (read-only lists for mobile consumption)
+	Route::get('/student-documents', [StudentDocumentsController::class, 'index']);
+	Route::get('/student-documents/{studentDocument}', [StudentDocumentsController::class, 'show']);
+	Route::get('/document-submissions', [DocumentSubmissionsController::class, 'index']);
+	Route::get('/document-submissions/{documentSubmission}', [DocumentSubmissionsController::class, 'show']);
+});

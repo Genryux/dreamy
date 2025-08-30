@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             DocumentSeeder::class,
             ProgramSeeder::class,
             SubjectSeeder::class,
-            SectionSeeder::class
+            SectionSeeder::class,
+            SectionSubjectsSeeder::class
         ]);
 
     }

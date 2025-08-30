@@ -18,12 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->foreignIdFor(Program::class)->nullable()->constrained()->nullOnDelete();
             $table->string('grade_level')->nullable();
-            $table->string('days_of_the_week')->nullable(); // e.g., MWF, TTh, etc.
             $table->enum('category', ['core', 'applied', 'specialized'])->nullable();
             $table->string('semester')->nullable(); // 1 or 2
-            $table->foreignId('teacher_id')->nullable()->constrained('teachers')->nullOnDelete();
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
             $table->timestamps();
         });
     }

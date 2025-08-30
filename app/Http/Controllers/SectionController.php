@@ -184,7 +184,6 @@ class SectionController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'program_id' => 'required|exists:programs,id',
-            'teacher_id' => 'nullable|exists:teachers,id',
             'year_level' => 'required|string',
             'room' => 'nullable|string|max:50',
             'total_enrolled_students' => 'nullable|integer|min:0',
@@ -197,6 +196,13 @@ class SectionController extends Controller
 
     public function show(Section $section)
     {
+        // dd($section->sectionSubjects);
+
+        // foreach ($section->sectionSubjects as $subject) {
+        //     $sub = Subject::find($subject->subject_id);
+
+        //     dump($subject->subject_id, $sub->name);
+        // }
 
         $year_level = $section->year_level;
         $program = $section->program->code;
@@ -224,7 +230,6 @@ class SectionController extends Controller
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'teacher_id' => 'nullable|exists:teachers,id',
                 'room' => 'nullable|string|max:50',
             ]);
 

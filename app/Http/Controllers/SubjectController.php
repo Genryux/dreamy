@@ -2,11 +2,85 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Program;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
+
+    public function getSubjects(Program $program, Request $request)
+    {
+
+        //dd($request->all());
+
+        //return response()->json(['ewan' => $request->all()]);
+
+        $query = Subject::query()->where('program_id', $program->id);
+        //dd($query);
+
+        // search filter
+        if ($search = $request->input('search.value')) {
+            $query->whereAny(['name', 'year_level', 'room'], 'like', "%{$search}%");
+        }
+
+        // // Filtering
+        // if ($program = $request->input('program_filter')) {
+        //     $query->whereHas('record', fn($q) => $q->where('program', $program));
+        // }
+
+        if ($grade = $request->input('grade_filter')) {
+            $query->where('year_level', $grade);
+        }
+
+        // // Sorting
+        // // Column mapping: must match order of your <th> and JS columns
+        // $columns = ['lrn', 'first_name', 'grade_level', 'program', 'contact_number', 'email_address'];
+
+        // // Get sort column index and direction
+        // $orderColumnIndex = $request->input('order.0.column');
+        // $orderDir = $request->input('order.0.dir', 'asc');
+
+        // // Map to actual column name
+        // $sortColumn = $columns[$orderColumnIndex] ?? 'id';
+
+        // // Apply sorting
+        // $query->orderBy($sortColumn, $orderDir);
+
+        $total = $query->count();
+        $filtered = $total;
+
+        // $limit = $request->input('length', 10);  // default to 10 per page
+        // $offset = $request->input('start', 0);
+
+        $start = $request->input('start', 0);
+
+        $data = $query
+            ->offset($start)
+            ->limit($request->length)
+            ->get(['id', 'name', 'category', 'grade_level', 'semester'])
+            ->map(function ($item, $key) use ($start) {
+                // dd($item);
+                return [
+                    'index' => $start + $key + 1,
+                    'name' => $item->name ?? '-',
+                    'category' => $item->category ?? '-',
+                    'year_level' => $item->grade_level ?? '-',
+                    'semester' => $item->semester ?? '-',
+                    'id' => $item->id
+                ];
+            });
+
+        //dd($data);
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
+    }
+
     public function index()
     {
         $subjects = Subject::all();
@@ -25,12 +99,8 @@ class SubjectController extends Controller
             'name' => 'required|string|max:255',
             'program_id' => 'nullable|exists:programs,id',
             'grade_level' => 'required|string',
-            'days_of_the_week' => 'required|string',
             'category' => 'nullable|in:core,applied,specialized',
             'semester' => 'required|string',
-            'teacher_id' => 'nullable|exists:teachers,id',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
         ]);
 
         $subject = Subject::create($validated);
@@ -54,12 +124,8 @@ class SubjectController extends Controller
             'name' => 'required|string|max:255',
             'program_id' => 'nullable|exists:programs,id',
             'grade_level' => 'required|string',
-            'days_of_the_week' => 'required|string',
             'category' => 'nullable|in:core,applied,specialized',
             'semester' => 'required|string',
-            'teacher_id' => 'nullable|exists:teachers,id',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
         ]);
 
         $subject->update($validated);

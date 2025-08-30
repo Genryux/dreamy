@@ -144,7 +144,7 @@
         class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-300">
         <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-                <a href="{{ route('program.sections', 1) }}"
+                <a href="{{ route('program.sections', $program->id) }}"
                     class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('program.sections') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
                     Sections
@@ -152,7 +152,7 @@
             </li>
 
             <li class="me-2">
-                <a href="{{ route('program.subjects', 1) }}"
+                <a href="{{ route('program.subjects', $program->id) }}"
                     class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('program.subjects') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
                     Subjects
@@ -172,13 +172,38 @@
                     <span class="font-semibold text-[18px]">
                         Section List
                     </span>
+                    <div id="dropdown_btn"
+                        class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+                        <div
+                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                            <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
+                        </div>
+
+                        <div id="dropdown_selection"
+                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                            <button id="import-modal-btn"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                            </button>
+                            <x-nav-link href="/students/export/excel"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                            </x-nav-link>
+                            <button
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
                     <div class="w-full flex flex-row justify-between items-center gap-4">
 
                         <label for="myCustomSearch"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
                             <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                             <input type="search" name="" id="myCustomSearch"
                                 class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
@@ -190,7 +215,7 @@
                         </label>
                         <div class="flex flex-row justify-start items-center w-full gap-2">
                             <div
-                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                                 <select name="pageLength" id="page-length-selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option selected disabled>Entries</option>
@@ -206,7 +231,7 @@
                             </div>
 
                             <div id="grade_selection_container"
-                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
 
                                 <select name="grade_selection" id="grade_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
@@ -228,34 +253,10 @@
                             <button id="add-student-modal-btn"
                                 class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
                                 <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                Create Section
+                                Create New Section
                             </button>
                         </div>
-                        <div id="dropdown_btn"
-                            class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
 
-                            <div
-                                class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                                <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
-                            </div>
-
-                            <div id="dropdown_selection"
-                                class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                                <button id="import-modal-btn"
-                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                    <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                                </button>
-                                <x-nav-link href="/students/export/excel"
-                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                    <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                                </x-nav-link>
-                                <button
-                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                    <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                                </button>
-                            </div>
-
-                        </div>
                     </div>
 
 
@@ -304,15 +305,45 @@
         </div>
     @endif
     @if (Route::is('program.subjects'))
-        <div class="flex flex-row justify-center items-start gap-4 border border-red-500">
+        <div class="flex flex-row justify-center items-start gap-4">
             <div
-                class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="font-semibold text-[18px]">
+                        Subject List
+                    </span>
+                    <div id="dropdown_2"
+                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+                        <div
+                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
+                        </div>
+
+                        <div id="dropdown_selection2"
+                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                            <button id="import-modal-btn"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                            </button>
+                            <x-nav-link href="/students/export/excel"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                            </x-nav-link>
+                            <button
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
                     <div class="w-full flex flex-row justify-between items-center gap-4">
 
                         <label for="myCustomSearch"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
                             <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                             <input type="search" name="" id="myCustomSearch"
                                 class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
@@ -324,7 +355,7 @@
                         </label>
                         <div class="flex flex-row justify-start items-center w-full gap-2">
                             <div
-                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                                 <select name="pageLength" id="page-length-selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option selected disabled>Entries</option>
@@ -339,26 +370,40 @@
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
                             <div
-                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
                                 <select name="" id="program_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
-                                    <option value="" selected disabled>Program</option>
-                                    <option value="" data-id="HUMSS">HUMSS</option>
-                                    <option value="" data-id="ABM">ABM</option>
+                                    <option value="" selected disabled>Category</option>
+                                    <option value="" data-id="Core">Core</option>
+                                    <option value="" data-id="Applied">Applied</option>
+                                    <option value="" data-id="Specialized">Specialized</option>
+
                                 </select>
                                 <i id="clear-program-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
 
-
                             <div id="grade_selection_container"
-                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
 
                                 <select name="grade_selection" id="grade_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                    <option value="" disabled selected>Grade</option>
+                                    <option value="" disabled selected>Year Level</option>
                                     <option value="" data-putanginamo="Grade 11">Grade 11</option>
                                     <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+                            <div id="semester_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="semester_selection" id="semester_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Semester</option>
+                                    <option value="" data-sem="1st Semester">1st Semester</option>
+                                    <option value="" data-sem="2nd Semester">2nd Semester</option>
                                 </select>
                                 <i id="clear-grade-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
@@ -375,42 +420,18 @@
                             <button id="add-student-modal-btn"
                                 class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
                                 <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                Create Program
+                                Create New Subject
                             </button>
                         </div>
 
-                        <div id="dropdown_2"
-                            class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
 
-                            <div
-                                class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                                <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                            </div>
-
-                            <div id="dropdown_selection2"
-                                class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                                <button id="import-modal-btn"
-                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                    <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                                </button>
-                                <x-nav-link href="/students/export/excel"
-                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                    <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                                </x-nav-link>
-                                <button
-                                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                    <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                                </button>
-                            </div>
-
-                        </div>
                     </div>
 
 
                 </div>
 
                 <div class="w-full">
-                    <table id="sections" class="w-full table-fixed">
+                    <table id="subjects" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
@@ -418,17 +439,21 @@
                                 </th>
 
                                 <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program Code</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Subject Name</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
                                 <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Category</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Created At</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Year Level</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Semester</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
@@ -641,6 +666,68 @@
 
             )
 
+            let subjectTable = initCustomDataTable(
+                'subjects',
+                `/getSubjects/${programId}`,
+                [{
+                        data: 'index',
+                        width: '3%',
+                        searchable: true
+                    },
+                    {
+                        data: 'name',
+                        width: '30%'
+                    },
+                    {
+                        data: 'category',
+                        width: '10%'
+                    },
+                    {
+                        data: 'year_level',
+                        width: '10%'
+                    },
+                    {
+                        data: 'semester',
+                        width: '10%'
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        width: '15%',
+                        render: function(data, type, row) {
+                            return `
+                            <div class='flex flex-row justify-center items-center opacity-100'>
+
+                                <a href="/section/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+
+                                    <span class="relative w-4 h-4">
+                                        <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                        <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                    </span>
+
+                                    View
+                                </a>
+
+                            </div>
+                            
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+
+                ],
+
+                [
+                    [0, 'desc']
+                ],
+                'myCustomSearch', {
+                    grade_filter: selectedGrade,
+                    program_filter: selectedProgram,
+                    pageLength: selectedPageLength
+                }
+
+            )
 
 
             const customSearch1 = document.getElementById("myCustomSearch");

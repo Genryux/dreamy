@@ -123,6 +123,7 @@ Route::get('/program/{program}/subjects', [ProgramController::class, 'show'])->n
 
 Route::get('/getPrograms', [ProgramController::class, 'getPrograms']);
 
+
 Route::get('/sections', [SectionController::class, 'index']);
 
 // get sections by program id
@@ -138,6 +139,9 @@ Route::post('/section/{section}', [SectionController::class, 'update']);
 
 
 Route::get('/subjects', [SubjectController::class, 'index']);
+
+
+Route::get('/getSubjects/{program}', [SubjectController::class, 'getSubjects']);
 
 //admission
 

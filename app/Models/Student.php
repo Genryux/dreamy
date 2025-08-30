@@ -33,6 +33,9 @@ class Student extends Model
         return $this->hasOne(StudentRecord::class);
     }
 
+    /**
+     * Student belongs to a section.
+     */
     public function sections()
     {
         return $this->belongsTo(Section::class, 'section_id', 'id');
@@ -51,5 +54,18 @@ class Student extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    // Student enrolled subjects (pivot)
+    public function studentSubjects()
+    {
+        return $this->hasMany(StudentSubject::class);
+    }
+
+    public function sectionSubjects()
+    {
+        return $this->belongsToMany(SectionSubject::class, 'student_subjects')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 }
