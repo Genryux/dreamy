@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
+use App\Models\SchoolFee;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\User;
@@ -10,6 +12,61 @@ use Illuminate\Support\Facades\DB;
 
 class StudentsController extends Controller
 {
+
+    public function getStudent(Request $request)
+    {
+        $query = Student::query();
+
+        try {
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('lrn', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                });
+            }
+
+            // Limit to avoid sending thousands at once
+            $students = $query->select('id', 'lrn', 'first_name', 'last_name', 'grade_level', 'program')
+                ->limit(50)
+                ->first();
+
+            if (!$students) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No student found for the given search.',
+                ]);
+            }
+
+            $schoolFee = SchoolFee::where(function ($q) use ($students) {
+                $q->whereHas('program', function ($sub) use ($students) {
+                    $sub->where('code', $students->program);
+                })
+                    ->orWhereNull('program_id'); // include general fees
+            })
+                ->where(function ($q) use ($students) {
+                    $q->where('grade_level', $students->grade_level)
+                        ->orWhereNull('grade_level'); // allow default fees
+                })
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $students,
+                'fees' => $schoolFee,
+                'hasInvoice' => Invoice::where('student_id', $students->id)
+                    ->where('status', 'unpaid')
+                    ->exists()
+            ]);
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
+
     public function assignSection(Section $section, Request $request)
     {
 

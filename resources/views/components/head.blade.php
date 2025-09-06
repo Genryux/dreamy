@@ -6,12 +6,7 @@
 
     <title>Laravel</title>
 
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    {{-- AOS is now loaded locally via Vite --}}
 
     <!-- Custom Scripts -->
     <script src="{{ asset('js/sidebar-toggle.js') }}"></script> 
@@ -1272,9 +1267,5 @@
             }
         </style>
     @endif
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            AOS.init();
-        });
-    </script> --}}
+    {{-- AOS is initialized in app.js --}}
 </head>

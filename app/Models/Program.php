@@ -37,4 +37,9 @@ class Program extends Model
     {
         return $this->sections()->sum('total_enrolled_students');
     }
+
+    public function schoolFees()
+    {
+        return $this->hasMany(SchoolFee::class);
+    }
 }

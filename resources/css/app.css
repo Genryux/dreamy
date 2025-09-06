@@ -1,3 +1,6 @@
+/* AOS (Animate On Scroll) CSS */
+@import 'aos/dist/aos.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

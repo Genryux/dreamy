@@ -68,4 +68,8 @@ class Student extends Model
             ->withPivot('status')
             ->withTimestamps();
     }
+
+    public function invoices() {
+        return $this->hasMany(Invoice::class);
+    }
 }

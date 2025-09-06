@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <x-head></x-head>
-    <body class="font-sans antialiased dark:bg-black dark:text-white/50">
-
+    <body class="relative font-sans antialiased dark:bg-black dark:text-white/50">
+{{-- 
         @if (Route::has('login'))
             
             <nav class="-mx-3 flex flex-1 justify-end">
                 @auth
-                    {{-- <a
-                        href="{{ url('/dashboard') }}"
-                        class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                    >
-                        Dashboard
-                    </a> --}}
+
                     <form action="/logout" method="POST">
                         @csrf
                         @method('delete')
@@ -37,10 +32,31 @@
                 @endauth
             </nav>
             
-        @endif
+        @endif --}}
 
-        <main>
-            @yield('content')
+        <main class="flex flex-col justify-center items-center h-full w-full relative overflow-hidden">
+            <div class="fixed top-0 flex flex-row justify-between items-center w-full px-[120px] py-4 z-10">
+                <div>
+                    <img src="{{ asset('images/Dreamy_logo.png') }}" class="size-[120px]" alt="">
+                </div>
+                <div class="flex-1"></div>
+                <div class="flex-1 flex flex-row justify-evenly items-center text-[20px] text-white font-bold w-full">
+                    <a href="/" class="hover:text-[#C8A165] transition-colors duration-200">Home</a>
+                    <a href="#about" class="hover:text-[#C8A165] transition-colors duration-200">About</a>
+                    <div>
+                        <span>Academics</span>
+                        <div>
+
+                        </div>
+                    </div>
+                    <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                    <a href="/news" class="hover:text-[#C8A165] transition-colors duration-200">News</a>
+                    <a href="#contact" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
+                </div>
+            </div>
+            @yield('section_1')
+            @yield('section_2')
+            @yield('section_3')
         </main>
     </body>
 </html>

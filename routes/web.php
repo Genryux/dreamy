@@ -8,20 +8,26 @@ use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\DocumentsSubmissionController;
 use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\SchoolFeeController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\StudentRecordController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\WebsiteResourceController;
+use App\Http\Controllers\NewsController;
 use App\Models\Applicants;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-});
+Route::get('/', [WebsiteResourceController::class, 'homepage']);
+
+// Public News Routes
+Route::get('/news', [WebsiteResourceController::class, 'news'])->name('public.news.index');
+Route::get('/news/{news}', [WebsiteResourceController::class, 'showNews'])->name('public.news.show');
 
 
 Route::get('/test', function () {
@@ -99,9 +105,10 @@ Route::get('/users', [StudentsController::class, 'getUsers']);
 Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
 
 //enrolled students
-
+Route::post('/getStudent', [StudentsController::class, 'getStudent']);
 
 Route::post('/students/import', [StudentRecordController::class, 'import']);
+
 
 Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
 
@@ -154,6 +161,26 @@ Route::get('/getSubjects/{program}', [SubjectController::class, 'getSubjects']);
 //     ]);
 
 // })->name('admission.dashboard');
+
+Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index');
+Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])->name('school-fees.invoices');
+Route::get('/getSchoolFees', [SchoolFeeController::class, 'getSchoolFees']);
+
+
+Route::post('/school-fees', [SchoolFeeController::class, 'store']);
+Route::post('/invoice', [InvoiceController::class, 'store']);
+
+
+Route::get('/homepage', [WebsiteResourceController::class, 'index']);
+Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMainBg'])->name('upload.store');
+
+// Admin News Management
+Route::get('/admin/news', [NewsController::class, 'index'])->name('admin.news.index');
+Route::get('/admin/getNews', [NewsController::class, 'getNews']);
+Route::get('/admin/news/{news}', [NewsController::class, 'show']);
+Route::post('/admin/news', [NewsController::class, 'storeOrUpdate']);
+Route::put('/admin/news/{news}', [NewsController::class, 'update']);
+Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
 
 Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard')->middleware('auth');
 

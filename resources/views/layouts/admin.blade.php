@@ -117,6 +117,30 @@
                     </span>
 
                 </x-nav-link>
+                <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
+                    </span>
+
+                </x-nav-link>
+                <x-nav-link href="/homepage" :active="request()->is('homepage')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">Website</p>
+                    </span>
+
+                </x-nav-link>
+                <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
+
+                    <span class="flex flex-row items-center space-x-4">
+                        <i class="fi fi-rr-newspaper text-[20px] flex-shrink-0"></i>
+                        <p class="font-semibold text-[16px] nav-text truncate">News</p>
+                    </span>
+
+                </x-nav-link>
             </div>
         </x-side-nav-bar>
 
