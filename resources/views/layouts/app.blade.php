@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <x-head></x-head>
-    <body class="relative font-sans antialiased dark:bg-black dark:text-white/50">
-{{-- 
+
+<body class="relative font-sans antialiased dark:bg-black dark:text-white/50">
+    {{-- 
         @if (Route::has('login'))
             
             <nav class="-mx-3 flex flex-1 justify-end">
@@ -34,7 +35,9 @@
             
         @endif --}}
 
-        <main class="flex flex-col justify-center items-center h-full w-full relative overflow-hidden">
+    <main class="flex flex-col justify-center items-center h-full w-full relative overflow-hidden">
+        {{-- heading --}}
+        @unless (Request::is('portal/login') || Request::is('portal/register'))
             <div class="fixed top-0 flex flex-row justify-between items-center w-full px-[120px] py-4 z-10">
                 <div>
                     <img src="{{ asset('images/Dreamy_logo.png') }}" class="size-[120px]" alt="">
@@ -54,9 +57,13 @@
                     <a href="#contact" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
                 </div>
             </div>
-            @yield('section_1')
-            @yield('section_2')
-            @yield('section_3')
-        </main>
-    </body>
+        @endunless
+
+        @yield('login_page')
+        @yield('section_1')
+        @yield('section_2')
+        @yield('section_3')
+    </main>
+</body>
+
 </html>

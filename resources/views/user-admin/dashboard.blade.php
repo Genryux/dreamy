@@ -272,13 +272,13 @@
 
     <div class="flex flex-row space-x-4">
         <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 shadow-sm border border-[#1e1e1e]/10">
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row items-center justify-between pb-3 border-b border-[#1e1e1e]/10">
                 <span class="font-semibold text-[18px] opacity-90">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
                     @if ($activeEnrollmentPeriod->status == 'Ongoing')
-                        <span id="status-span" class="text-[14px] font-bold text-[#34A853]">Ongoing</span>
+                        <span id="status-span" class="text-[12px] md:text-[14px] font-bold text-[#34A853] bg-[#E6F4EA] px-2 py-1 rounded-full">Ongoing</span>
                     @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                        <span id="status-span" class="text-[14px] font-bold text-[#EA4335]">Paused</span>
+                        <span id="status-span" class="text-[12px] md:text-[14px] font-bold text-[#EA4335] bg-[#FCE8E6] px-2 py-1 rounded-full">Paused</span>
                     @endif
                 @endif
             </div>
@@ -290,28 +290,24 @@
                     <div id="ep-details">
             @endif
             @if ($activeEnrollmentPeriod)
-                <div class="flex flex-row py-2 justify-between">
+                <div class="flex flex-row py-4 justify-between items-center">
                     <div class="flex flex-col">
-                        <span class="font-semibold text-[16px] opacity-80">{{ $activeEnrollmentPeriod->name }}</span>
-                        <span
-                            class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                        <span class="font-semibold text-[16px] opacity-90">{{ $activeEnrollmentPeriod->name }}</span>
+                        <span class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
                     </div>
                     <div>
                         @if ($activeEnrollmentPeriod)
-                            <span class="text-[14px] text-[#EA4335] font-bold">
+                            <span class="text-[14px] font-bold">
                                 {{-- toggle --}}
-                                <label for="toggleEnrollmentPeriod"
-                                    class="relative inline-flex items-center cursor-pointer">
+                                <label for="toggleEnrollmentPeriod" class="relative inline-flex items-center cursor-pointer select-none">
                                     <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer"
                                         @if ($activeEnrollmentPeriod->status == 'Ongoing') checked 
                                     value="Paused"
                                 @elseif ($activeEnrollmentPeriod->status == 'Paused')
                                     value="Ongoing" @endif>
-
-                                    <div
-                                        class="w-11 h-[19px] bg-[#EA4335]/80 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[24px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[12px] after:w-[12px] after:transition-all peer-checked:bg-[#34A853]/80">
+                                    <div class="w-12 h-6 bg-[#EA4335]/70 peer-checked:bg-[#34A853]/70 rounded-full transition-colors duration-200">
                                     </div>
-
+                                    <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-6"></span>
                                 </label>
                             </span>
                         @endif
@@ -319,28 +315,28 @@
                 </div>
             @endif
             @if ($activeEnrollmentPeriod)
-                <div class="flex flex-row justify-evenly py-8">
-                    <div class="flex flex-row gap-4 items-center">
-                        <div class="bg-[#E6F4EA] px-4 py-3 rounded-full">
+                <div class="flex flex-row gap-2 py-4">
+                    <div class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#34A853]/20 rounded-xl px-5 py-3">
+                        <div class="bg-[#E6F4EA] px-3 py-2 rounded-full">
                             <i class="fi fi-sr-calendar-check text-[22px] text-[#34A853]"></i>
                         </div>
-                        <div class="flex flex-col">
-                            <span
-                                class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
-                            <span class="text-[14px] opacity-60">Start Date</span>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
+                            <span class="text-[13px] md:text-[14px] opacity-60">Start Date</span>
                         </div>
                     </div>
-                    <span class="flex items-center">
+
+                    <div class="hidden md:flex items-center justify-center w-1/2">
                         <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
-                    </span>
-                    <div class="flex flex-row gap-4 items-center">
-                        <div class="bg-[#FCE8E6] px-4 py-3 rounded-full">
+                    </div>
+
+                    <div class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#EA4335]/20 rounded-xl px-5 py-3">
+                        <div class="bg-[#FCE8E6] px-3 py-2 rounded-full">
                             <i class="fi fi-sr-calendar-xmark text-[22px] text-[#EA4335]"></i>
                         </div>
-                        <div class="flex flex-col">
-                            <span
-                                class="font-bold">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
-                            <span class="text-[14px] opacity-60">End Date</span>
+                        <div class="flex flex-col min-w-0">
+                            <span class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
+                            <span class="text-[13px] md:text-[14px] opacity-60">End Date</span>
                         </div>
                     </div>
                 </div>
@@ -363,11 +359,12 @@
             @endif
         </div>
         @if ($activeEnrollmentPeriod)
-            <div class="flex flex-row items-center justify-between pt-2">
+            <div class="flex flex-row items-center justify-between pt-3">
                 <span id="ep-time"
-                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[15px]">Time
-                    Remaining:
-                    <span class="opacity-100 font-bold">
+                      data-end="{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->toIso8601String() }}"
+                      data-status="{{ $activeEnrollmentPeriod->status }}"
+                      class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[14px] md:text-[15px]">Time Remaining:
+                    <span id="ep-time-value" class="opacity-100 font-bold">
                         @php
                             $remainingDays = max(
                                 0,
@@ -377,12 +374,10 @@
                             );
                             echo $remainingDays . ' ' . Str::plural('Day', $remainingDays);
                         @endphp
-
                     </span>
                 </span>
                 <div>
-                    <button id="end-enrollment-btn"
-                        class="bg-red-100 text-red-500 px-3 py-1 rounded-xl text-[14px] font-semibold hover:bg-red-500 hover:text-white hover:ring hover:ring-red-200 ease-in-out duration-150">End
+                    <button id="end-enrollment-btn" class="bg-red-100 text-red-500 px-3 py-1 rounded-xl text-[14px] font-semibold hover:bg-red-500 hover:text-white hover:ring hover:ring-red-200 ease-in-out duration-150">End
                         Period
                     </button>
                 </div>
@@ -390,64 +385,71 @@
         @endif
     </div>
     {{-- Application overview --}}
-    <div class="bg-[#f8f8f8] flex-1  rounded-xl p-6 space-y-3 shadow-sm border border-[#1e1e1e]/10">
-        <span class="font-semibold text-[18px] opacity-80">Application Overview</span>
-        <div class="flex flex-row space-x-3">
+    <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 space-y-4 shadow-sm border border-[#1e1e1e]/10">
+        <div class="flex flex-row items-center justify-between">
+            <span class="font-semibold text-[18px] opacity-90">Application Overview</span>
+        </div>
 
-            <div class="w-1/3 flex flex-col space-y-5">
-                <span class="flex flex-col items-center justify-center py-8 bg-[#E3ECFF]/30 rounded-md">
-                    <span id="total-application" class="text-[40px] font-bold">{{ $applicationCount ?? '0' }}<span
-                            class="text-[20px] opacity-60">/{{ $activeEnrollmentPeriod->max_applicants ?? '-' }}</span></span>
+        @php
+            $maxApplicants = $activeEnrollmentPeriod->max_applicants ?? 0;
+            $currentCount = $applicationCount ?? 0;
+            $percent = $maxApplicants > 0 ? min(100, round(($currentCount / $maxApplicants) * 100)) : 0;
+        @endphp
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {{-- KPI card --}}
+            <div class="flex flex-col justify-between bg-[#E3ECFF]/40 rounded-xl p-4">
+                <div class="flex flex-col items-center justify-center py-4">
+                    <span id="total-application" class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
+                            class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
                     <span class="font-medium opacity-60">Total Applications</span>
-                </span>
-
-                <span class="w-full space-y-2">
+                </div>
+                <div class="space-y-2">
                     <div class="w-full">
-                        <div class="bg-[#d9d9d9] h-1 rounded-full w-full">
-                            <div class="text-[#f8f8f8]/0 bg-blue-500 rounded-full overflow-hidden h-full w-1/3">.</div>
+                        <div class="bg-[#d9d9d9] h-2 rounded-full w-full overflow-hidden">
+                            <div class="bg-blue-500 h-2" style="width: {{ $percent }}%"></div>
                         </div>
                     </div>
-                    <div class="text-[14px]">0% of Max applications</div>
-                </span>
+                    <div class="text-[13px] md:text-[14px] text-center">{{ $percent }}% of max applications</div>
+                </div>
             </div>
 
-            <div class="w-2/3 grid grid-cols-2 gap-2">
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+            {{-- Stat tiles --}}
+            <div class="md:col-span-2 grid grid-cols-2 gap-3">
+                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#FBBC04]/20">
                     <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
+                        <div class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
                             {{ $pending_applications ?? '0' }}</div>
-                        <p class="font-medium text-[16px]">Pending</p>
+                        <p class="font-semibold text-[15px] md:text-[16px]">Pending</p>
                     </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                </div>
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                            {{ $selected_applications ?? '0' }}</div>
-                        <p class="font-medium text-[16px]">Selected
-                    </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
 
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
-                    <div class="flex flex-row items-center gap-2">
-                        <div
-                            class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[20px] font-bold size-10 flex items-center justify-center">
-                            0</div>
-                        <p class="font-medium text-[15px]">Pending Docs</p>
-                    </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
-                </div>
-                <div class="flex flex-col flex-1 bg-[#E3ECFF]/30 gap-1 px-4 py-4 rounded-md">
+                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#34A853]/20">
                     <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#E7F0FD] border border-[#1A73E8]/60 rounded-full text-[20px] text-[#1A73E8] font-bold size-10 flex items-center justify-center">
-                            0</div>
-                        <p class="font-medium text-[16px]">Enrolled</p>
+                        <div class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                            {{ $selected_applications ?? '0' }}</div>
+                        <p class="font-semibold text-[15px] md:text-[16px]">Selected</p>
                     </div>
-                    <span class="self-center text-[14px] opacity-60"><a href="">View All</a></span>
+                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
+                </div>
+
+                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#9C27B0]/20">
+                    <div class="flex flex-row items-center gap-3">
+                        <div class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                            0</div>
+                        <p class="font-semibold text-[15px] md:text-[16px]">Pending Docs</p>
+                    </div>
+                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
+                </div>
+
+                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#1A73E8]/20">
+                    <div class="flex flex-row items-center gap-3">
+                        <div class="bg-[#E7F0FD] border border-[#1A73E8]/60 text-[#1A73E8] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                            0</div>
+                        <p class="font-semibold text-[15px] md:text-[16px]">Enrolled</p>
+                    </div>
+                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
             </div>
         </div>
@@ -661,10 +663,9 @@
                 let row = table.row.add([
                     event.application.lrn,
                     event.application.full_name,
-                    event.application.age,
-                    event.application.birthdate,
-                    event.application.desired_program,
+                    event.application.program,
                     event.application.grade_level,
+                    event.application.created_at,
                     event.created_at,
                     `<a href="/pending-application/form-details/${event.application.id}">View</a>`
                 ]).order([6, 'desc']).draw();
@@ -754,6 +755,58 @@
                 }
 
 
+            });
+
+
+            // Live countdown for Time Remaining
+            const epTimeSpan = document.querySelector('#ep-time');
+            const epTimeValue = document.querySelector('#ep-time-value');
+            let countdownInterval;
+
+            function formatRemaining(ms) {
+                if (ms <= 0) return '0 Days';
+                const totalSeconds = Math.floor(ms / 1000);
+                const days = Math.floor(totalSeconds / (3600 * 24));
+                const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                const dd = days + ' ' + (days === 1 ? 'Day' : 'Days');
+                const hh = String(hours).padStart(2, '0');
+                const mm = String(minutes).padStart(2, '0');
+                const ss = String(seconds).padStart(2, '0');
+                return `${dd} ${hh}:${mm}:${ss}`;
+            }
+
+            function startCountdown() {
+                if (!epTimeSpan || !epTimeValue) return;
+                const endIso = epTimeSpan.getAttribute('data-end');
+                const status = epTimeSpan.getAttribute('data-status');
+                if (!endIso) return;
+                const end = new Date(endIso);
+                const tzOffsetMs = new Date().getTimezoneOffset() * 60000; // local offset in ms
+
+                function tick() {
+                    if (epTimeSpan.getAttribute('data-status') === 'Paused') return; // don't update while paused
+                    const nowLocal = new Date(Date.now());
+                    const remaining = end - nowLocal;
+                    epTimeValue.textContent = formatRemaining(remaining);
+                    if (remaining <= 0) {
+                        clearInterval(countdownInterval);
+                    }
+                }
+
+                // initial draw
+                tick();
+                // update every second
+                countdownInterval = setInterval(tick, 1000);
+            }
+
+            startCountdown();
+
+            // Update countdown opacity and status dynamically on status events
+            window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (event) => {
+                if (!epTimeSpan) return;
+                epTimeSpan.setAttribute('data-status', event.enrollmentPeriod.status);
             });
 
 
