@@ -187,7 +187,7 @@
         class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-300">
         <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-                <a href="{{ route('school-fees.index', $program->id) }}"
+                <a href="{{ route('school-fees.index') }}"
                     class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('school-fees.index') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
                     School Fees
@@ -195,10 +195,18 @@
             </li>
 
             <li class="me-2">
-                <a href="{{ route('school-fees.invoices', $program->id) }}"
+                <a href="{{ route('school-fees.invoices') }}"
                     class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('school-fees.invoices') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
                     Invoices
+                </a>
+            </li>
+
+            <li class="me-2">
+                <a href="{{ route('school-fees.payments') }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg 
+              {{ Route::is('school-fees.payments') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Payment History
                 </a>
             </li>
 
@@ -358,6 +366,53 @@
     @endif
 
 
+    @if (Route::is('school-fees.payments'))
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <span class="font-semibold text-[18px]">
+                    Payment History
+                </span>
+                <div class="flex flex-row justify-between items-center w-full">
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
+                        <label for="paymentsSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" id="paymentsSearch"
+                                class="bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by reference, student, method...">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="w-full">
+                    <table id="payments" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="w-[4%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">#</th>
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">Date
+                                </th>
+                                <th class="w-[18%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    Reference</th>
+                                <th class="w-[16%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    Method</th>
+                                <th class="w-[16%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">Type
+                                </th>
+                                <th class="w-[14%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    Amount</th>
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    Student</th>
+                                <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if (Route::is('school-fees.invoices'))
         <div class="flex flex-row justify-center items-start gap-4">
             <div
@@ -467,7 +522,7 @@
                 </div>
 
                 <div class="w-full">
-                    <table id="sections" class="w-full table-fixed">
+                    <table id="invoices" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
@@ -475,21 +530,25 @@
                                 </th>
 
                                 <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Invoice No.</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
                                 <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applied to (Program)</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Student</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applied to (Year Level)</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Amount</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Total</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Remaining Balance</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
@@ -523,7 +582,9 @@
         import {
             showAlert
         } from "/js/alert.js";
-
+        import {
+            initCustomDataTable
+        } from "/js/initTable.js";
         import {
             showLoader,
             hideLoader
@@ -563,6 +624,211 @@
 
             //Overriding default search input
             const customSearch1 = document.getElementById("myCustomSearch");
+
+            let invoiceTable = initCustomDataTable(
+                'invoices',
+                `/getInvoices`,
+                [{
+                        data: 'index',
+                        width: '3%',
+                        searchable: true
+                    },
+                    {
+                        data: 'invoice_number',
+                        width: '15%'
+                    },
+                    {
+                        data: 'student',
+                        width: '15%'
+                    },
+                    {
+                        data: 'status',
+                        width: '15%'
+                    },
+                    {
+                        data: 'total',
+                        width: '15%'
+                    },
+                    {
+                        data: 'balance',
+                        width: '15%'
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        width: '15%',
+                        render: function(data, type, row) {
+                            return `
+                            <div class='flex flex-row justify-center items-center opacity-100'>
+
+                                <a href="/invoice/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+
+                                    <span class="relative w-4 h-4">
+                                        <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                        <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                    </span>
+
+                                    View
+                                </a>
+
+                            </div>
+                            
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+
+                ],
+
+                [
+                    [0, 'desc']
+                ],
+                'myCustomSearch', {
+                    grade_filter: selectedGrade,
+                    program_filter: selectedProgram,
+                    pageLength: selectedPageLength
+                }
+
+            )
+
+            let paymentHistory = initCustomDataTable(
+                'payments',
+                `/getPayments`,
+                [{
+                        data: 'index',
+                        width: '4%'
+                    },
+                    {
+                        data: 'date',
+                        width: '12%'
+                    },
+                    {
+                        data: 'reference_no',
+                        width: '18%'
+                    },
+                    {
+                        data: 'method',
+                        width: '12%'
+                    },
+                    {
+                        data: 'type',
+                        width: '12%'
+                    },
+                    {
+                        data: 'amount',
+                        width: '14%'
+                    },
+                    {
+                        data: 'student',
+                        width: '20%'
+                    },
+                    {
+                        data: 'invoice_id',
+                        width: '17%',
+                        className: 'text-center',
+                        orderable: false,
+                        searchable: false,
+                        render: function(id, type, row) {
+                            return `
+                                <a href="/invoice/${id}?from=history" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+                                    <span class="relative w-4 h-4">
+                                        <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                        <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                    </span>
+                                    View Invoice
+                                </a>`;
+                        }
+                    },
+                ],
+
+                [
+                    [0, 'desc']
+                ],
+                'myCustomSearch', {
+                    grade_filter: selectedGrade,
+                    program_filter: selectedProgram,
+                    pageLength: selectedPageLength
+                }
+
+            )
+
+            // // Payments table
+            // if (window.location.pathname === '/school-fees/payments') {
+            //     const paymentsTable = new DataTable('#payments', {
+            //         paging: true,
+            //         searching: true,
+            //         autoWidth: false,
+            //         serverSide: true,
+            //         processing: true,
+            //         ajax: {
+            //             url: `/getPayments`,
+            //         },
+            //         order: [
+            //             [1, 'desc']
+            //         ],
+            //         columns: [{
+            //                 data: 'index',
+            //                 width: '4%'
+            //             },
+            //             {
+            //                 data: 'date',
+            //                 width: '12%'
+            //             },
+            //             {
+            //                 data: 'reference_no',
+            //                 width: '18%'
+            //             },
+            //             {
+            //                 data: 'method',
+            //                 width: '16%'
+            //             },
+            //             {
+            //                 data: 'type',
+            //                 width: '16%'
+            //             },
+            //             {
+            //                 data: 'amount',
+            //                 width: '14%'
+            //             },
+            //             {
+            //                 data: 'student',
+            //                 width: '20%'
+            //             },
+            //             {
+            //                 data: 'invoice_id',
+            //                 width: '12%',
+            //                 className: 'text-center',
+            //                 orderable: false,
+            //                 searchable: false,
+            //                 render: function(id, type, row) {
+            //                     return `
+            //                     <a href="/invoice/${id}?from=history" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+            //                         <span class="relative w-4 h-4">
+            //                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+            //                             <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+            //                         </span>
+            //                         View Invoice
+            //                     </a>`;
+            //                 }
+            //             },
+            //         ],
+            //         layout: {
+            //             topStart: null,
+            //             topEnd: null,
+            //             bottomStart: 'info',
+            //             bottomEnd: 'paging'
+            //         },
+            //     });
+
+            //     const paymentsSearch = document.getElementById('paymentsSearch');
+            //     if (paymentsSearch) {
+            //         paymentsSearch.addEventListener('input', function() {
+            //             paymentsTable.search(this.value).draw();
+            //         });
+            //     }
+            // }
+
 
             table1 = new DataTable('#sections', {
                 paging: true,

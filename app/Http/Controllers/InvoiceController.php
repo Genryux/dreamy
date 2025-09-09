@@ -55,18 +55,18 @@ class InvoiceController extends Controller
         $start = $request->input('start', 0);
 
         $data = $query
-            ->with('program')
             ->offset($start)
             ->limit($request->length)
-            ->get(['id', 'name', 'grade_level', 'amount', 'program_id'])
+            ->get(['id', 'student_id', 'invoice_number', 'status', ])
             ->map(function ($item, $key) use ($start) {
                 // dd($item);
                 return [
                     'index' => $start + $key + 1,
-                    'name' => $item->name ?? '-',
-                    'applied_to_program' => $item->program->code ?? 'All Programs',
-                    'applied_to_level' => $item->grade_level ?? 'All Year Levels',
-                    'amount' => '₱ ' . $item->amount ?? '-',
+                    'invoice_number' => $item->invoice_number ?? '-',
+                    'student' => $item->student->last_name . ', ' .  $item->student->first_name ?? '-',
+                    'status' => $item->status,
+                    'total' => '₱ ' . $item->total_amount ?? '-',
+                    'balance' => '₱ ' . $item->balance ?? '-',
                     'id' => $item->id
                 ];
             });
@@ -139,8 +139,10 @@ class InvoiceController extends Controller
     // Display the specified invoice
     public function show($id)
     {
-        $invoice = \App\Models\Invoice::findOrFail($id);
-        return response()->json($invoice);
+        $invoice = Invoice::with(['student', 'items.fee', 'payments'])->findOrFail($id);
+        return view('user-admin.invoice.show', [
+            'invoice' => $invoice,
+        ]);
     }
 
     // Update the specified invoice

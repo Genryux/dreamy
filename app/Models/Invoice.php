@@ -41,8 +41,25 @@ class Invoice extends Model
         return $this->hasMany(InvoiceItem::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(InvoicePayment::class);
+    }
+
     public function getTotalAmountAttribute()
     {
         return $this->items()->sum('amount');
+    }
+
+    // 👇 Computed paid amount
+    public function getPaidAmountAttribute()
+    {
+        return $this->payments->sum('amount');
+    }
+
+    // 👇 Computed balance
+    public function getBalanceAttribute()
+    {
+        return $this->total_amount - $this->paid_amount;
     }
 }

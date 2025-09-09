@@ -88,13 +88,13 @@ class SchoolFeeController extends Controller
         $schoolFees = SchoolFee::all();
         $programs = Program::all();
 
-        foreach ($schoolFees as $fee) {
-            if ($fee->program) {
-                dump($fee->program->name);
-            } else {
-                dump('No program assigned');
-            }
-        }
+        // foreach ($schoolFees as $fee) {
+        //     if ($fee->program) {
+        //         dump($fee->program->name);
+        //     } else {
+        //         dump('No program assigned');
+        //     }
+        // }
 
         // dd($schoolFees);
 

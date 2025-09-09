@@ -18,6 +18,7 @@ use App\Http\Controllers\StudentRecordController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\WebsiteResourceController;
+use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\NewsController;
 use App\Models\Applicants;
 use Illuminate\Support\Facades\Auth;
@@ -164,12 +165,17 @@ Route::get('/getSubjects/{program}', [SubjectController::class, 'getSubjects']);
 
 Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index');
 Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])->name('school-fees.invoices');
+Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])->name('school-fees.payments');
 Route::get('/getSchoolFees', [SchoolFeeController::class, 'getSchoolFees']);
 
 
 Route::post('/school-fees', [SchoolFeeController::class, 'store']);
 Route::post('/invoice', [InvoiceController::class, 'store']);
+Route::get('/getInvoices', [InvoiceController::class, 'getInvoices']);
 
+Route::get('/invoice/{id}', [InvoiceController::class, 'show']);
+Route::get('/getPayments', [InvoicePaymentController::class, 'getPayments']);
+Route::post('/invoice/{invoice}/payments', [InvoicePaymentController::class, 'store'])->name('invoice.payments.store');
 
 Route::get('/homepage', [WebsiteResourceController::class, 'index']);
 Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMainBg'])->name('upload.store');
