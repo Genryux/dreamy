@@ -4,7 +4,7 @@
     class="fixed opacity-0 pointer-events-none bottom-0 left-0 bg-[#0f111c]/70 w-full z-20 transition ease-in duration-120 overflow-hidden">
 
     <div id="{{ $modal_id }}" class="{{ $modal_className ?? '' }} opacity-0 scale-95 pointer-events-none transition ease-in duration-150 flex items-center justify-center h-screen w-screen">
-        <div class="bg-[#f8f8f8] flex flex-col rounded-md w-[40%] shadow-lg" onclick="event.stopPropagation()">
+        <div class="bg-[#f8f8f8] flex flex-col rounded-md {{ $modal_id === 'view-doc-modal' ? 'w-[80%] max-w-6xl' : 'w-[40%]' }} shadow-lg" onclick="event.stopPropagation()">
             <span class="px-6 py-4 flex flex-row items-center justify-between">
                 <div class="flex flex-row justify-center items-center gap-2">
                     {{ $modal_icon ?? '' }}

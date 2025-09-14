@@ -67,11 +67,101 @@
         </x-slot>
 
     </x-modal>
+    {{-- Reject document modal --}}
+    <x-modal modal_id="reject-doc-modal" modal_name="Rejection confirmation" close_btn_id="reject-doc-close-btn"
+        modal_container_id='modal-container-4'>
+        <x-slot name="modal_icon">
+            <i class='fi fi-ss-exclamation flex justify-center items-center text-red-500'></i>
+        </x-slot>
+
+        <form action="/submit-document/{{ $applicant->id }}" method="POST" id="reject-doc-form">
+            @csrf
+            @method('PATCH')
+            {{-- <input type="hidden" name="doc_id" id="hidden-doc-id"> --}}
+            {{-- This button will serve as an opener of modal when clicked --}}
+
+        </form>
+
+        <p class="py-8 px-6 space-y-2 font-regular text-[14px]">Are you sure you want
+            to reject this document? This action
+            will mark the document as <strong>invalid</strong> and <strong>rejected</strong>.</p>
+
+        <x-slot name="modal_buttons">
+            <button id="reject-cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="reject-doc-form" name="action" value="reject"
+                class="bg-[#EA4335] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                Reject
+            </button>
+        </x-slot>
+
+    </x-modal>
     {{-- View document modal --}}
-    <x-modal modal_id="view-doc-modal" modal_name="Verification confirmation" close_btn_id="view-doc-close-btn">
+    <x-modal modal_id="view-doc-modal" modal_name="Document Viewer" close_btn_id="view-doc-close-btn"
+        modal_container_id='modal-container-3'>
+        <x-slot name="modal_icon">
+            <i class='fi fi-rs-eye flex justify-center items-center text-blue-500'></i>
+        </x-slot>
 
-        WORK IN PROGRESS
+        <!-- PDF Viewer Container -->
+        <div id="pdf-viewer-container" class="hidden flex flex-col h-[80vh]">
+            <!-- PDF Navigation Header -->
+            <div id="pdf-navigation" class="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+                <button id="prev-page-btn"
+                    class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    <i class="fi fi-rs-angle-left"></i>
+                    Previous
+                </button>
+                <span id="page-info"
+                    class="px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-gray-700">Page 1 of
+                    1</span>
+                <button id="next-page-btn"
+                    class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    Next
+                    <i class="fi fi-rs-angle-right"></i>
+                </button>
+            </div>
 
+            <!-- PDF Canvas Container -->
+            <div class="flex-1 flex items-center justify-center p-4 bg-gray-100 overflow-auto">
+                <canvas id="pdfViewerCanvas"
+                    class="max-w-full max-h-full border border-gray-300 rounded-lg shadow-lg bg-white"></canvas>
+            </div>
+        </div>
+
+        <!-- Image Viewer Container -->
+        <div id="image-viewer-container"
+            class="hidden flex flex-col items-center justify-center p-6 min-h-[400px] max-h-[600px] overflow-hidden">
+            <img id="imageViewer" class="max-w-full max-h-full object-contain border border-gray-300 rounded-lg shadow-lg"
+                alt="Document preview">
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loading-indicator" class="flex flex-col items-center justify-center p-6 min-h-[400px] text-gray-500">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
+            <p>Loading document...</p>
+        </div>
+
+        <!-- Error message -->
+        <div id="error-message" class="hidden flex flex-col items-center justify-center p-6 min-h-[400px] text-red-500">
+            <i class="fi fi-rs-exclamation-triangle text-4xl mb-2"></i>
+            <p>Unable to load document</p>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="external-view-btn"
+                class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fi fi-rs-external-link"></i>
+                Open in New Tab
+            </button>
+            <button id="close-viewer-btn"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                Close
+            </button>
+        </x-slot>
     </x-modal>
     {{-- Enroll student modal --}}
     <x-modal modal_id="enroll-student-modal" modal_name="Enrollment confirmation" close_btn_id="enroll-student-close-btn"
@@ -114,6 +204,7 @@
 @endsection
 
 @section('content')
+    <x-alert />
     <div class="flex flex-col p-6 text-[14px] gap-4 bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10">
         <div class="flex flex-row justify-between items-center">
             <div class="flex flex-row gap-2 justify-center items-center">
@@ -267,8 +358,7 @@
                                         @endforelse
                                     </td>
 
-                                    <td
-                                        class="w-1/8 text-center font-medium text-[14px] opacity-100 px-4 py-1 truncate">
+                                    <td class="w-1/8 text-center font-medium text-[14px] opacity-100 px-4 py-1 truncate">
 
                                         <div class="flex flex-row justify-center items-center gap-2">
                                             @forelse ($doc->submissions as $submission)
@@ -280,8 +370,9 @@
                                                     class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
                                                 View
                                             </x-nav-link> --}}
-                                                <button id="open-view-modal-btn-{{ $index }}" {{-- data-file-url="{{ asset('storage/' . $submission->file_path) }}" --}}
-                                                    {{-- data-file-type="{{ pathinfo($submission->file_path, PATHINFO_EXTENSION) }}" --}}
+                                                <button id="open-view-modal-btn-{{ $index }}"
+                                                    data-file-url="{{ asset('storage/' . $submission->file_path) }}"
+                                                    data-file-type="{{ pathinfo($submission->file_path, PATHINFO_EXTENSION) }}"
                                                     class="view-document-btn flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-xl bg-[#1A73E8]/10 hover:ring hover:ring-[#1A73E8]/20 hover:bg-[#1A73E8] hover:text-white text-[#1A73E8] font-bold transition duration-200"
                                                     title="View document">
                                                     <i
@@ -298,17 +389,14 @@
                                                             class="fi fi-rs-check text-[16px] flex justify-center items-center"></i>
                                                         Verify
                                                     </button>
-                                                    <form action="/asdsada" method="POST" class="inline-block">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button
-                                                            class="flex flex-row gap-1 justify-center items-center text-[14px] text-[#EA4335] py-2 px-4 rounded-xl bg-[#EA4335]/10 hover:bg-[#EA4335] hover:text-white hover:ring hover:ring-[#EA4335]/20 font-bold transition duration-200"
-                                                            title="Reject document">
-                                                            <i
-                                                                class="fi fi-rs-cross-small text-[16px] flex justify-center items-center"></i>
-                                                            Reject
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" id="open-reject-modal-btn-{{ $doc->id }}"
+                                                        data-document-id="{{ $doc->id }}"
+                                                        class="reject-document-btn flex flex-row gap-1 justify-center items-center text-[14px] text-[#EA4335] py-2 px-4 rounded-xl bg-[#EA4335]/10 hover:bg-[#EA4335] hover:text-white hover:ring hover:ring-[#EA4335]/20 font-bold transition duration-200"
+                                                        title="Reject document">
+                                                        <i
+                                                            class="fi fi-rs-cross-small text-[16px] flex justify-center items-center"></i>
+                                                        Reject
+                                                    </button>
                                                 @endif
                                                 {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
                                                 target="_blank"
@@ -336,7 +424,6 @@
                                     </td>
 
                                 </tr>
-        
                             @endforeach
                         @else
                             @foreach ($assignedDocuments as $index => $doc)
@@ -355,6 +442,9 @@
         import {
             initModal
         } from "/js/modal.js";
+        import {
+            showAlert
+        } from "/js/alert.js";
 
         initModal('enroll-student-modal', 'open-enroll-student-modal-btn', 'enroll-student-close-btn',
             'putanginamo_cancel-btn', 'modal-container-2');
@@ -429,7 +519,7 @@
 
 
 
-
+            // Verify Document
             document.querySelectorAll('.verify-document-btn').forEach((button, index) => {
 
                 let id = button.getAttribute('data-document-id');
@@ -437,141 +527,252 @@
                     'cancel-btn', 'modal-container-1');
 
                 button.addEventListener('click', () => {
-                    let form = document.getElementById('verify-doc-form')
-                    let documentId = button.getAttribute('data-document-id')
+                    // Clear any existing hidden inputs first
+                    let form = document.getElementById('verify-doc-form');
+                    let existingInputs = form.querySelectorAll('input[name="document_id"]');
+                    existingInputs.forEach(input => input.remove());
+                    
+                    let documentId = button.getAttribute('data-document-id');
 
                     let input = document.createElement('input');
                     input.type = 'hidden';
                     input.value = documentId;
                     input.name = "document_id";
-                    form.appendChild(input)
+                    form.appendChild(input);
 
-
-
-                    //console.log(form)
-
-                    console.log(button);
-                    console.log(index);
-
+                    console.log('Verify modal opened for document ID:', documentId);
                 })
 
+            })
 
+            // Reject Document
+            document.querySelectorAll('.reject-document-btn').forEach((button, index) => {
 
+                let id = button.getAttribute('data-document-id');
+                initModal('reject-doc-modal', `open-reject-modal-btn-${id}`, 'reject-doc-close-btn',
+                    'reject-cancel-btn', 'modal-container-4');
+
+                button.addEventListener('click', () => {
+                    // Clear any existing hidden inputs first
+                    let form = document.getElementById('reject-doc-form');
+                    let existingInputs = form.querySelectorAll('input[name="document_id"]');
+                    existingInputs.forEach(input => input.remove());
+                    
+                    let documentId = button.getAttribute('data-document-id');
+
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.value = documentId;
+                    input.name = "document_id";
+                    form.appendChild(input);
+
+                    console.log('Reject modal opened for document ID:', documentId);
+                })
 
             })
+
+            // Document viewer functionality
+            let currentPdf = null;
+            let currentPage = 1;
+            let totalPages = 1;
+            let currentFileUrl = '';
+            let currentFileType = '';
+
+            // Initialize document viewer modal
+            document.querySelectorAll('.view-document-btn').forEach((button, index) => {
+                initModal('view-doc-modal', `open-view-modal-btn-${index}`, 'view-doc-close-btn',
+                    'close-viewer-btn', 'modal-container-3');
+
+                button.addEventListener('click', async () => {
+                    const fileUrl = button.getAttribute('data-file-url');
+                    const fileType = button.getAttribute('data-file-type').toLowerCase();
+
+                    currentFileUrl = fileUrl;
+                    currentFileType = fileType;
+
+                    await loadDocument(fileUrl, fileType);
+                });
+            });
+
+            // Load document function
+            async function loadDocument(fileUrl, fileType) {
+                const pdfViewerContainer = document.getElementById('pdf-viewer-container');
+                const imageViewerContainer = document.getElementById('image-viewer-container');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const errorMessage = document.getElementById('error-message');
+                const externalViewBtn = document.getElementById('external-view-btn');
+
+                // Reset UI - hide all containers
+                pdfViewerContainer.classList.add('hidden');
+                imageViewerContainer.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                loadingIndicator.classList.remove('hidden');
+
+                // Set external view button
+                externalViewBtn.onclick = () => window.open(fileUrl, '_blank');
+
+                try {
+                    if (fileType === 'pdf') {
+                        await loadPDF(fileUrl);
+                    } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileType)) {
+                        await loadImage(fileUrl);
+                    } else {
+                        throw new Error('Unsupported file type');
+                    }
+                } catch (error) {
+                    console.error('Error loading document:', error);
+                    loadingIndicator.classList.add('hidden');
+                    errorMessage.classList.remove('hidden');
+                }
+            }
+
+            // Load PDF function
+            async function loadPDF(fileUrl) {
+                const pdfViewerContainer = document.getElementById('pdf-viewer-container');
+                const canvas = document.getElementById('pdfViewerCanvas');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const pageInfo = document.getElementById('page-info');
+                const prevBtn = document.getElementById('prev-page-btn');
+                const nextBtn = document.getElementById('next-page-btn');
+
+                try {
+                    // Check if PDF.js is available (it should be from app.js)
+                    if (typeof window.pdfjsLib === 'undefined') {
+                        throw new Error('PDF.js library not loaded');
+                    }
+
+                    // Set worker source for local PDF.js
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.js';
+
+                    const loadingTask = window.pdfjsLib.getDocument(fileUrl);
+                    loadingTask.promise.then(function(pdf) {
+                        currentPdf = pdf;
+                        totalPages = pdf.numPages;
+                        currentPage = 1;
+
+                        loadingIndicator.classList.add('hidden');
+                        pdfViewerContainer.classList.remove('hidden');
+
+                        updatePageInfo();
+                        renderPage(1);
+
+                        // Navigation event listeners
+                        prevBtn.onclick = () => {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                renderPage(currentPage);
+                                updatePageInfo();
+                            }
+                        };
+
+                        nextBtn.onclick = () => {
+                            if (currentPage < totalPages) {
+                                currentPage++;
+                                renderPage(currentPage);
+                                updatePageInfo();
+                            }
+                        };
+                    }).catch(function(error) {
+                        console.error('Error loading PDF:', error);
+                        loadingIndicator.classList.add('hidden');
+                        document.getElementById('error-message').classList.remove('hidden');
+                    });
+                } catch (error) {
+                    console.error('Error initializing PDF viewer:', error);
+                    loadingIndicator.classList.add('hidden');
+                    document.getElementById('error-message').classList.remove('hidden');
+                }
+            }
+
+            // Render PDF page
+            async function renderPage(pageNum) {
+                if (!currentPdf) return;
+
+                const canvas = document.getElementById('pdfViewerCanvas');
+                const context = canvas.getContext('2d');
+                const container = canvas.parentElement;
+
+                try {
+                    const page = await currentPdf.getPage(pageNum);
+
+                    // Calculate scale to fit the container while maintaining aspect ratio
+                    const containerWidth = container.clientWidth - 32; // Account for padding
+                    const containerHeight = container.clientHeight - 32;
+
+                    const viewport = page.getViewport({
+                        scale: 1.0
+                    });
+                    const scaleX = containerWidth / viewport.width;
+                    const scaleY = containerHeight / viewport.height;
+                    const scale = Math.min(scaleX, scaleY, 2.0); // Max scale of 2.0 for readability
+
+                    const scaledViewport = page.getViewport({
+                        scale: scale
+                    });
+
+                    // Set canvas size to match the scaled viewport
+                    canvas.width = scaledViewport.width;
+                    canvas.height = scaledViewport.height;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: scaledViewport
+                    };
+
+                    await page.render(renderContext).promise;
+                } catch (error) {
+                    console.error('Error rendering page:', error);
+                }
+            }
+
+            // Update page info
+            function updatePageInfo() {
+                const pageInfo = document.getElementById('page-info');
+                const prevBtn = document.getElementById('prev-page-btn');
+                const nextBtn = document.getElementById('next-page-btn');
+
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+
+                prevBtn.disabled = currentPage <= 1;
+                nextBtn.disabled = currentPage >= totalPages;
+
+                if (currentPage <= 1) {
+                    prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                if (currentPage >= totalPages) {
+                    nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Load image function
+            async function loadImage(fileUrl) {
+                const imageViewerContainer = document.getElementById('image-viewer-container');
+                const imageViewer = document.getElementById('imageViewer');
+                const loadingIndicator = document.getElementById('loading-indicator');
+
+                return new Promise((resolve, reject) => {
+                    imageViewer.onload = () => {
+                        loadingIndicator.classList.add('hidden');
+                        imageViewerContainer.classList.remove('hidden');
+                        resolve();
+                    };
+
+                    imageViewer.onerror = () => {
+                        reject(new Error('Failed to load image'));
+                    };
+
+                    imageViewer.src = fileUrl;
+                });
+            }
 
             //initModal('verify-doc-modal', 'open-verify-modal-btn', 'verify-doc-close-btn', 'cancel-btn');
 
 
-
-            document.querySelectorAll('.view-document-btn').forEach((button, index) => {
-
-                initModal('view-doc-modal', `open-view-modal-btn-${index}`, 'view-doc-close-btn',
-                    'cancel-btn');
-
-
-                // button.addEventListener('click', async () => {
-                //     const fileUrl = button.getAttribute('data-file-url');
-                //     const fileType = button.getAttribute('data-file-type').toLowerCase();
-                //     if (fileType !== 'pdf') {
-                //         alert('This viewer only supports PDFs.');
-                //         return;
-                //     }
-
-                //     const canvas = document.getElementById('pdfViewerCanvas');
-                //     // Reset canvas styling to allow proper scrolling
-                //     canvas.style.width = 'auto';
-                //     canvas.style.height = 'auto';
-                //     canvas.style.maxWidth = '100%';
-                //     canvas.style.display = 'block';
-                //     canvas.style.margin = '0 auto';
-                //     const context = canvas.getContext('2d');
-
-                //     // Load PDF
-                //     const loadingTask = pdfjsLib.getDocument(fileUrl);
-                //     loadingTask.promise.then(function(pdf) {
-                //         const numPages = pdf.numPages;
-                //         let totalHeight = 0;
-                //         const pageGap = 20; // Space between pages
-                //         const scale = 1.5;
-
-                //         // Get page dimensions first to calculate total height
-                //         const pagePromises = [];
-                //         for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                //             pagePromises.push(pdf.getPage(pageNum).then(function(page) {
-                //                 const viewport = page.getViewport({
-                //                     scale: scale
-                //                 });
-                //                 return {
-                //                     page: page,
-                //                     viewport: viewport,
-                //                     pageNum: pageNum
-                //                 };
-                //             }));
-                //         }
-
-                //         Promise.all(pagePromises).then(function(pages) {
-                //             // Calculate total height and set canvas size
-                //             const maxWidth = Math.max(...pages.map(p => p
-                //                 .viewport.width));
-                //             totalHeight = pages.reduce((sum, p) => sum + p
-                //                 .viewport.height + pageGap, 0) - pageGap;
-
-                //             canvas.width = maxWidth;
-                //             canvas.height = totalHeight;
-
-                //             // Clear canvas
-                //             context.clearRect(0, 0, canvas.width, canvas
-                //                 .height);
-
-                //             // Render pages sequentially to avoid canvas conflicts
-                //             async function renderPagesSequentially() {
-                //                 let currentY = 0;
-
-                //                 for (let i = 0; i < pages.length; i++) {
-                //                     const pageData = pages[i];
-
-                //                     // Add page separator and number (except for first page)
-                //                     if (i > 0) {
-                //                         context.fillStyle = '#ccc';
-                //                         context.font = '12px Arial';
-                //                         context.fillRect(0, currentY -
-                //                             pageGap / 2, canvas.width, 1
-                //                         );
-                //                         context.fillText(
-                //                             `Page ${pageData.pageNum}`,
-                //                             10, currentY - 5);
-                //                     }
-
-                //                     const renderContext = {
-                //                         canvasContext: context,
-                //                         viewport: pageData.viewport,
-                //                         transform: [1, 0, 0, 1, 0,
-                //                             currentY
-                //                         ]
-                //                     };
-
-                //                     // Wait for each page to render before moving to next
-                //                     await pageData.page.render(
-                //                         renderContext).promise;
-                //                     currentY += pageData.viewport.height +
-                //                         pageGap;
-                //                 }
-                //             }
-
-                //             renderPagesSequentially();
-                //         });
-                //     });
-
-                //     document.getElementById('view-doc-modal').style.display = 'flex';
-                // });
-            });
-
-            // // Optional: Add zoom functionality
-            // function zoomPDF(zoomLevel) {
-            //     // Re-render with new zoom level
-            //     // This would require storing the PDF instance and re-running the rendering logic
-            // }
 
 
             initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn');

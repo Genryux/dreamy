@@ -125,7 +125,7 @@ class DocumentsSubmissionController extends Controller
                 }
             });
         } catch (\Throwable $th) {
-            return response()->json(['error'=> $th->getMessage()]);
+            return response()->json(['error' => $th->getMessage()]);
         }
 
 
@@ -164,27 +164,42 @@ class DocumentsSubmissionController extends Controller
      */
     public function update(Request $request, Applicants $applicant)
     {
+        $data = $request->validate([
+            'document_id' => ['required', 'integer'],
+            'action'      => ['required', 'string', 'in:verify,reject'],
+        ]);
 
-
-
-        $assignedDocuments = $applicant->assignedDocuments()
-            ->where('id', $request->document_id)
+        // Attempt to locate the assigned document for this applicant
+        $assigned = $applicant->assignedDocuments()
+            ->where('id', $data['document_id'])
             ->first();
 
-        // dd($assignedDocuments);
-
-        if ($request->action == "verify") {
-
-            // $request->validate([
-
-            // ]);
-
-            $assignedDocuments->update(
-                ['status' => 'verified']
-            );
+        if (! $assigned) {
+            return redirect()->back()->withErrors(['document' => 'Requested document not found for this applicant.']);
         }
 
-        return redirect()->back();
+        // Map actions to statuses (easy to extend in the future)
+        $actionToStatus = [
+            'verify' => 'verified',
+            'reject' => 'rejected',
+        ];
+
+        $newStatus = $actionToStatus[$data['action']] ?? null;
+
+        if ($newStatus === null) {
+            return redirect()->back()->withErrors(['action' => 'Invalid action.']);
+        }
+
+        // Only update when there's an actual change to avoid unnecessary writes
+        if (($assigned->status ?? null) !== $newStatus) {
+            try {
+            $assigned->update(['status' => $newStatus]);
+            } catch (\Throwable $e) {
+            return redirect()->back()->withErrors(['error' => 'Failed to update document status.']);
+            }
+        }
+
+        return redirect()->back()->with('status', 'Document status updated to "' . $newStatus . '".');
     }
 
     /**
