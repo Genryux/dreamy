@@ -22,6 +22,43 @@
         </ol>
     </nav>
 @endsection
+@section('modal')
+    <x-modal modal_id="generate-coe-modal" modal_name="Generate Certificate of Enrollment"
+        close_btn_id="generate-coe-close-btn" modal_container_id="modal-container-coe">
+        <style>
+            /* Smaller modal for preview */
+            #generate-coe-modal > div {
+                width: 60% !important;
+                max-width: 48rem !important;
+            }
+            @media (min-width: 1280px) {
+                #generate-coe-modal > div {
+                    width: 55% !important;
+                    max-width: 56rem !important;
+                }
+            }
+        </style>
+        <x-slot name="modal_icon">
+            <div class="size-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                <i class="fi fi-sr-file-pdf"></i>
+            </div>
+        </x-slot>
+        <div class="p-6 space-y-3">
+            <div class="w-full h-[65vh] bg-white border border-gray-200 rounded-md overflow-hidden">
+                <iframe id="coe-preview-frame" class="w-full h-full" src="{{ route('students.coe.preview', $studentRecord->id) }}?v={{ now()->timestamp }}" title="COE Preview"></iframe>
+            </div>
+        </div>
+        <x-slot name="modal_info"></x-slot>
+        <x-slot name="modal_buttons">
+            <div class="flex items-center justify-end gap-2">
+                <button id="generate-coe-cancel-btn"
+                    class="px-3 py-2 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition">Cancel</button>
+                <a id="generate-coe-download-btn" target="_blank" href="{{ route('students.coe.pdf', $studentRecord->id) }}"
+                    class="px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition">Download PDF</a>
+            </div>
+        </x-slot>
+    </x-modal>
+@endsection
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
         <h1 class="text-[20px] font-black">Student Information</h1>
@@ -274,7 +311,7 @@
                         <button id="edit-info-btn"
                             class="bg-blue-500 p-3 rounded-lg font-semibold text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 translate duration-150 hover:scale-95 hover:shadow-lg">Edit
                             Student Info</button>
-                        <button
+                        <button id="generate-coe-btn" type="button"
                             class="bg-gray-100 p-3 rounded-lg font-semibold ring ring-gray-200 hover:ring-gray-300 hover:bg-gray-200 translate duration-150 hover:scale-95 hover:shadow-lg">Generate
                             COE</button>
                         <button
@@ -394,10 +431,16 @@
 
 @push('scripts')
     <script type="module">
+        import { initModal } from "/js/modal.js";
+
         document.addEventListener("DOMContentLoaded", function() {
 
             let editStudentBtn = document.querySelector("#edit-info-btn");
             let editBtns = document.querySelectorAll(".edit-btn");
+            let openCoeBtn = document.querySelector('#generate-coe-btn');
+
+            // Initialize COE modal
+            initModal('generate-coe-modal', 'generate-coe-btn', 'generate-coe-close-btn', 'generate-coe-cancel-btn', 'modal-container-coe');
 
             editStudentBtn.addEventListener('click', () => {
 

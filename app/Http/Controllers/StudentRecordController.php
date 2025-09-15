@@ -18,6 +18,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowExtractor;
 use Maatwebsite\Excel\Validators\ValidationException as ValidatorsValidationException;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\SchoolSetting;
 
 class StudentRecordController extends Controller
 {
@@ -252,6 +254,37 @@ class StudentRecordController extends Controller
 
         // dd($record, $studentRecordId)
         return view('user-admin.enrolled-students.show', compact('studentRecord', 'assignedDocuments'));
+    }
+
+    /**
+     * Render a clean COE preview for embedding/printing
+     */
+    public function coePreview(StudentRecord $studentRecord)
+    {
+        $student = $studentRecord->student;
+        $school = SchoolSetting::query()->first();
+        // Use the same view as the PDF to keep preview and download consistent
+        return view('pdf.coe', compact('studentRecord', 'school'));
+    }
+
+    /**
+     * Download/stream COE as a real PDF using Dompdf
+     */
+    public function coePdf(StudentRecord $studentRecord)
+    {
+        $school = SchoolSetting::query()->first();
+        $pdf = Pdf::loadView('pdf.coe', [
+            'studentRecord' => $studentRecord,
+            'school' => $school,
+        ])->setPaper('letter')->setOptions([
+            'isRemoteEnabled' => true,
+        ]);
+        if (request()->boolean('inline')) {
+            // Stream inline for preview
+            return $pdf->stream('COE-'.$studentRecord->id.'.pdf');
+        }
+        // Force download for button
+        return $pdf->download('COE-'.$studentRecord->id.'.pdf');
     }
 
     /**

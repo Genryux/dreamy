@@ -17,6 +17,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\StudentRecordController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\SchoolSettingController;
 use App\Http\Controllers\WebsiteResourceController;
 use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\NewsController;
@@ -53,6 +54,10 @@ Route::get('/portal/register', [RegistrationController::class, 'create'])
 
 //admin
 Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+
+// admin: school settings
+Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
+Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
 
 //pending
 Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
@@ -104,6 +109,9 @@ Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('st
 Route::get('/users', [StudentsController::class, 'getUsers']);
 
 Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
+// COE preview
+Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');
+Route::get('/student-record/{studentRecord}/coe.pdf', [StudentRecordController::class, 'coePdf'])->name('students.coe.pdf');
 
 //enrolled students
 Route::post('/getStudent', [StudentsController::class, 'getStudent']);
