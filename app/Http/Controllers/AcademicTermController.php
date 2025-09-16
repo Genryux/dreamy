@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicTerms;
+use App\Models\Student;
+use App\Models\StudentEnrollment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 class AcademicTermController extends Controller
@@ -42,7 +45,9 @@ class AcademicTermController extends Controller
 
             if ($request->is_active) {
                 $activeTerm = AcademicTerms::where('is_active', true)->first();
-                $activeTerm->update(['is_active' => false]);
+                if ($activeTerm) {
+                    $activeTerm->update(['is_active' => false]);
+                }
             }
 
             $validated = $request->validate([
@@ -53,7 +58,12 @@ class AcademicTermController extends Controller
                 'is_active' => 'required|boolean'
             ]);
 
-            AcademicTerms::create($validated);
+            $newTerm = AcademicTerms::create($validated);
+            
+            // Auto-seed enrollments if this is the new active term
+            if ($newTerm->is_active) {
+                \Artisan::call('db:seed', ['--class' => 'StudentEnrollmentSeeder']);
+            }
             
             return redirect()->back()->with('success', 'Academic term created successfully.');
 
@@ -95,4 +105,5 @@ class AcademicTermController extends Controller
     {
         //
     }
+
 }

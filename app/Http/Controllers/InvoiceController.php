@@ -100,12 +100,21 @@ class InvoiceController extends Controller
 
         DB::transaction(function () use ($validated) {
             try {
+                // Get the active academic term
+                $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+                
+                if (!$activeTerm) {
+                    throw new \Exception('No active academic term found. Please activate an academic term first.');
+                }
+
                 $invoice = Invoice::updateOrCreate(
                     [
                         'student_id' => $validated['student_id'],
-                        'status'     => 'unpaid'   // condition: only 1 unpaid invoice per student
+                        'academic_term_id' => $activeTerm->id,
+                        'status'     => 'unpaid'   // condition: only 1 unpaid invoice per student per term
                     ],
                     [
+                        'academic_term_id' => $activeTerm->id,
                         'status' => 'unpaid'
                     ]
                 );
@@ -119,6 +128,7 @@ class InvoiceController extends Controller
                             'school_fee_id' => $feeId,   // condition: fee already exists in invoice
                         ],
                         [
+                            'academic_term_id' => $activeTerm->id,
                             'amount'        => $amount
                         ]
                     );

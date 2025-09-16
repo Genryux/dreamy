@@ -24,8 +24,9 @@ class WebsiteResourceController extends Controller
             }
         }
 
-        // Get latest published news (limit to 6 for homepage)
+        // Get latest published news for public (limit to 6 for homepage)
         $news = News::published()
+            ->forPublic()
             ->orderBy('published_at', 'desc')
             ->limit(6)
             ->get();
@@ -110,6 +111,7 @@ class WebsiteResourceController extends Controller
     public function news()
     {
         $news = News::published()
+            ->forPublic()
             ->orderBy('published_at', 'desc')
             ->paginate(9);
 
@@ -121,13 +123,14 @@ class WebsiteResourceController extends Controller
      */
     public function showNews(News $news)
     {
-        // Only show published news
-        if ($news->status !== 'published') {
+        // Only show published news that's visible to public
+        if ($news->status !== 'published' || !in_array($news->visibility, ['public', 'both'])) {
             abort(404);
         }
 
-        // Get related news (other published articles)
+        // Get related news (other published articles visible to public)
         $relatedNews = News::published()
+            ->forPublic()
             ->where('id', '!=', $news->id)
             ->orderBy('published_at', 'desc')
             ->limit(3)

@@ -22,8 +22,16 @@ class InvoicePaymentController extends Controller
 
         try {
             DB::transaction(function () use ($invoice, $validated) {
+                // Get the active academic term
+                $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+                
+                if (!$activeTerm) {
+                    throw new \Exception('No active academic term found. Please activate an academic term first.');
+                }
+
                 InvoicePayment::create([
                     'invoice_id' => $invoice->id,
+                    'academic_term_id' => $activeTerm->id,
                     'amount' => $validated['amount'],
                     'payment_date' => $validated['payment_date'],
                     'method' => $validated['method'] ?? null,

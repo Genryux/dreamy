@@ -35,5 +35,12 @@ class AcademicTerms extends Model
         return $query->where('is_active', true)->first();
     }
     
+    public function enrollments() {
+        return $this->hasMany(StudentEnrollment::class, 'academic_term_id');
+    }
+
+    public function applicationForms() {
+        return $this->hasMany(ApplicationForm::class, 'academic_terms_id');
+    }
 
 }

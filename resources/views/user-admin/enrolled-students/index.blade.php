@@ -65,10 +65,15 @@
 @endsection
 
 @section('header')
-    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Officially Enrolled Students</h1>
-        <p class="text-[14px]  text-gray-900/60">Manage list and records of officially enrolled students.
-        </p>
+    <div class="flex flex-row justify-between items-center px-[14px] py-2">
+        <div class="flex flex-col justify-center items-start text-start">
+            <h1 class="text-[20px] font-black">Officially Enrolled Students</h1>
+            <p class="text-[14px]  text-gray-900/60">Manage list and records of officially enrolled students.
+            </p>
+        </div>
+        <div class="flex items-center">
+            <x-term-selector />
+        </div>
     </div>
 @endsection
 
@@ -93,14 +98,14 @@
 
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-col">
-                        <span class="font-regular text-gray-600 text-[14px]">New Students</span>
-                        <span class="font-regular text-gray-600 text-[14px]">Old Students</span>
+                        <span class="font-regular text-gray-600 text-[14px]">Enrolled</span>
+                        <span class="font-regular text-gray-600 text-[14px]">Pending</span>
                         <span class="font-regular text-gray-600 text-[14px]">Total</span>
                     </div>
                     <div class="flex flex-col">
-                        <span class="font-bold text-gray-600 text-[14px]">100</span>
-                        <span class="font-bold text-gray-600 text-[14px]">100</span>
-                        <span class="font-bold text-gray-600 text-[14px]">200</span>
+                        <span id="enrolled-count" class="font-bold text-green-600 text-[14px]">-</span>
+                        <span id="pending-count" class="font-bold text-yellow-600 text-[14px]">-</span>
+                        <span id="total-count" class="font-bold text-gray-600 text-[14px]">-</span>
                     </div>
                 </div>
 
@@ -190,6 +195,20 @@
                             <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
                         </button>
                     </label>
+                    
+                    <!-- Status Filter Buttons -->
+                    <div class="flex flex-row justify-start items-center gap-2">
+                        <button id="status-all" class="status-filter-btn px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 text-xs font-medium">
+                            All Students
+                        </button>
+                        <button id="status-enrolled" class="status-filter-btn px-3 py-1 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-150 text-xs font-medium">
+                            Enrolled
+                        </button>
+                        <button id="status-pending" class="status-filter-btn px-3 py-1 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-150 text-xs font-medium">
+                            Pending
+                        </button>
+                    </div>
+                    
                     <div class="flex flex-row justify-start items-center w-full gap-2">
                         <div
                             class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
@@ -296,6 +315,9 @@
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">Email Address</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
+                            <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 select-none">Status</span>
+                            </th>
                             <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
                             </th>
@@ -332,6 +354,40 @@
         let selectedGrade = '';
         let selectedProgram = '';
         let selectedPageLength = '';
+        let selectedStatusFilter = ''; // All students by default
+
+        // Function to load enrollment statistics
+        function loadEnrollmentStats() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const termId = urlParams.get('term_id');
+            
+            let url = '/enrollment-stats';
+            if (termId) {
+                url += `?term_id=${termId}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('enrolled-count').textContent = data.enrolled;
+                    document.getElementById('pending-count').textContent = data.pending;
+                    document.getElementById('total-count').textContent = data.total;
+                    
+                    // Update the chart if needed
+                    updateEnrollmentChart(data.enrolled, data.pending);
+                })
+                .catch(error => {
+                    console.error('Error loading enrollment stats:', error);
+                });
+        }
+
+        // Function to update the enrollment chart with smooth animation
+        function updateEnrollmentChart(enrolled, pending) {
+            if (typeof window.totalChart !== 'undefined' && window.totalChart) {
+                window.totalChart.data.datasets[0].data = [enrolled, pending];
+                window.totalChart.update('active'); // Use 'active' animation for smooth transitions
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -348,6 +404,9 @@
             //Overriding default search input
             const customSearch1 = document.getElementById("myCustomSearch");
 
+            // Load initial enrollment statistics
+            loadEnrollmentStats();
+
             table1 = new DataTable('#enrolledStudents', {
                 paging: true,
                 searching: true,
@@ -357,10 +416,21 @@
                 ajax: {
                     url: '/users',
                     data: function(d) {
-
                         d.grade_filter = selectedGrade;
                         d.program_filter = selectedProgram;
                         d.pageLength = selectedPageLength;
+                        
+                        // Pass term_id from URL parameter
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const termId = urlParams.get('term_id');
+                        if (termId) {
+                            d.term_id = termId;
+                        }
+                        
+                        // Pass status filter
+                        if (selectedStatusFilter) {
+                            d.status_filter = selectedStatusFilter;
+                        }
                     }
                 },
                 order: [
@@ -396,8 +466,13 @@
                         targets: 6
                     }, // Email
                     {
-                        width: '13.5%',
+                        width: '10%',
                         targets: 7,
+                        className: 'text-center'
+                    }, // Status
+                    {
+                        width: '10%',
+                        targets: 8,
                         className: 'text-center'
                     } // Actions
                 ],
@@ -427,6 +502,17 @@
                     },
                     {
                         data: 'email'
+                    },
+                    {
+                        data: 'status',
+                        render: function(data, type, row) {
+                            if (row.status_raw === 'enrolled') {
+                                return `<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">${data}</span>`;
+                            } else {
+                                return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">${data}</span>`;
+                            }
+                        },
+                        orderable: false
                     },
                     {
                         data: 'id', // pass ID for rendering the link
@@ -479,6 +565,9 @@
                     );
 
                 });
+                
+                // Refresh stats and chart after table renders for real-time feel
+                loadEnrollmentStats();
 
             });
 
@@ -491,6 +580,33 @@
             });
 
             clearSearch('clear-btn', 'myCustomSearch', table1)
+
+            // Status filter buttons
+            document.querySelectorAll('.status-filter-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.status-filter-btn').forEach(btn => {
+                        btn.classList.remove('bg-blue-600', 'text-white');
+                        btn.classList.add('bg-gray-300', 'text-gray-700');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.remove('bg-gray-300', 'text-gray-700');
+                    this.classList.add('bg-blue-600', 'text-white');
+                    
+                    // Set filter value
+                    if (this.id === 'status-all') {
+                        selectedStatusFilter = '';
+                    } else if (this.id === 'status-enrolled') {
+                        selectedStatusFilter = 'enrolled';
+                    } else if (this.id === 'status-pending') {
+                        selectedStatusFilter = 'pending_confirmation';
+                    }
+                    
+                    // Reload table
+                    table1.ajax.reload();
+                });
+            });
 
             let programSelection = document.querySelector('#program_selection');
             let gradeSelection = document.querySelector('#grade_selection');
@@ -616,6 +732,11 @@
 
                             showAlert('success', data.success);
                             table1.draw();
+                            
+                            // Refresh stats and chart after successful import for real-time feel
+                            setTimeout(() => {
+                                loadEnrollmentStats();
+                            }, 500); // Small delay to ensure data is processed
 
                         } else if (data.error) {
 
@@ -668,20 +789,27 @@
                 }
             });
 
-            const totalChart = new Chart(totalChartCtx, {
+            window.totalChart = new Chart(totalChartCtx, {
                 type: 'pie', // change to 'pie' for pie chart
                 data: {
-
+                    labels: ['Enrolled', 'Pending'],
                     datasets: [{
                         label: 'Students',
-                        data: [20, 265],
-                        backgroundColor: ['#199BCF', '#1A3165'],
+                        data: [0, 0], // Will be updated by loadEnrollmentStats()
+                        backgroundColor: ['#10B981', '#F59E0B'], // Green for enrolled, yellow for pending
                     }]
                 },
                 options: {
                     responsive: false,
                     maintainAspectRatio: false,
-                    cutout: '70%'
+                    cutout: '70%',
+                    animation: {
+                        duration: 800, // Smooth animation duration
+                        easing: 'easeInOutQuart' // Smooth easing function
+                    },
+                    interaction: {
+                        intersect: false
+                    }
                     // makes it a donut; remove for a pie chart
                 }
             });

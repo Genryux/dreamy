@@ -1102,7 +1102,7 @@
                                 feesmsg.innerHTML =
                                     'Applicable fees will show up, once the student is found';
 
-                            } else if (data.data !== null && data.hasInvoice === false) {
+                            } else if (data.data !== null) {
 
                                 lrn.innerHTML = data.data.lrn || '-';
                                 program.innerHTML = data.data.program || '-';

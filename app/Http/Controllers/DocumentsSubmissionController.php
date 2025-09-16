@@ -64,12 +64,14 @@ class DocumentsSubmissionController extends Controller
         $documents = $request->file('documents');
         $documents_id = $request->input('documents_id');
 
-        $currentAcadTermId = $this->academic_term_service->fetchCurrentAcademicTerm()->id;
+        $currentAcadTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
         $applicant = $this->applicant->fetchAuthenticatedApplicant();
 
-        if (!$currentAcadTermId) {
+        if (!$currentAcadTerm) {
             return response()->json(['message' => 'No academic term found']);
         }
+
+        $currentAcadTermId = $currentAcadTerm->id;
 
         $enrollment_period = $this->enrollment_period_service->getActiveEnrollmentPeriod($currentAcadTermId);
 

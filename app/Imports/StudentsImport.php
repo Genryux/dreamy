@@ -5,6 +5,8 @@ namespace App\Imports;
 use App\Models\Documents;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\AcademicTerms;
+use App\Models\StudentEnrollment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -143,6 +145,24 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
             'owner_id'   => $students->id,
             'owner_type' => Student::class,
         ]);
+
+        // Auto-enroll imported students in the active academic term
+        if (config('app.use_term_enrollments')) {
+            $activeTerm = AcademicTerms::where('is_active', true)->first();
+            
+            if ($activeTerm) {
+                StudentEnrollment::firstOrCreate(
+                    [
+                        'student_id' => $students->id,
+                        'academic_term_id' => $activeTerm->id,
+                    ],
+                    [
+                        'status' => 'enrolled',
+                        'enrolled_at' => now(),
+                    ]
+                );
+            }
+        }
 
         return $students;
     }

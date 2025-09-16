@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Per-Term Enrollment System
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, the system uses the new student_enrollments table to track
+    | per-term enrollment status. When disabled, falls back to the original
+    | students table approach for backward compatibility.
+    |
+    */
+
+    'use_term_enrollments' => (bool) env('USE_TERM_ENROLLMENTS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

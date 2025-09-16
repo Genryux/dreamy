@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvoiceItem extends Model
 {
-    protected $fillable = ['invoice_id', 'school_fee_id', 'amount'];
+    protected $fillable = ['invoice_id', 'school_fee_id', 'amount', 'academic_term_id'];
 
     public function invoice()
     {
@@ -16,5 +16,10 @@ class InvoiceItem extends Model
     public function fee()
     {
         return $this->belongsTo(SchoolFee::class, 'school_fee_id');
+    }
+
+    public function academicTerm()
+    {
+        return $this->belongsTo(AcademicTerms::class, 'academic_term_id');
     }
 }

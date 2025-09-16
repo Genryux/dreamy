@@ -108,6 +108,8 @@ Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('st
 
 Route::get('/users', [StudentsController::class, 'getUsers']);
 
+Route::get('/enrollment-stats', [StudentsController::class, 'getEnrollmentStats']);
+
 Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
 // COE preview
 Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');

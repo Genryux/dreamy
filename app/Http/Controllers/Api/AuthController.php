@@ -35,7 +35,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // Login user
+    // Login user (students only for mobile app)
     public function login(Request $request)
     {
         $request->validate([
@@ -48,6 +48,16 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+        
+        // Check if user is a student - mobile app is for students only
+        if (!$user->student) {
+            // Log out the user immediately since they're not a student
+            Auth::logout();
+            return response()->json([
+                'message' => 'Access denied. Mobile app is only available for enrolled students.'
+            ], 403);
+        }
+
         $token = $user->createToken('mobile_app')->plainTextToken;
 
         return response()->json([

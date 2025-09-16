@@ -13,6 +13,7 @@ class InvoicePayment extends Model
         'method',
         'type',
         'reference_no',
+        'academic_term_id',
     ];
 
     protected static function booted()
@@ -30,5 +31,10 @@ class InvoicePayment extends Model
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function academicTerm()
+    {
+        return $this->belongsTo(AcademicTerms::class, 'academic_term_id');
     }
 }

@@ -28,11 +28,26 @@ class Section extends Model
     }
 
     /**
-     * Section has many students.
+     * Section has many students through enrollments.
      */
     public function students()
     {
-        return $this->hasMany(Student::class, 'section_id', 'id');
+        return $this->hasManyThrough(
+            Student::class,
+            StudentEnrollment::class,
+            'section_id', // Foreign key on student_enrollments table
+            'id', // Foreign key on students table
+            'id', // Local key on sections table
+            'student_id' // Local key on student_enrollments table
+        )->select('students.id', 'students.first_name', 'students.last_name', 'students.lrn', 'students.section_id');
+    }
+
+    /**
+     * Section has many enrollments.
+     */
+    public function enrollments()
+    {
+        return $this->hasMany(StudentEnrollment::class, 'section_id');
     }
 
     /**

@@ -86,6 +86,11 @@ class ApplicationForm extends Model
         return $this->belongsTo(EnrollmentPeriod::class);
     }
 
+    public function academicTerm()
+    {
+        return $this->belongsTo(AcademicTerms::class, 'academic_terms_id');
+    }
+
     public function fullName()
     {
         return "{$this->last_name}, {$this->first_name} {$this->middle_name}, {$this->extension_name}";

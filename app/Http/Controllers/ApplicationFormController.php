@@ -41,7 +41,19 @@ class ApplicationFormController extends Controller
 
         //$pending_applicant = ApplicationForm::latest()->get();
 
-        $pending_applicants = Applicants::withStatus('Pending')->get();
+        $query = Applicants::withStatus('Pending');
+        
+        // Filter by current academic term if feature is enabled
+        if (config('app.use_term_enrollments')) {
+            $activeTerm = AcademicTerms::where('is_active', true)->first();
+            if ($activeTerm) {
+                $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
+                    $q->where('academic_terms_id', $activeTerm->id);
+                });
+            }
+        }
+        
+        $pending_applicants = $query->get();
 
         // dd($pending_applicants[0]->id);
 
@@ -58,7 +70,19 @@ class ApplicationFormController extends Controller
         //$ongoingInterviews = $this->applicationFormService->fetchApplicationWithStatus('Ongoing')->get();
         //dd($ongoingInterviews);
 
-        $selected_applicants = Applicants::where('application_status', 'Selected')->get();
+        $query = Applicants::where('application_status', 'Selected');
+        
+        // Filter by current academic term if feature is enabled
+        if (config('app.use_term_enrollments')) {
+            $activeTerm = AcademicTerms::where('is_active', true)->first();
+            if ($activeTerm) {
+                $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
+                    $q->where('academic_terms_id', $activeTerm->id);
+                });
+            }
+        }
+        
+        $selected_applicants = $query->get();
         // $scheduled_applicants = Applicants::with('interview')->where('application_status', 'Scheduled')->get();
         // $interview_details = $scheduled_applicants->interview;
 

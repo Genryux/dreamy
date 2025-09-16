@@ -134,12 +134,12 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
                 // Row 3 - Academic Year
                 $sheet->setCellValue('A3', 'Academic Year:');
                 // TODO: Replace with your actual Acad Year fetch
-                $sheet->setCellValue('B3', $academicYear->year);
+                $sheet->setCellValue('B3', $academicYear ? $academicYear->year : 'N/A');
 
                 // Row 4 - Semester
                 $sheet->setCellValue('A4', 'Semester:');
                 // TODO: Replace with your actual Semester fetch
-                $sheet->setCellValue('B4', $academicYear->semester);
+                $sheet->setCellValue('B4', $academicYear ? $academicYear->semester : 'N/A');
 
                 $sheet->getStyle('A1:D1')->applyFromArray([
                     'font' => [

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    protected $fillable = ['student_id', 'status', 'invoice_number',];
+    protected $fillable = ['student_id', 'academic_term_id', 'status', 'invoice_number'];
 
     public static function boot()
     {
@@ -44,6 +44,11 @@ class Invoice extends Model
     public function payments()
     {
         return $this->hasMany(InvoicePayment::class);
+    }
+
+    public function academicTerm()
+    {
+        return $this->belongsTo(AcademicTerms::class, 'academic_term_id');
     }
 
     public function getTotalAmountAttribute()

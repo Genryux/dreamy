@@ -59,6 +59,9 @@ class NewsController extends Controller
                     'title' => $item->title,
                     'content' => \Str::limit($item->content, 50),
                     'status' => $item->status,
+                    'visibility' => $item->visibility ?? 'both',
+                    'is_announcement' => $item->is_announcement ?? false,
+                    'type' => ($item->is_announcement ?? false) ? 'Announcement' : 'News',
                     'published_at' => $item->published_at ? $item->published_at->format('M d, Y') : '-',
                     'created_at' => $item->created_at->format('M d, Y'),
                 ];
@@ -88,7 +91,9 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'status' => 'required|in:draft,published'
+            'status' => 'required|in:draft,published',
+            'visibility' => 'required|in:public,students_only,both',
+            'is_announcement' => 'boolean'
         ]);
 
         try {
@@ -96,6 +101,8 @@ class NewsController extends Controller
                 'title' => $request->title,
                 'content' => $request->content,
                 'status' => $request->status,
+                'visibility' => $request->visibility,
+                'is_announcement' => $request->boolean('is_announcement'),
                 'published_at' => $request->status === 'published' ? now() : null
             ]);
 
@@ -118,7 +125,9 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'status' => 'required|in:draft,published'
+            'status' => 'required|in:draft,published',
+            'visibility' => 'required|in:public,students_only,both',
+            'is_announcement' => 'boolean'
         ]);
 
         try {
@@ -126,6 +135,8 @@ class NewsController extends Controller
                 'title' => $request->title,
                 'content' => $request->content,
                 'status' => $request->status,
+                'visibility' => $request->visibility,
+                'is_announcement' => $request->boolean('is_announcement'),
                 'published_at' => $request->status === 'published' && !$news->published_at ? now() : $news->published_at
             ]);
 
@@ -148,7 +159,9 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'status' => 'required|in:draft,published'
+            'status' => 'required|in:draft,published',
+            'visibility' => 'required|in:public,students_only,both',
+            'is_announcement' => 'boolean'
         ]);
 
         try {
@@ -156,6 +169,8 @@ class NewsController extends Controller
                 'title' => $request->title,
                 'content' => $request->content,
                 'status' => $request->status,
+                'visibility' => $request->visibility,
+                'is_announcement' => $request->boolean('is_announcement'),
             ];
 
             if ($request->has('news_id') && $request->news_id) {

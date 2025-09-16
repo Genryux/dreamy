@@ -23,7 +23,8 @@ class DatabaseSeeder extends Seeder
             ProgramSeeder::class,
             SubjectSeeder::class,
             SectionSeeder::class,
-            SectionSubjectsSeeder::class
+            SectionSubjectsSeeder::class,
+            StudentEnrollmentSeeder::class, // Must be last - depends on students existing
         ]);
 
     }

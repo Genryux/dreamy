@@ -20,9 +20,14 @@ use Maatwebsite\Excel\Imports\HeadingRowExtractor;
 use Maatwebsite\Excel\Validators\ValidationException as ValidatorsValidationException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SchoolSetting;
+use App\Services\AcademicTermService;
+use Carbon\Carbon;
 
 class StudentRecordController extends Controller
 {
+    public function __construct(
+        protected AcademicTermService $academic_term_service
+    ) {}
     /**
      * Display a listing of the resource.
      */
@@ -121,13 +126,26 @@ class StudentRecordController extends Controller
      */
     public function store(Request $request)
     {
+        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
+        
+        if (!$activeTerm) {
+            return response()->json(['error' => 'No active academic term found'], 400);
+        }
 
         $applicant = Applicants::where('applicants.id', $request->id)->first();
+
+        if (!$applicant) {
+            return response()->json(['error' => 'Applicant not found'], 404);
+        }
+
+        if (!$applicant->applicationForm) {
+            return response()->json(['error' => 'Application form not found for this applicant'], 404);
+        }
 
         //dd($applicant->applicationForm);
         try {
 
-            DB::transaction(function () use ($applicant) {
+            DB::transaction(function () use ($applicant, $activeTerm) {
                 $form = $applicant->applicationForm;
                 $user = $applicant->user;
 
@@ -145,7 +163,7 @@ class StudentRecordController extends Controller
                         'program'         => $form->primary_track,
                         'contact_number'  => $form->contact_number,
                         'email_address'   => $applicant->user->email,
-                        'enrollment_date' => $form->created_by,
+                        'enrollment_date' => Carbon::now()->toDateString(),
                         'status'          => 'Officially Enrolled'
                     ]
                 );
@@ -205,6 +223,20 @@ class StudentRecordController extends Controller
                     'owner_id'   => $student->id,
                     'owner_type' => Student::class,
                 ]);
+
+
+                $student->enrollments()->firstOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'academic_term_id' => $activeTerm->id,
+                    ],
+                    [
+                        'status' => 'enrolled',
+                        'program_id' => null, // Can be set later
+                        'section_id' => null, // Can be set later
+                        'enrolled_at' => Carbon::now()
+                    ]
+                );
             });
 
             return response()->json(['message' => 'Student record created.']);
@@ -281,10 +313,10 @@ class StudentRecordController extends Controller
         ]);
         if (request()->boolean('inline')) {
             // Stream inline for preview
-            return $pdf->stream('COE-'.$studentRecord->id.'.pdf');
+            return $pdf->stream('COE-' . $studentRecord->id . '.pdf');
         }
         // Force download for button
-        return $pdf->download('COE-'.$studentRecord->id.'.pdf');
+        return $pdf->download('COE-' . $studentRecord->id . '.pdf');
     }
 
     /**

@@ -10,6 +10,8 @@ class News extends Model
         'title',
         'content',
         'status',
+        'visibility',
+        'is_announcement',
         'published_at'
     ];
 
@@ -20,5 +22,25 @@ class News extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+
+    public function scopeForStudents($query)
+    {
+        return $query->whereIn('visibility', ['students_only', 'both']);
+    }
+
+    public function scopeForPublic($query)
+    {
+        return $query->whereIn('visibility', ['public', 'both']);
+    }
+
+    public function scopeAnnouncements($query)
+    {
+        return $query->where('is_announcement', true);
+    }
+
+    public function scopeNews($query)
+    {
+        return $query->where('is_announcement', false);
     }
 }
