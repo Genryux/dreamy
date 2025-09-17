@@ -195,7 +195,7 @@
                             class="peer sr-only" />
                         <label for="lrn-{{ $student->lrn }}"
                             class="w-[80%] bg-gray-200 peer-checked:bg-green-300 inline-block px-3 py-2 rounded">
-                            <span>{{ $student->last_name }}, {{ $student->first_name }}</span>
+                            <span>{{ $student->user->last_name }}, {{ $student->user->first_name }}</span>
                         </label>
 
                     </div>

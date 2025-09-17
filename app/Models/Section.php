@@ -39,7 +39,7 @@ class Section extends Model
             'id', // Foreign key on students table
             'id', // Local key on sections table
             'student_id' // Local key on student_enrollments table
-        )->select('students.id', 'students.first_name', 'students.last_name', 'students.lrn', 'students.section_id');
+        )->select('students.id', 'students.lrn', 'students.section_id');
     }
 
     /**

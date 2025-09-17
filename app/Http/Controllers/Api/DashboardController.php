@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\StudentEnrollment;
 use App\Models\AcademicTerms;
+use App\Services\StudentDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -54,20 +55,23 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
+                'user' => [
+                    'pin_enabled' => $user->pin_enabled,
+                ],
                 'student' => [
                     'name' => $user->student->getFullNameAttribute(),
                     'lrn' => $user->student->lrn,
                     'grade_level' => $user->student->grade_level,
                     'program' => $user->student->program,
-                    'age' => $studentRecord?->age ?? $user->student->age,
-                    'gender' => $studentRecord?->gender ?? $user->student->gender,
-                    'contact_number' => $studentRecord?->contact_number ?? $user->student->contact_number,
-                    'email_address' => $studentRecord?->email ?? $user->student->email_address,
-                    'enrollment_date' => $user->student->enrollment_date,
+                    'age' => $studentRecord?->age,
+                    'gender' => $studentRecord?->gender,
+                    'contact_number' => $studentRecord?->contact_number,
+                    'email_address' => $user->email,
+                    'enrollment_date' => $this->getEnrollmentDate($currentEnrollment),
                     'status' => $user->student->status,
                     // Additional student record fields
-                    'first_name' => $studentRecord?->first_name ?? $user->student->first_name,
-                    'last_name' => $studentRecord?->last_name ?? $user->student->last_name,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
                     'middle_name' => $studentRecord?->middle_name,
                     'birthdate' => $studentRecord?->birthdate,
                     'place_of_birth' => $studentRecord?->place_of_birth,
@@ -199,5 +203,44 @@ class DashboardController extends Controller
         }
 
         return collect($activities)->sortByDesc('date')->values()->take(3);
+    }
+
+    /**
+     * Get enrollment date with proper fallback logic
+     */
+    private function getEnrollmentDate($currentEnrollment)
+    {
+        if (!$currentEnrollment) {
+            return 'Not available';
+        }
+
+        try {
+            // Priority 1: confirmed_at (when student confirmed enrollment)
+            if ($currentEnrollment->confirmed_at) {
+                return $currentEnrollment->confirmed_at->format('M j, Y');
+            }
+
+            // Priority 2: enrolled_at (when student was enrolled)
+            if ($currentEnrollment->enrolled_at) {
+                return $currentEnrollment->enrolled_at->format('M j, Y');
+            }
+
+            // Priority 3: created_at (when enrollment record was created)
+            if ($currentEnrollment->created_at) {
+                return $currentEnrollment->created_at->format('M j, Y');
+            }
+
+            return 'Not available';
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Enrollment date formatting error: ' . $e->getMessage(), [
+                'enrollment_id' => $currentEnrollment->id ?? 'unknown',
+                'confirmed_at' => $currentEnrollment->confirmed_at ?? 'null',
+                'enrolled_at' => $currentEnrollment->enrolled_at ?? 'null',
+                'created_at' => $currentEnrollment->created_at ?? 'null',
+            ]);
+            
+            return 'Not available';
+        }
     }
 }

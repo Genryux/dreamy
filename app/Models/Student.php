@@ -12,12 +12,7 @@ class Student extends Model
         'user_id',
         'section_id',
         'lrn',
-        'first_name',
-        'last_name',
-        'age',
         'program',
-        'contact_number',
-        'email_address',
         'grade_level',
         'enrollment_date',
         'status'
@@ -25,7 +20,7 @@ class Student extends Model
 
     public function getFullNameAttribute()
     {
-        return "{$this->last_name}, {$this->first_name}";
+        return "{$this->user->last_name}, {$this->user->first_name}";
     }
 
     public function record()

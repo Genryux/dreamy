@@ -31,12 +31,7 @@ class StudentController extends Controller
             'user_id' => 'required|exists:users,id',
             'section_id' => 'nullable|exists:sections,id',
             'lrn' => 'required|string|max:12|unique:students',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'age' => 'nullable|integer|min:0',
             'program' => 'required|string|max:255',
-            'contact_number' => 'nullable|string|max:20',
-            'email_address' => 'nullable|email|max:255',
             'grade_level' => 'required|string|max:50',
             'enrollment_date' => 'nullable|date',
             'status' => 'nullable|string|max:50'
@@ -70,12 +65,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'section_id' => 'nullable|exists:sections,id',
             'lrn' => 'sometimes|string|max:12|unique:students,lrn,' . $student->id,
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'age' => 'nullable|integer|min:0',
             'program' => 'sometimes|string|max:255',
-            'contact_number' => 'nullable|string|max:20',
-            'email_address' => 'nullable|email|max:255',
             'grade_level' => 'sometimes|string|max:50',
             'enrollment_date' => 'nullable|date',
             'status' => 'nullable|string|max:50'

@@ -25,6 +25,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'pin',
+        'pin_enabled',
+        'pin_setup_at',
     ];
 
     public function applicant()
@@ -49,6 +52,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'pin',
         'remember_token',
     ];
 
@@ -62,6 +66,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'pin' => 'hashed',
+            'pin_enabled' => 'boolean',
+            'pin_setup_at' => 'datetime',
         ];
     }
 }

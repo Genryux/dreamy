@@ -9,15 +9,12 @@ class StudentRecord extends Model
     protected $table = 'student_records';
     protected $fillable = [
         'student_id',
-        'first_name',
-        'last_name',
         'middle_name',
         'birthdate',
         'gender',
         'age',
         'place_of_birth',
 
-        'email',
         'contact_number',
         'current_address',
         'permanent_address',
@@ -37,8 +34,6 @@ class StudentRecord extends Model
         'guardian_name',
         'guardian_contact_number',
 
-        'grade_level',
-        'program',
         'current_school',
         'previous_school',
         'school_contact_info',
@@ -53,7 +48,8 @@ class StudentRecord extends Model
 
     public function getFullName()
     {
-        return "{$this->last_name}, {$this->first_name} {$this->middle_name}";
+        $middleName = $this->middle_name ? " {$this->middle_name}" : '';
+        return "{$this->student->user->last_name}, {$this->student->user->first_name}{$middleName}";
     }
 
     public function student()

@@ -70,9 +70,10 @@ class AcademicController extends Controller
 
         // Get classmates separately to avoid the ambiguous column issue
         $classmates = Student::join('student_enrollments', 'students.id', '=', 'student_enrollments.student_id')
+            ->join('users', 'students.user_id', '=', 'users.id')
             ->where('student_enrollments.section_id', $enrollment->section_id)
             ->where('student_enrollments.academic_term_id', $activeTerm->id)
-            ->select('students.id', 'students.first_name', 'students.last_name', 'students.lrn')
+            ->select('students.id', 'users.first_name', 'users.last_name', 'students.lrn')
             ->get();
 
         if (!$section) {
@@ -178,7 +179,6 @@ class AcademicController extends Controller
                 'teacher' => $teacher ? (trim($teacher->first_name . ' ' . $teacher->last_name) ?: '-') : '-',
                 'schedule' => $schedule ?: '-',
                 'room' => $sectionSubject->room ?: '-',
-                'credits' => 3, // Default credits, can be added to subject model later
             ];
         });
 
@@ -253,9 +253,10 @@ class AcademicController extends Controller
 
         // Get classmates separately to avoid the ambiguous column issue
         $classmates = Student::join('student_enrollments', 'students.id', '=', 'student_enrollments.student_id')
+            ->join('users', 'students.user_id', '=', 'users.id')
             ->where('student_enrollments.section_id', $enrollment->section_id)
             ->where('student_enrollments.academic_term_id', $activeTerm->id)
-            ->select('students.id', 'students.first_name', 'students.last_name', 'students.lrn')
+            ->select('students.id', 'users.first_name', 'users.last_name', 'students.lrn')
             ->get();
 
         // Get section subjects
@@ -313,7 +314,6 @@ class AcademicController extends Controller
                 'teacher' => $teacher ? (trim($teacher->first_name . ' ' . $teacher->last_name) ?: '-') : '-',
                 'schedule' => $schedule ?: '-',
                 'room' => $sectionSubject->room ?: '-',
-                'credits' => 3,
             ];
         });
 

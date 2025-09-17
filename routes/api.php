@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\InvoiceController;
  use App\Http\Controllers\Api\AcademicController;
 use App\Http\Controllers\Api\FinancialController;
+use App\Http\Controllers\Api\StudentProfileController;
 
 Route::get('/tite', function () {
     return response()->json(['message' => 'API routes are working']);
@@ -28,6 +29,14 @@ Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 	// Authenticated user helpers
 	Route::post('/auth/logout', [AuthController::class, 'logout']);
 	Route::get('/auth/user', [AuthController::class, 'user']);
+	Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+	
+	// PIN management
+	Route::post('/auth/setup-pin', [AuthController::class, 'setupPin']);
+	Route::post('/auth/verify-pin', [AuthController::class, 'verifyPin']);
+	Route::post('/auth/change-pin', [AuthController::class, 'changePin']);
+	Route::post('/auth/toggle-pin', [AuthController::class, 'togglePin']);
+	Route::post('/auth/change-email', [AuthController::class, 'changeEmail']);
 
 	// Student self data (mobile app can pass their student id)
 	Route::get('/students/{student}', [StudentController::class, 'show']);
@@ -74,4 +83,7 @@ Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 	Route::get('/financial/payments', [FinancialController::class, 'getCurrentPaymentHistory']);
 	Route::get('/financial/summary', [FinancialController::class, 'getFinancialSummary']);
 	Route::get('/financial/terms', [FinancialController::class, 'getAvailableTerms']);
+
+	// Student Profile - NEW
+	Route::put('/profile/personal-info', [StudentProfileController::class, 'updatePersonalInfo']);
 });

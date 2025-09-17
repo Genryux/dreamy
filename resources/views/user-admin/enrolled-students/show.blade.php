@@ -78,7 +78,7 @@
                         class="size-20 rounded-md ring ring-gray-200">
                     <div class="pt-1">
                         <p class="text-lg font-bold">{{ $studentRecord->getFullName() ?? '-' }}</p>
-                        <p class="text-sm font-medium opacity-60">#{{ $studentRecord->students->lrn ?? '-' }}</p>
+                        <p class="text-sm font-medium opacity-60">#{{ $studentRecord->student->lrn ?? '-' }}</p>
                     </div>
                 </div>
                 {{-- About --}}
@@ -99,7 +99,7 @@
                                 <i class="fi fi-rr-at flex justify-center items-center"></i>
                                 <span>Email:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $studentRecord->email ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $studentRecord->student->user->email ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -118,14 +118,14 @@
                                 <i class="fi fi-rr-square-l flex justify-center items-center"></i>
                                 <span>Last Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $studentRecord->last_name }}</p>
+                            <p class="font-semibold opacity-85">{{ $studentRecord->student->user->last_name ?? '-' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-square-f flex justify-center items-center"></i>
                                 <span>First Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $studentRecord->first_name }}</p>
+                            <p class="font-semibold opacity-85">{{ $studentRecord->student->user->first_name ?? '-' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
@@ -180,21 +180,21 @@
                                 <i class="fi fi-rr-hastag flex justify-center items-center"></i>
                                 <span>LRN:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $studentRecord->students->lrn ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $studentRecord->student->lrn ?? '-' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-star flex justify-center items-center"></i>
                                 <span>Grade Level:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $studentRecord->grade_level ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $studentRecord->student->grade_level ?? '-' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
                                 <span>Program:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $studentRecord->program ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $studentRecord->student->program ?? '-' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">

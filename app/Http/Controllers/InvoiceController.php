@@ -55,6 +55,7 @@ class InvoiceController extends Controller
         $start = $request->input('start', 0);
 
         $data = $query
+            ->with(['student.user'])
             ->offset($start)
             ->limit($request->length)
             ->get(['id', 'student_id', 'invoice_number', 'status', ])
@@ -63,7 +64,7 @@ class InvoiceController extends Controller
                 return [
                     'index' => $start + $key + 1,
                     'invoice_number' => $item->invoice_number ?? '-',
-                    'student' => $item->student->last_name . ', ' .  $item->student->first_name ?? '-',
+                    'student' => $item->student->user->last_name . ', ' .  $item->student->user->first_name ?? '-',
                     'status' => $item->status,
                     'total' => '₱ ' . $item->total_amount ?? '-',
                     'balance' => '₱ ' . $item->balance ?? '-',

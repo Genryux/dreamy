@@ -87,83 +87,80 @@ class SectionController extends Controller
 
     public function getStudents(Section $section, Request $request)
     {
-        // dd($section->id);
+        try {
+            $query = Student::query()->where('section_id', $section->id);
 
-        //return response()->json(['ewan' => $request->all()]);
+            // Search filter
+            if ($search = $request->input('search.value')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('lrn', 'like', "%{$search}%")
+                        ->orWhere('program', 'like', "%{$search}%")
+                        ->orWhere('grade_level', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%")
+                                ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('record', function ($recordQuery) use ($search) {
+                            $recordQuery->where('contact_number', 'like', "%{$search}%");
+                        });
+                });
+            }
 
-        $query = Student::query()->where('section_id', $section->id);
-        // dd($query->get());
+            // Filtering
+            if ($program = $request->input('program_filter')) {
+                $query->where('program', $program);
+            }
 
-        // // search filter
-        // if ($search = $request->input('search.value')) {
-        //     $query->where(function ($q) use ($search) {
-        //         $q->where('lrn', 'like', "%{$search}%")
-        //             ->where('first_name', 'like', "%{$search}%")
-        //             ->orWhere('last_name', 'like', "%{$search}%")
-        //             ->orWhere('email_address', 'like', "%{$search}%")
-        //             ->orWhere('program', 'like', "%{$search}%")
-        //             ->orWhere('grade_level', 'like', "%{$search}%")
-        //             ->orWhere('contact_number', 'like', "%{$search}%")
-        //             ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");;
-        //     });
-        // }
+            if ($grade = $request->input('grade_filter')) {
+                $query->where('grade_level', $grade);
+            }
 
-        // // Filtering
-        // if ($program = $request->input('program_filter')) {
-        //     $query->whereHas('record', fn($q) => $q->where('program', $program));
-        // }
+            // Sorting
+            $columns = ['lrn', 'grade_level', 'program'];
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderDir = $request->input('order.0.dir', 'asc');
+            $sortColumn = $columns[$orderColumnIndex] ?? 'id';
+            $query->orderBy($sortColumn, $orderDir);
 
-        // if ($grade = $request->input('grade_filter')) {
-        //     $query->whereHas('record', fn($q) => $q->where('grade_level', $grade));
-        // }
+            $total = $query->count();
+            $filtered = $total;
 
-        // // Sorting
-        // // Column mapping: must match order of your <th> and JS columns
-        // $columns = ['lrn', 'first_name', 'grade_level', 'program', 'contact_number', 'email_address'];
+            $start = $request->input('start', 0);
 
-        // // Get sort column index and direction
-        // $orderColumnIndex = $request->input('order.0.column');
-        // $orderDir = $request->input('order.0.dir', 'asc');
+            $data = $query
+                ->with(['user', 'record'])
+                ->offset($start)
+                ->limit($request->length)
+                ->get(['id', 'user_id', 'lrn', 'grade_level', 'program'])
+                ->map(function ($item, $key) use ($start) {
+                    return [
+                        'index' => $start + $key + 1,
+                        'lrn' => $item->lrn,
+                        'full_name' => ($item->user?->last_name ?? '') . ', ' . ($item->user?->first_name ?? ''),
+                        'age' => $item->record?->age ?? '-',
+                        'gender' => $item->record?->gender ?? '-',
+                        'contact_number' => $item->record?->contact_number ?? '-',
+                        'id' => $item->id
+                    ];
+                });
 
-        // // Map to actual column name
-        // $sortColumn = $columns[$orderColumnIndex] ?? 'id';
-
-        // // Apply sorting
-        // $query->orderBy($sortColumn, $orderDir);
-
-        $total = $query->count();
-        $filtered = $total;
-
-        // $limit = $request->input('length', 10);  // default to 10 per page
-        // $offset = $request->input('start', 0);
-
-        $start = $request->input('start', 0);
-
-        $data = $query
-            ->offset($start)
-            ->limit($request->length)
-            ->get(['id', 'lrn', 'last_name', 'first_name', 'age', 'gender', 'contact_number'])
-            ->map(function ($item, $key) use ($start) {
-                // dd($item);
-                return [
-                    'index' => $start + $key + 1,
-                    'lrn' => $item->lrn,
-                    'full_name' => $item->last_name . ', ' . $item->first_name,
-                    'age' => $item->age ?? '-',
-                    'gender' => $item->gender ?? '-',
-                    'contact_number' => $item->contact_number ?? '-',
-                    'id' => $item->id
-                ];
-            });
-
-        //dd($data);
-
-        return response()->json([
-            'draw' => intval($request->draw),
-            'recordsTotal' => $total,
-            'recordsFiltered' => $filtered,
-            'data' => $data,
-        ]);
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $total,
+                'recordsFiltered' => $filtered,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => 'An error occurred while fetching students: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function index()
@@ -210,6 +207,7 @@ class SectionController extends Controller
         $students = Student::where('grade_level', $year_level)
             ->where('program', $program)
             ->where('section_id', null)
+            ->with('user')
             ->get();
 
         return view('user-admin.section.show', compact('section', 'students'));

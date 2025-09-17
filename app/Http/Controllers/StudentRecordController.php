@@ -155,14 +155,9 @@ class StudentRecordController extends Controller
                         'user_id'         => $user->id,
                     ],
                     [
-
                         'lrn'             => $form->lrn,
-                        'first_name'      => $user->first_name,
-                        'last_name'       => $user->last_name,
                         'grade_level'     => $form->grade_level,
                         'program'         => $form->primary_track,
-                        'contact_number'  => $form->contact_number,
-                        'email_address'   => $applicant->user->email,
                         'enrollment_date' => Carbon::now()->toDateString(),
                         'status'          => 'Officially Enrolled'
                     ]
@@ -172,16 +167,12 @@ class StudentRecordController extends Controller
                 $studentId = $student->id;
 
                 $student->record()->firstOrCreate([
-                    'first_name'              => $form->first_name,
-                    'last_name'               => $form->last_name,
                     'middle_name'             => $form->middle_name,
-                    'extension_name'          => $form->extension_name,
                     'birthdate'               => $form->birthdate,
                     'gender'                  => $form->gender,
                     'age'                     => $form->age,
                     'place_of_birth'          => $form->place_of_birth,
                     'contact_number'          => $form->contact_number,
-                    'email'                   => $applicant->user->email,
                     'current_address'         => $form->currentAddress(),
                     'permanent_address'       => $form->permanentAddress(),
                     'acad_term_applied'       => $form->acad_term_applied,
@@ -202,8 +193,6 @@ class StudentRecordController extends Controller
                     'mother_contact_number'   => $form->mother_contact_number,
                     'guardian_name'           => $form->guardianFullName(),
                     'guardian_contact_number' => $form->guardian_contact_number,
-                    'grade_level'             => $form->grade_level,
-                    'program'                 => $form->primary_track,
                     'current_school'          => 'Dreamy School Philippines',
                     'previous_school'         => $form->last_school_attended,
                     'has_special_needs'       => $form->has_special_needs,
@@ -257,7 +246,7 @@ class StudentRecordController extends Controller
 
         // $record = $student->record;
 
-        $student = $studentRecord->student;
+        $student = $studentRecord->student->load('user');
 
         // // $student = Student::find(95);
 

@@ -7,6 +7,8 @@ use App\Models\SchoolFee;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\StudentSubject;
+use App\Models\SectionSubject;
 use App\Models\AcademicTerms;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,14 +25,19 @@ class StudentsController extends Controller
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('lrn', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('first_name', 'like', "%{$search}%")
-                        ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                        ->orWhere('program', 'like', "%{$search}%")
+                        ->orWhere('grade_level', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%")
+                                ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                        });
                 });
             }
 
             // Limit to avoid sending thousands at once
-            $students = $query->select('id', 'lrn', 'first_name', 'last_name', 'grade_level', 'program')
+            $students = $query->with('user')->select('id', 'lrn', 'grade_level', 'program')
                 ->limit(50)
                 ->first();
 
@@ -71,12 +78,45 @@ class StudentsController extends Controller
 
     public function assignSection(Section $section, Request $request)
     {
-
         $selectedStudents = array_map('intval', $request->input('student'));
 
         try {
-            Student::whereIn('id', $selectedStudents)
-                ->update(['section_id' => $section->id]);
+            DB::transaction(function () use ($selectedStudents, $section) {
+                // Update Student model (for admin panel compatibility)
+                Student::whereIn('id', $selectedStudents)
+                    ->update(['section_id' => $section->id]);
+
+                // Update StudentEnrollment model (for mobile app API)
+                // Get the active academic term
+                $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+                
+                if ($activeTerm) {
+                    \App\Models\StudentEnrollment::whereIn('student_id', $selectedStudents)
+                        ->where('academic_term_id', $activeTerm->id)
+                        ->update(['section_id' => $section->id]);
+
+                    // Auto-assign subjects: Get all subjects offered by this section
+                    $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
+                    
+                    foreach ($selectedStudents as $studentId) {
+                        foreach ($sectionSubjects as $sectionSubject) {
+                            // Check if student is already enrolled in this subject
+                            $existingEnrollment = \App\Models\StudentSubject::where('student_id', $studentId)
+                                ->where('section_subject_id', $sectionSubject->id)
+                                ->first();
+                            
+                            // Only create if not already enrolled
+                            if (!$existingEnrollment) {
+                                \App\Models\StudentSubject::create([
+                                    'student_id' => $studentId,
+                                    'section_subject_id' => $sectionSubject->id,
+                                    'status' => 'enrolled'
+                                ]);
+                            }
+                        }
+                    }
+                }
+            });
 
             $studentCount = $section->students->count();
 
@@ -183,27 +223,31 @@ class StudentsController extends Controller
         if ($search = $request->input('search.value')) {
             $query->where(function ($q) use ($search) {
                 $q->where('lrn', 'like', "%{$search}%")
-                    ->orWhere('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email_address', 'like', "%{$search}%")
                     ->orWhere('program', 'like', "%{$search}%")
                     ->orWhere('grade_level', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%")
-                    ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('record', function ($recordQuery) use ($search) {
+                        $recordQuery->where('contact_number', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Filtering
         if ($program = $request->input('program_filter')) {
-            $query->whereHas('record', fn($q) => $q->where('program', $program));
+            $query->where('program', $program);
         }
 
         if ($grade = $request->input('grade_filter')) {
-            $query->whereHas('record', fn($q) => $q->where('grade_level', $grade));
+            $query->where('grade_level', $grade);
         }
 
         // Sorting
-        $columns = ['lrn', 'first_name', 'grade_level', 'program', 'contact_number', 'email_address'];
+        $columns = ['lrn', 'grade_level', 'program'];
         $orderColumnIndex = $request->input('order.0.column');
         $orderDir = $request->input('order.0.dir', 'asc');
         $sortColumn = $columns[$orderColumnIndex] ?? 'id';
@@ -215,19 +259,20 @@ class StudentsController extends Controller
         $start = $request->input('start', 0);
 
         $data = $query
+            ->with(['user', 'record'])
             ->offset($start)
             ->limit($request->length)
-            ->get(['id', 'lrn', 'first_name', 'last_name', 'grade_level', 'program', 'contact_number', 'email_address'])
+            ->get(['id', 'lrn', 'grade_level', 'program'])
             ->map(function ($item, $key) use ($start) {
                 return [
                     'index' => $start + $key + 1,
                     'lrn' => $item->lrn,
-                    'full_name' => $item->last_name . ', ' . $item->first_name,
+                    'full_name' => $item->user->last_name . ', ' . $item->user->first_name,
                     'grade_level' => $item->grade_level,
                     'program' => $item->program,
-                    'contact' => $item->contact_number,
-                    'email' => $item->email_address,
-                    'id' => $item->id
+                    'contact' => $item->record?->contact_number ?? '-',
+                    'email' => $item->user->email,
+                    'id' => $item->record?->id ?? $item->id
                 ];
             });
 
@@ -270,23 +315,27 @@ class StudentsController extends Controller
         if ($search = $request->input('search.value')) {
             $query->whereHas('student', function ($q) use ($search) {
                 $q->where('lrn', 'like', "%{$search}%")
-                    ->orWhere('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('email_address', 'like', "%{$search}%")
                     ->orWhere('program', 'like', "%{$search}%")
                     ->orWhere('grade_level', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%")
-                    ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('record', function ($recordQuery) use ($search) {
+                        $recordQuery->where('contact_number', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Filtering by program and grade
         if ($program = $request->input('program_filter')) {
-            $query->whereHas('student.record', fn($q) => $q->where('program', $program));
+            $query->whereHas('student', fn($q) => $q->where('program', $program));
         }
 
         if ($grade = $request->input('grade_filter')) {
-            $query->whereHas('student.record', fn($q) => $q->where('grade_level', $grade));
+            $query->whereHas('student', fn($q) => $q->where('grade_level', $grade));
         }
 
         // Get total count before applying sorting/pagination
@@ -303,6 +352,7 @@ class StudentsController extends Controller
         $start = $request->input('start', 0);
 
         $data = $query
+            ->with(['student.user', 'student.record'])
             ->offset($start)
             ->limit($request->length)
             ->get()
@@ -311,15 +361,15 @@ class StudentsController extends Controller
                 return [
                     'index' => $start + $key + 1,
                     'lrn' => $student->lrn ?? '',
-                    'full_name' => ($student->last_name ?? '') . ', ' . ($student->first_name ?? ''),
+                    'full_name' => ($student->user->last_name ?? '') . ', ' . ($student->user->first_name ?? ''),
                     'grade_level' => $student->grade_level ?? '',
                     'program' => $student->program ?? '',
-                    'contact' => $student->contact_number ?? '',
-                    'email' => $student->email_address ?? '',
+                    'contact' => $student->record?->contact_number ?? '',
+                    'email' => $student->user->email ?? '',
                     'status' => $enrollment->status === 'enrolled' ? 'Enrolled' : 'Pending Confirmation',
                     'status_raw' => $enrollment->status,
                     'confirmed_at' => $enrollment->confirmed_at ? $enrollment->confirmed_at->format('M j, Y') : null,
-                    'id' => $student->id,
+                    'id' => $student->record?->id ?? $student->id,
                 ];
             });
 

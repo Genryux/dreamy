@@ -86,29 +86,21 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         $students = $user->student()->updateOrCreate(
             ['lrn'            => $row['lrn']],
             [
-                'first_name'     => $row['first_name'],
-                'last_name'      => $row['last_name'],
                 'grade_level'    => $row['grade_level'],
                 'program'        => $row['program'],
-                'contact_number' => $row['contact_number'],
-                'email_address'  => $row['email_address'],
-                'grade_level'    => $row['grade_level'],
                 'status'         => 'Officially Enrolled'
             ]
         );
 
         $students->record()->firstOrCreate(
             [
-                'first_name'              => $row['first_name'],
-                'last_name'               => $row['last_name'],
                 'middle_name'             => null,
                 'birthdate'               => null,
                 'gender'                  => null,
                 'age'                     => null,
                 'place_of_birth'          => null,
 
-                'email'                   => $students->email_address,
-                'contact_number'          => $students->contact_number,
+                'contact_number'          => $row['contact_number'],
                 'current_address'         => null,
                 'permanent_address'       => null,
 
@@ -119,8 +111,6 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
                 'guardian_name'           => null,
                 'guardian_contact_number' => null,
 
-                'grade_level'             => $students->grade_level,
-                'program'                 => $students->program,
                 'current_school'          => null,
                 'previous_school'         => null,
                 'school_contact_info'     => null,
