@@ -71,4 +71,9 @@ class Section extends Model
     {
         return $this->total_enrolled_students >= $limit;
     }
+
+    public function getEnrolledStudentsCountAttribute()
+    {
+        return $this->students()->count();
+    }
 }

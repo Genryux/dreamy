@@ -143,11 +143,20 @@ Route::get('/getPrograms', [ProgramController::class, 'getPrograms']);
 
 
 Route::get('/sections', [SectionController::class, 'index']);
+Route::post('/section', [SectionController::class, 'store']);
 
 // get sections by program id
 Route::get('/getSections/{program}', [SectionController::class, 'getSections']);
 
+
+Route::get('/subjects/auto-assign', [SubjectController::class, 'getAutoAssignSubjects']);
+
 Route::get('/getStudents/{section}', [SectionController::class, 'getStudents']);
+Route::get('/getAvailableStudents/{section}', [SectionController::class, 'getAvailableStudents']);
+Route::get('/getAvailableSubjects/{section}', [SectionController::class, 'getAvailableSubjects']);
+Route::get('/getTeachers', [SectionController::class, 'getTeachers']);
+Route::post('/checkScheduleConflict/{section}', [SectionController::class, 'checkScheduleConflict']);
+Route::post('/assignSubject/{section}', [SectionController::class, 'assignSubject']);
 
 Route::get('/section/{section}', [SectionController::class, 'show']);
 

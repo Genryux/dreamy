@@ -13,6 +13,7 @@ export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInpu
                 // Always read latest values at request time
                 d.grade_filter = window.selectedGrade || '';
                 d.program_filter = window.selectedProgram || '';
+                d.gender_filter = window.selectedGender || '';
                 d.pageLength = window.selectedPageLength || 10;
             }
         },

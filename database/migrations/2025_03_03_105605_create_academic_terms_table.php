@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('academic_terms', function (Blueprint $table) {
             $table->id();
             $table->string('year');
-            $table->string('semester');
+            $table->enum('semester', ['1st Semester', '2nd Semester']);
             $table->date('start_date');
             $table->date('end_date');
             $table->boolean('is_active')->default(false);

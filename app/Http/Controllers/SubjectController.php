@@ -3,11 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Program;
+use App\Models\Section;
 use App\Models\Subject;
+use App\Services\AcademicTermService;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
+
+    public function __construct(
+        protected AcademicTermService $academic_term_service
+    ) {}
+
+    public function getAutoAssignSubjects(Request $request)
+    {
+        $termData = $this->academic_term_service->getCurrentAcademicTermData();
+
+        $programId = $request->get('program_id');
+        $yearLevel = $request->get('year_level');
+
+        $subjects = Subject::where('program_id', $programId)
+            ->where('grade_level', $yearLevel)
+            ->where('semester', $termData['semester'])
+            ->get();
+
+        return response()->json(['subjects' => $subjects]);
+    }
 
     public function getSubjects(Program $program, Request $request)
     {

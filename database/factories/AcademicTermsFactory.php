@@ -18,7 +18,7 @@ class AcademicTermsFactory extends Factory
     {
         return [
             'year' => $this->faker->randomElement(['2023-2024', '2024-2025', '2025-2026']),
-            'semester' => $this->faker->randomElement(['First Semester', 'Second Semester']),
+            'semester' => $this->faker->randomElement(['1st Semester', '2nd Semester']),
             'start_date' => $this->faker->date(),
             'end_date' => $this->faker->date(),
             'is_active' => $this->faker->randomElement([true, false]),

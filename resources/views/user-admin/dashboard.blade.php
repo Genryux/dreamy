@@ -25,8 +25,8 @@
                         <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
                         <select name="semester" id="semester" class="w-full bg-transparent text-[14px]">
                             <option></option>
-                            <option value="First Semester" class="text-[14px]">First Semester</option>
-                            <option value="Second Semester" class="text-[14px]">Second Semester</option>
+                            <option value="1st Semester" class="text-[14px]">1st Semester</option>
+                            <option value="2nd Semester" class="text-[14px]">2nd Semester</option>
                         </select>
                     </div>
                 </div>

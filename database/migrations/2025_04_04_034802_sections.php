@@ -16,7 +16,7 @@ return new class extends Migration
         // Sections Table
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->foreignIdFor(Program::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Teacher::class)->nullable()->constrained()->nullOnDelete();
             $table->string('year_level')->nullable();

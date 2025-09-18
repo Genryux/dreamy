@@ -61,6 +61,70 @@
         </div> --}}
     </nav>
 @endsection
+
+@if (Route::is('program.sections'))
+    {{-- add student modal --}}
+    <x-modal modal_id="create-section-modal" modal_name="Create Section" close_btn_id="create-section-modal-close-btn"
+        modal_container_id="modal-container-1">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
+
+        </x-slot>
+
+        <form id="create-section-form" method="post" action="/section" class="p-6">
+            @csrf
+            <div>
+                <select name="program_id" id="program_id">
+                    <option value="">Select Program</option>
+                    @foreach ($programs as $prog)
+                        <option value="{{ $prog->id }}">{{ $prog->code }}</option>
+                    @endforeach
+                </select>
+
+                <select name="year_level" id="year_level">
+                    <option value="">Select Year Level</option>
+                    <option value="Grade 11">Grade 11</option>
+                    <option value="Grade 12">Grade 12</option>
+                </select>
+
+                <input type="text" name="section_code" id="section_code" placeholder="00-PROGRAM-A" required>
+                <input type="text" name="room" id="room" placeholder="Enter room">
+
+                <select name="adviser_id" id="adviser_id">
+                    <option value="">Assign Adviser</option>
+                    {{-- options here --}}
+                </select>
+
+                <div>
+                    <input type="checkbox" name="auto_assign" id="auto_assign">
+                    <label for="auto_assign">Auto-Assign Subjects (Current Term)</label>
+                </div>
+            </div>
+
+            <div id="subjects-container"></div> <!-- subjects will be inserted here -->
+
+        </form>
+
+        <x-slot name="modal_info">
+
+        </x-slot>
+
+        <x-slot name="modal_buttons">
+            <button id="create-section-cancel-btn"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="create-section-form" name="action" value="create-section"
+                class="bg-[#199BCF] text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-[#C8A165]/40 hover:bg-[#C8A165] transition duration-200 shadow-sm">
+                Continue
+            </button>
+        </x-slot>
+
+    </x-modal>
+@endif
+
+
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
         <h1 class="text-[20px] font-black">Program Details</h1>
@@ -244,13 +308,23 @@
 
                             </div>
 
+                            <!-- Layout Toggle Button -->
+                            <div id="layout_toggle_container"
+                                class="flex flex-row justify-center items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <button id="layout-toggle-btn" 
+                                    class="flex flex-row justify-center items-center gap-2 text-[14px] font-medium text-gray-700 hover:text-[#1A3165] transition-colors duration-150">
+                                    <i id="layout-toggle-icon" class="fi fi-sr-apps text-[16px]"></i>
+                                    <span id="layout-toggle-text">Cards</span>
+                                </button>
+                            </div>
+
 
                         </div>
                     </div>
 
                     <div class="flex flex-row justify-center items-center gap-2">
                         <div class="flex flex-row justify-center items-center truncate">
-                            <button id="add-student-modal-btn"
+                            <button id="create-section-modal-btn"
                                 class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
                                 <i class="fi fi-rr-plus flex justify-center items-center "></i>
                                 Create New Section
@@ -262,7 +336,8 @@
 
                 </div>
 
-                <div class="w-full">
+                <!-- Table Layout Container -->
+                <div id="table-layout-container" class="w-full hidden">
                     <table id="sections" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
@@ -299,6 +374,18 @@
                             {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Card Layout Container -->
+                <div id="card-layout-container" class="w-full">
+                    <div id="sections-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+                    
+                    <!-- Card Layout Pagination -->
+                    <div id="card-pagination" class="flex justify-center items-center mt-6 gap-2">
+                        <!-- Pagination will be dynamically inserted here -->
+                    </div>
                 </div>
             </div>
 
@@ -499,6 +586,10 @@
         window.selectedGrade = '';
         window.selectedProgram = '';
         window.selectedPageLength = 10;
+        window.currentLayout = 'cards'; // 'table' or 'cards'
+        window.currentPage = 1;
+        window.totalPages = 1;
+        window.sectionsData = [];
 
         const programId = @json($program->id);
 
@@ -577,14 +668,14 @@
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
+            let assignCheckbox = document.getElementById('auto_assign');
+
+
+
+
+            initModal('create-section-modal', 'create-section-modal-btn', 'create-section-modal-close-btn',
+                'create-section-cancel-btn',
                 'modal-container-1');
-            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn',
-                'add-student-cancel-btn',
-                'modal-container-2');
-            initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn',
-                'edit-section-cancel-btn',
-                'modal-container-3');
 
             let studentCount = document.querySelector('#studentCount');
             let sectionName = document.querySelector('#section_name');
@@ -731,6 +822,16 @@
 
 
             const customSearch1 = document.getElementById("myCustomSearch");
+            
+            // Update search functionality to work with both layouts
+            customSearch1.addEventListener("input", function() {
+                if (window.currentLayout === 'table') {
+                    sectionTable.search(this.value).draw();
+                } else {
+                    // For card layout, fetch with search
+                    fetchSectionsForCards(1);
+                }
+            });
 
             // table1 = new DataTable('#sections', {
             //     paging: true,
@@ -861,6 +962,175 @@
 
             clearSearch('clear-btn', 'myCustomSearch', sectionTable)
 
+            // Layout Toggle Functionality
+            const layoutToggleBtn = document.getElementById('layout-toggle-btn');
+            const layoutToggleIcon = document.getElementById('layout-toggle-icon');
+            const layoutToggleText = document.getElementById('layout-toggle-text');
+            const tableLayoutContainer = document.getElementById('table-layout-container');
+            const cardLayoutContainer = document.getElementById('card-layout-container');
+
+            // Function to render cards
+            function renderCards(data, currentPage = 1, totalPages = 1) {
+                const cardsGrid = document.getElementById('sections-cards-grid');
+                const paginationContainer = document.getElementById('card-pagination');
+                
+                if (!data || data.length === 0) {
+                    cardsGrid.innerHTML = `
+                        <div class="col-span-full flex flex-col justify-center items-center py-12 text-gray-500">
+                            <i class="fi fi-sr-folder-open text-4xl mb-4"></i>
+                            <p class="text-lg font-medium">No sections found</p>
+                            <p class="text-sm">Try adjusting your search or filters</p>
+                        </div>
+                    `;
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                // Render cards
+                cardsGrid.innerHTML = data.map(section => `
+                    <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-6">
+                        <div class="flex flex-col space-y-4">
+                            <!-- Header -->
+                            <div class="flex flex-row justify-between items-start">
+                                <div class="flex flex-col">
+                                    <h3 class="text-lg font-bold text-[#1A3165]">${section.name}</h3>
+                                    <p class="text-sm text-gray-600">${section.year_level}</p>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-xs text-gray-500">#${section.index}</span>
+                                </div>
+                            </div>
+
+                            <!-- Details -->
+                            <div class="space-y-3">
+                                <div class="flex flex-row items-center gap-3">
+                                    <i class="fi fi-sr-user text-[#1A3165] text-sm"></i>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-500">Adviser</span>
+                                        <span class="text-sm font-medium">${section.adviser}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-row items-center gap-3">
+                                    <i class="fi fi-sr-home text-[#1A3165] text-sm"></i>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-500">Room</span>
+                                        <span class="text-sm font-medium">${section.room}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-row items-center gap-3">
+                                    <i class="fi fi-sr-users text-[#1A3165] text-sm"></i>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-500">Total Students</span>
+                                        <span class="text-sm font-medium">${section.total_enrolled_students}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="pt-2 border-t border-gray-100">
+                                <a href="/section/${section.id}" 
+                                   class="w-full flex justify-center items-center gap-2 bg-[#1A3165] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0f1f3a] transition-colors duration-150">
+                                    <i class="fi fi-rs-eye text-sm"></i>
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Render pagination
+                if (totalPages > 1) {
+                    let paginationHTML = '';
+                    
+                    // Previous button
+                    if (currentPage > 1) {
+                        paginationHTML += `
+                            <button onclick="changeCardPage(${currentPage - 1})" 
+                                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150">
+                                <i class="fi fi-sr-angle-left"></i>
+                            </button>
+                        `;
+                    }
+
+                    // Page numbers
+                    const startPage = Math.max(1, currentPage - 2);
+                    const endPage = Math.min(totalPages, currentPage + 2);
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        paginationHTML += `
+                            <button onclick="changeCardPage(${i})" 
+                                    class="px-3 py-2 text-sm font-medium ${i === currentPage ? 'bg-[#1A3165] text-white' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'} rounded-lg transition-colors duration-150">
+                                ${i}
+                            </button>
+                        `;
+                    }
+
+                    // Next button
+                    if (currentPage < totalPages) {
+                        paginationHTML += `
+                            <button onclick="changeCardPage(${currentPage + 1})" 
+                                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150">
+                                <i class="fi fi-sr-angle-right"></i>
+                            </button>
+                        `;
+                    }
+
+                    paginationContainer.innerHTML = paginationHTML;
+                } else {
+                    paginationContainer.innerHTML = '';
+                }
+            }
+
+            // Function to fetch data for cards
+            async function fetchSectionsForCards(page = 1) {
+                try {
+                    const response = await fetch(`/getSections/${programId}?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`);
+                    const data = await response.json();
+                    
+                    window.sectionsData = data.data;
+                    window.currentPage = page;
+                    window.totalPages = Math.ceil(data.recordsTotal / window.selectedPageLength);
+                    
+                    renderCards(data.data, page, window.totalPages);
+                } catch (error) {
+                    console.error('Error fetching sections:', error);
+                }
+            }
+
+            // Function to change card page
+            window.changeCardPage = function(page) {
+                fetchSectionsForCards(page);
+            }
+
+            // Layout toggle event listener
+            layoutToggleBtn.addEventListener('click', function() {
+                if (window.currentLayout === 'table') {
+                    // Switch to cards
+                    window.currentLayout = 'cards';
+                    tableLayoutContainer.classList.add('hidden');
+                    cardLayoutContainer.classList.remove('hidden');
+                    
+                    layoutToggleIcon.className = 'fi fi-sr-list text-[16px]';
+                    layoutToggleText.textContent = 'Table';
+                    
+                    // Fetch data for cards
+                    fetchSectionsForCards(1);
+                } else {
+                    // Switch to table
+                    window.currentLayout = 'table';
+                    cardLayoutContainer.classList.add('hidden');
+                    tableLayoutContainer.classList.remove('hidden');
+                    
+                    layoutToggleIcon.className = 'fi fi-sr-list text-[16px]';
+                    layoutToggleText.textContent = 'Table';
+                    
+                    // Refresh table
+                    sectionTable.draw();
+                }
+            });
+
             let gradeSelection = document.querySelector('#grade_selection');
             let pageLengthSelection = document.querySelector('#page-length-selection');
 
@@ -870,7 +1140,13 @@
             pageLengthSelection.addEventListener('change', (e) => {
 
                 let selectedPageLength = parseInt(e.target.value, 10);
+                window.selectedPageLength = selectedPageLength;
                 sectionTable.page.len(selectedPageLength).draw();
+                
+                // If in card layout, refresh cards
+                if (window.currentLayout === 'cards') {
+                    fetchSectionsForCards(1);
+                }
 
             })
 
@@ -881,6 +1157,11 @@
 
                 selectedGrade = email;
                 sectionTable.draw();
+                
+                // If in card layout, refresh cards
+                if (window.currentLayout === 'cards') {
+                    fetchSectionsForCards(1);
+                }
 
                 let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
                 let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
@@ -922,6 +1203,11 @@
                     gradeSelection.selectedIndex = 0
                     selectedGrade = '';
                     sectionTable.draw();
+                    
+                    // If in card layout, refresh cards
+                    if (window.currentLayout === 'cards') {
+                        fetchSectionsForCards(1);
+                    }
                 })
 
             }
@@ -929,58 +1215,66 @@
             window.onload = function() {
                 gradeSelection.selectedIndex = 0
                 pageLengthSelection.selectedIndex = 0
+                
+                // Initialize with cards layout (default)
+                fetchSectionsForCards(1);
             }
 
             dropDown('dropdown_2', 'dropdown_selection2');
             dropDown('dropdown_btn', 'dropdown_selection');
 
+            if (assignCheckbox) {
+                assignCheckbox.checked = false;
 
 
-            // document.getElementById('edit-section-form').addEventListener('submit', function(e) {
-            //     e.preventDefault();
+                assignCheckbox.addEventListener('change', function(e) {
+                    const isChecked = e.target.checked;
+                    const programId = document.getElementById('program_id').value;
+                    const yearLevel = document.getElementById('year_level').value;
+                    const container = document.getElementById('subjects-container');
 
-            //     closeModal();
+                    container.innerHTML = ""; // clear old subjects
 
-            //     let form = e.target;
-            //     let formData = new FormData(form);
+                    if (isChecked) {
+                        if (!programId || !yearLevel) {
+                            alert("Please select a program and year level first.");
+                            e.target.checked = false; // uncheck box
+                            return;
+                        }
 
-            //     // Show loader
-            //     showLoader("Edit...");
+                        fetch(`/subjects/auto-assign?program_id=${programId}&year_level=${yearLevel}`, {
+                                headers: {
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.subjects && data.subjects.length > 0) {
+                                    data.subjects.forEach(subj => {
+                                        const div = document.createElement('div');
+                                        div.innerHTML = `
+                        <label>
+                            <input type="checkbox" name="subjects[]" value="${subj.id}" checked>
+                             - ${subj.name}
+                        </label>
+                    `;
+                                        container.appendChild(div);
+                                    });
+                                } else {
+                                    container.innerHTML =
+                                    "<p>No subjects found for this selection.</p>";
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Error fetching subjects:", err);
+                                container.innerHTML = "<p>Failed to load subjects.</p>";
+                            });
+                    }
+                });
+            }
 
-            //     fetch(`/section/${sectionId}`, {
-            //             method: "POST",
-            //             body: formData,
-            //             headers: {
-            //                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            //             }
-            //         })
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             hideLoader();
 
-            //             console.log(data)
 
-            //             if (data.success) {
-
-            //                 sectionName.innerHTML = data.newData['newSectionName'];
-            //                 sectionRoom.innerHTML = data.newData['newRoom'] || 'Not assigned yet';
-            //                 closeModal('edit-section-modal', 'modal-container-3');
-            //                 showAlert('success', data.success);
-            //                 table1.draw();
-
-            //             } else if (data.error) {
-
-            //                 closeModal('edit-section-modal', 'modal-container-3');
-            //                 showAlert('error', data.error);
-            //             }
-            //         })
-            //         .catch(err => {
-            //             hideLoader();
-
-            //             closeModal('add-student-modal', 'modal-container-2');
-            //             showAlert('error', 'Something went wrong');
-            //         });
-            // });
 
 
             // document.getElementById('add-student-form').addEventListener('submit', function(e) {

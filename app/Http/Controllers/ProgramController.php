@@ -103,7 +103,6 @@ class ProgramController extends Controller
         $specializedSubjects = Subject::whereIn('program_id', $programIds)
             ->whereIn('category', ['specialized', 'applied'])
             ->count();
-
         return view('user-admin.program.index', compact('totalStudents', 'activeSections', 'specializedSubjects', 'programCount'));
     }
 
@@ -127,14 +126,15 @@ class ProgramController extends Controller
 
     public function show(Program $program)
     {
-        // if (FacadesRoute::is('program.sections')) {
-        //     $msg = 'sections';
+        $programs = Program::all();
+        if (FacadesRoute::is('program.sections')) {
 
-        // } else if (FacadesRoute::is('program.subjects')) {
-        //     $msg = 'subjects';
-        // }
+            return view('user-admin.program.show', compact('programs', 'program'));
+        } else if (FacadesRoute::is('program.subjects')) {
 
-        return view('user-admin.program.show', compact('program',));
+            return view('user-admin.program.show', compact('program', 'programs'));
+        }
+
         return response()->json($program);
     }
 
