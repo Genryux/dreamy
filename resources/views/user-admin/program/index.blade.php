@@ -195,19 +195,25 @@
                             </th>
 
                             <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Program Code</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Code</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
 
                             <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Description</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
 
-                            <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Created At</span>
+                            <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Total Subjects</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
+
+                            <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Total Sections</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+
 
                             <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
@@ -301,7 +307,7 @@
                         className: 'text-center'
                     }, // index
                     {
-                        width: '15%',
+                        width: '10%',
                         targets: 1
                     }, // code
                     {
@@ -311,10 +317,14 @@
                     {
                         width: '20%',
                         targets: 3
-                    }, // created at
+                    }, // subjects
                     {
-                        width: '15%',
-                        targets: 4,
+                        width: '20%',
+                        targets: 4
+                    }, // students
+                    {
+                        width: '30%',
+                        targets: 5,
                         className: 'text-center'
                     } // actions
                 ],
@@ -334,7 +344,10 @@
                         data: 'name'
                     },
                     {
-                        data: 'created_at'
+                        data: 'subjects'
+                    },
+                    {
+                        data: 'sections'
                     },
                     {
                         data: 'id', // pass ID for rendering the link
@@ -349,7 +362,7 @@
                                         <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
                                     </span>
 
-                                    View
+                                    View Subjects & Sections
                                 </a>
 
                             </div>

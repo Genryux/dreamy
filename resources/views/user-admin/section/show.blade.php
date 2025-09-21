@@ -20,7 +20,8 @@
                 </svg>
             </li>
             <li>
-                <a href="{{ route('program.sections', $section->program->id) }}" class="block transition-colors hover:text-gray-900">
+                <a href="{{ route('program.sections', $section->program->id) }}"
+                    class="block transition-colors hover:text-gray-900">
                     {{ $section->program->code }}
                 </a>
             </li>
@@ -39,46 +40,6 @@
 @endsection
 
 @section('modal')
-    <!-- Import Students Modal -->
-    <x-modal modal_id="import-modal" modal_name="Import Students" close_btn_id="import-modal-close-btn"
-        modal_container_id="modal-container-1">
-        <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center'></i>
-        </x-slot>
-        <form enctype="multipart/form-data" id="import-form" class="p-6">
-            @csrf
-            <label for="fileInput" id="fileInputLabel"
-                class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg bg-[#E7F0FD] hover:bg-blue-100 cursor-pointer transition duration-150">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg class="w-8 h-8 mb-4 text-[#1A73E8]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                        fill="none" viewBox="0 0 20 16">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                    </svg>
-                    <p class="mb-2 text-sm text-[#0f111c]/80"><span class="font-semibold">Choose files to upload</span></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Supported Formats: .xlsx, .xls, .csv</p>
-                </div>
-                <span class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Choose Files</span>
-                <input type="file" id="fileInput" name="file" class="hidden" accept=".xlsx,.xls,.csv" required>
-                <span id="fileName" class="text-gray-500 italic">No file chosen</span>
-            </label>
-        </form>
-        <x-slot name="modal_info">
-            <i class="fi fi-bs-download flex justify-center items-center"></i>
-            <a href="{{ asset('templates/Officially_Enrolled_Students_Import_Template.xlsx') }}" download>Click here to download the template</a>
-        </x-slot>
-        <x-slot name="modal_buttons">
-            <button id="cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
-                Cancel
-            </button>
-            <button type="submit" form="import-form" name="action" value="verify"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
-                Import
-            </button>
-        </x-slot>
-    </x-modal>
-
     <!-- Edit Section Modal -->
     <x-modal modal_id="edit-section-modal" modal_name="Edit Section" close_btn_id="edit-section-close-btn"
         modal_container_id="modal-container-3">
@@ -95,7 +56,8 @@
                 </div>
                 <div class="flex-1 flex flex-col">
                     <label for="room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
-                    <input type="text" name="room" id="room" placeholder="{{ $section->room ?? 'Not Assigned Yet' }}"
+                    <input type="text" name="room" id="room"
+                        placeholder="{{ $section->room ?? 'Not Assigned Yet' }}"
                         class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                 </div>
             </div>
@@ -121,15 +83,19 @@
         <form enctype="multipart/form-data" id="add-student-form" class="p-6">
             @csrf
             <div class="mb-4">
-                <p class="text-sm text-gray-600 mb-2">Below is the list of {{ $section->year_level }} {{ $section->program->code }} students who are currently unassigned to a section.</p>
+                <p class="text-sm text-gray-600 mb-2">Below is the list of {{ $section->year_level }}
+                    {{ $section->program->code }} students who are currently unassigned to a section.</p>
             </div>
-            <div class="relative flex flex-col justify-start items-center overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
-                <div class="sticky top-0 flex flex-row justify-between items-center bg-[#f8f8f8] w-full p-3 border-b border-gray-200 font-medium text-sm text-gray-700">
+            <div
+                class="relative flex flex-col justify-start items-center overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
+                <div
+                    class="sticky top-0 flex flex-row justify-between items-center bg-[#f8f8f8] w-full p-3 border-b border-gray-200 font-medium text-sm text-gray-700">
                     <div class="w-8">#</div>
                     <div class="flex-1 text-left ml-4">Full Name</div>
                 </div>
                 @forelse ($students as $index => $student)
-                    <div class="flex flex-row justify-between items-center gap-2 w-full p-3 hover:bg-gray-50 transition duration-150">
+                    <div
+                        class="flex flex-row justify-between items-center gap-2 w-full p-3 hover:bg-gray-50 transition duration-150">
                         <div class="w-8 text-sm text-gray-500">{{ $index + 1 }}</div>
                         <input type="checkbox" name="student[]" id="lrn-{{ $student->lrn }}" value="{{ $student->id }}"
                             class="peer sr-only" />
@@ -164,113 +130,236 @@
         <x-slot name="modal_icon">
             <i class='fi fi-rr-book flex justify-center items-center'></i>
         </x-slot>
-        <div id="modal-content" class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div id="modal-content"
+            class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <form id="add-subject-form" class="p-6">
                 @csrf
                 <div class="space-y-4">
-                <!-- Subject Selection -->
-                <div class="flex flex-col">
-                    <label for="subject_id" class="text-sm font-medium text-gray-700 mb-2">Subject</label>
-                    <select name="subject_id" id="subject_id" required
-                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                        <option value="" disabled selected>Select a subject</option>
-                        <!-- Options will be populated dynamically -->
-                    </select>
-                </div>
-
-                <!-- Teacher Selection -->
-                <div class="flex flex-col">
-                    <label for="teacher_id" class="text-sm font-medium text-gray-700 mb-2">Teacher</label>
-                    <select name="teacher_id" id="teacher_id"
-                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                        <option value="" selected>Select a teacher (optional)</option>
-                        <!-- Options will be populated dynamically -->
-                    </select>
-                </div>
-
-                <!-- Room -->
-                <div class="flex flex-col">
-                    <label for="room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
-                    <input type="text" name="room" id="room" placeholder="Enter room number"
-                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                </div>
-
-                <!-- Days of Week -->
-                <div class="flex flex-col">
-                    <label class="text-sm font-medium text-gray-700 mb-2">Days of Week</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center">
-                            <input type="checkbox" name="days_of_week[]" value="Monday" class="mr-2">
-                            <span class="text-sm">Monday</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" name="days_of_week[]" value="Tuesday" class="mr-2">
-                            <span class="text-sm">Tuesday</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" name="days_of_week[]" value="Wednesday" class="mr-2">
-                            <span class="text-sm">Wednesday</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" name="days_of_week[]" value="Thursday" class="mr-2">
-                            <span class="text-sm">Thursday</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" name="days_of_week[]" value="Friday" class="mr-2">
-                            <span class="text-sm">Friday</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" name="days_of_week[]" value="Saturday" class="mr-2">
-                            <span class="text-sm">Saturday</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Time Schedule -->
-                <div class="grid grid-cols-2 gap-4">
+                    <!-- Subject Selection -->
                     <div class="flex flex-col">
-                        <label for="start_time" class="text-sm font-medium text-gray-700 mb-2">Start Time</label>
-                        <input type="time" name="start_time" id="start_time"
+                        <label for="subject_id" class="text-sm font-medium text-gray-700 mb-2">Subject</label>
+                        <select name="subject_id" id="subject_id" required
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            <option value="" disabled selected>Select a subject</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Teacher Selection -->
+                    <div class="flex flex-col">
+                        <label for="teacher_id" class="text-sm font-medium text-gray-700 mb-2">Teacher</label>
+                        <select name="teacher_id" id="teacher_id"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            <option value="" selected>Select a teacher (optional)</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Room -->
+                    <div class="flex flex-col">
+                        <label for="room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
+                        <input type="text" name="room" id="room" placeholder="Enter room number"
                             class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     </div>
+
+                    <!-- Days of Week -->
                     <div class="flex flex-col">
-                        <label for="end_time" class="text-sm font-medium text-gray-700 mb-2">End Time</label>
-                        <input type="time" name="end_time" id="end_time"
-                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        <label class="text-sm font-medium text-gray-700 mb-2">Days of Week</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="days_of_week[]" value="Monday" class="mr-2">
+                                <span class="text-sm">Monday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="days_of_week[]" value="Tuesday" class="mr-2">
+                                <span class="text-sm">Tuesday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="days_of_week[]" value="Wednesday" class="mr-2">
+                                <span class="text-sm">Wednesday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="days_of_week[]" value="Thursday" class="mr-2">
+                                <span class="text-sm">Thursday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="days_of_week[]" value="Friday" class="mr-2">
+                                <span class="text-sm">Friday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="days_of_week[]" value="Saturday" class="mr-2">
+                                <span class="text-sm">Saturday</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Schedule Conflict Warning -->
-                <div id="schedule-conflict-warning" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fi fi-sr-exclamation-triangle text-red-500 mr-2"></i>
-                        <span class="text-sm text-red-700 font-medium">Schedule Conflict Detected!</span>
+                    <!-- Time Schedule -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col">
+                            <label for="start_time" class="text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                            <input type="time" name="start_time" id="start_time"
+                                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="end_time" class="text-sm font-medium text-gray-700 mb-2">End Time</label>
+                            <input type="time" name="end_time" id="end_time"
+                                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
                     </div>
-                    <p id="conflict-details" class="text-xs text-red-600 mt-1"></p>
-                </div>
 
-                <!-- Schedule Suggestions -->
-                <div id="schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div class="flex items-center mb-2">
-                        <i class="fi fi-sr-lightbulb text-blue-500 mr-2"></i>
-                        <span class="text-sm text-blue-700 font-medium">Available Time Slots</span>
+                    <!-- Schedule Conflict Warning -->
+                    <div id="schedule-conflict-warning" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fi fi-sr-exclamation-triangle text-red-500 mr-2"></i>
+                            <span class="text-sm text-red-700 font-medium">Schedule Conflict Detected!</span>
+                        </div>
+                        <p id="conflict-details" class="text-xs text-red-600 mt-1"></p>
                     </div>
-                    <p class="text-xs text-blue-600 mb-2">Click on any suggestion to auto-fill the form:</p>
-                    <div id="suggestions-list" class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-1 text-xs">
-                        <!-- Suggestions will be populated here -->
+
+                    <!-- Schedule Suggestions -->
+                    <div id="schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fi fi-sr-lightbulb text-blue-500 mr-2"></i>
+                            <span class="text-sm text-blue-700 font-medium">Available Time Slots</span>
+                        </div>
+                        <p class="text-xs text-blue-600 mb-2">Click on any suggestion to auto-fill the form:</p>
+                        <div id="suggestions-list"
+                            class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-1 text-xs">
+                            <!-- Suggestions will be populated here -->
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
         </div>
         <x-slot name="modal_buttons">
             <button id="add-subject-cancel-btn"
                 class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
-            <button type="submit" form="add-subject-form" id="add-subject-submit-btn"
+            <button type="submit" form="add-subject-form" id="add-subject-submit-btn" name="action"
+                value="add-subject"
                 class="bg-green-600 text-[14px] px-3 py-2 rounded-md text-white font-bold hover:ring hover:ring-green-200 hover:bg-green-700 transition duration-150 shadow-sm">
                 Add Subject
+            </button>
+        </x-slot>
+    </x-modal>
+
+    {{-- Edit Subject Modal --}}
+    <x-modal modal_id="edit-subject-modal" modal_name="edit Subject" close_btn_id="edit-subject-modal-close-btn"
+        modal_container_id="modal-container-5">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-book flex justify-center items-center'></i>
+        </x-slot>
+        <div id="modal-content"
+            class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <form id="edit-subject-form" class="p-6">
+                @csrf
+                <div class="space-y-4">
+                    <!-- Subject Selection -->
+                    <div class="flex flex-col">
+                        <label for="subject_id" class="text-sm font-medium text-gray-700 mb-2">Subject</label>
+                        <select name="edit-subject_id" id="subject_id" required
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            <option value="" disabled selected>Select a subject</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Teacher Selection -->
+                    <div class="flex flex-col">
+                        <label for="teacher_id" class="text-sm font-medium text-gray-700 mb-2">Teacher</label>
+                        <select name="edit-teacher_id" id="teacher_id"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            <option value="" selected>Select a teacher (optional)</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Room -->
+                    <div class="flex flex-col">
+                        <label for="room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
+                        <input type="text" name="edit-room" id="room" placeholder="Enter room number"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    </div>
+
+                    <!-- Days of Week -->
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-gray-700 mb-2">Days of Week</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="edit-days_of_week[]" value="Monday" class="mr-2">
+                                <span class="text-sm">Monday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="edit-days_of_week[]" value="Tuesday" class="mr-2">
+                                <span class="text-sm">Tuesday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="edit-days_of_week[]" value="Wednesday" class="mr-2">
+                                <span class="text-sm">Wednesday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="edit-days_of_week[]" value="Thursday" class="mr-2">
+                                <span class="text-sm">Thursday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="edit-days_of_week[]" value="Friday" class="mr-2">
+                                <span class="text-sm">Friday</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="edit-days_of_week[]" value="Saturday" class="mr-2">
+                                <span class="text-sm">Saturday</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Time Schedule -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col">
+                            <label for="start_time" class="text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                            <input type="time" name="edit-start_time" id="start_time"
+                                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="end_time" class="text-sm font-medium text-gray-700 mb-2">End Time</label>
+                            <input type="time" name="edit-end_time" id="end_time"
+                                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+                    </div>
+
+                    <!-- Schedule Conflict Warning -->
+                    <div id="schedule-conflict-warning" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fi fi-sr-exclamation-triangle text-red-500 mr-2"></i>
+                            <span class="text-sm text-red-700 font-medium">Schedule Conflict Detected!</span>
+                        </div>
+                        <p id="conflict-details" class="text-xs text-red-600 mt-1"></p>
+                    </div>
+
+                    <!-- Schedule Suggestions -->
+                    <div id="schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fi fi-sr-lightbulb text-blue-500 mr-2"></i>
+                            <span class="text-sm text-blue-700 font-medium">Available Time Slots</span>
+                        </div>
+                        <p class="text-xs text-blue-600 mb-2">Click on any suggestion to auto-fill the form:</p>
+                        <div id="suggestions-list"
+                            class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-1 text-xs">
+                            <!-- Suggestions will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <x-slot name="modal_buttons">
+            <button id="edit-subject-cancel-btn"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="submit" form="edit-subject-form" id="edit-subject-submit-btn" name="action"
+                value="edit-subject"
+                class="bg-green-600 text-[14px] px-3 py-2 rounded-md text-white font-bold hover:ring hover:ring-green-200 hover:bg-green-700 transition duration-150 shadow-sm">
+                edit Subject
             </button>
         </x-slot>
     </x-modal>
@@ -376,7 +465,7 @@
 
     <!-- Main Content Layout -->
     <div class="flex flex-row justify-center items-start gap-4">
-        
+
         <!-- Students Section -->
         <div class="w-[65%] bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
             <div class="flex flex-row justify-between items-center mb-6">
@@ -384,54 +473,55 @@
                     <h2 class="text-[20px] font-bold text-gray-900">Students</h2>
                     <p class="text-[14px] text-gray-600 mt-1">Manage enrolled students in this section</p>
                 </div>
-                    <button id="add-student-modal-btn"
+                <button id="add-student-modal-btn"
                     class="bg-[#1A3165] px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
                     <i class="fi fi-rr-plus flex justify-center items-center"></i>
-                        Add Student
-                    </button>
-                </div>
+                    Add Student
+                </button>
+            </div>
 
             <!-- Search and Filters -->
             <div class="flex flex-row justify-between items-center mb-4 gap-4">
-                    <label for="myCustomSearch"
+                <label for="myCustomSearch"
                     class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 rounded-lg py-2 px-3 gap-2 flex-1 hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
-                        <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
-                        <input type="search" name="" id="myCustomSearch"
-                            class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                    <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                    <input type="search" name="" id="myCustomSearch"
+                        class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
                         placeholder="Search students...">
-                        <button id="clear-btn"
-                            class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
-                            <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
-                        </button>
-                    </label>
-                
+                    <button id="clear-btn"
+                        class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                        <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                    </button>
+                </label>
+
                 <div class="flex flex-row gap-2">
-                    <div class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                            <select name="pageLength" id="page-length-selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                <option selected disabled>Entries</option>
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
+                    <div
+                        class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                        <select name="pageLength" id="page-length-selection"
+                            class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                            <option selected disabled>Entries</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
                         <i class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-                        </div>
+                    </div>
 
                     <!-- Gender Filter -->
                     <div id="gender_selection_container"
                         class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                         <select name="gender_selection" id="gender_selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                            class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                             <option value="" disabled selected>Gender</option>
                             <option value="" data-gender="Male">Male</option>
                             <option value="" data-gender="Female">Female</option>
-                            </select>
+                        </select>
                         <i id="clear-gender-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-                        </div>
+                            class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                     </div>
                 </div>
+            </div>
 
             <!-- Students Table -->
             <div class="w-full">
@@ -476,7 +566,8 @@
                     <h2 class="text-[20px] font-bold text-gray-900">Subjects</h2>
                     <p class="text-[14px] text-gray-600 mt-1">Subjects assigned to this section</p>
                 </div>
-                <button id="add-subject-modal-btn" class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
+                <button id="add-subject-modal-btn"
+                    class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
                     <i class="fi fi-rr-plus flex justify-center items-center"></i>
                     Add Subject
                 </button>
@@ -485,26 +576,29 @@
             <!-- Subjects Grid -->
             <div class="space-y-4">
                 @forelse($section->sectionSubjects as $sectionSubject)
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-4 hover:shadow-md transition duration-200">
+                    <div
+                        class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-4 hover:shadow-md transition duration-200">
                         <div class="flex flex-row justify-between items-start mb-3">
                             <div class="flex-1">
                                 <h3 class="text-lg font-bold text-[#1A3165]">{{ $sectionSubject->subject->name }}</h3>
                                 <p class="text-sm text-gray-600">{{ $sectionSubject->subject->category ?? 'General' }}</p>
                             </div>
                             <div class="flex flex-col items-end">
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{{ $sectionSubject->subject->year_level ?? $section->year_level }}</span>
+                                <span
+                                    class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{{ $sectionSubject->subject->year_level ?? $section->year_level }}</span>
                             </div>
                         </div>
-                        
+
                         <div class="grid grid-cols-2 gap-4 mb-3">
                             <div class="flex flex-row items-center gap-2">
                                 <i class="fi fi-sr-user text-[#1A3165] text-sm"></i>
                                 <div class="flex flex-col">
                                     <span class="text-xs text-gray-500">Teacher</span>
-                                    <span class="text-sm font-medium">{{ $sectionSubject->teacher->name ?? 'Not assigned' }}</span>
+                                    <span
+                                        class="text-sm font-medium">{{ $sectionSubject->teacher->name ?? 'Not assigned' }}</span>
                                 </div>
                             </div>
-                            
+
                             <div class="flex flex-row items-center gap-2">
                                 <i class="fi fi-sr-home text-[#1A3165] text-sm"></i>
                                 <div class="flex flex-col">
@@ -514,33 +608,37 @@
                             </div>
                         </div>
 
-                        @if($sectionSubject->days_of_week || $sectionSubject->start_time)
-                        <div class="flex flex-row items-center gap-2 mb-3">
-                            <i class="fi fi-sr-clock text-[#1A3165] text-sm"></i>
-                            <div class="flex flex-col">
-                                <span class="text-xs text-gray-500">Schedule</span>
-                                <span class="text-sm font-medium">
-                                    @if($sectionSubject->days_of_week)
-                                        {{ implode(', ', $sectionSubject->days_of_week) }}
-                                    @endif
-                                    @if($sectionSubject->start_time && $sectionSubject->end_time)
-                                        • {{ $sectionSubject->start_time }} - {{ $sectionSubject->end_time }}
-                                    @endif
-                                </span>
+                        @if ($sectionSubject->days_of_week || $sectionSubject->start_time)
+                            <div class="flex flex-row items-center gap-2 mb-3">
+                                <i class="fi fi-sr-clock text-[#1A3165] text-sm"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-gray-500">Schedule</span>
+                                    <span class="text-sm font-medium">
+                                        @if ($sectionSubject->days_of_week)
+                                            {{ implode(', ', $sectionSubject->days_of_week) }}
+                                        @endif
+                                        @if ($sectionSubject->start_time && $sectionSubject->end_time)
+                                            • {{ $sectionSubject->start_time }} - {{ $sectionSubject->end_time }}
+                                        @endif
+                                    </span>
+                                </div>
                             </div>
-                        </div>
                         @endif
 
                         <div class="flex flex-row justify-between items-center pt-2 border-t border-blue-200">
                             <div class="flex flex-row items-center gap-2">
                                 <i class="fi fi-sr-users text-[#1A3165] text-sm"></i>
-                                <span class="text-sm text-gray-600">{{ $sectionSubject->students()->count() }} enrolled</span>
+                                <span class="text-sm text-gray-600">{{ $sectionSubject->students()->count() }}
+                                    enrolled</span>
                             </div>
                             <div class="flex flex-row gap-2">
-                                <button class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150">
+                                <button data-section-subject-id="{{ $sectionSubject->id }}"
+                                    id="edit-subject-modal-btn-{{ $sectionSubject->id }}"
+                                    class="edit-btns px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150">
                                     <i class="fi fi-rr-edit text-xs mr-1"></i>Edit
                                 </button>
-                                <button class="px-3 py-1 text-xs font-medium text-red-600 bg-red-100 rounded hover:bg-red-200 transition duration-150">
+                                <button
+                                    class="px-3 py-1 text-xs font-medium text-red-600 bg-red-100 rounded hover:bg-red-200 transition duration-150">
                                     <i class="fi fi-rr-trash text-xs mr-1"></i>Remove
                                 </button>
                             </div>
@@ -560,12 +658,25 @@
 
 @push('scripts')
     <script type="module">
-        import { dropDown } from "/js/dropDown.js";
-        import { clearSearch } from "/js/clearSearch.js"
-        import { initModal } from "/js/modal.js";
-        import { showAlert } from "/js/alert.js";
-        import { showLoader, hideLoader } from "/js/loader.js";
-        import { initCustomDataTable } from "/js/initTable.js";
+        import {
+            dropDown
+        } from "/js/dropDown.js";
+        import {
+            clearSearch
+        } from "/js/clearSearch.js"
+        import {
+            initModal
+        } from "/js/modal.js";
+        import {
+            showAlert
+        } from "/js/alert.js";
+        import {
+            showLoader,
+            hideLoader
+        } from "/js/loader.js";
+        import {
+            initCustomDataTable
+        } from "/js/initTable.js";
 
         let table1;
         window.selectedGrade = '';
@@ -577,10 +688,14 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             // Initialize modals
-            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn', 'modal-container-1');
-            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn', 'add-student-cancel-btn', 'modal-container-2');
-            initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn', 'edit-section-cancel-btn', 'modal-container-3');
-            initModal('add-subject-modal', 'add-subject-modal-btn', 'add-subject-modal-close-btn', 'add-subject-cancel-btn', 'modal-container-4');
+            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
+                'modal-container-1');
+            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn',
+                'add-student-cancel-btn', 'modal-container-2');
+            initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn',
+                'edit-section-cancel-btn', 'modal-container-3');
+            initModal('add-subject-modal', 'add-subject-modal-btn', 'add-subject-modal-close-btn',
+                'add-subject-cancel-btn', 'modal-container-4');
 
             // Refresh student list when modal is opened
             document.getElementById('add-student-modal-btn').addEventListener('click', function() {
@@ -589,7 +704,18 @@
 
             // Add event listener for Add Subject modal button
             document.getElementById('add-subject-modal-btn').addEventListener('click', function() {
+                clearAddSubjectForm();
                 loadSubjectsAndTeachers();
+            });
+
+            // Clear form when modal is closed
+            document.getElementById('add-subject-modal-close-btn').addEventListener('click', function() {
+                clearAddSubjectForm();
+            });
+
+            // Clear form when cancel button is clicked
+            document.getElementById('add-subject-cancel-btn').addEventListener('click', function() {
+                clearAddSubjectForm();
             });
 
             let studentCount = document.querySelector('#studentCount');
@@ -600,12 +726,21 @@
             table1 = initCustomDataTable(
                 'sections',
                 `/getStudents/${sectionId}`,
-                [
-                    { data: 'index' },
-                    { data: 'lrn' },
-                    { data: 'full_name' },
-                    { data: 'age' },
-                    { data: 'gender' },
+                [{
+                        data: 'index'
+                    },
+                    {
+                        data: 'lrn'
+                    },
+                    {
+                        data: 'full_name'
+                    },
+                    {
+                        data: 'age'
+                    },
+                    {
+                        data: 'gender'
+                    },
                     {
                         data: 'id',
                         render: function(data, type, row) {
@@ -624,15 +759,38 @@
                         searchable: false
                     }
                 ],
-                [[0, 'asc']],
-                'myCustomSearch',
                 [
-                    { width: '5%', targets: 0, className: 'text-center' },
-                    { width: '18%', targets: 1 },
-                    { width: '30%', targets: 2 },
-                    { width: '15%', targets: 3, className: 'text-center' },
-                    { width: '15%', targets: 4, className: 'text-center' },
-                    { width: '20%', targets: 5, className: 'text-center' }
+                    [0, 'asc']
+                ],
+                'myCustomSearch',
+                [{
+                        width: '5%',
+                        targets: 0,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '18%',
+                        targets: 1
+                    },
+                    {
+                        width: '30%',
+                        targets: 2
+                    },
+                    {
+                        width: '15%',
+                        targets: 3,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '15%',
+                        targets: 4,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '20%',
+                        targets: 5,
+                        className: 'text-center'
+                    }
                 ]
             );
 
@@ -709,14 +867,16 @@
                 fetch(`/section/${sectionId}`, {
                         method: "POST",
                         body: formData,
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
                     })
                     .then(response => response.json())
                     .then(data => {
                         hideLoader();
                         if (data.success) {
                             sectionName.innerHTML = data.newData['newSectionName'];
-                        sectionRoom.innerHTML = data.newData['newRoom'] || 'Not assigned';
+                            sectionRoom.innerHTML = data.newData['newRoom'] || 'Not assigned';
                             closeModal('edit-section-modal', 'modal-container-3');
                             showAlert('success', data.success);
                         } else if (data.error) {
@@ -726,7 +886,7 @@
                     })
                     .catch(err => {
                         hideLoader();
-                    closeModal('edit-section-modal', 'modal-container-3');
+                        closeModal('edit-section-modal', 'modal-container-3');
                         showAlert('error', 'Something went wrong');
                     });
             });
@@ -736,21 +896,23 @@
                 try {
                     const response = await fetch(`/getAvailableStudents/${sectionId}`);
                     const data = await response.json();
-                    
-                    const studentListContainer = document.querySelector('#add-student-form .relative.flex.flex-col');
-                    
+
+                    const studentListContainer = document.querySelector(
+                        '#add-student-form .relative.flex.flex-col');
+
                     // Clear ALL existing content except the header
                     const headerRow = studentListContainer.querySelector('.sticky.top-0');
                     studentListContainer.innerHTML = '';
                     if (headerRow) {
                         studentListContainer.appendChild(headerRow);
                     }
-                    
+
                     // Add new student rows
                     if (data.students && data.students.length > 0) {
                         data.students.forEach((student, index) => {
                             const studentRow = document.createElement('div');
-                            studentRow.className = 'flex flex-row justify-between items-center gap-2 w-full p-3 hover:bg-gray-50 transition duration-150';
+                            studentRow.className =
+                                'flex flex-row justify-between items-center gap-2 w-full p-3 hover:bg-gray-50 transition duration-150';
                             studentRow.innerHTML = `
                                 <div class="w-8 text-sm text-gray-500">${index + 1}</div>
                                 <input type="checkbox" name="student[]" id="lrn-${student.lrn}" value="${student.id}" class="peer sr-only" />
@@ -785,7 +947,9 @@
                 fetch(`/assign-section/${sectionId}`, {
                         method: "POST",
                         body: formData,
-                    headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" }
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -796,15 +960,15 @@
                             showAlert('success', data.success);
                             table1.draw();
 
-                        // Refresh the student list in the modal
-                        refreshStudentList();
-                        
-                        // Clear all checkboxes
-                        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-                        checkboxes.forEach(checkbox => {
-                            checkbox.checked = false;
-                        });
-                    } else if (data.error) {
+                            // Refresh the student list in the modal
+                            refreshStudentList();
+
+                            // Clear all checkboxes
+                            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+                            checkboxes.forEach(checkbox => {
+                                checkbox.checked = false;
+                            });
+                        } else if (data.error) {
                             closeModal('add-student-modal', 'modal-container-2');
                             showAlert('error', data.error);
                         }
@@ -827,16 +991,45 @@
                 }
             }
 
+            // Function to clear the Add Subject form
+            function clearAddSubjectForm() {
+                // Clear form inputs
+                document.getElementById('subject_id').selectedIndex = 0;
+                document.getElementById('teacher_id').selectedIndex = 0;
+                document.getElementById('room').value = '';
+                document.getElementById('start_time').value = '';
+                document.getElementById('end_time').value = '';
+
+                // Clear day checkboxes
+                const dayCheckboxes = document.querySelectorAll('input[name="days_of_week[]"]');
+                dayCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                // Hide conflict warning and suggestions
+                document.getElementById('schedule-conflict-warning').classList.add('hidden');
+                document.getElementById('schedule-suggestions').classList.add('hidden');
+
+                // Reset modal height to default
+                document.getElementById('modal-content').classList.remove('max-h-[28rem]', 'max-h-[32rem]');
+                document.getElementById('modal-content').classList.add('max-h-96');
+
+                // Enable submit button
+                const submitBtn = document.getElementById('add-subject-submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
             // Function to load subjects and teachers for the modal
             async function loadSubjectsAndTeachers() {
                 try {
                     // Load subjects
                     const subjectsResponse = await fetch(`/getAvailableSubjects/${sectionId}`);
                     const subjectsData = await subjectsResponse.json();
-                    
+
                     const subjectSelect = document.getElementById('subject_id');
                     subjectSelect.innerHTML = '<option value="" disabled selected>Select a subject</option>';
-                    
+
                     if (subjectsData.subjects && subjectsData.subjects.length > 0) {
                         subjectsData.subjects.forEach(subject => {
                             const option = document.createElement('option');
@@ -855,10 +1048,10 @@
                     // Load teachers
                     const teachersResponse = await fetch('/getTeachers');
                     const teachersData = await teachersResponse.json();
-                    
+
                     const teacherSelect = document.getElementById('teacher_id');
                     teacherSelect.innerHTML = '<option value="" selected>Select a teacher (optional)</option>';
-                    
+
                     if (teachersData.teachers && teachersData.teachers.length > 0) {
                         teachersData.teachers.forEach(teacher => {
                             const option = document.createElement('option');
@@ -876,7 +1069,7 @@
             async function checkScheduleConflict() {
                 const formData = new FormData(document.getElementById('add-subject-form'));
                 const data = Object.fromEntries(formData.entries());
-                
+
                 // Convert days_of_week array properly
                 const daysOfWeek = [];
                 document.querySelectorAll('input[name="days_of_week[]"]:checked').forEach(checkbox => {
@@ -889,7 +1082,8 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
                         },
                         body: JSON.stringify(data)
                     });
@@ -907,20 +1101,35 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-                        // Show suggestions if available
-                        if (result.suggestions && result.suggestions.length > 0) {
+                        // Show suggestions container if there are suggestions OR no available days
+                        if ((result.suggestions && result.suggestions.length > 0) || (result.no_available_days && result.no_available_days.length > 0)) {
                             suggestionsDiv.classList.remove('hidden');
                             suggestionsList.innerHTML = '';
-                            
-                            result.suggestions.forEach(suggestion => {
-                                const suggestionBtn = document.createElement('button');
-                                suggestionBtn.type = 'button';
-                                suggestionBtn.className = 'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
-                                suggestionBtn.textContent = suggestion.display;
-                                suggestionBtn.onclick = () => applySuggestion(suggestion);
-                                suggestionsList.appendChild(suggestionBtn);
-                            });
-                            
+
+                            // Show available time suggestions
+                            if (result.suggestions && result.suggestions.length > 0) {
+                                result.suggestions.forEach(suggestion => {
+                                    const suggestionBtn = document.createElement('button');
+                                    suggestionBtn.type = 'button';
+                                    suggestionBtn.className =
+                                        'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                    suggestionBtn.textContent = suggestion.display;
+                                    suggestionBtn.onclick = () => applySuggestion(suggestion);
+                                    suggestionsList.appendChild(suggestionBtn);
+                                });
+                            }
+
+                            // Show "No available time" message if there are days with no available times
+                            if (result.no_available_days && result.no_available_days.length > 0) {
+                                const noAvailableDiv = document.createElement('div');
+                                noAvailableDiv.className = 'mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700';
+                                noAvailableDiv.innerHTML = `
+                                    <i class="fi fi-sr-exclamation-triangle mr-1"></i>
+                                    ${result.no_available_message}
+                                `;
+                                suggestionsList.appendChild(noAvailableDiv);
+                            }
+
                             // Increase modal height when suggestions are shown
                             document.getElementById('modal-content').classList.remove('max-h-96');
                             document.getElementById('modal-content').classList.add('max-h-[32rem]');
@@ -935,9 +1144,10 @@
                         suggestionsDiv.classList.add('hidden');
                         submitBtn.disabled = false;
                         submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        
+
                         // Reset to default height when no conflicts/suggestions
-                        document.getElementById('modal-content').classList.remove('max-h-[28rem]', 'max-h-[32rem]');
+                        document.getElementById('modal-content').classList.remove('max-h-[28rem]',
+                            'max-h-[32rem]');
                         document.getElementById('modal-content').classList.add('max-h-96');
                     }
                 } catch (error) {
@@ -950,25 +1160,26 @@
                 // Set the start and end times
                 document.getElementById('start_time').value = suggestion.start_time;
                 document.getElementById('end_time').value = suggestion.end_time;
-                
+
                 // Clear all day checkboxes first
                 document.querySelectorAll('input[name="days_of_week[]"]').forEach(checkbox => {
                     checkbox.checked = false;
                 });
-                
+
                 // Check the specific day
-                const dayCheckbox = document.querySelector(`input[name="days_of_week[]"][value="${suggestion.day}"]`);
+                const dayCheckbox = document.querySelector(
+                    `input[name="days_of_week[]"][value="${suggestion.day}"]`);
                 if (dayCheckbox) {
                     dayCheckbox.checked = true;
                 }
-                
+
                 // Hide suggestions and re-check for conflicts
                 document.getElementById('schedule-suggestions').classList.add('hidden');
-                
+
                 // Reset modal height
                 document.getElementById('modal-content').classList.remove('max-h-[28rem]', 'max-h-[32rem]');
                 document.getElementById('modal-content').classList.add('max-h-96');
-                
+
                 // Trigger conflict check to update the UI
                 setTimeout(() => {
                     checkScheduleConflict();
@@ -994,10 +1205,10 @@
             // Handle form submission
             document.getElementById('add-subject-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+
                 const formData = new FormData(this);
                 const data = Object.fromEntries(formData.entries());
-                
+
                 // Convert days_of_week array properly
                 const daysOfWeek = [];
                 document.querySelectorAll('input[name="days_of_week[]"]:checked').forEach(checkbox => {
@@ -1011,7 +1222,8 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
                         },
                         body: JSON.stringify(data)
                     });
@@ -1024,24 +1236,40 @@
                         const detailsDiv = document.getElementById('conflict-details');
                         const suggestionsDiv = document.getElementById('schedule-suggestions');
                         const suggestionsList = document.getElementById('suggestions-list');
-                        
+
                         warningDiv.classList.remove('hidden');
-                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => conflict.message).join('<br>');
-                        
-                        // Show suggestions if available
-                        if (conflictResult.suggestions && conflictResult.suggestions.length > 0) {
+                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => conflict
+                            .message).join('<br>');
+
+                        // Show suggestions container if there are suggestions OR no available days
+                        if ((conflictResult.suggestions && conflictResult.suggestions.length > 0) || (conflictResult.no_available_days && conflictResult.no_available_days.length > 0)) {
                             suggestionsDiv.classList.remove('hidden');
                             suggestionsList.innerHTML = '';
-                            
-                            conflictResult.suggestions.forEach(suggestion => {
-                                const suggestionBtn = document.createElement('button');
-                                suggestionBtn.type = 'button';
-                                suggestionBtn.className = 'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
-                                suggestionBtn.textContent = suggestion.display;
-                                suggestionBtn.onclick = () => applySuggestion(suggestion);
-                                suggestionsList.appendChild(suggestionBtn);
-                            });
-                            
+
+                            // Show available time suggestions
+                            if (conflictResult.suggestions && conflictResult.suggestions.length > 0) {
+                                conflictResult.suggestions.forEach(suggestion => {
+                                    const suggestionBtn = document.createElement('button');
+                                    suggestionBtn.type = 'button';
+                                    suggestionBtn.className =
+                                        'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                    suggestionBtn.textContent = suggestion.display;
+                                    suggestionBtn.onclick = () => applySuggestion(suggestion);
+                                    suggestionsList.appendChild(suggestionBtn);
+                                });
+                            }
+
+                            // Show "No available time" message if there are days with no available times
+                            if (conflictResult.no_available_days && conflictResult.no_available_days.length > 0) {
+                                const noAvailableDiv = document.createElement('div');
+                                noAvailableDiv.className = 'mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700';
+                                noAvailableDiv.innerHTML = `
+                                    <i class="fi fi-sr-exclamation-triangle mr-1"></i>
+                                    ${conflictResult.no_available_message}
+                                `;
+                                suggestionsList.appendChild(noAvailableDiv);
+                            }
+
                             // Increase modal height when suggestions are shown
                             document.getElementById('modal-content').classList.remove('max-h-96');
                             document.getElementById('modal-content').classList.add('max-h-[32rem]');
@@ -1051,8 +1279,10 @@
                             document.getElementById('modal-content').classList.remove('max-h-96');
                             document.getElementById('modal-content').classList.add('max-h-[28rem]');
                         }
-                        
-                        showAlert('error', 'Schedule conflicts detected. Please resolve conflicts before submitting.');
+
+                        showAlert('error',
+                            'Schedule conflicts detected. Please resolve conflicts before submitting.'
+                        );
                         return; // Stop submission
                     }
 
@@ -1061,7 +1291,8 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
                         },
                         body: JSON.stringify(data)
                     });
@@ -1071,7 +1302,7 @@
                     if (result.success) {
                         closeModal('add-subject-modal', 'modal-container-4');
                         showAlert('success', result.success);
-                        
+
                         // Refresh the page to show the new subject
                         setTimeout(() => {
                             window.location.reload();
@@ -1084,6 +1315,16 @@
                     showAlert('error', 'Something went wrong');
                 }
             });
+
+            // Initialize each edit modal of subjects
+            document.querySelectorAll('.edit-btns').forEach(btns => {
+
+                let id = btns.getAttribute('data-section-subject-id');
+                initModal('edit-subject-modal', `edit-subject-modal-btn-${id}`, 'edit-subject-modal-close-btn',
+                    'edit-subject-cancel-btn', 'modal-container-5');
+
+
+            })
 
             // Initialize page
             window.onload = function() {

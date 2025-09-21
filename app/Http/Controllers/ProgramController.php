@@ -77,7 +77,8 @@ class ProgramController extends Controller
                     'index' => $start + $key + 1,
                     'code' => $item->code,
                     'name' => $item->name,
-                    'created_at' => optional($item->created_at)->translatedFormat('M d, Y') ?? '-',
+                    'subjects' => $item->getTotalSubjects(),
+                    'sections' => $item->getTotalSections(),
                     'id' => $item->id
                 ];
             });
@@ -126,13 +127,18 @@ class ProgramController extends Controller
 
     public function show(Program $program)
     {
+        
         $programs = Program::all();
+        
+        $totalStudents = $program->totalStudents($program->code);
+        $activeSections = $program->getTotalSections();
+
         if (FacadesRoute::is('program.sections')) {
 
-            return view('user-admin.program.show', compact('programs', 'program'));
+            return view('user-admin.program.show', compact('programs', 'program', 'totalStudents', 'activeSections'));
         } else if (FacadesRoute::is('program.subjects')) {
 
-            return view('user-admin.program.show', compact('program', 'programs'));
+            return view('user-admin.program.show', compact('program', 'programs', 'totalStudents', 'activeSections'));
         }
 
         return response()->json($program);

@@ -163,7 +163,8 @@
                         <i class="fi fi-rr-star flex justify-center items-center"></i>
                         <p class="text-[14px]">Total Students</p>
                     </div>
-                    <p class="font-bold text-[24px]"></p>
+                    <p class="font-bold text-[24px]">{{ $totalStudents }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Total students enrolled in this program</p>
                 </div>
 
                 <div
@@ -172,7 +173,8 @@
                         <i class="fi fi-rr-lesson flex flex-row justify-center items-center"></i>
                         <p class="text-[14px]">Active Sections</p>
                     </div>
-                    <p class="font-bold text-[24px]"></p>
+                    <p class="font-bold text-[24px]">{{ $activeSections }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Active sections across this program</p>
                 </div>
 
                 <div
@@ -311,7 +313,7 @@
                             <!-- Layout Toggle Button -->
                             <div id="layout_toggle_container"
                                 class="flex flex-row justify-center items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                                <button id="layout-toggle-btn" 
+                                <button id="layout-toggle-btn"
                                     class="flex flex-row justify-center items-center gap-2 text-[14px] font-medium text-gray-700 hover:text-[#1A3165] transition-colors duration-150">
                                     <i id="layout-toggle-icon" class="fi fi-sr-apps text-[16px]"></i>
                                     <span id="layout-toggle-text">Cards</span>
@@ -381,7 +383,7 @@
                     <div id="sections-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Cards will be dynamically inserted here -->
                     </div>
-                    
+
                     <!-- Card Layout Pagination -->
                     <div id="card-pagination" class="flex justify-center items-center mt-6 gap-2">
                         <!-- Pagination will be dynamically inserted here -->
@@ -822,7 +824,7 @@
 
 
             const customSearch1 = document.getElementById("myCustomSearch");
-            
+
             // Update search functionality to work with both layouts
             customSearch1.addEventListener("input", function() {
                 if (window.currentLayout === 'table') {
@@ -973,7 +975,7 @@
             function renderCards(data, currentPage = 1, totalPages = 1) {
                 const cardsGrid = document.getElementById('sections-cards-grid');
                 const paginationContainer = document.getElementById('card-pagination');
-                
+
                 if (!data || data.length === 0) {
                     cardsGrid.innerHTML = `
                         <div class="col-span-full flex flex-col justify-center items-center py-12 text-gray-500">
@@ -1043,7 +1045,7 @@
                 // Render pagination
                 if (totalPages > 1) {
                     let paginationHTML = '';
-                    
+
                     // Previous button
                     if (currentPage > 1) {
                         paginationHTML += `
@@ -1057,7 +1059,7 @@
                     // Page numbers
                     const startPage = Math.max(1, currentPage - 2);
                     const endPage = Math.min(totalPages, currentPage + 2);
-                    
+
                     for (let i = startPage; i <= endPage; i++) {
                         paginationHTML += `
                             <button onclick="changeCardPage(${i})" 
@@ -1086,13 +1088,15 @@
             // Function to fetch data for cards
             async function fetchSectionsForCards(page = 1) {
                 try {
-                    const response = await fetch(`/getSections/${programId}?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`);
+                    const response = await fetch(
+                        `/getSections/${programId}?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`
+                        );
                     const data = await response.json();
-                    
+
                     window.sectionsData = data.data;
                     window.currentPage = page;
                     window.totalPages = Math.ceil(data.recordsTotal / window.selectedPageLength);
-                    
+
                     renderCards(data.data, page, window.totalPages);
                 } catch (error) {
                     console.error('Error fetching sections:', error);
@@ -1111,10 +1115,10 @@
                     window.currentLayout = 'cards';
                     tableLayoutContainer.classList.add('hidden');
                     cardLayoutContainer.classList.remove('hidden');
-                    
+
                     layoutToggleIcon.className = 'fi fi-sr-list text-[16px]';
                     layoutToggleText.textContent = 'Table';
-                    
+
                     // Fetch data for cards
                     fetchSectionsForCards(1);
                 } else {
@@ -1122,10 +1126,10 @@
                     window.currentLayout = 'table';
                     cardLayoutContainer.classList.add('hidden');
                     tableLayoutContainer.classList.remove('hidden');
-                    
+
                     layoutToggleIcon.className = 'fi fi-sr-list text-[16px]';
                     layoutToggleText.textContent = 'Table';
-                    
+
                     // Refresh table
                     sectionTable.draw();
                 }
@@ -1142,7 +1146,7 @@
                 let selectedPageLength = parseInt(e.target.value, 10);
                 window.selectedPageLength = selectedPageLength;
                 sectionTable.page.len(selectedPageLength).draw();
-                
+
                 // If in card layout, refresh cards
                 if (window.currentLayout === 'cards') {
                     fetchSectionsForCards(1);
@@ -1157,7 +1161,7 @@
 
                 selectedGrade = email;
                 sectionTable.draw();
-                
+
                 // If in card layout, refresh cards
                 if (window.currentLayout === 'cards') {
                     fetchSectionsForCards(1);
@@ -1203,7 +1207,7 @@
                     gradeSelection.selectedIndex = 0
                     selectedGrade = '';
                     sectionTable.draw();
-                    
+
                     // If in card layout, refresh cards
                     if (window.currentLayout === 'cards') {
                         fetchSectionsForCards(1);
@@ -1215,7 +1219,7 @@
             window.onload = function() {
                 gradeSelection.selectedIndex = 0
                 pageLengthSelection.selectedIndex = 0
-                
+
                 // Initialize with cards layout (default)
                 fetchSectionsForCards(1);
             }
@@ -1262,7 +1266,7 @@
                                     });
                                 } else {
                                     container.innerHTML =
-                                    "<p>No subjects found for this selection.</p>";
+                                        "<p>No subjects found for this selection.</p>";
                                 }
                             })
                             .catch(err => {

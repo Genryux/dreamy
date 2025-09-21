@@ -6,12 +6,19 @@ use App\Models\Program;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Services\ScheduleConflictService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SectionController extends Controller
 {
+    protected $scheduleConflictService;
+
+    public function __construct(ScheduleConflictService $scheduleConflictService)
+    {
+        $this->scheduleConflictService = $scheduleConflictService;
+    }
 
     public function getSections(Program $program, Request $request)
     {
@@ -309,219 +316,23 @@ class SectionController extends Controller
             'end_time' => 'nullable|date_format:H:i',
         ]);
 
-        $conflicts = [];
-
-
-        // 1. SECTION-LEVEL CONFLICT CHECK
-        // A section cannot have overlapping subjects at the same time (regardless of room or teacher)
-        if (!empty($validated['start_time']) && !empty($validated['end_time'])) {
-            $sectionConflicts = $section->sectionSubjects()
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->with('subject')
-                ->get();
-
-
-            foreach ($sectionConflicts as $existing) {
-                if ($this->hasTimeConflict($validated, $existing)) {
-                    $conflicts[] = [
-                        'type' => 'section_conflict',
-                        'message' => "Section {$section->name} already has {$existing->subject->name} scheduled at " . $this->formatTime($existing->start_time) . " - " . $this->formatTime($existing->end_time),
-                        'subject' => $existing->subject->name,
-                        'section' => $section->name,
-                        'time' => $this->formatTime($existing->start_time) . " - " . $this->formatTime($existing->end_time)
-                    ];
-                }
-            }
+        // Validate schedule data
+        $validationErrors = $this->scheduleConflictService->validateScheduleData($validated);
+        if (!empty($validationErrors)) {
+            return response()->json([
+                'has_conflicts' => true,
+                'conflicts' => array_map(fn($error) => ['type' => 'validation_error', 'message' => $error], $validationErrors),
+                'suggestions' => []
+            ], 422);
         }
 
-        // 2. ROOM-LEVEL CONFLICT CHECK
-        // If two different sections want to use the same room at the same time → conflict
-        if (!empty($validated['room']) && !empty($validated['start_time']) && !empty($validated['end_time'])) {
-            $roomConflicts = \App\Models\SectionSubject::where('room', $validated['room'])
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->with(['subject', 'section'])
-                ->get();
+        // Check for conflicts using the service
+        $excludeId = $request->input('section_subject_id', null);
+        $result = $this->scheduleConflictService->checkConflicts($section, $validated, $excludeId);
 
-
-            foreach ($roomConflicts as $existing) {
-                if ($this->hasTimeConflict($validated, $existing)) {
-                    $conflicts[] = [
-                        'type' => 'room_conflict',
-                        'message' => "Room {$validated['room']} is already booked for {$existing->subject->name} in {$existing->section->name} (" . $this->formatTime($existing->start_time) . " - " . $this->formatTime($existing->end_time) . ")",
-                        'subject' => $existing->subject->name,
-                        'section' => $existing->section->name,
-                        'room' => $validated['room'],
-                        'time' => $this->formatTime($existing->start_time) . " - " . $this->formatTime($existing->end_time)
-                    ];
-                }
-            }
-        }
-
-        // 3. TEACHER-LEVEL CONFLICT CHECK
-        // If the same teacher is assigned to two different sections/subjects at the same time → conflict
-        if (!empty($validated['teacher_id']) && !empty($validated['start_time']) && !empty($validated['end_time'])) {
-            $teacherConflicts = \App\Models\SectionSubject::where('teacher_id', $validated['teacher_id'])
-                ->where('id', '!=', $request->input('section_subject_id', 0)) // Exclude current subject if editing
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->with(['subject', 'section'])
-                ->get();
-
-
-            foreach ($teacherConflicts as $conflict) {
-                if ($this->hasTimeConflict($validated, $conflict)) {
-                    $conflicts[] = [
-                        'type' => 'teacher_conflict',
-                        'message' => "Teacher is already assigned to {$conflict->subject->name} in {$conflict->section->name} (" . $this->formatTime($conflict->start_time) . " - " . $this->formatTime($conflict->end_time) . ")",
-                        'subject' => $conflict->subject->name,
-                        'section' => $conflict->section->name,
-                        'time' => $this->formatTime($conflict->start_time) . " - " . $this->formatTime($conflict->end_time)
-                    ];
-                }
-            }
-        }
-
-
-        // Generate schedule suggestions if there are conflicts
-        $suggestions = [];
-        if (!empty($conflicts)) {
-            $suggestions = $this->generateScheduleSuggestions($section, $validated);
-        }
-
-        return response()->json([
-            'has_conflicts' => !empty($conflicts),
-            'conflicts' => $conflicts,
-            'suggestions' => $suggestions
-        ]);
+        return response()->json($result);
     }
 
-    private function hasTimeConflict($newSchedule, $existingSchedule)
-    {
-        if (empty($newSchedule['start_time']) || empty($newSchedule['end_time']) || 
-            empty($existingSchedule->start_time) || empty($existingSchedule->end_time)) {
-            return false;
-        }
-
-        // Check if days overlap
-        $newDays = $newSchedule['days_of_week'] ?? [];
-        $existingDays = $existingSchedule->days_of_week ?? [];
-        
-        if (empty(array_intersect($newDays, $existingDays))) {
-            return false;
-        }
-
-        // Check if times overlap
-        $newStart = strtotime($newSchedule['start_time']);
-        $newEnd = strtotime($newSchedule['end_time']);
-        $existingStart = strtotime($existingSchedule->start_time);
-        $existingEnd = strtotime($existingSchedule->end_time);
-
-        return ($newStart < $existingEnd && $newEnd > $existingStart);
-    }
-
-    private function generateScheduleSuggestions($section, $requestedSchedule)
-    {
-        $suggestions = [];
-        $requestedDays = $requestedSchedule['days_of_week'] ?? [];
-        $requestedDuration = 60; // Default 1 hour duration
-        
-        if (!empty($requestedSchedule['start_time']) && !empty($requestedSchedule['end_time'])) {
-            $requestedDuration = (strtotime($requestedSchedule['end_time']) - strtotime($requestedSchedule['start_time'])) / 60;
-        }
-
-        // Available time slots (8 AM to 5 PM)
-        $timeSlots = [
-            '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-            '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-            '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
-        ];
-
-        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-        // If no specific days requested, suggest all days
-        if (empty($requestedDays)) {
-            $requestedDays = $daysOfWeek;
-        }
-
-        foreach ($requestedDays as $day) {
-            foreach ($timeSlots as $startTime) {
-                $endTime = date('H:i', strtotime($startTime . ' +' . $requestedDuration . ' minutes'));
-                
-                // Skip if end time goes beyond 5 PM
-                if (strtotime($endTime) > strtotime('17:00')) {
-                    continue;
-                }
-
-                $testSchedule = [
-                    'start_time' => $startTime,
-                    'end_time' => $endTime,
-                    'days_of_week' => [$day],
-                    'room' => $requestedSchedule['room'] ?? '',
-                    'teacher_id' => $requestedSchedule['teacher_id'] ?? ''
-                ];
-
-                // Check if this time slot is available
-                if ($this->isTimeSlotAvailable($section, $testSchedule)) {
-                    $suggestions[] = [
-                        'day' => $day,
-                        'start_time' => $startTime,
-                        'end_time' => $endTime,
-                        'display' => "{$day} " . $this->formatTime($startTime) . " - " . $this->formatTime($endTime)
-                    ];
-                }
-            }
-        }
-
-        // Limit to 10 suggestions to avoid overwhelming the UI
-        return array_slice($suggestions, 0, 10);
-    }
-
-    private function isTimeSlotAvailable($section, $testSchedule)
-    {
-        // Check section-level conflicts
-        $sectionConflicts = $section->sectionSubjects()
-            ->whereNotNull('start_time')
-            ->whereNotNull('end_time')
-            ->get();
-
-        foreach ($sectionConflicts as $existing) {
-            if ($this->hasTimeConflict($testSchedule, $existing)) {
-                return false;
-            }
-        }
-
-        // Check room-level conflicts (if room is specified)
-        if (!empty($testSchedule['room'])) {
-            $roomConflicts = \App\Models\SectionSubject::where('room', $testSchedule['room'])
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->get();
-
-            foreach ($roomConflicts as $existing) {
-                if ($this->hasTimeConflict($testSchedule, $existing)) {
-                    return false;
-                }
-            }
-        }
-
-        // Check teacher-level conflicts (if teacher is specified)
-        if (!empty($testSchedule['teacher_id'])) {
-            $teacherConflicts = \App\Models\SectionSubject::where('teacher_id', $testSchedule['teacher_id'])
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->get();
-
-            foreach ($teacherConflicts as $existing) {
-                if ($this->hasTimeConflict($testSchedule, $existing)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
 
     public function assignSubject(Request $request, Section $section)
     {
@@ -535,60 +346,21 @@ class SectionController extends Controller
             'end_time' => 'nullable|date_format:H:i|after:start_time',
         ]);
 
-        // Double-check for conflicts on the server side as a safety measure
-        $conflicts = [];
-
-        // 1. SECTION-LEVEL CONFLICT CHECK
-        // A section cannot have overlapping subjects at the same time (regardless of room or teacher)
-        if (!empty($validated['start_time']) && !empty($validated['end_time'])) {
-            $sectionConflicts = $section->sectionSubjects()
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->with('subject')
-                ->get();
-
-            foreach ($sectionConflicts as $existing) {
-                if ($this->hasTimeConflict($validated, $existing)) {
-                    $conflicts[] = "Section {$section->name} already has {$existing->subject->name} scheduled at " . $this->formatTime($existing->start_time) . " - " . $this->formatTime($existing->end_time);
-                }
-            }
-        }
-
-        // 2. ROOM-LEVEL CONFLICT CHECK
-        // If two different sections want to use the same room at the same time → conflict
-        if (!empty($validated['room']) && !empty($validated['start_time']) && !empty($validated['end_time'])) {
-            $roomConflicts = \App\Models\SectionSubject::where('room', $validated['room'])
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->with(['subject', 'section'])
-                ->get();
-
-            foreach ($roomConflicts as $existing) {
-                if ($this->hasTimeConflict($validated, $existing)) {
-                    $conflicts[] = "Room {$validated['room']} is already booked for {$existing->subject->name} in {$existing->section->name} (" . $this->formatTime($existing->start_time) . " - " . $this->formatTime($existing->end_time) . ")";
-                }
-            }
-        }
-
-        // 3. TEACHER-LEVEL CONFLICT CHECK
-        // If the same teacher is assigned to two different sections/subjects at the same time → conflict
-        if (!empty($validated['teacher_id']) && !empty($validated['start_time']) && !empty($validated['end_time'])) {
-            $teacherConflicts = \App\Models\SectionSubject::where('teacher_id', $validated['teacher_id'])
-                ->whereNotNull('start_time')
-                ->whereNotNull('end_time')
-                ->with(['subject', 'section'])
-                ->get();
-
-            foreach ($teacherConflicts as $conflict) {
-                if ($this->hasTimeConflict($validated, $conflict)) {
-                    $conflicts[] = "Teacher is already assigned to {$conflict->subject->name} in {$conflict->section->name} (" . $this->formatTime($conflict->start_time) . " - " . $this->formatTime($conflict->end_time) . ")";
-                }
-            }
-        }
-
-        if (!empty($conflicts)) {
+        // Validate schedule data
+        $validationErrors = $this->scheduleConflictService->validateScheduleData($validated);
+        if (!empty($validationErrors)) {
             return response()->json([
-                'error' => 'Schedule conflicts detected: ' . implode('; ', $conflicts)
+                'error' => 'Validation errors: ' . implode('; ', $validationErrors)
+            ], 422);
+        }
+
+        // Check for conflicts using the service
+        $conflictResult = $this->scheduleConflictService->checkConflicts($section, $validated);
+        
+        if ($conflictResult['has_conflicts']) {
+            $conflictMessages = array_column($conflictResult['conflicts'], 'message');
+            return response()->json([
+                'error' => 'Schedule conflicts detected: ' . implode('; ', $conflictMessages)
             ], 422);
         }
 

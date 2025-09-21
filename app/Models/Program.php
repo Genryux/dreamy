@@ -33,13 +33,29 @@ class Program extends Model
     /**
      * Get total number of students across all sections in this program.
      */
-    public function totalStudents()
+    public function totalStudents($code)
     {
-        return $this->sections()->sum('total_enrolled_students');
+        $query = Student::query();
+
+        if ($code) {
+            $query->where('program', $code);
+        }
+
+        return $query->count();
     }
 
     public function schoolFees()
     {
         return $this->hasMany(SchoolFee::class);
+    }
+
+    public function getTotalSections()
+    {
+        return $this->sections()->count();
+    }
+
+    public function getTotalSubjects()
+    {
+        return $this->subjects()->count();
     }
 }
