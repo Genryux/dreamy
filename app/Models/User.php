@@ -22,12 +22,18 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'name',
         'email',
         'password',
         'pin',
         'pin_enabled',
         'pin_setup_at',
+        'invitation_token',
+        'invitation_sent_at',
+        'invitation_accepted_at',
+        'invitation_role',
+        'invited_by',
+        'status',
+        'invitation_data',
     ];
 
     public function applicant()
@@ -38,6 +44,26 @@ class User extends Authenticatable
     public function student()
     {
         return $this->hasOne(Student::class);
+    }
+
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
+    public function invitedBy()
+    {
+        return $this->belongsTo(User::class, 'invited_by');
+    }
+
+    public function hasPendingInvitation()
+    {
+        return !is_null($this->invitation_token) && is_null($this->invitation_accepted_at);
+    }
+
+    public function isActive()
+    {
+        return $this->status === 'active';
     }
 
     public function getFullNameAttribute()
@@ -69,6 +95,8 @@ class User extends Authenticatable
             'pin' => 'hashed',
             'pin_enabled' => 'boolean',
             'pin_setup_at' => 'datetime',
+            'invitation_sent_at' => 'datetime',
+            'invitation_accepted_at' => 'datetime',
         ];
     }
 }

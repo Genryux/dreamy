@@ -53,10 +53,28 @@ class RolesAndPermissionSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'edit student']);
         Permission::firstOrCreate(['name' => 'delete student']);
 
+        // Head teacher permissions
+        Permission::firstOrCreate(['name' => 'create sections']);
+        Permission::firstOrCreate(['name' => 'edit sections']);
+        Permission::firstOrCreate(['name' => 'delete sections']);
+        Permission::firstOrCreate(['name' => 'assign subjects to sections']);
+        Permission::firstOrCreate(['name' => 'assign students to sections']);
+        Permission::firstOrCreate(['name' => 'assign teachers to sections']);
+        Permission::firstOrCreate(['name' => 'view section reports']);
+        Permission::firstOrCreate(['name' => 'manage section schedules']);
+        Permission::firstOrCreate(['name' => 'view head teacher dashboard']);
+
+        //teacher management
+        Permission::firstOrCreate(['name' => 'view assigned sections']);
+        Permission::firstOrCreate(['name' => 'manage section subjects']);
+        Permission::firstOrCreate(['name' => 'view student grades']);
+        Permission::firstOrCreate(['name' => 'update student attendance']);
+        Permission::firstOrCreate(['name' => 'view teacher dashboard']);
+
 
         //role creation
 
-        $adminRole = Role::firstOrCreate(['name' => 'super admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'super_admin']);
         $adminRole->givePermissionTo(Permission::all());
 
         $registrar = Role::firstOrCreate(['name' => 'registrar']);
@@ -83,7 +101,30 @@ class RolesAndPermissionSeeder extends Seeder
         $teacher->givePermissionTo([
             'view selected applications',
             'view interview',
-            'set interview result'
+            'set interview result',
+            'view assigned sections',
+            'manage section subjects',
+            'view student grades',
+            'update student attendance',
+            'view teacher dashboard'
+        ]);
+
+        $headTeacher = Role::firstOrCreate(['name' => 'head_teacher']);
+        $headTeacher->givePermissionTo([
+            'view assigned sections',
+            'manage section subjects',
+            'view student grades',
+            'update student attendance',
+            'view teacher dashboard',
+            'create sections',
+            'edit sections',
+            'delete sections',
+            'assign subjects to sections',
+            'assign students to sections',
+            'assign teachers to sections',
+            'view section reports',
+            'manage section schedules',
+            'view head teacher dashboard'
         ]);
 
         $applicant = Role::firstOrCreate(['name' => 'applicant']);
@@ -107,6 +148,6 @@ class RolesAndPermissionSeeder extends Seeder
             ]
         );
 
-        $user->assignRole('super admin');
+        $user->assignRole('super_admin');
     }
 }

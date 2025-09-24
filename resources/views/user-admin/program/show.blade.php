@@ -73,35 +73,95 @@
 
         <form id="create-section-form" method="post" action="/section" class="p-6">
             @csrf
-            <div>
-                <select name="program_id" id="program_id">
-                    <option value="">Select Program</option>
-                    @foreach ($programs as $prog)
-                        <option value="{{ $prog->id }}">{{ $prog->code }}</option>
-                    @endforeach
-                </select>
-
-                <select name="year_level" id="year_level">
-                    <option value="">Select Year Level</option>
-                    <option value="Grade 11">Grade 11</option>
-                    <option value="Grade 12">Grade 12</option>
-                </select>
-
-                <input type="text" name="section_code" id="section_code" placeholder="00-PROGRAM-A" required>
-                <input type="text" name="room" id="room" placeholder="Enter room">
-
-                <select name="adviser_id" id="adviser_id">
-                    <option value="">Assign Adviser</option>
-                    {{-- options here --}}
-                </select>
-
+            <div class="space-y-6">
+                <!-- Program Selection -->
                 <div>
-                    <input type="checkbox" name="auto_assign" id="auto_assign">
-                    <label for="auto_assign">Auto-Assign Subjects (Current Term)</label>
+                    <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-graduation-cap mr-2"></i>
+                        Program <span class="text-red-500">*</span>
+                    </label>
+                    <select name="program_id" id="program_id" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Program</option>
+                        @foreach ($programs as $prog)
+                            <option value="{{ $prog->id }}" {{ $prog->id == $program->id ? 'selected' : '' }}>
+                                {{ $prog->name }} ({{ $prog->code }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Year Level -->
+                <div>
+                    <label for="year_level" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-calendar mr-2"></i>
+                        Year Level <span class="text-red-500">*</span>
+                    </label>
+                    <select name="year_level" id="year_level" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Year Level</option>
+                        <option value="Grade 11">Grade 11</option>
+                        <option value="Grade 12">Grade 12</option>
+                    </select>
+                </div>
+
+                <!-- Section Code -->
+                <div>
+                    <label for="section_code" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-users-class mr-2"></i>
+                        Section Code <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="section_code" id="section_code" 
+                        placeholder="e.g., 11-HUMSS-A" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Room -->
+                <div>
+                    <label for="room" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-home mr-2"></i>
+                        Room Assignment
+                    </label>
+                    <input type="text" name="room" id="room" 
+                        placeholder="e.g., Room 101, Lab 2"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Adviser Selection -->
+                <div>
+                    <label for="adviser_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-user-tie mr-2"></i>
+                        Assign Adviser
+                    </label>
+                    <select name="adviser_id" id="adviser_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Adviser</option>
+                        @foreach(\App\Models\Teacher::with(['user', 'program'])->where('status', 'active')->get() as $teacher)
+                            <option value="{{ $teacher->id }}" 
+                                data-program-id="{{ $teacher->program_id }}"
+                                {{ $teacher->program_id == $program->id ? '' : 'style="display:none"' }}>
+                                {{ $teacher->getFullNameAttribute() }} 
+                                @if($teacher->program)
+                                    - {{ $teacher->program->name }}
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Only teachers from the selected program will be shown</p>
+                </div>
+
+                <!-- Auto Assign Subjects -->
+                <div class="flex items-center">
+                    <input type="checkbox" name="auto_assign" id="auto_assign" 
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="auto_assign" class="ml-2 block text-sm text-gray-700">
+                        <i class="fi fi-rr-magic-wand mr-1"></i>
+                        Auto-Assign Subjects (Current Term)
+                    </label>
                 </div>
             </div>
 
-            <div id="subjects-container"></div> <!-- subjects will be inserted here -->
+            <div id="subjects-container" class="mt-6"></div> <!-- subjects will be inserted here -->
 
         </form>
 
@@ -1349,8 +1409,29 @@
                 alertContainer.classList.toggle('translate-y-5');
             }
 
-
-
+            // Program-based adviser filtering
+            const programSelect = document.getElementById('program_id');
+            const adviserSelect = document.getElementById('adviser_id');
+            
+            if (programSelect && adviserSelect) {
+                programSelect.addEventListener('change', function() {
+                    const selectedProgramId = this.value;
+                    const adviserOptions = adviserSelect.querySelectorAll('option[data-program-id]');
+                    
+                    adviserOptions.forEach(option => {
+                        if (selectedProgramId === '' || option.getAttribute('data-program-id') === selectedProgramId) {
+                            option.style.display = 'block';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                    
+                    // Reset adviser selection if current selection is not valid for new program
+                    if (adviserSelect.value && adviserSelect.querySelector(`option[value="${adviserSelect.value}"]`).style.display === 'none') {
+                        adviserSelect.value = '';
+                    }
+                });
+            }
 
         });
     </script>

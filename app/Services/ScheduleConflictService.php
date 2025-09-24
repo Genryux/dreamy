@@ -30,7 +30,7 @@ class ScheduleConflictService
 
         // 2. Room-level conflicts (same room, overlapping times)
         if (!empty($scheduleData['room'])) {
-            $roomConflicts = $this->checkRoomConflicts($scheduleData);
+            $roomConflicts = $this->checkRoomConflicts($scheduleData, $excludeSectionSubjectId);
             $conflicts = array_merge($conflicts, $roomConflicts);
         }
 
@@ -95,15 +95,20 @@ class ScheduleConflictService
     /**
      * Check for room-level conflicts
      */
-    private function checkRoomConflicts(array $scheduleData): array
+    private function checkRoomConflicts(array $scheduleData, ?int $excludeId = null): array
     {
         $conflicts = [];
         
-        $existingSchedules = SectionSubject::where('room', $scheduleData['room'])
+        $query = SectionSubject::where('room', $scheduleData['room'])
             ->whereNotNull('start_time')
             ->whereNotNull('end_time')
-            ->with(['subject', 'section'])
-            ->get();
+            ->with(['subject', 'section']);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $existingSchedules = $query->get();
 
         foreach ($existingSchedules as $existing) {
             $conflictResult = $this->hasTimeConflict($scheduleData, $existing);

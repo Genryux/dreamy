@@ -210,7 +210,7 @@ class SectionController extends Controller
                         'program_id' => $validated['program_id']
                     ],
                     [
-                        'adviser_id' => $validated['adviser_id'] ?? null,
+                        'teacher_id' => $validated['adviser_id'] ?? null,
                         'year_level' => $validated['year_level'],
                         'room'       => $validated['room'] ?? null,
                     ]
@@ -284,7 +284,7 @@ class SectionController extends Controller
     {
         // Get subjects that are not already assigned to this section
         $assignedSubjectIds = $section->sectionSubjects()->pluck('subject_id');
-        
+
         $subjects = Subject::where('program_id', $section->program_id)
             ->where('grade_level', $section->year_level)
             ->whereNotIn('id', $assignedSubjectIds)
@@ -305,6 +305,35 @@ class SectionController extends Controller
         ]);
     }
 
+    public function getSectionSubject($sectionSubjectId)
+    {
+        try {
+            $sectionSubject = \App\Models\SectionSubject::with(['subject', 'teacher'])
+                ->find($sectionSubjectId);
+
+            if (!$sectionSubject) {
+                return response()->json([
+                    'error' => 'Section subject not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'subject_id' => $sectionSubject->subject_id,
+                'subject_name' => $sectionSubject->subject->name,
+                'teacher_id' => $sectionSubject->teacher_id,
+                'teacher_name' => $sectionSubject->teacher ? $sectionSubject->teacher->first_name . ' ' . $sectionSubject->teacher->last_name : null,
+                'room' => $sectionSubject->room,
+                'days_of_week' => $sectionSubject->days_of_week,
+                'start_time' => $sectionSubject->start_time,
+                'end_time' => $sectionSubject->end_time,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch section subject data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function checkScheduleConflict(Request $request, Section $section)
     {
         $validated = $request->validate([
@@ -314,6 +343,7 @@ class SectionController extends Controller
             'days_of_week.*' => 'string|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i',
+            'section_subject_id' => 'nullable|exists:section_subjects,id',
         ]);
 
         // Validate schedule data
@@ -327,7 +357,7 @@ class SectionController extends Controller
         }
 
         // Check for conflicts using the service
-        $excludeId = $request->input('section_subject_id', null);
+        $excludeId = $validated['section_subject_id'] ?? null;
         $result = $this->scheduleConflictService->checkConflicts($section, $validated, $excludeId);
 
         return response()->json($result);
@@ -356,7 +386,7 @@ class SectionController extends Controller
 
         // Check for conflicts using the service
         $conflictResult = $this->scheduleConflictService->checkConflicts($section, $validated);
-        
+
         if ($conflictResult['has_conflicts']) {
             $conflictMessages = array_column($conflictResult['conflicts'], 'message');
             return response()->json([
@@ -374,6 +404,62 @@ class SectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Failed to assign subject: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function updateSubject(Request $request, Section $section)
+    {
+        $validated = $request->validate([
+            'section_subject_id' => 'required|exists:section_subjects,id',
+            'teacher_id' => 'nullable|exists:teachers,id',
+            'room' => 'nullable|string|max:100',
+            'days_of_week' => 'nullable|array',
+            'days_of_week.*' => 'string|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
+        ]);
+
+        // Get the section subject to update
+        $sectionSubject = \App\Models\SectionSubject::find($validated['section_subject_id']);
+        if (!$sectionSubject) {
+            return response()->json([
+                'error' => 'Section subject not found'
+            ], 404);
+        }
+
+        // Remove section_subject_id from validated data as it's not a field to update
+        unset($validated['section_subject_id']);
+
+        // Validate schedule data
+        $validationErrors = $this->scheduleConflictService->validateScheduleData($validated);
+        if (!empty($validationErrors)) {
+            return response()->json([
+                'error' => 'Validation errors: ' . implode('; ', $validationErrors)
+            ], 422);
+        }
+
+        // Check for conflicts using the service (exclude current record)
+        $conflictResult = $this->scheduleConflictService->checkConflicts($section, $validated, $sectionSubject->id);
+
+        if ($conflictResult['has_conflicts']) {
+            $conflictMessages = array_column($conflictResult['conflicts'], 'message');
+            return response()->json([
+                'error' => 'Schedule conflicts detected: ' . implode('; ', $conflictMessages)
+            ], 422);
+        }
+
+        try {
+            $sectionSubject->update($validated);
+
+            return response()->json([
+                'success' => 'Subject updated successfully',
+                'section_subject' => $sectionSubject->load(['subject', 'teacher'])
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update subject: ' . $e->getMessage()
             ], 500);
         }
     }

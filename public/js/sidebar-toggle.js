@@ -18,16 +18,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Desktop sidebar toggle (also works for mobile)
     const toggleButton = document.getElementById('sidebar-toggle-button');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    
+    // Function to toggle mobile menu
+    function toggleMobileMenu() {
+        sideNav.classList.toggle('visible');
+        if (overlay) {
+            overlay.classList.toggle('visible');
+        }
+        // Prevent body scrolling when menu is open
+        document.body.classList.toggle('overflow-hidden');
+    }
+    
     if (toggleButton) {
         toggleButton.addEventListener('click', function() {
             // On mobile, toggle the sidebar visibility
             if (window.innerWidth < 768) {
-                sideNav.classList.toggle('visible');
-                if (overlay) {
-                    overlay.classList.toggle('visible');
-                }
-                // Prevent body scrolling when menu is open
-                document.body.classList.toggle('overflow-hidden');
+                toggleMobileMenu();
                 return;
             }
             
@@ -81,6 +88,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Adjust content width and ensure it takes full available space
             content.style.transition = 'width 0.3s ease-in-out';
             content.style.width = sideNav.classList.contains('collapsed') ? 'calc(100% - 80px)' : 'calc(100% - 300px)';
+        });
+    }
+    
+    // Mobile menu button (hamburger menu)
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', function() {
+            toggleMobileMenu();
         });
     }
     

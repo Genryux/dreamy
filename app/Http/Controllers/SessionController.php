@@ -41,12 +41,12 @@ class SessionController extends Controller
         
         // Check roles and redirect accordingly
         if ($user->hasRole('teacher')) {
-            return redirect()->route('admin');
+            return redirect()->route('teacher.dashboard');
         } elseif ($user->hasRole('applicant')) {
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole('student')) {
             return redirect()->route('student');
-        } elseif ($user->hasRole('registrar')) {
+        } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             return redirect()->route('admin'); // Assuming registrar uses admin dashboard
         }
         

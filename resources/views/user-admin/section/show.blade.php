@@ -254,21 +254,22 @@
             class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <form id="edit-subject-form" class="p-6">
                 @csrf
+                <!-- Hidden field to identify which section subject to update -->
+                <input type="hidden" name="section_subject_id" id="edit-section-subject-id">
+                
                 <div class="space-y-4">
-                    <!-- Subject Selection -->
+                    <!-- Subject Display -->
                     <div class="flex flex-col">
-                        <label for="subject_id" class="text-sm font-medium text-gray-700 mb-2">Subject</label>
-                        <select name="edit-subject_id" id="subject_id" required
-                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                            <option value="" disabled selected>Select a subject</option>
-                            <!-- Options will be populated dynamically -->
-                        </select>
+                        <label for="edit-subject_name" class="text-sm font-medium text-gray-700 mb-2">Subject</label>
+                        <input type="text" name="subject_name" id="edit-subject_name" readonly
+                            class="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                            placeholder="Subject name will appear here">
                     </div>
 
                     <!-- Teacher Selection -->
                     <div class="flex flex-col">
-                        <label for="teacher_id" class="text-sm font-medium text-gray-700 mb-2">Teacher</label>
-                        <select name="edit-teacher_id" id="teacher_id"
+                        <label for="edit-teacher_id" class="text-sm font-medium text-gray-700 mb-2">Teacher</label>
+                        <select name="teacher_id" id="edit-teacher_id"
                             class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                             <option value="" selected>Select a teacher (optional)</option>
                             <!-- Options will be populated dynamically -->
@@ -277,8 +278,8 @@
 
                     <!-- Room -->
                     <div class="flex flex-col">
-                        <label for="room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
-                        <input type="text" name="edit-room" id="room" placeholder="Enter room number"
+                        <label for="edit-room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
+                        <input type="text" name="room" id="edit-room" placeholder="Enter room number"
                             class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     </div>
 
@@ -287,27 +288,27 @@
                         <label class="text-sm font-medium text-gray-700 mb-2">Days of Week</label>
                         <div class="grid grid-cols-2 gap-2">
                             <label class="flex items-center">
-                                <input type="checkbox" name="edit-days_of_week[]" value="Monday" class="mr-2">
+                                <input type="checkbox" name="days_of_week[]" value="Monday" id="edit-day-monday" class="mr-2">
                                 <span class="text-sm">Monday</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" name="edit-days_of_week[]" value="Tuesday" class="mr-2">
+                                <input type="checkbox" name="days_of_week[]" value="Tuesday" id="edit-day-tuesday" class="mr-2">
                                 <span class="text-sm">Tuesday</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" name="edit-days_of_week[]" value="Wednesday" class="mr-2">
+                                <input type="checkbox" name="days_of_week[]" value="Wednesday" id="edit-day-wednesday" class="mr-2">
                                 <span class="text-sm">Wednesday</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" name="edit-days_of_week[]" value="Thursday" class="mr-2">
+                                <input type="checkbox" name="days_of_week[]" value="Thursday" id="edit-day-thursday" class="mr-2">
                                 <span class="text-sm">Thursday</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" name="edit-days_of_week[]" value="Friday" class="mr-2">
+                                <input type="checkbox" name="days_of_week[]" value="Friday" id="edit-day-friday" class="mr-2">
                                 <span class="text-sm">Friday</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" name="edit-days_of_week[]" value="Saturday" class="mr-2">
+                                <input type="checkbox" name="days_of_week[]" value="Saturday" id="edit-day-saturday" class="mr-2">
                                 <span class="text-sm">Saturday</span>
                             </label>
                         </div>
@@ -316,34 +317,34 @@
                     <!-- Time Schedule -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col">
-                            <label for="start_time" class="text-sm font-medium text-gray-700 mb-2">Start Time</label>
-                            <input type="time" name="edit-start_time" id="start_time"
+                            <label for="edit-start_time" class="text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                            <input type="time" name="start_time" id="edit-start_time"
                                 class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                         </div>
                         <div class="flex flex-col">
-                            <label for="end_time" class="text-sm font-medium text-gray-700 mb-2">End Time</label>
-                            <input type="time" name="edit-end_time" id="end_time"
+                            <label for="edit-end_time" class="text-sm font-medium text-gray-700 mb-2">End Time</label>
+                            <input type="time" name="end_time" id="edit-end_time"
                                 class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                         </div>
                     </div>
 
                     <!-- Schedule Conflict Warning -->
-                    <div id="schedule-conflict-warning" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div id="edit-schedule-conflict-warning" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
                         <div class="flex items-center">
                             <i class="fi fi-sr-exclamation-triangle text-red-500 mr-2"></i>
                             <span class="text-sm text-red-700 font-medium">Schedule Conflict Detected!</span>
                         </div>
-                        <p id="conflict-details" class="text-xs text-red-600 mt-1"></p>
+                        <p id="edit-conflict-details" class="text-xs text-red-600 mt-1"></p>
                     </div>
 
                     <!-- Schedule Suggestions -->
-                    <div id="schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div id="edit-schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <div class="flex items-center mb-2">
                             <i class="fi fi-sr-lightbulb text-blue-500 mr-2"></i>
                             <span class="text-sm text-blue-700 font-medium">Available Time Slots</span>
                         </div>
                         <p class="text-xs text-blue-600 mb-2">Click on any suggestion to auto-fill the form:</p>
-                        <div id="suggestions-list"
+                        <div id="edit-suggestions-list"
                             class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-1 text-xs">
                             <!-- Suggestions will be populated here -->
                         </div>
@@ -473,11 +474,13 @@
                     <h2 class="text-[20px] font-bold text-gray-900">Students</h2>
                     <p class="text-[14px] text-gray-600 mt-1">Manage enrolled students in this section</p>
                 </div>
+                @role(['super_admin', 'registrar'])
                 <button id="add-student-modal-btn"
                     class="bg-[#1A3165] px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
                     <i class="fi fi-rr-plus flex justify-center items-center"></i>
                     Add Student
                 </button>
+                @endrole
             </div>
 
             <!-- Search and Filters -->
@@ -566,11 +569,13 @@
                     <h2 class="text-[20px] font-bold text-gray-900">Subjects</h2>
                     <p class="text-[14px] text-gray-600 mt-1">Subjects assigned to this section</p>
                 </div>
+                @role(['super_admin', 'head_teacher'])
                 <button id="add-subject-modal-btn"
                     class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
                     <i class="fi fi-rr-plus flex justify-center items-center"></i>
                     Add Subject
                 </button>
+                @endrole
             </div>
 
             <!-- Subjects Grid -->
@@ -690,33 +695,52 @@
             // Initialize modals
             initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
                 'modal-container-1');
-            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn',
-                'add-student-cancel-btn', 'modal-container-2');
+            // Only initialize add-student modal if button exists (role check passed)
+            const addStudentBtn = document.getElementById('add-student-modal-btn');
+            if (addStudentBtn) {
+                initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn',
+                    'add-student-cancel-btn', 'modal-container-2');
+            }
             initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn',
                 'edit-section-cancel-btn', 'modal-container-3');
-            initModal('add-subject-modal', 'add-subject-modal-btn', 'add-subject-modal-close-btn',
-                'add-subject-cancel-btn', 'modal-container-4');
+            
+            // Only initialize add-subject modal if button exists (role check passed)
+            const addSubjectBtn = document.getElementById('add-subject-modal-btn');
+            if (addSubjectBtn) {
+                initModal('add-subject-modal', 'add-subject-modal-btn', 'add-subject-modal-close-btn',
+                    'add-subject-cancel-btn', 'modal-container-4');
+            }
 
-            // Refresh student list when modal is opened
-            document.getElementById('add-student-modal-btn').addEventListener('click', function() {
-                refreshStudentList();
-            });
+            // Refresh student list when modal is opened (only if button exists)
+            if (addStudentBtn) {
+                addStudentBtn.addEventListener('click', function() {
+                    refreshStudentList();
+                });
+            }
 
-            // Add event listener for Add Subject modal button
-            document.getElementById('add-subject-modal-btn').addEventListener('click', function() {
-                clearAddSubjectForm();
-                loadSubjectsAndTeachers();
-            });
+            // Add event listener for Add Subject modal button (only if button exists)
+            if (addSubjectBtn) {
+                addSubjectBtn.addEventListener('click', function() {
+                    clearAddSubjectForm();
+                    loadSubjectsAndTeachers();
+                });
+            }
 
-            // Clear form when modal is closed
-            document.getElementById('add-subject-modal-close-btn').addEventListener('click', function() {
-                clearAddSubjectForm();
-            });
+            // Clear form when modal is closed (only if modal exists)
+            const addSubjectCloseBtn = document.getElementById('add-subject-modal-close-btn');
+            if (addSubjectCloseBtn) {
+                addSubjectCloseBtn.addEventListener('click', function() {
+                    clearAddSubjectForm();
+                });
+            }
 
-            // Clear form when cancel button is clicked
-            document.getElementById('add-subject-cancel-btn').addEventListener('click', function() {
-                clearAddSubjectForm();
-            });
+            // Clear form when cancel button is clicked (only if button exists)
+            const addSubjectCancelBtn = document.getElementById('add-subject-cancel-btn');
+            if (addSubjectCancelBtn) {
+                addSubjectCancelBtn.addEventListener('click', function() {
+                    clearAddSubjectForm();
+                });
+            }
 
             let studentCount = document.querySelector('#studentCount');
             let sectionName = document.querySelector('#section_name');
@@ -1318,13 +1342,345 @@
 
             // Initialize each edit modal of subjects
             document.querySelectorAll('.edit-btns').forEach(btns => {
-
                 let id = btns.getAttribute('data-section-subject-id');
                 initModal('edit-subject-modal', `edit-subject-modal-btn-${id}`, 'edit-subject-modal-close-btn',
                     'edit-subject-cancel-btn', 'modal-container-5');
 
+                // Add click handler to populate edit form
+                btns.addEventListener('click', function() {
+                    populateEditForm(id);
+                });
+            });
 
-            })
+            // Function to populate edit form with existing data
+            async function populateEditForm(sectionSubjectId) {
+                try {
+                    // Load teachers for the edit form
+                    await loadTeachersForEdit();
+
+                    // Get the section subject data from the server
+                    const response = await fetch(`/getSectionSubject/${sectionSubjectId}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch subject data: ${response.status}`);
+                    }
+                    
+                    const sectionSubject = await response.json();
+
+                    if (sectionSubject) {
+                        // Populate form fields with CURRENT data
+                        document.getElementById('edit-subject_name').value = sectionSubject.subject_name || '';
+                        document.getElementById('edit-teacher_id').value = sectionSubject.teacher_id || '';
+                        document.getElementById('edit-room').value = sectionSubject.room || '';
+                        
+                        // Format time to remove seconds for HTML time input (HH:MM:SS -> HH:MM)
+                        document.getElementById('edit-start_time').value = sectionSubject.start_time ? sectionSubject.start_time.substring(0, 5) : '';
+                        document.getElementById('edit-end_time').value = sectionSubject.end_time ? sectionSubject.end_time.substring(0, 5) : '';
+                        
+                        // Populate days of week checkboxes
+                        document.querySelectorAll('#edit-subject-form input[name="days_of_week[]"]').forEach(checkbox => {
+                            checkbox.checked = sectionSubject.days_of_week && sectionSubject.days_of_week.includes(checkbox.value);
+                        });
+
+                        // Set the section subject ID
+                        document.getElementById('edit-section-subject-id').value = sectionSubjectId;
+
+                        console.log('Edit form populated with current data:', sectionSubject);
+                    } else {
+                        throw new Error('No subject data received from server');
+                    }
+                } catch (error) {
+                    console.error('Error populating edit form:', error);
+                    showAlert('error', 'Failed to load subject data. Please try again.');
+                }
+            }
+
+
+            // Function to load teachers for edit form
+            async function loadTeachersForEdit() {
+                try {
+                    const response = await fetch('/getTeachers');
+                    const data = await response.json();
+                    
+                    const teacherSelect = document.getElementById('edit-teacher_id');
+                    teacherSelect.innerHTML = '<option value="" selected>Select a teacher (optional)</option>';
+                    
+                    data.teachers.forEach(teacher => {
+                        const option = document.createElement('option');
+                        option.value = teacher.id;
+                        option.textContent = `${teacher.first_name} ${teacher.last_name}`;
+                        teacherSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading teachers for edit:', error);
+                }
+            }
+
+            // Function to check schedule conflicts for edit form
+            async function checkEditScheduleConflict() {
+                const formData = new FormData(document.getElementById('edit-subject-form'));
+                const data = Object.fromEntries(formData.entries());
+
+                // Convert days_of_week array properly
+                const daysOfWeek = [];
+                document.querySelectorAll('#edit-subject-form input[name="days_of_week[]"]:checked').forEach(checkbox => {
+                    daysOfWeek.push(checkbox.value);
+                });
+                data.days_of_week = daysOfWeek;
+
+                // Format time to remove seconds (HH:MM:SS -> HH:MM)
+                if (data.start_time) {
+                    data.start_time = data.start_time.substring(0, 5);
+                }
+                if (data.end_time) {
+                    data.end_time = data.end_time.substring(0, 5);
+                }
+
+                // Add section_subject_id to exclude current record from conflict detection
+                const sectionSubjectId = document.getElementById('edit-section-subject-id').value;
+                if (sectionSubjectId) {
+                    data.section_subject_id = parseInt(sectionSubjectId);
+                }
+
+                try {
+                    const response = await fetch(`/checkScheduleConflict/${sectionId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    const warningDiv = document.getElementById('edit-schedule-conflict-warning');
+                    const detailsDiv = document.getElementById('edit-conflict-details');
+                    const suggestionsDiv = document.getElementById('edit-schedule-suggestions');
+                    const suggestionsList = document.getElementById('edit-suggestions-list');
+                    const submitBtn = document.getElementById('edit-subject-submit-btn');
+
+                    if (result.has_conflicts) {
+                        warningDiv.classList.remove('hidden');
+                        detailsDiv.innerHTML = result.conflicts.map(conflict => conflict.message).join('<br>');
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                        // Show suggestions if available
+                        if ((result.suggestions && result.suggestions.length > 0) || (result.no_available_days && result.no_available_days.length > 0)) {
+                            suggestionsDiv.classList.remove('hidden');
+                            suggestionsList.innerHTML = '';
+
+                            if (result.suggestions && result.suggestions.length > 0) {
+                                result.suggestions.forEach(suggestion => {
+                                    const suggestionBtn = document.createElement('button');
+                                    suggestionBtn.type = 'button';
+                                    suggestionBtn.className = 'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                    suggestionBtn.textContent = suggestion.display;
+                                    suggestionBtn.onclick = () => applyEditSuggestion(suggestion);
+                                    suggestionsList.appendChild(suggestionBtn);
+                                });
+                            }
+
+                            if (result.no_available_days && result.no_available_days.length > 0) {
+                                const noAvailableDiv = document.createElement('div');
+                                noAvailableDiv.className = 'mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700';
+                                noAvailableDiv.innerHTML = `
+                                    <i class="fi fi-sr-exclamation-triangle mr-1"></i>
+                                    ${result.no_available_message}
+                                `;
+                                suggestionsList.appendChild(noAvailableDiv);
+                            }
+
+                            document.getElementById('modal-content').classList.remove('max-h-96');
+                            document.getElementById('modal-content').classList.add('max-h-[32rem]');
+                        } else {
+                            suggestionsDiv.classList.add('hidden');
+                            document.getElementById('modal-content').classList.remove('max-h-96');
+                            document.getElementById('modal-content').classList.add('max-h-[28rem]');
+                        }
+                    } else {
+                        warningDiv.classList.add('hidden');
+                        suggestionsDiv.classList.add('hidden');
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                        document.getElementById('modal-content').classList.remove('max-h-[28rem]', 'max-h-[32rem]');
+                        document.getElementById('modal-content').classList.add('max-h-96');
+                    }
+                } catch (error) {
+                    console.error('Error checking edit schedule conflict:', error);
+                }
+            }
+
+            // Function to apply suggestion to edit form
+            function applyEditSuggestion(suggestion) {
+                if (suggestion.teacher_id) {
+                    document.getElementById('edit-teacher_id').value = suggestion.teacher_id;
+                }
+                if (suggestion.room) {
+                    document.getElementById('edit-room').value = suggestion.room;
+                }
+                if (suggestion.start_time) {
+                    // Format time to remove seconds for HTML time input (HH:MM:SS -> HH:MM)
+                    document.getElementById('edit-start_time').value = suggestion.start_time.substring(0, 5);
+                }
+                if (suggestion.end_time) {
+                    // Format time to remove seconds for HTML time input (HH:MM:SS -> HH:MM)
+                    document.getElementById('edit-end_time').value = suggestion.end_time.substring(0, 5);
+                }
+                if (suggestion.days_of_week) {
+                    // Clear existing checkboxes
+                    document.querySelectorAll('#edit-subject-form input[name="days_of_week[]"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    // Check suggested days
+                    suggestion.days_of_week.forEach(day => {
+                        const checkbox = document.getElementById(`edit-day-${day.toLowerCase()}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+                
+                // Re-check conflicts after applying suggestion
+                setTimeout(() => {
+                    checkEditScheduleConflict();
+                }, 100);
+            }
+
+            // Add event listeners for live conflict checking in edit form
+            document.addEventListener('DOMContentLoaded', function() {
+                const editConflictInputs = ['edit-teacher_id', 'edit-room', 'edit-start_time', 'edit-end_time'];
+                editConflictInputs.forEach(inputId => {
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.addEventListener('change', checkEditScheduleConflict);
+                    }
+                });
+
+                // Add listeners for edit day checkboxes
+                document.querySelectorAll('#edit-subject-form input[name="days_of_week[]"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', checkEditScheduleConflict);
+                });
+            });
+
+            // Handle edit form submission
+            document.getElementById('edit-subject-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                // Convert days_of_week array properly
+                const daysOfWeek = [];
+                document.querySelectorAll('#edit-subject-form input[name="days_of_week[]"]:checked').forEach(checkbox => {
+                    daysOfWeek.push(checkbox.value);
+                });
+                data.days_of_week = daysOfWeek;
+
+                // Format time to remove seconds (HH:MM:SS -> HH:MM)
+                if (data.start_time) {
+                    data.start_time = data.start_time.substring(0, 5);
+                }
+                if (data.end_time) {
+                    data.end_time = data.end_time.substring(0, 5);
+                }
+
+                // Add section_subject_id to exclude current record from conflict detection
+                const sectionSubjectId = document.getElementById('edit-section-subject-id').value;
+                if (sectionSubjectId) {
+                    data.section_subject_id = parseInt(sectionSubjectId);
+                }
+
+                // First check for conflicts before submitting
+                try {
+                    const conflictResponse = await fetch(`/checkScheduleConflict/${sectionId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const conflictResult = await conflictResponse.json();
+
+                    if (conflictResult.has_conflicts) {
+                        // Show conflict warning and prevent submission
+                        const warningDiv = document.getElementById('edit-schedule-conflict-warning');
+                        const detailsDiv = document.getElementById('edit-conflict-details');
+                        const suggestionsDiv = document.getElementById('edit-schedule-suggestions');
+                        const suggestionsList = document.getElementById('edit-suggestions-list');
+
+                        warningDiv.classList.remove('hidden');
+                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => conflict.message).join('<br>');
+
+                        if ((conflictResult.suggestions && conflictResult.suggestions.length > 0) || (conflictResult.no_available_days && conflictResult.no_available_days.length > 0)) {
+                            suggestionsDiv.classList.remove('hidden');
+                            suggestionsList.innerHTML = '';
+
+                            if (conflictResult.suggestions && conflictResult.suggestions.length > 0) {
+                                conflictResult.suggestions.forEach(suggestion => {
+                                    const suggestionBtn = document.createElement('button');
+                                    suggestionBtn.type = 'button';
+                                    suggestionBtn.className = 'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                    suggestionBtn.textContent = suggestion.display;
+                                    suggestionBtn.onclick = () => applyEditSuggestion(suggestion);
+                                    suggestionsList.appendChild(suggestionBtn);
+                                });
+                            }
+
+                            if (conflictResult.no_available_days && conflictResult.no_available_days.length > 0) {
+                                const noAvailableDiv = document.createElement('div');
+                                noAvailableDiv.className = 'mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700';
+                                noAvailableDiv.innerHTML = `
+                                    <i class="fi fi-sr-exclamation-triangle mr-1"></i>
+                                    ${conflictResult.no_available_message}
+                                `;
+                                suggestionsList.appendChild(noAvailableDiv);
+                            }
+                        }
+
+                        showAlert('error', 'Please resolve schedule conflicts before updating');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error checking conflicts:', error);
+                    showAlert('error', 'Failed to check for conflicts');
+                    return;
+                }
+
+                // If no conflicts, proceed with update
+                try {
+                    showLoader();
+                    
+                    const response = await fetch(`/updateSubject/${sectionId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    hideLoader();
+
+                    if (response.ok) {
+                        showAlert('success', result.success || 'Subject updated successfully');
+                        // Close modal
+                        document.getElementById('edit-subject-modal-close-btn').click();
+                        // Reload page to show updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showAlert('error', result.error || 'Failed to update subject');
+                    }
+                } catch (error) {
+                    hideLoader();
+                    console.error('Error updating subject:', error);
+                    showAlert('error', 'Something went wrong');
+                }
+            });
 
             // Initialize page
             window.onload = function() {
