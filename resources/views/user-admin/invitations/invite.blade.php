@@ -11,7 +11,7 @@
                 </svg>
             </li>
             <li>
-                <a href="{{ route('admin.invitations.index') }}" class="block text-gray-900 hover:text-blue-600">User Invitations</a>
+                <a href="{{ route('admin.users.index') }}" class="block text-gray-900 hover:text-blue-600">User Management</a>
             </li>
             <li class="rtl:rotate-180">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
@@ -34,7 +34,7 @@
             <p class="text-[14px] text-gray-600 mt-1">Invite teachers or registrars to join the system</p>
         </div>
         <div class="flex flex-row justify-center items-center h-full gap-3">
-            <a href="{{ route('admin.invitations.index') }}"
+            <a href="{{ route('admin.users.index') }}"
                 class="bg-gray-500 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-gray-600 transition duration-150">
                 <i class="fi fi-rr-arrow-left flex justify-center items-center"></i>
                 Back to Invitations
@@ -47,7 +47,7 @@
     <x-alert />
 
     <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
-        <form action="{{ route('admin.invitations.send') }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.users.send-invitation') }}" method="POST" class="space-y-6">
             @csrf
 
             <!-- Role Selection -->
@@ -59,9 +59,13 @@
                 <select name="role" id="role" required
                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Select a role</option>
-                    <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
-                    <option value="head_teacher" {{ old('role') == 'head_teacher' ? 'selected' : '' }}>Head Teacher</option>
-                    <option value="registrar" {{ old('role') == 'registrar' ? 'selected' : '' }}>Registrar/Admin</option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role->name }}" 
+                                {{ old('role') == $role->name ? 'selected' : '' }}
+                                data-is-teacher="{{ in_array($role->name, ['teacher', 'head_teacher']) ? 'true' : 'false' }}">
+                            {{ ucwords(str_replace('_', ' ', $role->name)) }}
+                        </option>
+                    @endforeach
                 </select>
                 @error('role')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -185,7 +189,7 @@
 
             <!-- Submit Button -->
             <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="{{ route('admin.invitations.index') }}"
+                <a href="{{ route('admin.users.index') }}"
                     class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
                     Cancel
                 </a>
@@ -204,7 +208,10 @@
             const teacherFields = document.getElementById('teacher-fields');
 
             function toggleTeacherFields() {
-                if (roleSelect.value === 'teacher' || roleSelect.value === 'head_teacher') {
+                const selectedOption = roleSelect.options[roleSelect.selectedIndex];
+                const isTeacher = selectedOption.getAttribute('data-is-teacher') === 'true';
+                
+                if (isTeacher) {
                     teacherFields.style.display = 'block';
                 } else {
                     teacherFields.style.display = 'none';

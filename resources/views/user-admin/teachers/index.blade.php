@@ -39,7 +39,7 @@
                 <i class="fi fi-rr-envelope flex justify-center items-center"></i>
                 Pending Invitations
             </button>
-                    <a href="{{ route('admin.invitations.invite') }}"
+                    <a href="{{ route('admin.users.invite') }}"
                 class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
                 <i class="fi fi-rr-envelope flex justify-center items-center"></i>
                 Invite Teacher

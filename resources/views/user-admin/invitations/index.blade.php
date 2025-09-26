@@ -24,7 +24,7 @@
             <p class="text-[14px] text-gray-600 mt-1">Manage user invitations and pending registrations</p>
         </div>
         <div class="flex flex-row justify-center items-center h-full gap-3">
-            <a href="{{ route('admin.invitations.invite') }}"
+            <a href="{{ route('admin.users.invite') }}"
                 class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
                 <i class="fi fi-rr-envelope flex justify-center items-center"></i>
                 Send Invitation

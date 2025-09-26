@@ -105,17 +105,17 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
 
     // Admin Dashboard
-    Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
 
     // School Settings
-    Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
-    Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
+Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
+Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
 
     // Application Management
-    Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
-    Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.details');
-    Route::get('/selected-applications', [ApplicationFormController::class, 'selected'])->name('selected');
-    Route::get('/selected-application/interview-details/{id}', [InterviewController::class, 'show'])->name('selected.details');
+Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
+Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.details');
+Route::get('/selected-applications', [ApplicationFormController::class, 'selected'])->name('selected');
+Route::get('/selected-application/interview-details/{id}', [InterviewController::class, 'show'])->name('selected.details');
 
     // Document Management
     Route::get('/pending-documents', [ApplicationFormController::class, 'pendingDocuments'])->name('documents');
@@ -124,26 +124,26 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::post('/required-docs', [DocumentsController::class, 'store'])->name('documents.store');
 
     // Academic Terms
-    Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
+Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
 
     // Enrollment Period
-    Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->name('enrollment-period.post');
-    Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->name('enrollment-period.patch');
+Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->name('enrollment-period.post');
+Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->name('enrollment-period.patch');
 
     // Interview Management
-    Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
-    Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
+Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
+Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
 
     // Student Management
-    Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
-    Route::get('/users', [StudentsController::class, 'getUsers']);
-    Route::get('/enrollment-stats', [StudentsController::class, 'getEnrollmentStats']);
-    Route::post('/getStudent', [StudentsController::class, 'getStudent']);
-    Route::post('/students/import', [StudentRecordController::class, 'import']);
-    Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
-    Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
-    Route::post('/students/{id}', [StudentRecordController::class, 'store']);
-    Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
+Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
+Route::get('/users', [StudentsController::class, 'getUsers']);
+Route::get('/enrollment-stats', [StudentsController::class, 'getEnrollmentStats']);
+Route::post('/getStudent', [StudentsController::class, 'getStudent']);
+Route::post('/students/import', [StudentRecordController::class, 'import']);
+Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
+Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
+Route::post('/students/{id}', [StudentRecordController::class, 'store']);
+Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
 
     // Student Records
     Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
@@ -161,21 +161,36 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::patch('/admin/teachers/{teacher}/toggle-status', [TeacherManagementController::class, 'toggleStatus'])->name('admin.teachers.toggle-status');
     Route::get('/admin/getTeachers', [TeacherManagementController::class, 'getTeachers'])->name('admin.getTeachers');
 
-    // User Invitation Management
-    Route::get('/admin/invitations', [UserInvitationController::class, 'index'])->name('admin.invitations.index');
-    Route::get('/admin/invitations/invite', [UserInvitationController::class, 'invite'])->name('admin.invitations.invite');
-    Route::post('/admin/invitations/send', [UserInvitationController::class, 'sendInvitation'])->name('admin.invitations.send');
-    Route::get('/admin/invitations/pending', [UserInvitationController::class, 'getPendingInvitations'])->name('admin.invitations.pending');
-    Route::post('/admin/invitations/{user}/resend', [UserInvitationController::class, 'resendInvitation'])->name('admin.invitations.resend');
-    Route::delete('/admin/invitations/{user}/cancel', [UserInvitationController::class, 'cancelInvitation'])->name('admin.invitations.cancel');
+    // User Management
+            Route::get('/admin/users', [UserInvitationController::class, 'index'])->name('admin.users.index');
+            Route::get('/admin/users/invite', [UserInvitationController::class, 'invite'])->name('admin.users.invite');
+            Route::post('/admin/users/send-invitation', [UserInvitationController::class, 'sendInvitation'])->name('admin.users.send-invitation');
+            Route::get('/admin/users/data', [UserInvitationController::class, 'getAllUsers'])->name('admin.users.data');
+            Route::get('/admin/users/analytics', [UserInvitationController::class, 'getAnalytics'])->name('admin.users.analytics');
+            Route::post('/admin/users/{user}/resend-invitation', [UserInvitationController::class, 'resendInvitation'])->name('admin.users.resend-invitation');
+            Route::delete('/admin/users/{user}/cancel-invitation', [UserInvitationController::class, 'cancelInvitation'])->name('admin.users.cancel-invitation');
+            
+            // User Management Tabs - Roles and Permissions
+            Route::get('/admin/users/roles', [UserInvitationController::class, 'roles'])->name('admin.users.roles');
+            
+        // Role Management Routes
+        Route::get('/admin/roles/data', [UserInvitationController::class, 'getRolesData'])->name('admin.roles.data');
+        Route::get('/admin/roles', [UserInvitationController::class, 'getAllRoles'])->name('admin.roles.index');
+        Route::get('/admin/permissions', [UserInvitationController::class, 'getAllPermissions'])->name('admin.permissions.index');
+        Route::get('/admin/roles/{role}', [UserInvitationController::class, 'getRole'])->name('admin.roles.show');
+        Route::post('/admin/roles', [UserInvitationController::class, 'createRole'])->name('admin.roles.create');
+        Route::put('/admin/roles/{role}', [UserInvitationController::class, 'updateRole'])->name('admin.roles.update');
+        Route::post('/admin/roles/{role}/permissions', [UserInvitationController::class, 'updateRolePermissions'])->name('admin.roles.permissions');
+        Route::delete('/admin/roles/{role}', [UserInvitationController::class, 'deleteRole'])->name('admin.roles.delete');
+            
 
     // News Management
-    Route::get('/admin/news', [NewsController::class, 'index'])->name('admin.news.index');
-    Route::get('/admin/getNews', [NewsController::class, 'getNews']);
-    Route::get('/admin/news/{news}', [NewsController::class, 'show']);
-    Route::post('/admin/news', [NewsController::class, 'storeOrUpdate']);
-    Route::put('/admin/news/{news}', [NewsController::class, 'update']);
-    Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
+Route::get('/admin/news', [NewsController::class, 'index'])->name('admin.news.index');
+Route::get('/admin/getNews', [NewsController::class, 'getNews']);
+Route::get('/admin/news/{news}', [NewsController::class, 'show']);
+Route::post('/admin/news', [NewsController::class, 'storeOrUpdate']);
+Route::put('/admin/news/{news}', [NewsController::class, 'update']);
+Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
 
     // School Fees and Invoices
     Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index');
@@ -242,7 +257,7 @@ Route::middleware(['auth', 'role:super_admin|head_teacher'])->group(function () 
 | Routes for managing programs (accessible to admin)
 */
 
-Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
+Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(function () {
     Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
     Route::get('/program/{program}', [ProgramController::class, 'show'])->name('program.show');
     Route::get('/program/{program}/sections', [ProgramController::class, 'show'])->name('program.sections');

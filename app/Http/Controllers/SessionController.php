@@ -9,16 +9,17 @@ use Illuminate\Validation\ValidationException;
 class SessionController extends Controller
 {
 
-    public function create() {
-        
-        return view('auth.session.create');
+    public function create()
+    {
 
+        return view('auth.session.create');
     }
 
-    public function store() {
+    public function store()
+    {
 
         $attributes = request()->validate([
-            
+
             'email' => ['required', 'email'],
             'password' => ['required']
 
@@ -33,15 +34,17 @@ class SessionController extends Controller
         request()->session()->regenerate();
 
         session()->forget('url.intended');
-        
+
         // Get the authenticated user
         $user = Auth::user();
 
         //dd(redirect()->route('admission'));
-        
+
         // Check roles and redirect accordingly
         if ($user->hasRole('teacher')) {
             return redirect()->route('teacher.dashboard');
+        } elseif ($user->hasRole('head_teacher')) {
+            return redirect()->route('head-teacher.dashboard');
         } elseif ($user->hasRole('applicant')) {
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole('student')) {
@@ -49,18 +52,16 @@ class SessionController extends Controller
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             return redirect()->route('admin'); // Assuming registrar uses admin dashboard
         }
-        
+
         // Default redirect if no specific role is matched
         return redirect('/');
-
     }
 
-    public function destroy() {
+    public function destroy()
+    {
 
         Auth::logout();
 
         return redirect('/');
-
     }
-
 }

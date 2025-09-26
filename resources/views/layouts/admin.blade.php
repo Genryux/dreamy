@@ -140,7 +140,7 @@
                             </span>
 
                         </x-nav-link>
-                        <x-nav-link href="/admin/invitations" :active="request()->is('admin/invitations*')">
+                        <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
 
                             <span class="flex flex-row items-center space-x-4">
                                 <i class="fi fi-rr-envelope text-[20px] flex-shrink-0"></i>
@@ -159,7 +159,7 @@
                         <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
 
                             <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
+                                <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
                                 <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
                             </span>
 
@@ -168,7 +168,7 @@
 
                             <span class="flex flex-row items-center space-x-4">
                                 <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">Website</p>
+                                <p class="font-semibold text-[16px] nav-text truncate">Site Management</p>
                             </span>
 
                         </x-nav-link>

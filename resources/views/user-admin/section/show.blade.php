@@ -474,7 +474,7 @@
                     <h2 class="text-[20px] font-bold text-gray-900">Students</h2>
                     <p class="text-[14px] text-gray-600 mt-1">Manage enrolled students in this section</p>
                 </div>
-                @role(['super_admin', 'registrar'])
+                @role(['super_admin', 'registrar', 'head_teacher'])
                 <button id="add-student-modal-btn"
                     class="bg-[#1A3165] px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
                     <i class="fi fi-rr-plus flex justify-center items-center"></i>
