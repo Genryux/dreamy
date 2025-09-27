@@ -30,10 +30,8 @@ class ProgramsController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:50|unique:programs',
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'duration' => 'nullable|string|max:100',
-            'units_required' => 'nullable|integer|min:1',
-            'status' => 'nullable|string|max:50'
+            'track' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive'
         ]);
 
         $program = Program::create($validated);
@@ -64,10 +62,8 @@ class ProgramsController extends Controller
         $validated = $request->validate([
             'code' => 'sometimes|string|max:50|unique:programs,code,' . $program->id,
             'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'duration' => 'nullable|string|max:100',
-            'units_required' => 'nullable|integer|min:1',
-            'status' => 'nullable|string|max:50'
+            'track' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive'
         ]);
 
         $program->update($validated);

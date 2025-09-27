@@ -1,4 +1,76 @@
 @extends('layouts.admin')
+@section('modal')
+    <x-modal modal_id="create-program-modal" modal_name="Create Program" close_btn_id="create-program-modal-close-btn"
+        modal_container_id="modal-container-1">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
+        </x-slot>
+
+        <form id="create-program-form" class="p-6">
+            @csrf
+            <div class="space-y-6">
+                <!-- Program Code -->
+                <div>
+                    <label for="program_code" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-tag mr-2"></i>
+                        Program Code <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="code" id="program_code" required
+                        placeholder="e.g., STEM, ABM, HUMSS"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Program Name/Description -->
+                <div>
+                    <label for="program_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-graduation-cap mr-2"></i>
+                        Program Description <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" id="program_name" required
+                        placeholder="e.g., Science, Technology, Engineering and Mathematics"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Program Track -->
+                <div>
+                    <label for="program_track" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-school mr-2"></i>
+                        Program Track
+                    </label>
+                    <input type="text" name="track" id="program_track"
+                        placeholder="e.g., Academic, Technical-Vocational, Sports, Arts and Design"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Program Status -->
+                <div>
+                    <label for="program_status" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-check-circle mr-2"></i>
+                        Status
+                    </label>
+                    <select name="status" id="program_status"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="create-program-form"
+                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                Create
+            </button>
+        </x-slot>
+
+    </x-modal>
+@endsection
 @section('header')
     <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
         <div>
@@ -11,7 +83,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-xl border border-[#1A3165] gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
@@ -82,18 +154,50 @@
     <div class="flex flex-row justify-center items-start gap-4">
         <div
             class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-            <span class="font-semibold text-[18px]">
-                Program List
-            </span>
+            <div class="flex flex-row justify-between items-center w-full">
+                <div>
+                    <span class="font-semibold text-[18px]">
+                        Programs
+                    </span>
+                    <p class="text-[14px] text-gray-500">Manage all programs</p>
+                </div>
+
+                <div id="dropdown_2"
+                    class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+                    <div
+                        class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                        <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
+                    </div>
+
+                    <div id="dropdown_selection2"
+                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                        <button id="import-modal-btn"
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                        </button>
+                        <x-nav-link href="/students/export/excel"
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                        </x-nav-link>
+                        <button
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
             <div class="flex flex-row justify-between items-center w-full">
                 <div class="w-full flex flex-row justify-between items-center gap-4">
 
                     <label for="myCustomSearch"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[60%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
                         <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                         <input type="search" name="" id="myCustomSearch"
                             class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
-                            placeholder="Search by lrn, name, grade level, etc.">
+                            placeholder="Search by program code and description">
                         <button id="clear-btn"
                             class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
                             <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
@@ -101,7 +205,7 @@
                     </label>
                     <div class="flex flex-row justify-start items-center w-full gap-2">
                         <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                             <select name="pageLength" id="page-length-selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                 <option selected disabled>Entries</option>
@@ -115,33 +219,6 @@
                             <i id="clear-gender-filter-btn"
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                         </div>
-                        <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
-                            <select name="" id="program_selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
-                                <option value="" selected disabled>Program</option>
-                                <option value="" data-id="HUMSS">HUMSS</option>
-                                <option value="" data-id="ABM">ABM</option>
-                            </select>
-                            <i id="clear-program-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-                        </div>
-
-
-                        <div id="grade_selection_container"
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-
-                            <select name="grade_selection" id="grade_selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                <option value="" disabled selected>Grade</option>
-                                <option value="" data-putanginamo="Grade 11">Grade 11</option>
-                                <option value="" data-putanginamo="Grade 12">Grade 12</option>
-                            </select>
-                            <i id="clear-grade-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-
-                        </div>
-
 
                     </div>
                 </div>
@@ -149,40 +226,14 @@
                 <div class="flex flex-row justify-center items-center gap-2">
 
                     <div class="flex flex-row justify-center items-center truncate">
-                        <button id="add-student-modal-btn"
-                            class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                        <button id="create-program-modal-btn"
+                            class="bg-[#199BCF] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
                             <i class="fi fi-rr-plus flex justify-center items-center "></i>
                             Create Program
                         </button>
                     </div>
 
-                    <div id="dropdown_2"
-                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                        </div>
-
-                        <div id="dropdown_selection2"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="import-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                            </button>
-                            <x-nav-link href="/students/export/excel"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                            </x-nav-link>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                            </button>
-                        </div>
-
-                    </div>
                 </div>
-
 
             </div>
 
@@ -251,34 +302,17 @@
         } from "/js/loader.js";
 
         let table1;
-        let selectedGrade = '';
-        let selectedProgram = '';
         let selectedPageLength = '';
-
-
 
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
+            initModal('create-program-modal', 'create-program-modal-btn', 'create-program-modal-close-btn', 'cancel-btn',
                 'modal-container-1');
-            initModal('add-student-modal', 'add-student-modal-btn', 'add-student-modal-close-btn',
-                'add-student-cancel-btn',
-                'modal-container-2');
-            initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn',
-                'edit-section-cancel-btn',
-                'modal-container-3');
 
             let studentCount = document.querySelector('#studentCount');
             let sectionName = document.querySelector('#section_name');
             let sectionRoom = document.querySelector('#section_room');
-
-            // const fileInput = document.getElementById('fileInput');
-            // const fileName = document.getElementById('fileName');
-
-            // fileInput.addEventListener('change', function() {
-            //     fileName.textContent = this.files.length > 0 ? this.files[0].name : 'No file chosen';
-            // });
 
             //Overriding default search input
             const customSearch1 = document.getElementById("myCustomSearch");
@@ -292,9 +326,6 @@
                 ajax: {
                     url: `/getPrograms`,
                     data: function(d) {
-
-                        d.grade_filter = selectedGrade;
-                        d.program_filter = selectedProgram;
                         d.pageLength = selectedPageLength;
                     }
                 },
@@ -307,7 +338,7 @@
                         className: 'text-center'
                     }, // index
                     {
-                        width: '10%',
+                        width: '12%',
                         targets: 1
                     }, // code
                     {
@@ -419,23 +450,8 @@
 
             clearSearch('clear-btn', 'myCustomSearch', table1)
 
-            let programSelection = document.querySelector('#program_selection');
-            let gradeSelection = document.querySelector('#grade_selection');
             let pageLengthSelection = document.querySelector('#page-length-selection');
 
-            let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
-            let gradeContainer = document.querySelector('#grade_selection_container');
-
-            programSelection.addEventListener('change', (e) => {
-
-                let selectedOption = e.target.selectedOptions[0];
-                let id = selectedOption.getAttribute('data-id');
-
-                selectedProgram = id;
-                table1.draw();
-
-                //console.log(id);
-            })
 
             pageLengthSelection.addEventListener('change', (e) => {
 
@@ -446,160 +462,68 @@
                 //console.log(id);
             })
 
-            gradeSelection.addEventListener('change', (e) => {
-
-                let selectedOption = e.target.selectedOptions[0];
-                let email = selectedOption.getAttribute('data-putanginamo');
-
-                selectedGrade = email;
-                table1.draw();
-
-                let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
-                let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                let gradeSelectionAdd = ['text-[#1A3165]'];
-                let gradeContainerRem = ['bg-gray-100'];
-                let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
-                    'hover:bg-[#1A73E8]/25'
-                ];
-
-                clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
-                clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
-                gradeSelection.classList.remove(...gradeSelectionRem);
-                gradeSelection.classList.add(...gradeSelectionAdd);
-                gradeContainer.classList.remove(...gradeContainerRem);
-                gradeContainer.classList.add(...gradeContainerAdd);
-
-
-                handleClearGradeFilter(selectedOption)
-            })
-
-            function handleClearGradeFilter(selectedOption) {
-
-                clearGradeFilterBtn.addEventListener('click', () => {
-
-                    gradeContainer.classList.remove('bg-[#1A73E8]/15')
-                    gradeContainer.classList.remove('border-blue-300')
-                    gradeContainer.classList.remove('hover:bg-blue-300')
-                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
-
-                    clearGradeFilterBtn.classList.add('fi-rr-caret-down');
-                    gradeContainer.classList.add('bg-gray-100')
-                    gradeSelection.classList.remove('text-[#1A3165]')
-                    gradeSelection.classList.add('text-gray-700')
-                    clearGradeFilterBtn.classList.remove('text-[#1A3165]')
-                    clearGradeFilterBtn.classList.add('text-gray-500')
-
-
-                    gradeSelection.selectedIndex = 0
-                    selectedGrade = '';
-                    table1.draw();
-                })
-
-            }
 
             window.onload = function() {
-                gradeSelection.selectedIndex = 0
-                programSelection.selectedIndex = 0
                 pageLengthSelection.selectedIndex = 0
             }
 
             dropDown('dropdown_2', 'dropdown_selection2');
             dropDown('dropdown_btn', 'dropdown_selection');
 
+            // Create Program Form Submission
+            document.getElementById('create-program-form').addEventListener('submit', function(e) {
+                e.preventDefault();
 
+                let form = e.target;
+                let formData = new FormData(form);
 
-            // document.getElementById('edit-section-form').addEventListener('submit', function(e) {
-            //     e.preventDefault();
+                // Show loader
+                showLoader("Creating program...");
 
-            //     closeModal();
+                fetch('/programs', {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        hideLoader();
 
-            //     let form = e.target;
-            //     let formData = new FormData(form);
+                        console.log('Response data:', data);
 
-            //     // Show loader
-            //     showLoader("Edit...");
+                        if (data.success) {
+                            // Update program count
+                            studentCount.innerHTML = data.programCount;
+                            
+                            // Reset form
+                            form.reset();
+                            
+                            // Close modal
+                            closeModal('create-program-modal', 'modal-container-1');
+                            
+                            // Show success alert
+                            showAlert('success', data.success);
+                            
+                            // Refresh table
+                            table1.draw();
 
-            //     fetch(`/section/${sectionId}`, {
-            //             method: "POST",
-            //             body: formData,
-            //             headers: {
-            //                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            //             }
-            //         })
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             hideLoader();
-
-            //             console.log(data)
-
-            //             if (data.success) {
-
-            //                 sectionName.innerHTML = data.newData['newSectionName'];
-            //                 sectionRoom.innerHTML = data.newData['newRoom'] || 'Not assigned yet';
-            //                 closeModal('edit-section-modal', 'modal-container-3');
-            //                 showAlert('success', data.success);
-            //                 table1.draw();
-
-            //             } else if (data.error) {
-
-            //                 closeModal('edit-section-modal', 'modal-container-3');
-            //                 showAlert('error', data.error);
-            //             }
-            //         })
-            //         .catch(err => {
-            //             hideLoader();
-
-            //             closeModal('add-student-modal', 'modal-container-2');
-            //             showAlert('error', 'Something went wrong');
-            //         });
-            // });
-
-
-            // document.getElementById('add-student-form').addEventListener('submit', function(e) {
-            //     e.preventDefault();
-
-            //     closeModal();
-
-            //     let form = e.target;
-            //     let formData = new FormData(form);
-
-            //     // Show loader
-            //     showLoader("Adding...");
-
-            //     fetch(`/assign-section/${sectionId}`, {
-            //             method: "POST",
-            //             body: formData,
-            //             headers: {
-            //                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            //             }
-            //         })
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             hideLoader();
-
-            //             console.log(data)
-
-            //             if (data.success) {
-
-            //                 studentCount.innerHTML = data.count;
-            //                 closeModal('add-student-modal', 'modal-container-2');
-            //                 showAlert('success', data.success);
-            //                 table1.draw();
-
-            //             } else if (data.error) {
-
-            //                 closeModal('add-student-modal', 'modal-container-2');
-            //                 showAlert('error', data.error);
-            //             }
-            //         })
-            //         .catch(err => {
-            //             hideLoader();
-
-            //             closeModal('add-student-modal', 'modal-container-2');
-            //             showAlert('error', 'Something went wrong');
-            //         });
-            // });
+                        } else if (data.error) {
+                            closeModal('create-program-modal', 'modal-container-1');
+                            showAlert('error', data.error);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        console.error('Error:', err);
+                        closeModal('create-program-modal', 'modal-container-1');
+                        showAlert('error', 'Something went wrong while creating the program');
+                    });
+            });
 
 
             function closeModal(modalId, modalContainerId) {
@@ -623,8 +547,6 @@
                 alertContainer.classList.toggle('pointer-events-none');
                 alertContainer.classList.toggle('translate-y-5');
             }
-
-
 
 
         });

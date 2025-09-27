@@ -12,6 +12,8 @@ class Program extends Model
     protected $fillable = [
         'code',
         'name',
+        'track',
+        'status',
     ];
 
     /**

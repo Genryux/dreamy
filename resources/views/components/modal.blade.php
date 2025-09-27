@@ -1,7 +1,7 @@
 @props(['modal_id', 'modal_className', 'modal_icon', 'modal_name', 'modal_buttons', 'close_btn_id', 'modal_info', 'modal_container_id'])
 
 <div id="{{ $modal_container_id ?? 'modal-container'}}"
-    class="fixed opacity-0 pointer-events-none bottom-0 left-0 bg-[#0f111c]/70 w-full z-20 transition ease-in duration-120 overflow-hidden">
+    class="fixed opacity-0 pointer-events-none bottom-0 left-0 bg-[#0f111c]/70 w-full z-20 transition ease-in duration-120 overflow-hidden backdrop-blur-sm">
 
     <div id="{{ $modal_id }}" class="{{ $modal_className ?? '' }} opacity-0 scale-95 pointer-events-none transition ease-in duration-150 flex items-center justify-center h-screen w-screen">
         <div class="bg-[#f8f8f8] flex flex-col rounded-md {{ $modal_id === 'view-doc-modal' ? 'w-[80%] max-w-6xl' : 'w-[40%]' }} shadow-lg" onclick="event.stopPropagation()">

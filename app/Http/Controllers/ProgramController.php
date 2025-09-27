@@ -118,18 +118,25 @@ class ProgramController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:programs,code',
             'name' => 'required|string|max:255',
+            'track' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive',
         ]);
 
         $program = Program::create($validated);
+        $programCount = Program::count();
 
-        return response()->json($program, 201);
+        return response()->json([
+            'success' => 'Program created successfully',
+            'programCount' => $programCount,
+            'data' => $program
+        ], 201);
     }
 
     public function show(Program $program)
     {
-        
+
         $programs = Program::all();
-        
+
         $totalStudents = $program->totalStudents($program->code);
         $activeSections = $program->getTotalSections();
 
@@ -154,11 +161,16 @@ class ProgramController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:programs,code,' . $program->id,
             'name' => 'required|string|max:255',
+            'track' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive',
         ]);
 
         $program->update($validated);
 
-        return response()->json($program);
+        return response()->json([
+            'success' => 'Program updated successfully',
+            'data' => $program
+        ]);
     }
 
     public function destroy(Program $program)

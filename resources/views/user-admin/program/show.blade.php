@@ -61,135 +61,229 @@
         </div> --}}
     </nav>
 @endsection
-
-@if (Route::is('program.sections'))
-    {{-- add student modal --}}
-    <x-modal modal_id="create-section-modal" modal_name="Create Section" close_btn_id="create-section-modal-close-btn"
-        modal_container_id="modal-container-1">
+@section('modal')
+    <x-modal modal_id="edit-program-modal" modal_name="Edit Program" close_btn_id="edit-program-modal-close-btn"
+        modal_container_id="modal-container-2">
         <x-slot name="modal_icon">
             <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-
         </x-slot>
 
-        <form id="create-section-form" method="post" action="/section" class="p-6">
+        <form id="edit-program-form" class="p-6">
             @csrf
             <div class="space-y-6">
-                <!-- Program Selection -->
+                <!-- Program Code -->
                 <div>
-                    <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="program_code" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-tag mr-2"></i>
+                        Program Code <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="code" id="program_code" required placeholder="e.g., STEM, ABM, HUMSS"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Program Name/Description -->
+                <div>
+                    <label for="program_name" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fi fi-rr-graduation-cap mr-2"></i>
-                        Program <span class="text-red-500">*</span>
+                        Program Description <span class="text-red-500">*</span>
                     </label>
-                    <select name="program_id" id="program_id" required
+                    <input type="text" name="name" id="program_name" required
+                        placeholder="e.g., Science, Technology, Engineering and Mathematics"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Program</option>
-                        @foreach ($programs as $prog)
-                            <option value="{{ $prog->id }}" {{ $prog->id == $program->id ? 'selected' : '' }}>
-                                {{ $prog->name }} ({{ $prog->code }})
-                            </option>
-                        @endforeach
+                </div>
+
+                <!-- Program Track -->
+                <div>
+                    <label for="program_track" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-school mr-2"></i>
+                        Program Track
+                    </label>
+                    <input type="text" name="track" id="program_track"
+                        placeholder="e.g., Academic, Technical-Vocational, Sports, Arts and Design"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Program Status -->
+                <div>
+                    <label for="program_status" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-check-circle mr-2"></i>
+                        Status
+                    </label>
+                    <select name="status" id="program_status"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                     </select>
-                </div>
-
-                <!-- Year Level -->
-                <div>
-                    <label for="year_level" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-calendar mr-2"></i>
-                        Year Level <span class="text-red-500">*</span>
-                    </label>
-                    <select name="year_level" id="year_level" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Year Level</option>
-                        <option value="Grade 11">Grade 11</option>
-                        <option value="Grade 12">Grade 12</option>
-                    </select>
-                </div>
-
-                <!-- Section Code -->
-                <div>
-                    <label for="section_code" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-users-class mr-2"></i>
-                        Section Code <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="section_code" id="section_code" 
-                        placeholder="e.g., 11-HUMSS-A" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <!-- Room -->
-                <div>
-                    <label for="room" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-home mr-2"></i>
-                        Room Assignment
-                    </label>
-                    <input type="text" name="room" id="room" 
-                        placeholder="e.g., Room 101, Lab 2"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <!-- Adviser Selection -->
-                <div>
-                    <label for="adviser_id" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-user-tie mr-2"></i>
-                        Assign Adviser
-                    </label>
-                    <select name="adviser_id" id="adviser_id"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Adviser</option>
-                        @foreach(\App\Models\Teacher::with(['user', 'program'])->where('status', 'active')->get() as $teacher)
-                            <option value="{{ $teacher->id }}" 
-                                data-program-id="{{ $teacher->program_id }}"
-                                {{ $teacher->program_id == $program->id ? '' : 'style="display:none"' }}>
-                                {{ $teacher->getFullNameAttribute() }} 
-                                @if($teacher->program)
-                                    - {{ $teacher->program->name }}
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <p class="mt-1 text-sm text-gray-500">Only teachers from the selected program will be shown</p>
-                </div>
-
-                <!-- Auto Assign Subjects -->
-                <div class="flex items-center">
-                    <input type="checkbox" name="auto_assign" id="auto_assign" 
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="auto_assign" class="ml-2 block text-sm text-gray-700">
-                        <i class="fi fi-rr-magic-wand mr-1"></i>
-                        Auto-Assign Subjects (Current Term)
-                    </label>
                 </div>
             </div>
-
-            <div id="subjects-container" class="mt-6"></div> <!-- subjects will be inserted here -->
-
         </form>
 
-        <x-slot name="modal_info">
-
-        </x-slot>
-
         <x-slot name="modal_buttons">
-            <button id="create-section-cancel-btn"
+            <button id="cancel-btn"
                 class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
-            <button type="submit" form="create-section-form" name="action" value="create-section"
-                class="bg-[#199BCF] text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-[#C8A165]/40 hover:bg-[#C8A165] transition duration-200 shadow-sm">
-                Continue
+            <button type="submit" form="edit-program-form"
+                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                Update
             </button>
         </x-slot>
 
     </x-modal>
-@endif
+    @if (Route::is('program.sections'))
+        {{-- add student modal --}}
+        <x-modal modal_id="create-section-modal" modal_name="Create Section" close_btn_id="create-section-modal-close-btn"
+            modal_container_id="modal-container-1">
+            <x-slot name="modal_icon">
+                <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
 
+            </x-slot>
 
+            <form id="create-section-form" method="post" action="/section" class="p-6">
+                @csrf
+                <div class="space-y-6">
+                    <!-- Program Selection -->
+                    <div>
+                        <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-graduation-cap mr-2"></i>
+                            Program <span class="text-red-500">*</span>
+                        </label>
+                        <select name="program_id" id="program_id" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Program</option>
+                            @foreach ($programs as $prog)
+                                <option value="{{ $prog->id }}" {{ $prog->id == $program->id ? 'selected' : '' }}>
+                                    {{ $prog->name }} ({{ $prog->code }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Year Level -->
+                    <div>
+                        <label for="year_level" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-calendar mr-2"></i>
+                            Year Level <span class="text-red-500">*</span>
+                        </label>
+                        <select name="year_level" id="year_level" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Year Level</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                        </select>
+                    </div>
+
+                    <!-- Section Code -->
+                    <div>
+                        <label for="section_code" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-users-class mr-2"></i>
+                            Section Code <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="section_code" id="section_code" placeholder="e.g., 11-HUMSS-A"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Room -->
+                    <div>
+                        <label for="room" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-home mr-2"></i>
+                            Room Assignment
+                        </label>
+                        <input type="text" name="room" id="room" placeholder="e.g., Room 101, Lab 2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Adviser Selection -->
+                    <div>
+                        <label for="adviser_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-user-tie mr-2"></i>
+                            Assign Adviser
+                        </label>
+                        <select name="adviser_id" id="adviser_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Adviser</option>
+                            @foreach (\App\Models\Teacher::with(['user', 'program'])->where('status', 'active')->get() as $teacher)
+                                <option value="{{ $teacher->id }}" data-program-id="{{ $teacher->program_id }}"
+                                    {{ $teacher->program_id == $program->id ? '' : 'style="display:none"' }}>
+                                    {{ $teacher->getFullNameAttribute() }}
+                                    @if ($teacher->program)
+                                        - {{ $teacher->program->name }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Only teachers from the selected program will be shown</p>
+                    </div>
+
+                    <!-- Auto Assign Subjects -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="auto_assign" id="auto_assign"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="auto_assign" class="ml-2 block text-sm text-gray-700">
+                            <i class="fi fi-rr-magic-wand mr-1"></i>
+                            Auto-Assign Subjects (Current Term)
+                        </label>
+                    </div>
+                </div>
+
+                <div id="subjects-container" class="mt-6"></div> <!-- subjects will be inserted here -->
+
+            </form>
+
+            <x-slot name="modal_info">
+
+            </x-slot>
+
+            <x-slot name="modal_buttons">
+                <button id="create-section-cancel-btn"
+                    class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                    Cancel
+                </button>
+                {{-- This button will acts as the submit button --}}
+                <button type="submit" form="create-section-form" name="action" value="create-section"
+                    class="bg-[#199BCF] text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-[#C8A165]/40 hover:bg-[#C8A165] transition duration-200 shadow-sm">
+                    Continue
+                </button>
+            </x-slot>
+
+        </x-modal>
+    @endif
+@endsection
 @section('header')
-    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Program Details</h1>
-        <p class="text-[14px]  text-gray-900/60">View and manage program details and associated sections and subjects.
-        </p>
+    <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
+        <div>
+            <h1 class="text-[20px] font-black">Program Details</h1>
+            <p class="text-[14px]  text-gray-900/60">View and manage program details and associated sections and subjects.
+            </p>
+        </div>
+
+        <div id="dropdown_2"
+            class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+            <div
+                class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
+            </div>
+
+            <div id="dropdown_selection2"
+                class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                <button id="edit-program-modal-btn"
+                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                    <i class="fi fi-sr-file-import text-[16px]"></i>Edit Program
+                </button>
+                <x-nav-link href="/students/export/excel"
+                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                    <i class="fi fi-sr-file-excel text-[16px]"></i>Archive Program
+                </x-nav-link>
+                <button
+                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                    <i class="fi fi-sr-file-pdf text-[16px]"></i>Delete Program
+                </button>
+            </div>
+
+        </div>
     </div>
 @endsection
 @section('stat')
@@ -263,8 +357,6 @@
 @endsection
 @section('content')
     <x-alert />
-
-
 
     <div
         class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-300">
@@ -657,87 +749,18 @@
 
         console.log(programId);
 
-        // function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInputId, extraAjaxData = {}, columnDefs = []) {
-        //     const customSearch = document.getElementById(searchInputId);
-
-        //     let table = new DataTable(tableId, {
-        //         paging: true,
-        //         searching: true,
-        //         autoWidth: false,
-        //         serverSide: true,
-        //         processing: true,
-        //         ajax: {
-        //             url: ajaxUrl,
-        //             data: function(d) {
-        //                 Object.assign(d, extraAjaxData);
-        //             }
-        //         },
-        //         order: order,
-        //         columnDefs: columnDefs, // 🔥 dynamically injected
-        //         layout: {
-        //             topStart: null,
-        //             topEnd: null,
-        //             bottomStart: 'info',
-        //             bottomEnd: 'paging',
-        //         },
-        //         columns: columns,
-        //     });
-
-
-        //     // Custom search input
-        //     if (customSearch) {
-        //         customSearch.addEventListener("input", function() {
-        //             table.search(this.value).draw();
-        //         });
-        //     }
-
-
-        //     // Custom row styling
-        //     table.on('draw', function() {
-        //         let rows = document.querySelectorAll(`${tableId} tbody tr`);
-
-        //         rows.forEach(function(row) {
-        //             row.classList.add(
-        //                 'hover:bg-gray-200', 'transition', 'duration-150'
-        //             );
-
-        //             let cells = row.querySelectorAll('td');
-        //             cells.forEach(function(cell) {
-        //                 cell.classList.add(
-        //                     'px-4', 'py-1', 'text-start', 'font-regular',
-        //                     'text-[14px]', 'opacity-80', 'truncate',
-        //                     'border-t', 'border-[#1e1e1e]/10', 'font-semibold'
-        //                 );
-        //             });
-        //         });
-        //     });
-
-        //     // Remove default search box
-        //     table.on("init", function() {
-        //         const defaultSearch = document.querySelector("#dt-search-0");
-        //         if (defaultSearch) {
-        //             defaultSearch.remove();
-        //         }
-        //     });
-
-        //     // Optional clear button handler
-        //     clearSearch('clear-btn', searchInputId, table);
-
-        //     return table;
-        // }
-
-
 
         document.addEventListener("DOMContentLoaded", function() {
 
             let assignCheckbox = document.getElementById('auto_assign');
 
 
-
-
             initModal('create-section-modal', 'create-section-modal-btn', 'create-section-modal-close-btn',
                 'create-section-cancel-btn',
                 'modal-container-1');
+            initModal('edit-program-modal', 'edit-program-modal-btn', 'edit-program-modal-close-btn',
+                'edit-program-cancel-btn',
+                'modal-container-2');
 
             let studentCount = document.querySelector('#studentCount');
             let sectionName = document.querySelector('#section_name');
@@ -1150,7 +1173,7 @@
                 try {
                     const response = await fetch(
                         `/getSections/${programId}?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`
-                        );
+                    );
                     const data = await response.json();
 
                     window.sectionsData = data.data;
@@ -1341,50 +1364,76 @@
 
 
 
-            // document.getElementById('add-student-form').addEventListener('submit', function(e) {
-            //     e.preventDefault();
+            // Populate edit form when edit button is clicked
+            document.getElementById('edit-program-modal-btn').addEventListener('click', function() {
+                // Fetch current program data
+                fetch(`{{ url('/program') }}/${programId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate form fields
+                        document.getElementById('program_code').value = data.code || '';
+                        document.getElementById('program_name').value = data.name || '';
+                        document.getElementById('program_track').value = data.track || '';
+                        document.getElementById('program_status').value = data.status || 'active';
+                    })
+                    .catch(err => {
+                        console.error('Error fetching program data:', err);
+                        showAlert('error', 'Failed to load program data');
+                    });
+            });
 
-            //     closeModal();
+            document.getElementById('edit-program-form').addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            //     let form = e.target;
-            //     let formData = new FormData(form);
+                let form = e.target;
+                let formData = new FormData(form);
 
-            //     // Show loader
-            //     showLoader("Adding...");
+                // Show loader
+                showLoader("Editing program...");
 
-            //     fetch(`/assign-section/${sectionId}`, {
-            //             method: "POST",
-            //             body: formData,
-            //             headers: {
-            //                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            //             }
-            //         })
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             hideLoader();
+                fetch(`/updateProgram/${programId}`, {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: formData
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        hideLoader();
 
-            //             console.log(data)
+                        console.log('Response data:', data);
 
-            //             if (data.success) {
+                        if (data.success) {
+                            // Reset form
+                            form.reset();
 
-            //                 studentCount.innerHTML = data.count;
-            //                 closeModal('add-student-modal', 'modal-container-2');
-            //                 showAlert('success', data.success);
-            //                 table1.draw();
+                            // Close modal
+                            closeModal('edit-program-modal', 'modal-container-2');
 
-            //             } else if (data.error) {
+                            // Show success alert
+                            showAlert('success', data.success);
 
-            //                 closeModal('add-student-modal', 'modal-container-2');
-            //                 showAlert('error', data.error);
-            //             }
-            //         })
-            //         .catch(err => {
-            //             hideLoader();
+                            // Reload page to show updated data
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
 
-            //             closeModal('add-student-modal', 'modal-container-2');
-            //             showAlert('error', 'Something went wrong');
-            //         });
-            // });
+                        } else if (data.error) {
+                            closeModal('edit-program-modal', 'modal-container-2');
+                            showAlert('error', data.error);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        console.error('Error:', err);
+                        closeModal('edit-program-modal', 'modal-container-2');
+                        showAlert('error', 'Something went wrong while updating the program');
+                    });
+            });
 
 
             function closeModal(modalId, modalContainerId) {
@@ -1412,22 +1461,24 @@
             // Program-based adviser filtering
             const programSelect = document.getElementById('program_id');
             const adviserSelect = document.getElementById('adviser_id');
-            
+
             if (programSelect && adviserSelect) {
                 programSelect.addEventListener('change', function() {
                     const selectedProgramId = this.value;
                     const adviserOptions = adviserSelect.querySelectorAll('option[data-program-id]');
-                    
+
                     adviserOptions.forEach(option => {
-                        if (selectedProgramId === '' || option.getAttribute('data-program-id') === selectedProgramId) {
+                        if (selectedProgramId === '' || option.getAttribute('data-program-id') ===
+                            selectedProgramId) {
                             option.style.display = 'block';
                         } else {
                             option.style.display = 'none';
                         }
                     });
-                    
+
                     // Reset adviser selection if current selection is not valid for new program
-                    if (adviserSelect.value && adviserSelect.querySelector(`option[value="${adviserSelect.value}"]`).style.display === 'none') {
+                    if (adviserSelect.value && adviserSelect.querySelector(
+                            `option[value="${adviserSelect.value}"]`).style.display === 'none') {
                         adviserSelect.value = '';
                     }
                 });
