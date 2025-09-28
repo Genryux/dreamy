@@ -6,6 +6,14 @@
 
     <title>Laravel</title>
 
+    {{-- Global Laravel object for JavaScript --}}
+    <script>
+        window.Laravel = {
+            csrfToken: '{{ csrf_token() }}',
+            user: @json(auth()->user()?->load('roles')) // load roles relation
+        };
+    </script>
+
     {{-- AOS is now loaded locally via Vite --}}
 
     <!-- Custom Scripts -->

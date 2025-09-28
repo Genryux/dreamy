@@ -206,7 +206,7 @@
                     </button>
 
                     <span class="flex flex-row space-x-4">
-                        <i class="fi fi-rs-bell text-[20px]"></i>
+                        {{-- bell icon here --}}
                         <i class="fi fi-rs-user text-[20px]"></i>
                     </span>
                 </header>
@@ -237,8 +237,12 @@
 
     <x-loader />
 
-    <script>
+    <script type="module">
+
+
         document.body.style.overflow = 'hidden';
+
+
 
         window.addEventListener('load', function() {
 

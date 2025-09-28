@@ -158,6 +158,11 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
+        return response()->json([
+            'test' => "You're hitting the right route",
+            
+        ]);
+
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:programs,code,' . $program->id,
             'name' => 'required|string|max:255',
