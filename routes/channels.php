@@ -7,5 +7,9 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('admins', function ($user) {
-    return $user->hasRole(['registrar', 'super_admin']); // only admins can listen
+    return $user->hasRole(['registrar', 'super_admin']); // admin roles can listen
+});
+
+Broadcast::channel('teachers', function ($user) {
+    return $user->hasRole(['head_teacher', 'teacher']); // teacher roles can listen
 });

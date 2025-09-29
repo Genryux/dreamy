@@ -296,6 +296,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/getAvailableSubjects/{section}', [SectionController::class, 'getAvailableSubjects']);
     Route::get('/getTeachers', [SectionController::class, 'getTeachers']);
     Route::get('/getSectionSubject/{sectionSubjectId}', [SectionController::class, 'getSectionSubject']);
+    
+    // Notification routes - optimized for performance
+    Route::get('/notifications', function () {
+        $notifications = auth()->user()
+            ->notifications()
+            ->select(['id', 'data', 'read_at', 'created_at'])
+            ->latest()
+            ->take(20)
+            ->get();
+        return response()->json(['notifications' => $notifications]);
+    });
+    
+    Route::post('/notifications/{notification}/mark-read', function ($notificationId) {
+        $notification = auth()->user()->notifications()->find($notificationId);
+        if ($notification) {
+            $notification->markAsRead();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false], 404);
+    });
+    
+    Route::post('/notifications/mark-all-read', function () {
+        auth()->user()->unreadNotifications()->update(['read_at' => now()]);
+        return response()->json(['success' => true]);
+    });
 });
 
 /*
@@ -307,6 +332,158 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/test', function () {
     return view('test');
+});
+
+// Debug notification route
+Route::get('/test-notification', function () {
+    $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
+    $teachers = \App\Models\User::role(['head_teacher', 'teacher'])->get();
+    
+    if ($admins->isEmpty() && $teachers->isEmpty()) {
+        return response()->json(['error' => 'No admin or teacher users found']);
+    }
+    
+    // Send to admin roles
+    if (!$admins->isEmpty()) {
+        Notification::send($admins, new \App\Notifications\GenericNotification(
+            "Test Admin Notification",
+            "This is a test notification for admin roles!",
+            url('/admin/users')
+        ));
+        
+        Notification::route('broadcast', 'admins')
+            ->notify(new \App\Notifications\GenericNotification(
+                "Test Admin Notification",
+                "This is a test notification for admin roles!",
+                url('/admin/users')
+            ));
+    }
+    
+    // Send to teacher roles
+    if (!$teachers->isEmpty()) {
+        Notification::send($teachers, new \App\Notifications\GenericNotification(
+            "Test Teacher Notification",
+            "This is a test notification for teacher roles!",
+            url('/enrolled-students')
+        ));
+        
+        Notification::route('broadcast', 'teachers')
+            ->notify(new \App\Notifications\GenericNotification(
+                "Test Teacher Notification",
+                "This is a test notification for teacher roles!",
+                url('/enrolled-students')
+            ));
+    }
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Test notifications sent to ' . $admins->count() . ' admin(s) and ' . $teachers->count() . ' teacher(s)',
+        'admins' => $admins->pluck('email'),
+        'teachers' => $teachers->pluck('email')
+    ]);
+});
+
+// Debug notification API route
+Route::get('/debug-notifications', function () {
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $notifications = $user->notifications()->latest()->take(20)->get();
+    
+    return response()->json([
+        'user' => $user->email,
+        'user_roles' => $user->roles->pluck('name'),
+        'notifications_count' => $notifications->count(),
+        'unread_count' => $user->unreadNotifications()->count(),
+        'notifications' => $notifications
+    ]);
+});
+
+// Test notification creation directly
+Route::get('/test-notification-direct', function () {
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    try {
+        $user->notify(new \App\Notifications\GenericNotification(
+            "Direct Test Notification",
+            "This notification was created directly to test the system.",
+            url('/admin/users')
+        ));
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification sent successfully',
+            'user' => $user->email,
+            'notifications_count' => $user->notifications()->count()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Failed to create notification',
+            'message' => $e->getMessage()
+        ]);
+    }
+});
+
+// Comprehensive notification test
+Route::get('/test-notification-comprehensive', function () {
+    try {
+        // Test 1: Check if admin users exist
+        $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
+        
+        if ($admins->isEmpty()) {
+            return response()->json(['error' => 'No admin users found']);
+        }
+        
+        $results = [];
+        
+        // Test 2: Try to create notification for each admin
+        foreach ($admins as $admin) {
+            try {
+                $beforeCount = $admin->notifications()->count();
+                
+                $admin->notify(new \App\Notifications\GenericNotification(
+                    "Comprehensive Test Notification",
+                    "This is a comprehensive test of the notification system.",
+                    url('/admin/users')
+                ));
+                
+                $afterCount = $admin->notifications()->count();
+                
+                $results[] = [
+                    'admin_email' => $admin->email,
+                    'before_count' => $beforeCount,
+                    'after_count' => $afterCount,
+                    'success' => $afterCount > $beforeCount,
+                    'error' => null
+                ];
+            } catch (\Exception $e) {
+                $results[] = [
+                    'admin_email' => $admin->email,
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Comprehensive test completed',
+            'admin_count' => $admins->count(),
+            'results' => $results
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Comprehensive test failed',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
 });
 
 Route::post('/test/{id}', [StudentRecordController::class, 'store']);

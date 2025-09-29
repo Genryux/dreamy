@@ -34,7 +34,7 @@ class RegistrationController extends Controller
 
         ]);
 
-        DB::transaction(function () use ($user) {
+        $user = DB::transaction(function () use ($user) {
             $user = User::create($user);
 
             $user->assignRole('applicant');
@@ -47,36 +47,55 @@ class RegistrationController extends Controller
                 'interview_status' => ''
             ]);
 
-            Auth::login($user);
-
-            $admins = User::query()->roles(['registrar', 'super_admin'])->get();
-            foreach ($admins as $admin) {
-                $admin->notify(new GenericNotification(
-                    "New user registered",
-                    $user->first_name . "has registered.",
-                    url('/admin/users')
-                ));
-            }
-
-            // broadcast once to shared channel
-            Notification::route('broadcast', 'admins')
-                ->notify(new GenericNotification(
-                    "New User Registered",
-                    $user->first_name . " has just registered.",
-                    url('/admin/users')
-                ));
-
-            // Check roles and redirect accordingly
-            if ($user->hasRole('teacher')) {
-                return redirect()->route('admin');
-            } elseif ($user->hasRole('applicant')) {
-                return redirect()->route('admission.dashboard');
-            } elseif ($user->hasRole('student')) {
-                return redirect()->route('student');
-            } elseif ($user->hasRole('registrar')) {
-                return redirect()->route('admin'); // Assuming registrar uses admin dashboard
-            }
+            return $user;
         });
+
+        Auth::login($user);
+
+        // Send notifications after transaction is committed
+        // Use Laravel's bulk notification to avoid N+1 problem
+        
+        // Send to admin roles (registrar, super_admin)
+        $admins = User::role(['registrar', 'super_admin'])->get();
+        Notification::send($admins, new GenericNotification(
+            "New User Registered",
+            $user->first_name . " has just registered.",
+            url('/admin/users')
+        ));
+
+        // Send to teacher roles (head_teacher, teacher)
+        $teachers = User::role(['head_teacher', 'teacher'])->get();
+        Notification::send($teachers, new GenericNotification(
+            "New Student Registration",
+            "A new student " . $user->first_name . ". This notification is only for teachers or head teacher",
+            url('/enrolled-students')
+        ));
+
+        // Send broadcast for real-time updates (separate broadcasts, no N+1)
+        Notification::route('broadcast', 'admins')
+            ->notify(new GenericNotification(
+                "New User Registered",
+                $user->first_name . " has just registered.",
+                url('/admin/users')
+            ));
+
+        Notification::route('broadcast', 'teachers')
+            ->notify(new GenericNotification(
+                "New Student Registration",
+                "A new student " . $user->first_name . ". This notification is only for teachers or head teacher",
+                url('/enrolled-students')
+            ));
+
+        // Check roles and redirect accordingly
+        if ($user->hasRole('teacher')) {
+            return redirect()->route('admin');
+        } elseif ($user->hasRole('applicant')) {
+            return redirect()->route('admission.dashboard');
+        } elseif ($user->hasRole('student')) {
+            return redirect()->route('student');
+        } elseif ($user->hasRole('registrar')) {
+            return redirect()->route('admin'); // Assuming registrar uses admin dashboard
+        }
 
 
 

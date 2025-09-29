@@ -30,16 +30,5 @@ window.AOS = AOS;
 
 // Wait for DOM to be ready before accessing window.Laravel
 document.addEventListener('DOMContentLoaded', function() {
-    if (
-        window.Laravel &&
-        window.Laravel.user &&
-        window.Laravel.user.roles &&
-        ['registrar', 'super_admin'].some(role => window.Laravel.user.roles.includes(role))
-    ) {
-        window.Echo.channel('admins')
-            .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
-                console.log("Admin real-time notification:", e);
-                alert(`${e.title}: ${e.message}`);
-            });
-    }
+    // Echo listener moved to admin layout for better control
 });

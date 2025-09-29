@@ -10,6 +10,7 @@ use App\Models\Applicants;
 use App\Models\ApplicationForm;
 use App\Models\Interview;
 use App\Models\User;
+use App\Notifications\GenericNotification;
 use App\Services\AcademicTermService;
 use App\Services\ApplicationFormService;
 use App\Services\DashboardDataService;
@@ -22,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
 
 class ApplicationFormController extends Controller
@@ -42,7 +44,7 @@ class ApplicationFormController extends Controller
         //$pending_applicant = ApplicationForm::latest()->get();
 
         $query = Applicants::withStatus('Pending');
-        
+
         // Filter by current academic term if feature is enabled
         if (config('app.use_term_enrollments')) {
             $activeTerm = AcademicTerms::where('is_active', true)->first();
@@ -52,7 +54,7 @@ class ApplicationFormController extends Controller
                 });
             }
         }
-        
+
         $pending_applicants = $query->get();
 
         // dd($pending_applicants[0]->id);
@@ -71,7 +73,7 @@ class ApplicationFormController extends Controller
         //dd($ongoingInterviews);
 
         $query = Applicants::where('application_status', 'Selected');
-        
+
         // Filter by current academic term if feature is enabled
         if (config('app.use_term_enrollments')) {
             $activeTerm = AcademicTerms::where('is_active', true)->first();
@@ -81,7 +83,7 @@ class ApplicationFormController extends Controller
                 });
             }
         }
-        
+
         $selected_applicants = $query->get();
         // $scheduled_applicants = Applicants::with('interview')->where('application_status', 'Scheduled')->get();
         // $interview_details = $scheduled_applicants->interview;
@@ -242,6 +244,42 @@ class ApplicationFormController extends Controller
                     ]);
                 }
             });
+
+            // Send notifications after transaction is committed
+            // Use Laravel's bulk notification to avoid N+1 problem
+            
+            // Send to admin roles (registrar, super_admin)
+            $admins = User::role(['registrar', 'super_admin'])->get();
+            Notification::send($admins, new GenericNotification(
+                "Application form",
+                "A user just submitted an application. Please review the submission at your earliest convenience.",
+                url('/pending-applications')
+            ));
+
+            // Send to teacher roles (head_teacher, teacher)
+            $teachers = User::role(['head_teacher', 'teacher'])->get();
+            Notification::send($teachers, new GenericNotification(
+                "New Application Submitted",
+                "A new student application has been submitted and may require academic review.",
+                url('/pending-applications')
+            ));
+
+            // Send broadcast for real-time updates (separate broadcasts, no N+1)
+            Notification::route('broadcast', 'admins')
+                ->notify(new GenericNotification(
+                    "Application form",
+                    "A user just submitted an application. Please review the submission at your earliest convenience.",
+                    url('/pending-applications')
+                ));
+
+            Notification::route('broadcast', 'teachers')
+                ->notify(new GenericNotification(
+                    "New Application Submitted",
+                    "A new student application has been submitted and may require academic review.",
+                    url('/pending-applications')
+                ));
+
+
             return redirect('admission')->with('success', 'Application submitted successfully!');
         } catch (\Throwable $th) {
 
