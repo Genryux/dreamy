@@ -517,35 +517,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if ($applications != null)
-                                @foreach ($applications as $application)
-                                    <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
-                                        <td
-                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $application->applicationForm->lrn }}</td>
-                                        <td
-                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $application->applicationForm->fullName() }}</td>
-                                        <td
-                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $application->applicationForm->primary_track }}</td>
-                                        <td
-                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ $application->applicationForm->grade_level }}</td>
-                                        <td
-                                            class="w-1/8 text-start font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            {{ \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A') }}
-                                        </td>
-
-                                        <td
-                                            class="w-1/8 text-center font-semibold py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                            <a
-                                                href="/pending-application/form-details/{{ $application->applicationForm->id }}">View</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
-
+                            <!-- Data will be populated by DataTables AJAX -->
                         </tbody>
                     </table>
                 </div>
@@ -605,6 +577,9 @@
         import {
             initModal
         } from "/js/modal.js";
+        import {
+            initCustomDataTable
+        } from "/js/initTable.js";
 
         let table;
         let totalApplications = document.querySelector('#total-application');
@@ -613,39 +588,55 @@
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            table = new DataTable('#myTable', {
-                paging: false,
-                pageLength: 10,
-                searching: false,
-                autoWidth: false,
-                order: [
-                    [6, 'desc']
+            // Initialize table using the AJAX component
+            table = initCustomDataTable(
+                'myTable',
+                '/admin/recent-applications',
+                [
+                    {
+                        data: 'applicant_id',
+                        width: '16%',
+                        orderable: true
+                    },
+                    {
+                        data: 'full_name',
+                        width: '20%',
+                        orderable: true
+                    },
+                    {
+                        data: 'program',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'grade_level',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'created_at',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        width: '10%',
+                        render: function(data, type, row) {
+                            return `<a href="/pending-application/form-details/${data}" class="flex justify-center items-center text-blue-600 bg-blue-200 rounded hover:bg-blue-300 transition duration-150 p-1"><button type="button" class=""><i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i></button></a>`;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
                 ],
-                columnDefs: [{
-                    width: '16.66%',
-                    targets: '_all'
-                }],
-            });
+                [[4, 'desc']], // Order by created_at descending
+                null, // No custom search input
+                [] // columnDefs parameter
+            );
 
-            table.on('draw', function() {
-                let newRow = document.querySelector('#myTable tbody tr:first-child');
-
-                // Select all td elements within the new row
-                let cells = newRow.querySelectorAll('td');
-
-                cells.forEach(function(cell) {
-                    cell.classList.add(
-                        'px-4', // Horizontal padding
-                        'py-2', // Vertical padding
-                        'text-start', // Align text to the start (left)
-                        'font-regular',
-                        'text-[14px]',
-                        'opacity-80',
-                        'truncate'
-                    );
-                });
-
-            });
+            // Override some settings for dashboard table
+            table.page.len(10).draw();
+            table.search('').draw(); // Disable searching for dashboard
 
             initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn', 'modal-container-1');
             initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn', 'modal-container-2');
@@ -654,44 +645,47 @@
 
             console.log(window.Echo);
 
-            window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (event) => {
-                console.log(event.total_applications);
-                totalApplications.innerHTML = event.total_applications;
+            // Restrict fetching-recent-applications channel to super_admin and admin only
+            const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
+            
+            if (userRoles.some(role => ['super_admin', 'admin'].includes(role))) {
+                console.log('Setting up recent applications listener for admin users');
+                
+                window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (event) => {
+                    console.log('New application received:', event);
+                    console.log('Total applications:', event.total_applications);
+                    console.log('Application data:', event.application);
+                    
+                    // Update total applications counter
+                    if (totalApplications) {
+                        totalApplications.innerHTML = event.total_applications;
+                    }
 
+                    // Reload the table to show new data
+                    table.ajax.reload(function() {
+                        console.log('Table reloaded with new application data');
+                        
+                        // Highlight the first row (newest application) after reload
+                        setTimeout(() => {
+                            let firstRow = document.querySelector('#myTable tbody tr:first-child');
+                            if (firstRow) {
+                                firstRow.classList.add(
+                                    'duration-300',
+                                    'ease-in-out',
+                                    'bg-[#FBBC04]/30'
+                                );
 
-
-                let row = table.row.add([
-                    event.application.lrn,
-                    event.application.full_name,
-                    event.application.program,
-                    event.application.grade_level,
-                    event.application.created_at,
-                    event.created_at,
-                    `<a href="/pending-application/form-details/${event.application.id}">View</a>`
-                ]).order([6, 'desc']).draw();
-
-                // Retrieve the node of the added row:
-                var newRow = row.node();
-
-                // Apply your classes for highlighting
-                newRow.classList.add(
-                    'duration-300',
-                    'ease-in-out',
-                    'bg-[#FBBC04]/30'
-                );
-
-                // Remove highlight after 4000ms
-                setTimeout(() => {
-                    newRow.classList.remove('bg-[#FBBC04]/30');
-                    newRow.classList.add(
-                        'border-t-[1px]',
-                        'border-[#1e1e1e]/15',
-                        'duration-300',
-                        'ease-in-out'
-                    );
-                }, 4000);
-
-            });
+                                // Remove highlight after 4000ms
+                                setTimeout(() => {
+                                    firstRow.classList.remove('bg-[#FBBC04]/30');
+                                }, 4000);
+                            }
+                        }, 500); // Small delay to ensure DOM is updated
+                    }, false); // false = don't reset paging
+                });
+            } else {
+                console.log('User does not have super_admin or admin role, skipping recent applications channel subscription');
+            }
 
             // if (endEnrollmentBtn) {
             //     endEnrollmentBtn.addEventListener('click', async () => {

@@ -28,6 +28,16 @@
 
                             </x-nav-link>
                         @endrole
+                        @role(['super_admin', 'registrar'])
+                            <x-nav-link href="/applications/pending" :active="request()->is('admin')">
+
+                                <span class="flex flex-row items-center space-x-4">
+                                    <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate"> Applications</p>
+                                </span>
+
+                            </x-nav-link>
+                        @endrole
                         {{-- For head teacher --}}
                         @role('head_teacher')
                             <x-nav-link href="/head-teacher/dashboard" :active="request()->is('head-teacher/dashboard')">
@@ -208,35 +218,41 @@
                     <span class="flex flex-row space-x-4">
                         {{-- Notification Bell --}}
                         <div class="relative">
-                            <button id="notification-bell" class="relative p-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
+                            <button id="notification-bell"
+                                class="relative p-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
                                 <i class="fi fi-rs-bell text-[20px]"></i>
-                                <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                                <span id="notification-badge"
+                                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                             </button>
-                            
-                {{-- Notification Dropdown --}}
-                <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
-                    <div class="p-4 border-b border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
-                            <button id="mark-all-read" class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors hidden">
-                                Mark all read
-                            </button>
+
+                            {{-- Notification Dropdown --}}
+                            <div id="notification-dropdown"
+                                class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+                                        <button id="mark-all-read"
+                                            class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors hidden">
+                                            Mark all read
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                    <div class="p-4 text-center text-gray-500">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto">
+                                        </div>
+                                        <p class="mt-2">Loading notifications...</p>
+                                    </div>
+                                </div>
+                                <div class="p-3 border-t border-gray-200 bg-gray-50">
+                                    <a href="#"
+                                        class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
+                                        View all notifications
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="notification-list" class="max-h-64 overflow-y-auto">
-                        <div class="p-4 text-center text-gray-500">
-                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
-                            <p class="mt-2">Loading notifications...</p>
-                        </div>
-                    </div>
-                    <div class="p-3 border-t border-gray-200 bg-gray-50">
-                        <a href="#" class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
-                            View all notifications
-                        </a>
-                    </div>
-                </div>
-                        </div>
-                        
+
                         <i class="fi fi-rs-user text-[20px]"></i>
                     </span>
                 </header>
@@ -268,8 +284,6 @@
     <x-loader />
 
     <script type="module">
-
-
         document.body.style.overflow = 'hidden';
 
 
@@ -294,7 +308,7 @@
             const notificationBadge = document.getElementById('notification-badge');
             const notificationList = document.getElementById('notification-list');
             const markAllReadBtn = document.getElementById('mark-all-read');
-            
+
             console.log('Simple Laravel notification system loaded - v2.0');
             let isDropdownOpen = false;
 
@@ -303,7 +317,7 @@
                 e.stopPropagation();
                 isDropdownOpen = !isDropdownOpen;
                 notificationDropdown.classList.toggle('hidden');
-                
+
                 if (isDropdownOpen) {
                     loadNotifications();
                 }
@@ -327,14 +341,15 @@
                 try {
                     const response = await fetch('/notifications');
                     const data = await response.json();
-                    
+
                     if (data.notifications) {
                         renderNotifications(data.notifications);
                         updateBadge(data.notifications);
                     }
                 } catch (error) {
                     console.error('Error loading notifications:', error);
-                    notificationList.innerHTML = '<div class="p-4 text-center text-gray-500">Error loading notifications</div>';
+                    notificationList.innerHTML =
+                        '<div class="p-4 text-center text-gray-500">Error loading notifications</div>';
                 }
             }
 
@@ -342,17 +357,18 @@
             // Simple function to render notifications
             function renderNotifications(notifications) {
                 if (notifications.length === 0) {
-                    notificationList.innerHTML = '<div class="p-4 text-center text-gray-500">No notifications yet</div>';
+                    notificationList.innerHTML =
+                        '<div class="p-4 text-center text-gray-500">No notifications yet</div>';
                     markAllReadBtn.classList.add('hidden');
                     return;
                 }
 
                 markAllReadBtn.classList.remove('hidden');
-                
+
                 notificationList.innerHTML = notifications.map(notification => {
                     const isUnread = !notification.read_at;
                     const timeAgo = getTimeAgo(notification.created_at);
-                    
+
                     return `
                         <div class="p-4 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors" 
                              onclick="handleNotificationClick('${notification.id}', '${notification.data?.url || ''}')">
@@ -381,7 +397,7 @@
             // Simple function to update badge
             function updateBadge(notifications) {
                 const unreadCount = notifications.filter(n => !n.read_at).length;
-                
+
                 if (unreadCount > 0) {
                     notificationBadge.textContent = unreadCount;
                     notificationBadge.classList.remove('hidden');
@@ -395,7 +411,7 @@
                 const now = new Date();
                 const date = new Date(dateString);
                 const diffInSeconds = Math.floor((now - date) / 1000);
-                
+
                 if (diffInSeconds < 60) return 'Just now';
                 if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
                 if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -409,10 +425,11 @@
                     await fetch(`/notifications/${notificationId}/mark-read`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
                         }
                     });
-                    
+
                     // Navigate to URL if provided
                     if (url && url.trim() !== '') {
                         window.location.href = url;
@@ -431,7 +448,8 @@
                     await fetch('/notifications/mark-all-read', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
                         }
                     });
                     loadNotifications(); // Reload to update UI
@@ -442,17 +460,17 @@
 
             // Simple real-time listener
             const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
-            
+
             // Listen to admins channel (registrar, super_admin)
             if (userRoles.some(role => ['registrar', 'super_admin'].includes(role))) {
                 console.log('Setting up admin notification listener');
                 console.log('Connecting to admins channel...');
-                
+
                 window.Echo.channel('admins')
                     .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
                         console.log('Admin notification received:', e);
                         loadNotifications();
-                        
+
                         if (Notification.permission === 'granted') {
                             new Notification(e.title, {
                                 body: e.message,
@@ -467,17 +485,17 @@
                         console.error('Admins channel error:', error);
                     });
             }
-            
+
             // Listen to teachers channel (head_teacher, teacher)
             if (userRoles.some(role => ['head_teacher', 'teacher'].includes(role))) {
                 console.log('Setting up teacher notification listener');
                 console.log('Connecting to teachers channel...');
-                
+
                 window.Echo.channel('teachers')
                     .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
                         console.log('Teacher notification received:', e);
                         loadNotifications();
-                        
+
                         if (Notification.permission === 'granted') {
                             new Notification(e.title, {
                                 body: e.message,
@@ -492,7 +510,7 @@
                         console.error('Teachers channel error:', error);
                     });
             }
-            
+
             if (!userRoles.some(role => ['registrar', 'super_admin', 'head_teacher', 'teacher'].includes(role))) {
                 console.log('User does not have admin or teacher role, skipping Echo setup');
             }
@@ -504,10 +522,10 @@
 
             // Initial load
             loadNotifications();
-            
+
             // Make function globally accessible for HTML onclick
             window.handleNotificationClick = handleNotificationClick;
-            
+
             // Debug: Check Echo connection
             console.log('Echo instance:', window.Echo);
             console.log('Laravel user:', window.Laravel?.user);

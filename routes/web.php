@@ -106,15 +106,16 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
 
     // Admin Dashboard
     Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+    Route::get('/admin/recent-applications', [ApplicationFormController::class, 'getRecentApplications'])->name('admin.recent-applications');
 
     // School Settings
     Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
     Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
 
     // Application Management
-    Route::get('/pending-applications', [ApplicationFormController::class, 'pending'])->name('pending');
+    Route::get('/applications/pending', [ApplicationFormController::class, 'pending'])->name('applications.pending');
     Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.details');
-    Route::get('/selected-applications', [ApplicationFormController::class, 'selected'])->name('selected');
+    Route::get('/selected-applications', [ApplicationFormController::class, 'selected'])->name('applications.approved');
     Route::get('/selected-application/interview-details/{id}', [InterviewController::class, 'show'])->name('selected.details');
 
     // Document Management
@@ -338,21 +339,22 @@ Route::get('/test', function () {
 Route::get('/test-notification', function () {
     $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
     $teachers = \App\Models\User::role(['head_teacher', 'teacher'])->get();
+    $students = \App\Models\User::role(['student'])->get();
     
-    if ($admins->isEmpty() && $teachers->isEmpty()) {
-        return response()->json(['error' => 'No admin or teacher users found']);
+    if ($admins->isEmpty() && $teachers->isEmpty() && $students->isEmpty()) {
+        return response()->json(['error' => 'No admin, teacher, or student users found']);
     }
     
     // Send to admin roles
     if (!$admins->isEmpty()) {
-        Notification::send($admins, new \App\Notifications\GenericNotification(
+        Notification::send($admins, new \App\Notifications\QueuedNotification(
             "Test Admin Notification",
             "This is a test notification for admin roles!",
             url('/admin/users')
         ));
         
         Notification::route('broadcast', 'admins')
-            ->notify(new \App\Notifications\GenericNotification(
+            ->notify(new \App\Notifications\ImmediateNotification(
                 "Test Admin Notification",
                 "This is a test notification for admin roles!",
                 url('/admin/users')
@@ -361,25 +363,49 @@ Route::get('/test-notification', function () {
     
     // Send to teacher roles
     if (!$teachers->isEmpty()) {
-        Notification::send($teachers, new \App\Notifications\GenericNotification(
+        Notification::send($teachers, new \App\Notifications\QueuedNotification(
             "Test Teacher Notification",
             "This is a test notification for teacher roles!",
             url('/enrolled-students')
         ));
         
         Notification::route('broadcast', 'teachers')
-            ->notify(new \App\Notifications\GenericNotification(
+            ->notify(new \App\Notifications\ImmediateNotification(
                 "Test Teacher Notification",
                 "This is a test notification for teacher roles!",
                 url('/enrolled-students')
             ));
     }
     
+    // Send to student roles (for mobile app testing)
+    if (!$students->isEmpty()) {
+        // Generate a shared ID for both queued and immediate notifications
+        $sharedNotificationId = 'test-student-' . time() . '-' . uniqid();
+        
+        // Database notification (queued)
+        Notification::send($students, new \App\Notifications\QueuedNotification(
+            "Test Student Notification",
+            "This is a test notification for student mobile app!",
+            null, // No URL needed for mobile
+            $sharedNotificationId // Shared ID for mobile app matching
+        ));
+        
+        // Real-time broadcast (immediate)
+        Notification::route('broadcast', 'students')
+            ->notify(new \App\Notifications\ImmediateNotification(
+                "Test Student Notification",
+                "This is a test notification for student mobile app!",
+                null, // No URL needed for mobile
+                $sharedNotificationId // Same shared ID for matching
+            ));
+    }
+    
     return response()->json([
         'success' => true,
-        'message' => 'Test notifications sent to ' . $admins->count() . ' admin(s) and ' . $teachers->count() . ' teacher(s)',
+        'message' => 'Test notifications sent to ' . $admins->count() . ' admin(s), ' . $teachers->count() . ' teacher(s), and ' . $students->count() . ' student(s)',
         'admins' => $admins->pluck('email'),
-        'teachers' => $teachers->pluck('email')
+        'teachers' => $teachers->pluck('email'),
+        'students' => $students->pluck('email')
     ]);
 });
 
@@ -409,7 +435,7 @@ Route::get('/test-notification-direct', function () {
     }
     
     try {
-        $user->notify(new \App\Notifications\GenericNotification(
+        $user->notify(new \App\Notifications\QueuedNotification(
             "Direct Test Notification",
             "This notification was created directly to test the system.",
             url('/admin/users')
@@ -446,7 +472,7 @@ Route::get('/test-notification-comprehensive', function () {
             try {
                 $beforeCount = $admin->notifications()->count();
                 
-                $admin->notify(new \App\Notifications\GenericNotification(
+                $admin->notify(new \App\Notifications\QueuedNotification(
                     "Comprehensive Test Notification",
                     "This is a comprehensive test of the notification system.",
                     url('/admin/users')

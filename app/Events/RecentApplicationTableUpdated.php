@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\ApplicationForm;
+use App\Models\Applicants;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -22,9 +22,10 @@ class RecentApplicationTableUpdated implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct(ApplicationForm $application, $total_applications)
+    public function __construct(Applicants $applicant, $total_applications)
     {
-        $this->application = $application->toArray();
+        // Load the applicationForm relationship and convert to array with relationship data
+        $this->application = $applicant->load('applicationForm')->toArray();
         $this->total_applications = $total_applications;
     }
 

@@ -13,3 +13,7 @@ Broadcast::channel('admins', function ($user) {
 Broadcast::channel('teachers', function ($user) {
     return $user->hasRole(['head_teacher', 'teacher']); // teacher roles can listen
 });
+
+Broadcast::channel('students', function ($user) {
+    return $user->hasRole(['student']); // student roles can listen (for mobile app)
+});

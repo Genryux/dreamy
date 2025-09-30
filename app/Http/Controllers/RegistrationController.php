@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Applicant;
 use App\Models\Applicants;
 use App\Models\User;
-use App\Notifications\GenericNotification;
+use App\Notifications\QueuedNotification;
+use App\Notifications\ImmediateNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -57,7 +58,7 @@ class RegistrationController extends Controller
         
         // Send to admin roles (registrar, super_admin)
         $admins = User::role(['registrar', 'super_admin'])->get();
-        Notification::send($admins, new GenericNotification(
+        Notification::send($admins, new QueuedNotification(
             "New User Registered",
             $user->first_name . " has just registered.",
             url('/admin/users')
@@ -65,25 +66,40 @@ class RegistrationController extends Controller
 
         // Send to teacher roles (head_teacher, teacher)
         $teachers = User::role(['head_teacher', 'teacher'])->get();
-        Notification::send($teachers, new GenericNotification(
+        Notification::send($teachers, new QueuedNotification(
             "New Student Registration",
             "A new student " . $user->first_name . ". This notification is only for teachers or head teacher",
             url('/enrolled-students')
         ));
 
+        // Send to student roles (for mobile app)
+        $students = User::role(['student'])->get();
+        Notification::send($students, new QueuedNotification(
+            "Welcome to the System",
+            "Welcome " . $user->first_name . "! Your account has been created successfully.",
+            null // No URL needed for mobile
+        ));
+
         // Send broadcast for real-time updates (separate broadcasts, no N+1)
         Notification::route('broadcast', 'admins')
-            ->notify(new GenericNotification(
+            ->notify(new ImmediateNotification(
                 "New User Registered",
                 $user->first_name . " has just registered.",
                 url('/admin/users')
             ));
 
         Notification::route('broadcast', 'teachers')
-            ->notify(new GenericNotification(
+            ->notify(new ImmediateNotification(
                 "New Student Registration",
                 "A new student " . $user->first_name . ". This notification is only for teachers or head teacher",
                 url('/enrolled-students')
+            ));
+
+        Notification::route('broadcast', 'students')
+            ->notify(new ImmediateNotification(
+                "Welcome to the System",
+                "Welcome " . $user->first_name . "! Your account has been created successfully.",
+                null // No URL needed for mobile
             ));
 
         // Check roles and redirect accordingly

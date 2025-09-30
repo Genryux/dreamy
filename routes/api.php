@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\ProgramsController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Api\InvoiceController;
  use App\Http\Controllers\Api\AcademicController;
 use App\Http\Controllers\Api\FinancialController;
 use App\Http\Controllers\Api\StudentProfileController;
+use App\Http\Controllers\Api\NotificationController;
 
 Route::get('/tite', function () {
     return response()->json(['message' => 'API routes are working']);
@@ -24,6 +27,11 @@ Route::get('/tite', function () {
 // Public auth endpoints
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+
+// Broadcasting authentication for mobile app
+Route::post('/broadcasting/auth', function (Request $request) {
+    return Broadcast::auth($request);
+})->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 	// Authenticated user helpers
@@ -86,4 +94,10 @@ Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 
 	// Student Profile - NEW
 	Route::put('/profile/personal-info', [StudentProfileController::class, 'updatePersonalInfo']);
+
+	// Notifications - NEW
+	Route::get('/notifications', [NotificationController::class, 'index']);
+	Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+	Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+	Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
 });

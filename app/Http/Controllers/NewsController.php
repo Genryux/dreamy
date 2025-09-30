@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use App\Notifications\ImmediateNotification;
+use App\Notifications\QueuedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class NewsController extends Controller
 {
@@ -27,8 +30,8 @@ class NewsController extends Controller
         if ($search = $request->input('search.value')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%");
+                    ->orWhere('content', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
             });
         }
 
@@ -105,6 +108,8 @@ class NewsController extends Controller
                 'is_announcement' => $request->boolean('is_announcement'),
                 'published_at' => $request->status === 'published' ? now() : null
             ]);
+
+
 
             return response()->json([
                 'success' => 'News created successfully',
@@ -184,6 +189,46 @@ class NewsController extends Controller
                 $data['published_at'] = $request->status === 'published' ? now() : null;
                 $news = News::create($data);
                 $message = 'News created successfully';
+            }
+
+            $students = \App\Models\User::role(['student'])->get();
+            $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
+
+            if (!$admins->isEmpty()) {
+                Notification::send($admins, new \App\Notifications\QueuedNotification(
+                    "News & Announcement",
+                    "A new announcement has been posted. Check your dashboard page for details.!",
+                    url('/admin/users')
+                ));
+
+                Notification::route('broadcast', 'admins')
+                    ->notify(new \App\Notifications\ImmediateNotification(
+                        "News & Announcement",
+                        "A new announcement has been posted. Check your dashboard page for details.!",
+                        url('/admin/users')
+                    ));
+            }
+
+            if (!$students->isEmpty()) {
+                // Generate a shared ID for both queued and immediate notifications
+                $sharedNotificationId = 'test-student-' . time() . '-' . uniqid();
+
+                // Database notification (queued)
+                Notification::send($students, new QueuedNotification(
+                    "News & Announcement",
+                    "A new announcement has been posted. Check your dashboard page for details.!",
+                    null, // No URL needed for mobile
+                    $sharedNotificationId // Shared ID for mobile app matching
+                ));
+
+                // Real-time broadcast (immediate)
+                Notification::route('broadcast', 'students')
+                    ->notify(new ImmediateNotification(
+                        "News & Announcement",
+                        "A new announcement has been posted. Check your dashboard page for details.!",
+                        null, // No URL needed for mobile
+                        $sharedNotificationId // Same shared ID for matching
+                    ));
             }
 
             return response()->json([

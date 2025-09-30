@@ -10,7 +10,8 @@ use App\Models\Applicants;
 use App\Models\ApplicationForm;
 use App\Models\Interview;
 use App\Models\User;
-use App\Notifications\GenericNotification;
+use App\Notifications\QueuedNotification;
+use App\Notifications\ImmediateNotification;
 use App\Services\AcademicTermService;
 use App\Services\ApplicationFormService;
 use App\Services\DashboardDataService;
@@ -60,7 +61,7 @@ class ApplicationFormController extends Controller
         // dd($pending_applicants[0]->id);
 
 
-        return view('user-admin.pending.pending-application', [
+        return view('user-admin.applications.index', [
             'pending_applicants' => $pending_applicants
         ]);
     }
@@ -114,6 +115,67 @@ class ApplicationFormController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+    /**
+     * Get recent applications data for DataTables (AJAX).
+     */
+    public function getRecentApplications(Request $request)
+    {
+        try {
+            $query = \App\Models\Applicants::with(['applicationForm'])
+                ->withStatus('Pending')
+                ->latest();
+
+            // Search filter
+            if ($search = $request->input('search.value')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('applicant_id', 'like', "%{$search}%")
+                      ->orWhereHas('applicationForm', function ($qq) use ($search) {
+                          $qq->where('first_name', 'like', "%{$search}%")
+                             ->orWhere('last_name', 'like', "%{$search}%")
+                             ->orWhere('primary_track', 'like', "%{$search}%")
+                             ->orWhere('grade_level', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            $totalRecords = $query->count();
+            
+            // Pagination
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 10);
+            $applications = $query->skip($start)->take($length)->get();
+
+            $data = $applications->map(function ($application) {
+                return [
+                    'applicant_id' => $application->applicant_id ?? 'N/A',
+                    'full_name' => $application->applicationForm->fullName() ?? 'N/A',
+                    'program' => $application->applicationForm->primary_track ?? 'N/A',
+                    'grade_level' => $application->applicationForm->grade_level ?? 'N/A',
+                    'created_at' => \Carbon\Carbon::parse($application->applicationForm->created_at)->timezone('Asia/Manila')->format('M. d - g:i A'),
+                    'actions' => '<a href="/pending-application/form-details/' . $application->applicationForm->id . '">View</a>',
+                    'id' => $application->applicationForm->id // For actions
+                ];
+            });
+
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+                'data' => $data
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('getRecentApplications error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => 'Failed to load applications data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function index()
     {
@@ -234,14 +296,14 @@ class ApplicationFormController extends Controller
 
                 $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
 
-                // event(new ApplicationFormSubmitted($form));
-                event(new RecentApplicationTableUpdated($form, $total_applications));
-
-
+                // Update applicant status first
                 if ($applicant) {
                     $applicant->update([
                         'application_status' => 'Pending'
                     ]);
+                    
+                    // Fire event with the applicant model (which has the applicant_id and relationships)
+                    event(new RecentApplicationTableUpdated($applicant, $total_applications));
                 }
             });
 
@@ -264,21 +326,41 @@ class ApplicationFormController extends Controller
                 url('/pending-applications')
             ));
 
+            // Generate a shared ID for both queued and immediate notifications
+            $sharedNotificationId = 'app-submit-' . time() . '-' . uniqid();
+
+            // Send to student roles (for mobile app) - QUEUED for performance
+            $students = User::role(['student'])->get();
+            Notification::send($students, new QueuedNotification(
+                "Application Submitted Successfully",
+                "Your application has been submitted successfully and is now being reviewed.",
+                null, // No URL needed for mobile
+                $sharedNotificationId // Shared ID for mobile app matching
+            ));
+
             // Send broadcast for real-time updates (separate broadcasts, no N+1)
             Notification::route('broadcast', 'admins')
-                ->notify(new GenericNotification(
+                ->notify(new ImmediateNotification(
                     "Application form",
                     "A user just submitted an application. Please review the submission at your earliest convenience.",
                     url('/pending-applications')
                 ));
 
             Notification::route('broadcast', 'teachers')
-                ->notify(new GenericNotification(
+                ->notify(new ImmediateNotification(
                     "New Application Submitted",
                     "A new student application has been submitted and may require academic review.",
                     url('/pending-applications')
                 ));
 
+            // REAL-TIME notification for mobile app - NOT QUEUED
+            Notification::route('broadcast', 'students')
+                ->notify(new ImmediateNotification(
+                    "Application Submitted Successfully",
+                    "Your application has been submitted successfully and is now being reviewed.",
+                    null, // No URL needed for mobile
+                    $sharedNotificationId // Same shared ID for matching
+                ));
 
             return redirect('admission')->with('success', 'Application submitted successfully!');
         } catch (\Throwable $th) {

@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class GenericNotification extends Notification implements ShouldQueue
+class QueuedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -19,7 +19,8 @@ class GenericNotification extends Notification implements ShouldQueue
     public function __construct(
         public string $title,
         public string $message,
-        public ?string $url = null
+        public ?string $url = null,
+        public ?string $sharedId = null
     ) {
         //
     }
@@ -31,7 +32,7 @@ class GenericNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast']; // Removed 'mail' for better performance
+        return ['database', 'broadcast']; // Queued for performance - saves to DB and broadcasts
     }
 
     /**
@@ -56,6 +57,21 @@ class GenericNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Get the database representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'title' => $this->title,
+            'message' => $this->message,
+            'url' => $this->url,
+            'shared_id' => $this->sharedId, // Include shared ID for matching with immediate notifications
+        ];
+    }
+
+    /**
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
@@ -66,6 +82,7 @@ class GenericNotification extends Notification implements ShouldQueue
             'title' => $this->title,
             'message' => $this->message,
             'url' => $this->url,
+            'shared_id' => $this->sharedId, // Include shared ID for mobile app matching
         ];
     }
 }
