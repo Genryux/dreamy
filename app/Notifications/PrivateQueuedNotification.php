@@ -2,14 +2,14 @@
 
 namespace App\Notifications;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class QueuedNotification extends Notification implements ShouldQueue
+class PrivateQueuedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -20,20 +20,20 @@ class QueuedNotification extends Notification implements ShouldQueue
         public string $title,
         public string $message,
         public ?string $url = null,
-        public ?string $sharedId = null,
-        public ?string $broadcastChannel = null
+        public ?string $sharedId = null
     ) {
         //
     }
 
     /**
      * Get the notification's delivery channels.
+     * Saves to database AND broadcasts to private user channel
      *
      * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast']; // Queued for performance - saves to DB and broadcasts
+        return ['database', 'broadcast']; // Queued for performance - saves to DB and broadcasts to private channel
     }
 
     /**
@@ -42,16 +42,28 @@ class QueuedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
+            ->line($this->message)
+            ->when($this->url, function ($mail) {
+                return $mail->action('View Details', $this->url);
+            })
             ->line('Thank you for using our application!');
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     * Uses private channel specific to the user
+     */
     public function broadcastOn()
     {
-        return new Channel($this->broadcastChannel);
+        // Return a closure that will be called with the notifiable
+        return function ($notifiable) {
+            return new \Illuminate\Broadcasting\Channel('user.' . $notifiable->id);
+        };
     }
 
+    /**
+     * Get the data to broadcast.
+     */
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage($this->toArray($notifiable));
@@ -69,6 +81,7 @@ class QueuedNotification extends Notification implements ShouldQueue
             'message' => $this->message,
             'url' => $this->url,
             'shared_id' => $this->sharedId, // Include shared ID for matching with immediate notifications
+            'user_id' => $notifiable->id, // Store user ID for reference
         ];
     }
 
@@ -84,6 +97,34 @@ class QueuedNotification extends Notification implements ShouldQueue
             'message' => $this->message,
             'url' => $this->url,
             'shared_id' => $this->sharedId, // Include shared ID for mobile app matching
+            'user_id' => $notifiable->id, // Include user ID for private channel routing
         ];
+    }
+
+
+    /**
+     * Customize the broadcast data
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'id' => 'private-queued-' . time() . '-' . uniqid(),
+            'type' => static::class,
+            'data' => [
+                'title' => $this->title,
+                'message' => $this->message,
+                'url' => $this->url,
+                'shared_id' => $this->sharedId,
+            ],
+            'created_at' => now()->toISOString(),
+        ];
+    }
+
+    /**
+     * Get the broadcast event name
+     */
+    public function broadcastAs()
+    {
+        return 'notification';
     }
 }

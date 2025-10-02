@@ -369,7 +369,7 @@
 @section('header')
     <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
         <div>
-            <h1 class="text-[24px] font-black text-gray-900">{{ $section->name }}</h1>
+            <h1 class="text-[24px] font-black text-gray-900">Section Details</h1>
             <p class="text-[14px] text-gray-600 mt-1">{{ $section->program->name }} • {{ $section->year_level }}</p>
         </div>
         <div class="flex flex-row justify-center items-center h-full">
@@ -410,7 +410,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
             <div class="flex flex-row items-start justify-between w-full gap-4 py-2 rounded-lg">
                 <div class="flex flex-col items-start justify-center">
                     <h1 class="text-[45px] font-black" id="section_name">{{ $section->name }}</h1>
@@ -476,9 +476,9 @@
                 </div>
                 @role(['super_admin', 'registrar', 'head_teacher'])
                 <button id="add-student-modal-btn"
-                    class="bg-[#1A3165] px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
-                    <i class="fi fi-rr-plus flex justify-center items-center"></i>
-                    Add Student
+                    class="bg-[#199BCF] px-3 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#C8A165] transition duration-150">
+                    <i class="fi fi-ss-plus flex justify-center items-center text-[12px]"></i>
+                    Student
                 </button>
                 @endrole
             </div>
@@ -571,9 +571,9 @@
                 </div>
                 @role(['super_admin', 'head_teacher'])
                 <button id="add-subject-modal-btn"
-                    class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
-                    <i class="fi fi-rr-plus flex justify-center items-center"></i>
-                    Add Subject
+                    class="bg-[#199BCF] px-3 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#C8A165] transition duration-150">
+                    <i class="fi fi-rr-plus flex justify-center items-center text-[12px]"></i>
+                    Subject
                 </button>
                 @endrole
             </div>

@@ -2,11 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class ImmediateNotification extends Notification
+class PrivateImmediateNotification extends Notification
 {
     /**
      * Create a new notification instance.
@@ -23,7 +23,7 @@ class ImmediateNotification extends Notification
 
     /**
      * Get the notification's delivery channels.
-     * Only broadcast - no database storage, no queue, immediate delivery
+     * Only broadcast to private user channel - no database storage, immediate delivery
      *
      * @return array<int, string>
      */
@@ -32,11 +32,17 @@ class ImmediateNotification extends Notification
         return ['broadcast']; // Only broadcast, immediate delivery (not queued)
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     */
     public function broadcastOn()
     {
-        return new Channel($this->broadcastChannel);
+        return new \Illuminate\Broadcasting\Channel($this->broadcastChannel ?? 'user.1');
     }
 
+    /**
+     * Get the data to broadcast.
+     */
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage($this->toArray($notifiable));
@@ -55,5 +61,32 @@ class ImmediateNotification extends Notification
             'url' => $this->url,
             'shared_id' => $this->sharedId, // Include shared ID for mobile app matching
         ];
+    }
+
+
+    /**
+     * Customize the broadcast data
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'id' => 'private-immediate-' . time() . '-' . uniqid(),
+            'type' => static::class,
+            'data' => [
+                'title' => $this->title,
+                'message' => $this->message,
+                'url' => $this->url,
+                'shared_id' => $this->sharedId,
+            ],
+            'created_at' => now()->toISOString(),
+        ];
+    }
+
+    /**
+     * Get the broadcast event name
+     */
+    public function broadcastAs()
+    {
+        return 'notification';
     }
 }

@@ -512,4 +512,11 @@ Route::get('/test-notification-comprehensive', function () {
     }
 });
 
+// Private notification test routes
+Route::post('/test-private-notification', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendPrivateNotification']);
+Route::post('/test-invoice-reminder', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendInvoiceReminder']);
+Route::post('/test-enrollment-confirmation', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendEnrollmentConfirmation']);
+Route::post('/test-grade-notification', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendGradeNotification']);
+Route::post('/test-bulk-private-notifications', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendBulkPrivateNotifications']);
+
 Route::post('/test/{id}', [StudentRecordController::class, 'store']);
