@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('applicant_id')->unique();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('application_status')->nullable();
+            $table->enum('application_status', ['Pending', 'Accepted', 'Scheduled', 'Pending-Documents', 'Rejected', 'Officially Enrolled'])->nullable();
             $table->timestamps();
         });
     }

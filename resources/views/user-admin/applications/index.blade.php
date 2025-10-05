@@ -63,8 +63,8 @@
 @section('header')
     <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
         <div>
-            <h1 class="text-[20px] font-black">Program Details</h1>
-            <p class="text-[14px]  text-gray-900/60">View and manage program details and associated sections and subjects.
+            <h1 class="text-[20px] font-black">Application Management</h1>
+            <p class="text-[14px]  text-gray-900/60">View and manage student applications across different statuses.
             </p>
         </div>
 
@@ -186,11 +186,11 @@
                 </a>
             </li>
 
-            {{-- <li class="me-2">
-                <a href="{{ route('applications.subjects') }}"
+            <li class="me-2">
+                <a href="{{ route('applications.pending-documents') }}"
                     class="inline-block p-4 border-b-2 rounded-t-lg 
-              {{ Route::is('applications.pending-docu') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
-                    Rejected
+              {{ Route::is('applications.pending-documents') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Pending Documents
                 </a>
             </li>
 
@@ -200,9 +200,7 @@
               {{ Route::is('applications.rejected') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
                     Rejected
                 </a>
-            </li> --}}
-
-
+            </li>
 
         </ul>
     </div>
@@ -213,7 +211,7 @@
                 class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
                 <div class="flex flex-row justify-between items-center w-full">
                     <span class="font-semibold text-[18px]">
-                        Section List
+                        Pending Applications
                     </span>
                     <div id="dropdown_btn"
                         class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
@@ -287,14 +285,17 @@
 
                             </div>
 
-                            <!-- Layout Toggle Button -->
-                            <div id="layout_toggle_container"
-                                class="flex flex-row justify-center items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                                <button id="layout-toggle-btn"
-                                    class="flex flex-row justify-center items-center gap-2 text-[14px] font-medium text-gray-700 hover:text-[#1A3165] transition-colors duration-150">
-                                    <i id="layout-toggle-icon" class="fi fi-sr-apps text-[16px]"></i>
-                                    <span id="layout-toggle-text">Cards</span>
-                                </button>
+                            <!-- Program Filter -->
+                            <div id="program_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected>All Programs</option>
+                                    @foreach(\App\Models\Program::where('status', 'active')->get() as $program)
+                                        <option value="{{ $program->code }}">{{ $program->code }}</option>
+                                    @endforeach
+                                </select>
+                                <i id="clear-program-filter-btn" class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
 
 
@@ -306,7 +307,7 @@
                             <button id="create-section-modal-btn"
                                 class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
                                 <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                Create New Section
+                                Add New Application
                             </button>
                         </div>
 
@@ -316,55 +317,42 @@
                 </div>
 
                 <!-- Table Layout Container -->
-                <div id="table-layout-container" class="w-full hidden">
+                <div id="table-layout-container" class="w-full">
                     <table id="pending-table" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
-                                <th class="text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant ID</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Adviser</span>
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Year Level</span>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Room</span>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Grade Level</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Total Students</span>
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Date Applied</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-                                <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
+                                <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
                                 </th>
-
                             </tr>
                         </thead>
                         <tbody>
                             {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Card Layout Container -->
-                <div id="card-layout-container" class="w-full">
-                    <div id="sections-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Cards will be dynamically inserted here -->
-                    </div>
-
-                    <!-- Card Layout Pagination -->
-                    <div id="card-pagination" class="flex justify-center items-center mt-6 gap-2">
-                        <!-- Pagination will be dynamically inserted here -->
-                    </div>
                 </div>
             </div>
 
@@ -376,7 +364,7 @@
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
                 <div class="flex flex-row justify-between items-center w-full">
                     <span class="font-semibold text-[18px]">
-                        Subject List
+                        Approved Applications
                     </span>
                     <div id="dropdown_2"
                         class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
@@ -503,23 +491,327 @@
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
                                 </th>
-
-                                <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Subject Name</span>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant ID</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Grade Level</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
 
-                                <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Category</span>
+    @if (Route::is('applications.pending-documents'))
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="font-semibold text-[18px]">
+                        Pending Documents
+                    </span>
+                    <div id="dropdown_3"
+                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+                        <div
+                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
+                        </div>
+
+                        <div id="dropdown_selection3"
+                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                            <button id="import-modal-btn"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                            </button>
+                            <x-nav-link href="/students/export/excel"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                            </x-nav-link>
+                            <button
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
+
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by applicant name, program, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                            <div id="grade_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="grade_selection" id="grade_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Grade</option>
+                                    <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                    <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected disabled>Program</option>
+                                    <option value="" data-id="STEM">STEM</option>
+                                    <option value="" data-id="ABM">ABM</option>
+                                    <option value="" data-id="HUMSS">HUMSS</option>
+                                    <option value="" data-id="GAS">GAS</option>
+                                </select>
+                                <i id="clear-program-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="flex flex-row justify-center items-center gap-2">
+
+                        <div class="flex flex-row justify-center items-center truncate">
+                            <button id="add-student-modal-btn"
+                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
+                                Add Document Requirement
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-full">
+                    <table id="pending-documents-table" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Year Level</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Grade Level</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Semester</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Documents Status</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (Route::is('applications.rejected'))
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="font-semibold text-[18px]">
+                        Rejected Applications
+                    </span>
+                    <div id="dropdown_3"
+                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
+
+                        <div
+                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
+                        </div>
+
+                        <div id="dropdown_selection3"
+                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                            <button id="import-modal-btn"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
+                            </button>
+                            <x-nav-link href="/students/export/excel"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
+                            </x-nav-link>
+                            <button
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
+
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by lrn, name, grade level, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                            <div id="grade_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="grade_selection" id="grade_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Grade</option>
+                                    <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                    <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected disabled>Program</option>
+                                    <option value="" data-id="STEM">STEM</option>
+                                    <option value="" data-id="ABM">ABM</option>
+                                    <option value="" data-id="HUMSS">HUMSS</option>
+                                    <option value="" data-id="GAS">GAS</option>
+                                </select>
+                                <i id="clear-program-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="flex flex-row justify-center items-center gap-2">
+
+                        <div class="flex flex-row justify-center items-center truncate">
+                            <button id="add-student-modal-btn"
+                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
+                                View Rejection Details
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="w-full">
+                    <table id="rejected-table" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Grade Level</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
@@ -562,7 +854,7 @@
             hideLoader
         } from "/js/loader.js";
 
-        let table1;
+        // Global variables for applications
         window.selectedGrade = '';
         window.selectedProgram = '';
         window.selectedPageLength = 10;
@@ -571,15 +863,15 @@
         window.totalPages = 1;
         window.sectionsData = [];
 
-
-        // console.log(programId);
-
+        // Table instances for each tab
+        let pendingTable = null;
+        let approvedTable = null;
+        let pendingDocumentsTable = null;
+        let rejectedTable = null;
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            let assignCheckbox = document.getElementById('auto_assign');
-
-
+            // Initialize modals
             initModal('create-section-modal', 'create-section-modal-btn', 'create-section-modal-close-btn',
                 'create-section-cancel-btn',
                 'modal-container-1');
@@ -587,729 +879,429 @@
                 'edit-program-cancel-btn',
                 'modal-container-2');
 
-            let studentCount = document.querySelector('#studentCount');
-            let sectionName = document.querySelector('#section_name');
-            let sectionRoom = document.querySelector('#section_room');
-
-            // const fileInput = document.getElementById('fileInput');
-            // const fileName = document.getElementById('fileName');
-
-            // fileInput.addEventListener('change', function() {
-            //     fileName.textContent = this.files.length > 0 ? this.files[0].name : 'No file chosen';
-            // });
-
-            //Overriding default search input
-
-            // let sectionTable = initCustomDataTable(
-            //     'sections',
-            //     `/getSections/${programId}`,
-            //     [{
-            //             data: 'index',
-            //             width: '3%',
-            //             searchable: true
-            //         },
-            //         {
-            //             data: 'name',
-            //             width: '15%'
-            //         },
-            //         {
-            //             data: 'adviser',
-            //             width: '15%'
-            //         },
-            //         {
-            //             data: 'year_level',
-            //             width: '15%'
-            //         },
-            //         {
-            //             data: 'room',
-            //             width: '15%'
-            //         },
-            //         {
-            //             data: 'total_enrolled_students',
-            //             width: '15%'
-            //         },
-            //         {
-            //             data: 'id',
-            //             className: 'text-center',
-            //             width: '15%',
-            //             render: function(data, type, row) {
-            //                 return `
-            //                 <div class='flex flex-row justify-center items-center opacity-100'>
-
-            //                     <a href="/section/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
-
-            //                         <span class="relative w-4 h-4">
-            //                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-            //                             <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-            //                         </span>
-
-            //                         View
-            //                     </a>
-
-            //                 </div>
-                            
-            //                 `;
-            //             },
-            //             orderable: false,
-            //             searchable: false
-            //         }
-
-            //     ],
-
-            //     [
-            //         [0, 'desc']
-            //     ],
-            //     'myCustomSearch', {
-            //         grade_filter: selectedGrade,
-            //         program_filter: selectedProgram,
-            //         pageLength: selectedPageLength
-            //     }
-
-            // )
-
-            // let subjectTable = initCustomDataTable(
-            //     'subjects',
-            //     `/getSubjects/${programId}`,
-            //     [{
-            //             data: 'index',
-            //             width: '3%',
-            //             searchable: true
-            //         },
-            //         {
-            //             data: 'name',
-            //             width: '30%'
-            //         },
-            //         {
-            //             data: 'category',
-            //             width: '10%'
-            //         },
-            //         {
-            //             data: 'year_level',
-            //             width: '10%'
-            //         },
-            //         {
-            //             data: 'semester',
-            //             width: '10%'
-            //         },
-            //         {
-            //             data: 'id',
-            //             className: 'text-center',
-            //             width: '15%',
-            //             render: function(data, type, row) {
-            //                 return `
-            //                 <div class='flex flex-row justify-center items-center opacity-100'>
-
-            //                     <a href="/section/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
-
-            //                         <span class="relative w-4 h-4">
-            //                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-            //                             <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-            //                         </span>
-
-            //                         View
-            //                     </a>
-
-            //                 </div>
-                            
-            //                 `;
-            //             },
-            //             orderable: false,
-            //             searchable: false
-            //         }
-
-            //     ],
-
-            //     [
-            //         [0, 'desc']
-            //     ],
-            //     'myCustomSearch', {
-            //         grade_filter: selectedGrade,
-            //         program_filter: selectedProgram,
-            //         pageLength: selectedPageLength
-            //     }
-
-            // )
-
-
-            // const customSearch1 = document.getElementById("myCustomSearch");
-
-            // // Update search functionality to work with both layouts
-            // customSearch1.addEventListener("input", function() {
-            //     if (window.currentLayout === 'table') {
-            //         sectionTable.search(this.value).draw();
-            //     } else {
-            //         // For card layout, fetch with search
-            //         fetchSectionsForCards(1);
-            //     }
-            // });
-
-            // table1 = new DataTable('#sections', {
-            //     paging: true,
-            //     searching: true,
-            //     autoWidth: false,
-            //     serverSide: true,
-            //     processing: true,
-            //     ajax: {
-            //         url: `/getPrograms`,
-            //         data: function(d) {
-
-            //             d.grade_filter = selectedGrade;
-            //             d.program_filter = selectedProgram;
-            //             d.pageLength = selectedPageLength;
-            //         }
-            //     },
-            //     order: [
-            //         [6, 'desc']
-            //     ],
-            //     columnDefs: [{
-            //             width: '3%',
-            //             targets: 0,
-            //             className: 'text-center'
-            //         }, // index
-            //         {
-            //             width: '15%',
-            //             targets: 1
-            //         }, // code
-            //         {
-            //             width: '50%',
-            //             targets: 2
-            //         }, // name
-            //         {
-            //             width: '20%',
-            //             targets: 3
-            //         }, // created at
-            //         {
-            //             width: '15%',
-            //             targets: 4,
-            //             className: 'text-center'
-            //         } // actions
-            //     ],
-            //     layout: {
-            //         topStart: null,
-            //         topEnd: null,
-            //         bottomStart: 'info',
-            //         bottomEnd: 'paging',
-            //     },
-            //     columns: [{
-            //             data: 'index'
-            //         },
-            //         {
-            //             data: 'code'
-            //         },
-            //         {
-            //             data: 'name'
-            //         },
-            //         {
-            //             data: 'created_at'
-            //         },
-            //         {
-            //             data: 'id', // pass ID for rendering the link
-            //             render: function(data, type, row) {
-            //                 return `
-        //                 <div class='flex flex-row justify-center items-center opacity-100'>
-
-        //                     <a href="/program/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
-
-        //                         <span class="relative w-4 h-4">
-        //                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-        //                             <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-        //                         </span>
-
-        //                         View
-        //                     </a>
-
-        //                 </div>
-
-        //                 `;
-            //             },
-            //             orderable: false,
-            //             searchable: false
-            //         }
-            //     ],
-            // });
-
-            // customSearch1.addEventListener("input", function() {
-            //     table1.search(this.value).draw();
-            // });
-
-            // table1.on('draw', function() {
-            //     let rows = document.querySelectorAll('#sections tbody tr');
-
-            //     rows.forEach(function(row) {
-            //         // Add hover style to the row
-            //         row.classList.add(
-            //             'hover:bg-gray-200',
-            //             'transition',
-            //             'duration-150'
-            //         );
-
-            //         // Style all cells in the row
-            //         let cells = row.querySelectorAll('td');
-            //         cells.forEach(function(cell) {
-            //             cell.classList.add(
-            //                 'px-4', // Horizontal padding
-            //                 'py-1', // Vertical padding
-            //                 'text-start', // Align text left
-            //                 'font-regular',
-            //                 'text-[14px]',
-            //                 'opacity-80',
-            //                 'truncate',
-            //                 'border-t',
-            //                 'border-[#1e1e1e]/10',
-            //                 'font-semibold'
-            //             );
-            //         });
-            //     });
-            // });
-
-            // table1.on("init", function() {
-            //     const defaultSearch = document.querySelector("#dt-search-0");
-            //     if (defaultSearch) {
-            //         defaultSearch.remove();
-            //     }
-
-            // });
-
-        //     clearSearch('clear-btn', 'myCustomSearch', sectionTable)
-
-        //     // Layout Toggle Functionality
-        //     const layoutToggleBtn = document.getElementById('layout-toggle-btn');
-        //     const layoutToggleIcon = document.getElementById('layout-toggle-icon');
-        //     const layoutToggleText = document.getElementById('layout-toggle-text');
-        //     const tableLayoutContainer = document.getElementById('table-layout-container');
-        //     const cardLayoutContainer = document.getElementById('card-layout-container');
-
-        //     // Function to render cards
-        //     function renderCards(data, currentPage = 1, totalPages = 1) {
-        //         const cardsGrid = document.getElementById('sections-cards-grid');
-        //         const paginationContainer = document.getElementById('card-pagination');
-
-        //         if (!data || data.length === 0) {
-        //             cardsGrid.innerHTML = `
-        //                 <div class="col-span-full flex flex-col justify-center items-center py-12 text-gray-500">
-        //                     <i class="fi fi-sr-folder-open text-4xl mb-4"></i>
-        //                     <p class="text-lg font-medium">No sections found</p>
-        //                     <p class="text-sm">Try adjusting your search or filters</p>
-        //                 </div>
-        //             `;
-        //             paginationContainer.innerHTML = '';
-        //             return;
-        //         }
-
-        //         // Render cards
-        //         cardsGrid.innerHTML = data.map(section => `
-        //             <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-6">
-        //                 <div class="flex flex-col space-y-4">
-        //                     <!-- Header -->
-        //                     <div class="flex flex-row justify-between items-start">
-        //                         <div class="flex flex-col">
-        //                             <h3 class="text-lg font-bold text-[#1A3165]">${section.name}</h3>
-        //                             <p class="text-sm text-gray-600">${section.year_level}</p>
-        //                         </div>
-        //                         <div class="flex flex-col items-end">
-        //                             <span class="text-xs text-gray-500">#${section.index}</span>
-        //                         </div>
-        //                     </div>
-
-        //                     <!-- Details -->
-        //                     <div class="space-y-3">
-        //                         <div class="flex flex-row items-center gap-3">
-        //                             <i class="fi fi-sr-user text-[#1A3165] text-sm"></i>
-        //                             <div class="flex flex-col">
-        //                                 <span class="text-xs text-gray-500">Adviser</span>
-        //                                 <span class="text-sm font-medium">${section.adviser}</span>
-        //                             </div>
-        //                         </div>
-                                
-        //                         <div class="flex flex-row items-center gap-3">
-        //                             <i class="fi fi-sr-home text-[#1A3165] text-sm"></i>
-        //                             <div class="flex flex-col">
-        //                                 <span class="text-xs text-gray-500">Room</span>
-        //                                 <span class="text-sm font-medium">${section.room}</span>
-        //                             </div>
-        //                         </div>
-                                
-        //                         <div class="flex flex-row items-center gap-3">
-        //                             <i class="fi fi-sr-users text-[#1A3165] text-sm"></i>
-        //                             <div class="flex flex-col">
-        //                                 <span class="text-xs text-gray-500">Total Students</span>
-        //                                 <span class="text-sm font-medium">${section.total_enrolled_students}</span>
-        //                             </div>
-        //                         </div>
-        //                     </div>
-
-        //                     <!-- Action Button -->
-        //                     <div class="pt-2 border-t border-gray-100">
-        //                         <a href="/section/${section.id}" 
-        //                            class="w-full flex justify-center items-center gap-2 bg-[#1A3165] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0f1f3a] transition-colors duration-150">
-        //                             <i class="fi fi-rs-eye text-sm"></i>
-        //                             View Details
-        //                         </a>
-        //                     </div>
-        //                 </div>
-        //             </div>
-        //         `).join('');
-
-        //         // Render pagination
-        //         if (totalPages > 1) {
-        //             let paginationHTML = '';
-
-        //             // Previous button
-        //             if (currentPage > 1) {
-        //                 paginationHTML += `
-        //                     <button onclick="changeCardPage(${currentPage - 1})" 
-        //                             class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150">
-        //                         <i class="fi fi-sr-angle-left"></i>
-        //                     </button>
-        //                 `;
-        //             }
-
-        //             // Page numbers
-        //             const startPage = Math.max(1, currentPage - 2);
-        //             const endPage = Math.min(totalPages, currentPage + 2);
-
-        //             for (let i = startPage; i <= endPage; i++) {
-        //                 paginationHTML += `
-        //                     <button onclick="changeCardPage(${i})" 
-        //                             class="px-3 py-2 text-sm font-medium ${i === currentPage ? 'bg-[#1A3165] text-white' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'} rounded-lg transition-colors duration-150">
-        //                         ${i}
-        //                     </button>
-        //                 `;
-        //             }
-
-        //             // Next button
-        //             if (currentPage < totalPages) {
-        //                 paginationHTML += `
-        //                     <button onclick="changeCardPage(${currentPage + 1})" 
-        //                             class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150">
-        //                         <i class="fi fi-sr-angle-right"></i>
-        //                     </button>
-        //                 `;
-        //             }
-
-        //             paginationContainer.innerHTML = paginationHTML;
-        //         } else {
-        //             paginationContainer.innerHTML = '';
-        //         }
-        //     }
-
-        //     // Function to fetch data for cards
-        //     async function fetchSectionsForCards(page = 1) {
-        //         try {
-        //             const response = await fetch(
-        //                 `/getSections/${programId}?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`
-        //             );
-        //             const data = await response.json();
-
-        //             window.sectionsData = data.data;
-        //             window.currentPage = page;
-        //             window.totalPages = Math.ceil(data.recordsTotal / window.selectedPageLength);
-
-        //             renderCards(data.data, page, window.totalPages);
-        //         } catch (error) {
-        //             console.error('Error fetching sections:', error);
-        //         }
-        //     }
-
-        //     // Function to change card page
-        //     window.changeCardPage = function(page) {
-        //         fetchSectionsForCards(page);
-        //     }
-
-        //     // Layout toggle event listener
-        //     layoutToggleBtn.addEventListener('click', function() {
-        //         if (window.currentLayout === 'table') {
-        //             // Switch to cards
-        //             window.currentLayout = 'cards';
-        //             tableLayoutContainer.classList.add('hidden');
-        //             cardLayoutContainer.classList.remove('hidden');
-
-        //             layoutToggleIcon.className = 'fi fi-sr-list text-[16px]';
-        //             layoutToggleText.textContent = 'Table';
-
-        //             // Fetch data for cards
-        //             fetchSectionsForCards(1);
-        //         } else {
-        //             // Switch to table
-        //             window.currentLayout = 'table';
-        //             cardLayoutContainer.classList.add('hidden');
-        //             tableLayoutContainer.classList.remove('hidden');
-
-        //             layoutToggleIcon.className = 'fi fi-sr-list text-[16px]';
-        //             layoutToggleText.textContent = 'Table';
-
-        //             // Refresh table
-        //             sectionTable.draw();
-        //         }
-        //     });
-
-        //     let gradeSelection = document.querySelector('#grade_selection');
-        //     let pageLengthSelection = document.querySelector('#page-length-selection');
-
-        //     let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
-        //     let gradeContainer = document.querySelector('#grade_selection_container');
-
-        //     pageLengthSelection.addEventListener('change', (e) => {
-
-        //         let selectedPageLength = parseInt(e.target.value, 10);
-        //         window.selectedPageLength = selectedPageLength;
-        //         sectionTable.page.len(selectedPageLength).draw();
-
-        //         // If in card layout, refresh cards
-        //         if (window.currentLayout === 'cards') {
-        //             fetchSectionsForCards(1);
-        //         }
-
-        //     })
-
-        //     gradeSelection.addEventListener('change', (e) => {
-
-        //         let selectedOption = e.target.selectedOptions[0];
-        //         let email = selectedOption.getAttribute('data-putanginamo');
-
-        //         selectedGrade = email;
-        //         sectionTable.draw();
-
-        //         // If in card layout, refresh cards
-        //         if (window.currentLayout === 'cards') {
-        //             fetchSectionsForCards(1);
-        //         }
-
-        //         let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-        //         let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
-        //         let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-        //         let gradeSelectionAdd = ['text-[#1A3165]'];
-        //         let gradeContainerRem = ['bg-gray-100'];
-        //         let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
-        //             'hover:bg-[#1A73E8]/25'
-        //         ];
-
-        //         clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
-        //         clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
-        //         gradeSelection.classList.remove(...gradeSelectionRem);
-        //         gradeSelection.classList.add(...gradeSelectionAdd);
-        //         gradeContainer.classList.remove(...gradeContainerRem);
-        //         gradeContainer.classList.add(...gradeContainerAdd);
-
-
-        //         handleClearGradeFilter(selectedOption)
-        //     })
-
-        //     function handleClearGradeFilter(selectedOption) {
-
-        //         clearGradeFilterBtn.addEventListener('click', () => {
-
-        //             gradeContainer.classList.remove('bg-[#1A73E8]/15')
-        //             gradeContainer.classList.remove('border-blue-300')
-        //             gradeContainer.classList.remove('hover:bg-blue-300')
-        //             clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
-
-        //             clearGradeFilterBtn.classList.add('fi-rr-caret-down');
-        //             gradeContainer.classList.add('bg-gray-100')
-        //             gradeSelection.classList.remove('text-[#1A3165]')
-        //             gradeSelection.classList.add('text-gray-700')
-        //             clearGradeFilterBtn.classList.remove('text-[#1A3165]')
-        //             clearGradeFilterBtn.classList.add('text-gray-500')
-
-
-        //             gradeSelection.selectedIndex = 0
-        //             selectedGrade = '';
-        //             sectionTable.draw();
-
-        //             // If in card layout, refresh cards
-        //             if (window.currentLayout === 'cards') {
-        //                 fetchSectionsForCards(1);
-        //             }
-        //         })
-
-        //     }
-
-        //     window.onload = function() {
-        //         gradeSelection.selectedIndex = 0
-        //         pageLengthSelection.selectedIndex = 0
-
-        //         // Initialize with cards layout (default)
-        //         fetchSectionsForCards(1);
-        //     }
-
-        //     dropDown('dropdown_2', 'dropdown_selection2');
-        //     dropDown('dropdown_btn', 'dropdown_selection');
-
-        //     if (assignCheckbox) {
-        //         assignCheckbox.checked = false;
-
-
-        //         assignCheckbox.addEventListener('change', function(e) {
-        //             const isChecked = e.target.checked;
-        //             const programId = document.getElementById('program_id').value;
-        //             const yearLevel = document.getElementById('year_level').value;
-        //             const container = document.getElementById('subjects-container');
-
-        //             container.innerHTML = ""; // clear old subjects
-
-        //             if (isChecked) {
-        //                 if (!programId || !yearLevel) {
-        //                     alert("Please select a program and year level first.");
-        //                     e.target.checked = false; // uncheck box
-        //                     return;
-        //                 }
-
-        //                 fetch(`/subjects/auto-assign?program_id=${programId}&year_level=${yearLevel}`, {
-        //                         headers: {
-        //                             "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        //                         }
-        //                     })
-        //                     .then(response => response.json())
-        //                     .then(data => {
-        //                         if (data.subjects && data.subjects.length > 0) {
-        //                             data.subjects.forEach(subj => {
-        //                                 const div = document.createElement('div');
-        //                                 div.innerHTML = `
-        //                 <label>
-        //                     <input type="checkbox" name="subjects[]" value="${subj.id}" checked>
-        //                      - ${subj.name}
-        //                 </label>
-        //             `;
-        //                                 container.appendChild(div);
-        //                             });
-        //                         } else {
-        //                             container.innerHTML =
-        //                                 "<p>No subjects found for this selection.</p>";
-        //                         }
-        //                     })
-        //                     .catch(err => {
-        //                         console.error("Error fetching subjects:", err);
-        //                         container.innerHTML = "<p>Failed to load subjects.</p>";
-        //                     });
-        //             }
-        //         });
-        //     }
-
-
-
-
-
-        //     // Populate edit form when edit button is clicked
-        //     document.getElementById('edit-program-modal-btn').addEventListener('click', function() {
-        //         // Fetch current program data
-        //         fetch(`{{ url('/program') }}/${programId}`)
-        //             .then(response => response.json())
-        //             .then(data => {
-        //                 // Populate form fields
-        //                 document.getElementById('program_code').value = data.code || '';
-        //                 document.getElementById('program_name').value = data.name || '';
-        //                 document.getElementById('program_track').value = data.track || '';
-        //                 document.getElementById('program_status').value = data.status || 'active';
-        //             })
-        //             .catch(err => {
-        //                 console.error('Error fetching program data:', err);
-        //                 showAlert('error', 'Failed to load program data');
-        //             });
-        //     });
-
-        //     document.getElementById('edit-program-form').addEventListener('submit', function(e) {
-        //         e.preventDefault();
-
-        //         let form = e.target;
-        //         let formData = new FormData(form);
-
-        //         // Show loader
-        //         showLoader("Editing program...");
-
-        //         fetch(`/updateProgram/${programId}`, {
-        //                 method: "POST",
-        //                 headers: {
-        //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-        //                         .getAttribute('content')
-        //                 },
-        //                 body: formData
-        //             })
-        //             .then(response => {
-        //                 console.log('Response status:', response.status);
-        //                 return response.json();
-        //             })
-        //             .then(data => {
-        //                 hideLoader();
-
-        //                 console.log('Response data:', data);
-
-        //                 if (data.success) {
-        //                     // Reset form
-        //                     form.reset();
-
-        //                     // Close modal
-        //                     closeModal('edit-program-modal', 'modal-container-2');
-
-        //                     // Show success alert
-        //                     showAlert('success', data.success);
-
-        //                     // Reload page to show updated data
-        //                     setTimeout(() => {
-        //                         window.location.reload();
-        //                     }, 1000);
-
-        //                 } else if (data.error) {
-        //                     closeModal('edit-program-modal', 'modal-container-2');
-        //                     showAlert('error', data.error);
-        //                 }
-        //             })
-        //             .catch(err => {
-        //                 hideLoader();
-        //                 console.error('Error:', err);
-        //                 closeModal('edit-program-modal', 'modal-container-2');
-        //                 showAlert('error', 'Something went wrong while updating the program');
-        //             });
-        //     });
-
-
-        //     function closeModal(modalId, modalContainerId) {
-
-        //         let modal = document.querySelector(`#${modalId}`)
-        //         let body = document.querySelector(`#${modalContainerId}`);
-
-        //         if (modal && body) {
-        //             modal.classList.remove('opacity-100', 'scale-100');
-        //             modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-        //             body.classList.remove('opacity-100');
-        //             body.classList.add('opacity-0', 'pointer-events-none');
-        //         }
-
-        //     }
-
-        //     function openAlert() {
-        //         const alertContainer = document.querySelector('#alert-container');
-        //         alertContainer.classList.toggle('opacity-100');
-        //         alertContainer.classList.toggle('scale-95');
-        //         alertContainer.classList.toggle('pointer-events-none');
-        //         alertContainer.classList.toggle('translate-y-5');
-        //     }
-
-        //     // Program-based adviser filtering
-        //     const programSelect = document.getElementById('program_id');
-        //     const adviserSelect = document.getElementById('adviser_id');
-
-        //     if (programSelect && adviserSelect) {
-        //         programSelect.addEventListener('change', function() {
-        //             const selectedProgramId = this.value;
-        //             const adviserOptions = adviserSelect.querySelectorAll('option[data-program-id]');
-
-        //             adviserOptions.forEach(option => {
-        //                 if (selectedProgramId === '' || option.getAttribute('data-program-id') ===
-        //                     selectedProgramId) {
-        //                     option.style.display = 'block';
-        //                 } else {
-        //                     option.style.display = 'none';
-        //                 }
-        //             });
-
-        //             // Reset adviser selection if current selection is not valid for new program
-        //             if (adviserSelect.value && adviserSelect.querySelector(
-        //                     `option[value="${adviserSelect.value}"]`).style.display === 'none') {
-        //                 adviserSelect.value = '';
-        //             }
-        //         });
-        //     }
-
-        // });
+            // Initialize tables based on current route
+            initializeTablesBasedOnRoute();
+
+            // Initialize dropdowns
+            dropDown('dropdown_2', 'dropdown_selection2');
+            dropDown('dropdown_btn', 'dropdown_selection');
+            dropDown('dropdown_3', 'dropdown_selection3');
+
+            // Initialize filter event listeners
+            initializeFilterListeners();
+        });
+
+        // Function to initialize tables based on current route
+        function initializeTablesBasedOnRoute() {
+            @if (Route::is('applications.pending'))
+                initializePendingTable();
+            @elseif (Route::is('applications.approved'))
+                initializeApprovedTable();
+            @elseif (Route::is('applications.pending-documents'))
+                initializePendingDocumentsTable();
+            @elseif (Route::is('applications.rejected'))
+                initializeRejectedTable();
+            @endif
+        }
+
+        // Initialize Pending Applications Table
+        function initializePendingTable() {
+            if (document.getElementById('pending-table')) {
+                pendingTable = initCustomDataTable(
+                    'pending-table',
+                    '/getRecentApplications',
+                    [{
+                            data: 'index',
+                            width: '3%',
+                            searchable: true,
+                            orderable: false
+                        },
+                        {
+                            data: 'applicant_id',
+                            width: '15%',
+                            orderable: true
+                        },
+                        {
+                            data: 'full_name',
+                            width: '20%',
+                            orderable: true
+                        },
+                        {
+                            data: 'program',
+                            width: '15%',
+                            orderable: true
+                        },
+                        {
+                            data: 'grade_level',
+                            width: '15%',
+                            orderable: true
+                        },
+                        {
+                            data: 'created_at',
+                            width: '12%',
+                            orderable: true
+                        },
+                        {
+                            data: 'id',
+                            className: 'text-center',
+                            width: '10%',
+                            render: function(data, type, row) {
+                                return `
+                                <div class='flex flex-row justify-center items-center opacity-100'>
+                                    <a href="/pending-application/form-details/${data}" 
+                                       class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                        <span class="relative w-4 h-4">
+                                            <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                            <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                        </span>
+                                        View
+                                    </a>
+                                </div>
+                                `;
+                            },
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    [[4, 'desc']], // Sort by created_at (column 4) descending by default
+                    'myCustomSearch', {
+                        grade_filter: window.selectedGrade,
+                        program_filter: window.selectedProgram,
+                        pageLength: window.selectedPageLength
+                    }
+                );
+            }
+        }
+
+        // Initialize Approved Applications Table
+        function initializeApprovedTable() {
+            if (document.getElementById('approved-table')) {
+                approvedTable = initCustomDataTable(
+                    'approved-table',
+                    '/getApprovedApplications',
+                    [{
+                            data: 'index',
+                            width: '3%',
+                            searchable: true,
+                            orderable: false
+                        },
+                        {
+                            data: 'applicant_id',
+                            width: '15%',
+                            orderable: true
+                        },
+                        {
+                            data: 'full_name',
+                            width: '20%',
+                            orderable: true
+                        },
+                        {
+                            data: 'program',
+                            width: '15%',
+                            orderable: true
+                        },
+                        {
+                            data: 'grade_level',
+                            width: '15%',
+                            orderable: true
+                        },
+                        {
+                            data: 'status',
+                            width: '12%',
+                            orderable: true
+                        },
+                        {
+                            data: 'id',
+                            className: 'text-center',
+                            width: '10%',
+                            render: function(data, type, row) {
+                                return `
+                                <div class='flex flex-row justify-center items-center opacity-100'>
+                                    <a href="/selected-application/interview-details/${data}" 
+                                       class="group relative inline-flex items-center gap-2 bg-green-100 text-green-500 font-semibold px-3 py-1 rounded-xl hover:bg-green-500 hover:ring hover:ring-green-200 hover:text-white transition duration-150">
+                                        <span class="relative w-4 h-4">
+                                            <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                            <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                        </span>
+                                        View
+                                    </a>
+                                </div>
+                                `;
+                            },
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    [[0, 'desc']],
+                    'myCustomSearch', {
+                        grade_filter: window.selectedGrade,
+                        program_filter: window.selectedProgram,
+                        pageLength: window.selectedPageLength
+                    }
+                );
+            }
+        }
+
+        // Initialize Pending Documents Table
+        function initializePendingDocumentsTable() {
+            if (document.getElementById('pending-documents-table')) {
+                pendingDocumentsTable = initCustomDataTable(
+                    'pending-documents-table',
+                    '/getPendingDocumentsApplications',
+                    [{
+                            data: 'index',
+                            width: '3%',
+                            searchable: true
+                        },
+                        {
+                            data: 'full_name',
+                            width: '20%'
+                        },
+                        {
+                            data: 'program',
+                            width: '15%'
+                        },
+                        {
+                            data: 'grade_level',
+                            width: '15%'
+                        },
+                        {
+                            data: 'documents_status',
+                            width: '15%'
+                        },
+                        {
+                            data: 'id',
+                            className: 'text-center',
+                            width: '12%',
+                            render: function(data, type, row) {
+                                return `
+                                <div class='flex flex-row justify-center items-center opacity-100'>
+                                    <a href="/pending-documents/document-details/${data}" 
+                                       class="group relative inline-flex items-center gap-2 bg-orange-100 text-orange-500 font-semibold px-3 py-1 rounded-xl hover:bg-orange-500 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
+                                        <span class="relative w-4 h-4">
+                                            <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                            <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                        </span>
+                                        View
+                                    </a>
+                                </div>
+                                `;
+                            },
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    [[0, 'desc']],
+                    'myCustomSearch', {
+                        grade_filter: window.selectedGrade,
+                        program_filter: window.selectedProgram,
+                        pageLength: window.selectedPageLength
+                    }
+                );
+            }
+        }
+
+        // Initialize Rejected Applications Table
+        function initializeRejectedTable() {
+            if (document.getElementById('rejected-table')) {
+                rejectedTable = initCustomDataTable(
+                    'rejected-table',
+                    '/getRejectedApplications',
+                    [{
+                            data: 'index',
+                            width: '3%',
+                            searchable: true
+                        },
+                        {
+                            data: 'full_name',
+                            width: '20%'
+                        },
+                        {
+                            data: 'program',
+                            width: '15%'
+                        },
+                        {
+                            data: 'grade_level',
+                            width: '15%'
+                        },
+                        {
+                            data: 'status',
+                            width: '15%'
+                        },
+                        {
+                            data: 'id',
+                            className: 'text-center',
+                            width: '12%',
+                            render: function(data, type, row) {
+                                return `
+                                <div class='flex flex-row justify-center items-center opacity-100'>
+                                    <a href="/rejected-application/details/${data}" 
+                                       class="group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold px-3 py-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                        <span class="relative w-4 h-4">
+                                            <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                            <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                        </span>
+                                        View
+                                    </a>
+                                </div>
+                                `;
+                            },
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    [[0, 'desc']],
+                    'myCustomSearch', {
+                        grade_filter: window.selectedGrade,
+                        program_filter: window.selectedProgram,
+                        pageLength: window.selectedPageLength
+                    }
+                );
+            }
+        }
+
+        // Initialize filter event listeners
+        function initializeFilterListeners() {
+            let programSelection = document.querySelector('#program_selection');
+            let gradeSelection = document.querySelector('#grade_selection');
+            let pageLengthSelection = document.querySelector('#page-length-selection');
+
+            let clearProgramFilterBtn = document.querySelector('#clear-program-filter-btn');
+            let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
+            let programContainer = document.querySelector('#program_selection_container');
+            let gradeContainer = document.querySelector('#grade_selection_container');
+
+            // Program filter
+            if (programSelection) {
+                programSelection.addEventListener('change', function() {
+                    window.selectedProgram = this.value;
+                    refreshCurrentTable();
+
+                    // Update styling when program is selected
+                    if (this.value) {
+                        let clearProgramFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
+                        let clearProgramFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                        let programSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
+                        let programSelectionAdd = ['text-[#1A3165]'];
+                        let programContainerRem = ['bg-gray-100'];
+                        let programContainerAdd = ['bg-[#1A73E8]/15', 'border-[#1A73E8]', 'hover:bg-[#1A73E8]/25'];
+
+                        clearProgramFilterBtn.classList.remove(...clearProgramFilterRem);
+                        clearProgramFilterBtn.classList.add(...clearProgramFilterAdd);
+                        programSelection.classList.remove(...programSelectionRem);
+                        programSelection.classList.add(...programSelectionAdd);
+                        programContainer.classList.remove(...programContainerRem);
+                        programContainer.classList.add(...programContainerAdd);
+
+                        handleClearProgramFilter();
+                    }
+                });
+            }
+
+            // Grade filter
+            if (gradeSelection) {
+                gradeSelection.addEventListener('change', function() {
+                    const selectedOption = this.selectedOptions[0];
+                    const gradeValue = selectedOption.getAttribute('data-putanginamo');
+                    window.selectedGrade = gradeValue;
+                    refreshCurrentTable();
+
+                    // Update styling when grade is selected
+                    if (gradeValue) {
+                        let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
+                        let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                        let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
+                        let gradeSelectionAdd = ['text-[#1A3165]'];
+                        let gradeContainerRem = ['bg-gray-100'];
+                        let gradeContainerAdd = ['bg-[#1A73E8]/15', 'border-[#1A73E8]', 'hover:bg-[#1A73E8]/25'];
+
+                        clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
+                        clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
+                        gradeSelection.classList.remove(...gradeSelectionRem);
+                        gradeSelection.classList.add(...gradeSelectionAdd);
+                        gradeContainer.classList.remove(...gradeContainerRem);
+                        gradeContainer.classList.add(...gradeContainerAdd);
+
+                        handleClearGradeFilter(selectedOption);
+                    }
+                });
+            }
+
+            // Page length filter
+            if (pageLengthSelection) {
+                pageLengthSelection.addEventListener('change', function() {
+                    window.selectedPageLength = parseInt(this.value, 10);
+                    refreshCurrentTable();
+                });
+            }
+
+            // Clear program filter function
+            function handleClearProgramFilter() {
+                clearProgramFilterBtn.addEventListener('click', () => {
+                    programContainer.classList.remove('bg-[#1A73E8]/15');
+                    programContainer.classList.remove('border-[#1A73E8]');
+                    programContainer.classList.remove('hover:bg-[#1A73E8]/25');
+                    clearProgramFilterBtn.classList.remove('fi-bs-cross-small');
+                    clearProgramFilterBtn.classList.add('fi-rr-caret-down');
+                    programContainer.classList.add('bg-gray-100');
+                    programSelection.classList.remove('text-[#1A3165]');
+                    programSelection.classList.add('text-gray-700');
+                    clearProgramFilterBtn.classList.remove('text-[#1A3165]');
+                    clearProgramFilterBtn.classList.add('text-gray-500');
+
+                    programSelection.selectedIndex = 0;
+                    window.selectedProgram = '';
+                    refreshCurrentTable();
+                });
+            }
+
+            // Clear grade filter function
+            function handleClearGradeFilter(selectedOption) {
+                clearGradeFilterBtn.addEventListener('click', () => {
+                    gradeContainer.classList.remove('bg-[#1A73E8]/15');
+                    gradeContainer.classList.remove('border-[#1A73E8]');
+                    gradeContainer.classList.remove('hover:bg-[#1A73E8]/25');
+                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
+                    clearGradeFilterBtn.classList.add('fi-rr-caret-down');
+                    gradeContainer.classList.add('bg-gray-100');
+                    gradeSelection.classList.remove('text-[#1A3165]');
+                    gradeSelection.classList.add('text-gray-700');
+                    clearGradeFilterBtn.classList.remove('text-[#1A3165]');
+                    clearGradeFilterBtn.classList.add('text-gray-500');
+
+                    gradeSelection.selectedIndex = 0;
+                    window.selectedGrade = '';
+                    refreshCurrentTable();
+                });
+            }
+
+            // Initialize default selections
+            window.onload = function() {
+                if (gradeSelection) gradeSelection.selectedIndex = 0;
+                if (programSelection) programSelection.selectedIndex = 0;
+                if (pageLengthSelection) pageLengthSelection.selectedIndex = 0;
+            }
+        }
+
+        // Refresh the current table based on route
+        function refreshCurrentTable() {
+            @if (Route::is('applications.pending'))
+                if (pendingTable) {
+                    pendingTable.ajax.reload();
+                }
+            @elseif (Route::is('applications.approved'))
+                if (approvedTable) {
+                    approvedTable.ajax.reload();
+                }
+            @elseif (Route::is('applications.pending-documents'))
+                if (pendingDocumentsTable) {
+                    pendingDocumentsTable.ajax.reload();
+                }
+            @elseif (Route::is('applications.rejected'))
+                if (rejectedTable) {
+                    rejectedTable.ajax.reload();
+                }
+            @endif
+        }
     </script>
 @endpush

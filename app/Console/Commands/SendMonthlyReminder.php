@@ -109,7 +109,8 @@ class SendMonthlyReminder extends Command
             }
 
             $this->info("Monthly reminder notifications sent for day {$now}.");
+        } else {
+            $this->info("No students with unpaid invoices found.");
         }
-
     }
 }

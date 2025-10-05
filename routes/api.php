@@ -91,6 +91,10 @@ Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 	Route::get('/financial/payments', [FinancialController::class, 'getCurrentPaymentHistory']);
 	Route::get('/financial/summary', [FinancialController::class, 'getFinancialSummary']);
 	Route::get('/financial/terms', [FinancialController::class, 'getAvailableTerms']);
+	
+	// Payment Plan Selection - Student-Driven
+	Route::post('/financial/payment-plan/calculate', [FinancialController::class, 'calculatePaymentPlan']);
+	Route::post('/financial/invoice/{invoiceId}/payment-plan/select', [FinancialController::class, 'selectPaymentPlan']);
 
 	// Student Profile - NEW
 	Route::put('/profile/personal-info', [StudentProfileController::class, 'updatePersonalInfo']);

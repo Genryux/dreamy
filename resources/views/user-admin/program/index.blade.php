@@ -12,7 +12,7 @@
                 <!-- Program Code -->
                 <div>
                     <label for="program_code" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-tag mr-2"></i>
+                        <i class="fi fi-rr-tags mr-2"></i>
                         Program Code <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="code" id="program_code" required
@@ -83,7 +83,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-xl border border-[#1A3165] gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-xl gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
@@ -113,6 +113,7 @@
                         <p class="text-[14px]">Total Students</p>
                     </div>
                     <p class="font-bold text-[24px]">{{ $totalStudents }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Total students across all programs</p>
                 </div>
 
                 <div
@@ -122,6 +123,8 @@
                         <p class="text-[14px]">Active Sections</p>
                     </div>
                     <p class="font-bold text-[24px]">{{ $activeSections }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Active sections across all programs</p>
+
                 </div>
 
                 <div
@@ -131,6 +134,8 @@
                         <p class="text-[14px]">Faculty Members</p>
                     </div>
                     <p class="font-bold text-[24px]" id="section_room">{{ $asjdks ?? '-' }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Total teachers across all programs</p>
+
                 </div>
 
                 <div
@@ -160,32 +165,6 @@
                         Programs
                     </span>
                     <p class="text-[14px] text-gray-500">Manage all programs</p>
-                </div>
-
-                <div id="dropdown_2"
-                    class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                    <div
-                        class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                        <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                    </div>
-
-                    <div id="dropdown_selection2"
-                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                        <button id="import-modal-btn"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                        </button>
-                        <x-nav-link href="/students/export/excel"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                        </x-nav-link>
-                        <button
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                        </button>
-                    </div>
-
                 </div>
             </div>
 
@@ -227,7 +206,7 @@
 
                     <div class="flex flex-row justify-center items-center truncate">
                         <button id="create-program-modal-btn"
-                            class="bg-[#199BCF] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
+                            class="bg-[#199BCF] px-3 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#C8A165] hover:ring hover:ring-[#C8A165]/20 transition duration-200">
                             <i class="fi fi-rr-plus flex justify-center items-center "></i>
                             Create Program
                         </button>

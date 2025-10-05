@@ -136,7 +136,7 @@
                 </div>
             @endif
 
-            @if ($applicant->application_status == 'Selected')
+            @if ($applicant->application_status == 'Accepted')
                 @if ($applicant->interview->status == 'Pending')
                     <div
                         class="bg-[#E6F4EA] border border-[#34A853]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-1">
@@ -182,10 +182,10 @@
         <div class="flex flex-row justify-evenly items-center gap-2">
             {{-- Pending --}}
             <div
-                class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Pending' || 'Selected' ? 'opacity-100' : 'opacity-50' }}">
+                class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Pending' || 'Accepted' ? 'opacity-100' : 'opacity-50' }}">
                 @if (
                     $applicant->application_status == 'Pending' ||
-                        $applicant->application_status == 'Selected' ||
+                        $applicant->application_status == 'Accepted' ||
                         $applicant->application_status == 'Pending-Documents' ||
                         $applicant->application_status == 'Officially Enrolled')
                     <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
@@ -204,9 +204,9 @@
             </div>
             {{-- Selected --}}
             <div
-                class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Selected' || $applicant->application_status == 'Pending-Documents' || $applicant->application_status == 'Officially Enrolled' ? 'opacity-100' : 'opacity-30' }}">
+                class="flex flex-row justify-center items-center gap-2 {{ $applicant->application_status == 'Accepted' || $applicant->application_status == 'Pending-Documents' || $applicant->application_status == 'Officially Enrolled' ? 'opacity-100' : 'opacity-30' }}">
                 @if (
-                    $applicant->application_status == 'Selected' ||
+                    $applicant->application_status == 'Accepted' ||
                         $applicant->application_status == 'Pending-Documents' ||
                         $applicant->application_status == 'Officially Enrolled')
                     <div class="flex justify-center items-center bg-[#34A853] rounded-full text-white size-[26px]">
@@ -558,7 +558,7 @@
 
 @endif
 
-@if ($applicant->application_status === 'Selected')
+@if ($applicant->application_status === 'Accepted')
     @section('selected')
         <div class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20 md:w-full justify-center p-4">
             <div class="flex flex-row justify-start items-center gap-2">

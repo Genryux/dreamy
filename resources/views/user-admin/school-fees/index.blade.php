@@ -59,46 +59,125 @@
     <x-modal modal_id="create-invoice-modal" modal_name="Create Invoice" close_btn_id="create-invoice-modal-close-btn"
         modal_container_id="modal-container-2">
         <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-
+            <i class='fi fi-rr-receipt flex justify-center items-center text-blue-600'></i>
         </x-slot>
 
-        <form method="POST" action="/invoice" id="create-invoice-modal-form" class="p-6">
+        <form method="POST" action="/invoice" id="create-invoice-modal-form" class="flex flex-col h-full">
             @csrf
 
-            <div class="flex flex-col justify-center items-center">
-
-                <input type="text" name="search" id="studentSearch" class="outline-none"
-                    placeholder="Search by last name or lrn">
+            <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                {{-- Student Search Section --}}
+                <div class="space-y-3">
+                    <label for="studentSearch" class="block text-sm font-semibold text-gray-700">
+                        Search Student
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fi fi-rs-search text-gray-400"></i>
+                        </div>
+                        <input type="text" name="search" id="studentSearch"
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 text-sm"
+                            placeholder="Search by last name or LRN">
+                        <div id="search-status" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                            <i id="search-icon" class="text-sm"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500">Enter at least 2 characters to search</p>
+                </div>
 
                 <input type="hidden" name="student_id" id="student_id" value="">
-                <p>Lrn: <span id="lrn"></span></p>
-                <p>Program: <span id="program"></span></p>
-                <p>Year Level: <span id="level"></span></p>
-                <p id="fees-msg">Applicable fees will show up, once the student is found</p>
-                <div id="fees-container" class="mt-4"></div>
 
-                <p>Total Amount</p>
+                {{-- Student Information Section --}}
+                <div id="student-info-section" class="hidden space-y-3">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="text-sm font-semibold mb-3 text-gray-700 flex items-center gap-2">
+                            Student Information
+                        </h3>
+                        <div class="flex flex-row text-sm">
+                            <div class="flex-1 flex flex-col justify-center items-start gap-2">
+                                <div>
+                                    <span class="text-gray-600 font-medium">Full Name:</span>
+                                    <span id="full-name" class="ml-2 text-gray-900 font-semibold">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 font-medium">Year Level:</span>
+                                    <span id="level" class="ml-2 text-gray-900 font-semibold">-</span>
+                                </div>
+
+                            </div>
+                            <div class="flex-1 flex flex-col justify-center items-start gap-2">
+                                <div>
+                                    <span class="text-gray-600 font-medium">LRN:</span>
+                                    <span id="lrn" class="ml-2 text-gray-900 font-semibold">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 font-medium">Program:</span>
+                                    <span id="program" class="ml-2 text-gray-900 font-semibold">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Fees Selection Section --}}
+                <div id="fees-section" class="hidden space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            Select Applicable Fees
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="select-all-fees"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <label for="select-all-fees" class="text-sm font-medium text-gray-700 cursor-pointer">Select
+                                All</label>
+                        </div>
+                    </div>
+                    <div id="fees-container"
+                        class="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <!-- Fees will be dynamically populated here -->
+                    </div>
+                </div>
+
+                {{-- Total Amount Section --}}
+                <div id="total-section" class="hidden">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-green-800">Total Amount:</span>
+                            <span id="total-amount" class="text-lg font-bold text-green-900">₱0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Status Messages --}}
+                <div id="status-messages" class="space-y-2">
+                    <p id="fees-msg" class="text-sm text-gray-500 text-center py-2">
+                        Search for a student to see applicable fees
+                    </p>
+                </div>
             </div>
-
         </form>
 
         <x-slot name="modal_info">
             <i class="fi fi-bs-download flex justify-center items-center"></i>
-            <a href="{{ asset('templates/Officially_Enrolled_Students_Import_Template.xlsx') }}" download>Click here to
-                download the
-                template</a>
+            <a href="{{ asset('templates/Officially_Enrolled_Students_Import_Template.xlsx') }}" download
+                class="hover:text-blue-600 hover:underline transition duration-150">
+                Download Invoice Template
+            </a>
         </x-slot>
 
         <x-slot name="modal_buttons">
-            <button id="create-invoice-modal-cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+            <button id="create-invoice-modal-cancel-btn" type="button"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-4 py-2 rounded-md text-[#0f111c]/80 font-semibold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
-            {{-- This button will acts as the submit button --}}
-            <button type="submit" form="create-invoice-modal-form" name="action" value="verify"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
-                Import
+            <button type="submit" form="create-invoice-modal-form" name="action" value="create"
+                id="create-invoice-submit-btn"
+                class="bg-blue-500 text-[14px] px-4 py-2 rounded-md text-white font-semibold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
+                <span class="flex items-center gap-2">
+                    <i class="fi fi-rr-receipt"></i>
+                    Create Invoice
+                </span>
             </button>
         </x-slot>
 
@@ -606,11 +685,17 @@
             initModal('create-invoice-modal', 'create-invoice-modal-btn', 'create-invoice-modal-close-btn',
                 'create-invoice-modal-cancel-btn',
                 'modal-container-2');
+
+            // Add custom cancel button handler for invoice modal
+            document.getElementById('create-invoice-modal-cancel-btn').addEventListener('click', function() {
+                closeModal('create-invoice-modal', 'modal-container-2');
+                resetInvoiceForm();
+            });
             initModal('edit-section-modal', 'edit-section-modal-btn', 'edit-section-close-btn',
                 'edit-section-cancel-btn',
                 'modal-container-3');
 
-            let studentSeach = document.getElementById('studentSearch');
+            let studentSeach = document.querySelector('#studentSearch');
             let studentCount = document.querySelector('#studentCount');
             let sectionName = document.querySelector('#section_name');
             let sectionRoom = document.querySelector('#section_room');
@@ -752,82 +837,6 @@
                 }
 
             )
-
-            // // Payments table
-            // if (window.location.pathname === '/school-fees/payments') {
-            //     const paymentsTable = new DataTable('#payments', {
-            //         paging: true,
-            //         searching: true,
-            //         autoWidth: false,
-            //         serverSide: true,
-            //         processing: true,
-            //         ajax: {
-            //             url: `/getPayments`,
-            //         },
-            //         order: [
-            //             [1, 'desc']
-            //         ],
-            //         columns: [{
-            //                 data: 'index',
-            //                 width: '4%'
-            //             },
-            //             {
-            //                 data: 'date',
-            //                 width: '12%'
-            //             },
-            //             {
-            //                 data: 'reference_no',
-            //                 width: '18%'
-            //             },
-            //             {
-            //                 data: 'method',
-            //                 width: '16%'
-            //             },
-            //             {
-            //                 data: 'type',
-            //                 width: '16%'
-            //             },
-            //             {
-            //                 data: 'amount',
-            //                 width: '14%'
-            //             },
-            //             {
-            //                 data: 'student',
-            //                 width: '20%'
-            //             },
-            //             {
-            //                 data: 'invoice_id',
-            //                 width: '12%',
-            //                 className: 'text-center',
-            //                 orderable: false,
-            //                 searchable: false,
-            //                 render: function(id, type, row) {
-            //                     return `
-            //                     <a href="/invoice/${id}?from=history" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
-            //                         <span class="relative w-4 h-4">
-            //                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-            //                             <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-            //                         </span>
-            //                         View Invoice
-            //                     </a>`;
-            //                 }
-            //             },
-            //         ],
-            //         layout: {
-            //             topStart: null,
-            //             topEnd: null,
-            //             bottomStart: 'info',
-            //             bottomEnd: 'paging'
-            //         },
-            //     });
-
-            //     const paymentsSearch = document.getElementById('paymentsSearch');
-            //     if (paymentsSearch) {
-            //         paymentsSearch.addEventListener('input', function() {
-            //             paymentsTable.search(this.value).draw();
-            //         });
-            //     }
-            // }
 
 
             table1 = new DataTable('#sections', {
@@ -1054,123 +1063,355 @@
             dropDown('dropdown_2', 'dropdown_selection2');
             dropDown('dropdown_btn', 'dropdown_selection');
 
-            studentSeach.addEventListener('input', function(e) {
-                e.preventDefault();
+            if (studentSeach) {
 
-                let lrn = document.querySelector('#lrn');
-                let program = document.querySelector('#program');
-                let level = document.querySelector('#level');
-                let feesContainer = document.getElementById('fees-container');
-                let feesmsg = document.getElementById('fees-msg');
-                feesContainer.innerHTML = ''; // clear old fees
-                let studentId = document.getElementById('student_id')
+                studentSeach.addEventListener('input', function(e) {
+                    e.preventDefault();
 
-                let searchTerm = e.target.value.trim();
-                if (searchTerm.length < 2) {
-                    studentSeach.classList.remove('ring', 'ring-red-500', 'ring-green-500');
+                    let fullName = document.querySelector('#full-name');
+                    let lrn = document.querySelector('#lrn');
+                    let program = document.querySelector('#program');
+                    let level = document.querySelector('#level');
+                    let feesContainer = document.getElementById('fees-container');
+                    let feesmsg = document.getElementById('fees-msg');
+                    let studentId = document.getElementById('student_id');
+                    let searchStatus = document.getElementById('search-status');
+                    let searchIcon = document.getElementById('search-icon');
+                    let studentInfoSection = document.getElementById('student-info-section');
+                    let feesSection = document.getElementById('fees-section');
+                    let totalSection = document.getElementById('total-section');
+                    let submitBtn = document.getElementById('create-invoice-submit-btn');
 
-                    lrn.innerHTML = '-';
-                    program.innerHTML = '-';
-                    level.innerHTML = '-';
+                    // Clear previous state
+                    feesContainer.innerHTML = '';
+                    studentInfoSection.classList.add('hidden');
+                    feesSection.classList.add('hidden');
+                    totalSection.classList.add('hidden');
+                    searchStatus.classList.add('hidden');
+                    submitBtn.disabled = true;
 
-                    feesmsg.innerHTML =
-                        'Applicable fees will show up, once the student is found';
-                    return; // wait until user types at least 2 chars
-                }
+                    let searchTerm = e.target.value.trim();
+                    if (searchTerm.length < 2) {
+                        studentSeach.classList.remove('ring-2', 'ring-red-500', 'ring-green-500',
+                            'border-red-500', 'border-green-500');
+                        studentSeach.classList.add('border-gray-300');
 
-                fetch('/getStudent', {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                        },
-                        body: JSON.stringify({
-                            search: searchTerm
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            console.log(data)
-                            if (data.data === null) {
-                                studentSeach.classList.remove('ring-green-500');
-                                studentSeach.classList.add('ring', 'ring-red-500');
-                                lrn.innerHTML = '-';
-                                program.innerHTML = '-';
-                                level.innerHTML = '-';
-
-                                feesmsg.innerHTML =
-                                    'Applicable fees will show up, once the student is found';
-
-                            } else if (data.data !== null) {
-
-                                lrn.innerHTML = data.data.lrn || '-';
-                                program.innerHTML = data.data.program || '-';
-                                level.innerHTML = data.data.grade_level || '-';
-
-                                studentSeach.classList.remove('ring-red-500');
-                                studentSeach.classList.add('ring', 'ring-green-500');
-
-                                studentId.value = data.data.id;
-
-                                // Render school fees checkboxe
-                                feesmsg.innerHTML = '';
-                                if (data.fees && data.fees.length > 0) {
-                                    data.fees.forEach(fee => {
-                                        let div = document.createElement('div');
-                                        div.classList.add('flex', 'items-center', 'gap-2',
-                                            'mb-2');
-
-                                        let checkbox = document.createElement('input');
-                                        checkbox.type = 'checkbox';
-                                        checkbox.name = 'school_fees[]';
-                                        checkbox.value = fee.id;
-
-                                        let hidden = document.createElement('input');
-                                        hidden.type = 'hidden';
-                                        hidden.name =
-                                            `school_fee_amounts[${fee.id}]`; // key by fee id
-                                        hidden.value = fee.amount;
-
-                                        let label = document.createElement('label');
-                                        label.textContent = `${fee.name} - ₱${fee.amount}`;
-
-                                        div.appendChild(checkbox);
-                                        div.appendChild(label);
-                                        div.appendChild(hidden);
-                                        feesContainer.appendChild(div);
-                                    });
-                                } else {
-                                    feesmsg.innerHTML = 'No applicable fees found';
-                                }
-
-                            } else {
-                                feesmsg.innerHTML =
-                                    'Student has already have an invoice assigned.';
-                            }
-                        } else {
-                            studentSeach.classList.remove('ring-green-500');
-                            studentSeach.classList.add('ring', 'ring-red-500');
-                            lrn.innerHTML = '-';
-                            program.innerHTML = '-';
-                            level.innerHTML = '-';
-
-                            feesmsg.innerHTML =
-                                'Applicable fees will show up, once the student is found';
-                        }
-                    })
-                    .catch(err => {
-                        studentSeach.classList.remove('ring-green-500');
-                        studentSeach.classList.add('ring', 'ring-red-500');
-
+                        fullName.innerHTML = '-';
                         lrn.innerHTML = '-';
                         program.innerHTML = '-';
                         level.innerHTML = '-';
-                        feesmsg.innerHTML =
-                            'Applicable fees will show up, once the student is found';
+
+                        feesmsg.innerHTML = 'Search for a student to see applicable fees';
+                        feesmsg.classList.remove('hidden');
+                        return;
+                    }
+
+                    // Show loading state
+                    searchStatus.classList.remove('hidden');
+                    searchIcon.className = 'fi fi-rr-spinner animate-spin text-blue-500';
+
+                    fetch('/getStudent', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                search: searchTerm
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            searchStatus.classList.add('hidden');
+
+                            if (data.success) {
+                                if (data.data === null) {
+                                    // Student not found
+                                    studentSeach.classList.remove('ring-green-500', 'border-green-500');
+                                    studentSeach.classList.add('ring-2', 'ring-red-500',
+                                        'border-red-500');
+
+                                    feesmsg.innerHTML =
+                                        'Student not found. Please check the LRN or name.';
+                                    feesmsg.classList.remove('hidden');
+
+                                } else if (data.data !== null) {
+                                    // Student found
+                                    studentSeach.classList.remove('ring-red-500', 'border-red-500');
+                                    studentSeach.classList.add('ring-2', 'ring-green-500',
+                                        'border-green-500');
+
+                                    fullName.innerHTML = data.data.full_name ||
+                                        `${data.data.first_name || ''} ${data.data.last_name || ''}`
+                                        .trim() || '-';
+                                    lrn.innerHTML = data.data.lrn || '-';
+                                    program.innerHTML = data.data.program || '-';
+                                    level.innerHTML = data.data.grade_level || '-';
+                                    studentId.value = data.data.id;
+
+                                    // Show student info section
+                                    studentInfoSection.classList.remove('hidden');
+
+                                    // Render school fees checkboxes
+                                    feesmsg.classList.add('hidden');
+                                    if (data.fees && data.fees.length > 0) {
+                                        feesSection.classList.remove('hidden');
+
+                                        data.fees.forEach(fee => {
+                                            let feeItem = document.createElement('div');
+                                            feeItem.classList.add('flex', 'items-center',
+                                                'justify-between', 'p-2', 'bg-white',
+                                                'rounded-md', 'border', 'border-gray-200',
+                                                'hover:border-blue-300', 'transition-colors'
+                                            );
+
+                                            let leftDiv = document.createElement('div');
+                                            leftDiv.classList.add('flex', 'items-center',
+                                                'gap-2');
+
+                                            let checkbox = document.createElement('input');
+                                            checkbox.type = 'checkbox';
+                                            checkbox.name = 'school_fees[]';
+                                            checkbox.value = fee.id;
+                                            checkbox.classList.add('w-3', 'h-3',
+                                                'text-blue-600',
+                                                'border-gray-300', 'rounded',
+                                                'focus:ring-blue-500');
+                                            checkbox.addEventListener('change', calculateTotal);
+
+                                            let label = document.createElement('label');
+                                            label.textContent = fee.name;
+                                            label.classList.add('text-xs', 'font-medium',
+                                                'text-gray-900', 'cursor-pointer');
+
+                                            let amountSpan = document.createElement('span');
+                                            amountSpan.textContent =
+                                                `₱${parseFloat(fee.amount).toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+                                            amountSpan.classList.add('text-xs', 'font-semibold',
+                                                'text-green-600');
+
+                                            let hidden = document.createElement('input');
+                                            hidden.type = 'hidden';
+                                            hidden.name = `school_fee_amounts[${fee.id}]`;
+                                            hidden.value = fee.amount;
+
+                                            leftDiv.appendChild(checkbox);
+                                            leftDiv.appendChild(label);
+                                            feeItem.appendChild(leftDiv);
+                                            feeItem.appendChild(amountSpan);
+                                            feeItem.appendChild(hidden);
+                                            feesContainer.appendChild(feeItem);
+                                        });
+
+                                        // Show total section
+                                        totalSection.classList.remove('hidden');
+                                        calculateTotal();
+
+                                        // Setup Select All functionality
+                                        setupSelectAll();
+
+                                    } else {
+                                        feesmsg.innerHTML =
+                                            'No applicable fees found for this student.';
+                                        feesmsg.classList.remove('hidden');
+                                    }
+
+                                } else {
+                                    feesmsg.innerHTML = 'Student already has an invoice assigned.';
+                                    feesmsg.classList.remove('hidden');
+                                }
+                            } else {
+                                studentSeach.classList.remove('ring-green-500', 'border-green-500');
+                                studentSeach.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+
+                                feesmsg.innerHTML = 'Error searching for student. Please try again.';
+                                feesmsg.classList.remove('hidden');
+                            }
+                        })
+                        .catch(err => {
+                            searchStatus.classList.add('hidden');
+                            studentSeach.classList.remove('ring-green-500', 'border-green-500');
+                            studentSeach.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+
+                            feesmsg.innerHTML = 'Error searching for student. Please try again.';
+                            feesmsg.classList.remove('hidden');
+                            console.error(err);
+                        });
+                });
+
+            }
+
+            // Function to calculate total amount
+            function calculateTotal() {
+                let checkboxes = document.querySelectorAll('input[name="school_fees[]"]:checked');
+                let total = 0;
+
+                checkboxes.forEach(checkbox => {
+                    let hiddenInput = document.querySelector(
+                        `input[name="school_fee_amounts[${checkbox.value}]"]`);
+                    if (hiddenInput) {
+                        total += parseFloat(hiddenInput.value) || 0;
+                    }
+                });
+
+                let totalAmountElement = document.getElementById('total-amount');
+                let submitBtn = document.getElementById('create-invoice-submit-btn');
+
+                totalAmountElement.textContent = `₱${total.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+
+                // Enable/disable submit button based on selection
+                submitBtn.disabled = total === 0;
+
+                // Update Select All checkbox state
+                updateSelectAllState();
+            }
+
+            // Function to setup Select All functionality
+            function setupSelectAll() {
+                let selectAllCheckbox = document.getElementById('select-all-fees');
+                let feeCheckboxes = document.querySelectorAll('input[name="school_fees[]"]');
+
+                // Remove existing event listeners to prevent duplicates
+                selectAllCheckbox.replaceWith(selectAllCheckbox.cloneNode(true));
+                selectAllCheckbox = document.getElementById('select-all-fees');
+
+                selectAllCheckbox.addEventListener('change', function() {
+                    feeCheckboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                    calculateTotal();
+                });
+
+                // Add change listeners to individual checkboxes
+                feeCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', calculateTotal);
+                });
+            }
+
+            // Function to update Select All checkbox state
+            function updateSelectAllState() {
+                let selectAllCheckbox = document.getElementById('select-all-fees');
+                let feeCheckboxes = document.querySelectorAll('input[name="school_fees[]"]');
+                let checkedCount = document.querySelectorAll('input[name="school_fees[]"]:checked').length;
+
+                if (checkedCount === 0) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = false;
+                } else if (checkedCount === feeCheckboxes.length) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = true;
+                } else {
+                    selectAllCheckbox.indeterminate = true;
+                    selectAllCheckbox.checked = false;
+                }
+            }
+
+            // Form submission handling
+            document.getElementById('create-invoice-modal-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let studentId = document.getElementById('student_id').value;
+                let selectedFees = document.querySelectorAll('input[name="school_fees[]"]:checked');
+
+                // Validation
+                if (!studentId) {
+                    showAlert('error', 'Please search and select a student first.');
+                    return;
+                }
+
+                if (selectedFees.length === 0) {
+                    showAlert('error', 'Please select at least one fee to create an invoice.');
+                    return;
+                }
+
+                // Show loading state
+                let submitBtn = document.getElementById('create-invoice-submit-btn');
+                let originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fi fi-rr-spinner animate-spin"></i> Creating...';
+                submitBtn.disabled = true;
+
+                // Prepare form data
+                let formData = new FormData(this);
+
+                fetch('/invoice', {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Reset button state
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+
+                        if (data.success) {
+                            // Close modal
+                            closeModal('create-invoice-modal', 'modal-container-2');
+
+                            // Show success message
+                            showAlert('success', data.message || 'Invoice created successfully!');
+
+                            // Reset form
+                            resetInvoiceForm();
+
+                            // Refresh invoice table if it exists
+                            if (typeof invoiceTable !== 'undefined') {
+                                invoiceTable.draw();
+                            }
+                        } else {
+                            showAlert('error', data.error ||
+                                'Failed to create invoice. Please try again.');
+                        }
+                    })
+                    .catch(err => {
+                        // Reset button state
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+
+                        showAlert('error', 'Something went wrong. Please try again.');
                         console.error(err);
                     });
             });
+
+            // Function to reset the invoice form
+            function resetInvoiceForm() {
+                let form = document.getElementById('create-invoice-modal-form');
+                let studentSearch = document.getElementById('studentSearch');
+                let studentInfoSection = document.getElementById('student-info-section');
+                let feesSection = document.getElementById('fees-section');
+                let totalSection = document.getElementById('total-section');
+                let feesmsg = document.getElementById('fees-msg');
+                let submitBtn = document.getElementById('create-invoice-submit-btn');
+
+                // Reset form
+                form.reset();
+
+                // Clear search input styling
+                studentSearch.classList.remove('ring-2', 'ring-red-500', 'ring-green-500', 'border-red-500',
+                    'border-green-500');
+                studentSearch.classList.add('border-gray-300');
+
+                // Hide sections
+                studentInfoSection.classList.add('hidden');
+                feesSection.classList.add('hidden');
+                totalSection.classList.add('hidden');
+
+                // Show default message
+                feesmsg.innerHTML = 'Search for a student to see applicable fees';
+                feesmsg.classList.remove('hidden');
+
+                // Disable submit button
+                submitBtn.disabled = true;
+
+                // Reset Select All checkbox
+                let selectAllCheckbox = document.getElementById('select-all-fees');
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                }
+            }
 
 
             // document.getElementById('add-student-form').addEventListener('submit', function(e) {

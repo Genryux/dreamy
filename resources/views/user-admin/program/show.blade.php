@@ -74,7 +74,7 @@
                 <!-- Program Code -->
                 <div>
                     <label for="program_code" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-tag mr-2"></i>
+                        <i class="fi fi-rr-tags mr-2"></i>
                         Program Code <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="code" id="program_code" required placeholder="e.g., STEM, ABM, HUMSS"
@@ -289,7 +289,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-xl gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 

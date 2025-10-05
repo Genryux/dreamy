@@ -312,64 +312,66 @@
             console.log('Simple Laravel notification system loaded - v2.0');
             let isDropdownOpen = false;
 
-            // Toggle dropdown
-            notificationBell.addEventListener('click', function(e) {
-                e.stopPropagation();
-                isDropdownOpen = !isDropdownOpen;
-                notificationDropdown.classList.toggle('hidden');
+            if (notificationBell) {
 
-                if (isDropdownOpen) {
-                    loadNotifications();
-                }
-            });
+                // Toggle dropdown
+                notificationBell.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    isDropdownOpen = !isDropdownOpen;
+                    notificationDropdown.classList.toggle('hidden');
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    notificationDropdown.classList.add('hidden');
-                    isDropdownOpen = false;
-                }
-            });
-
-            // Mark all as read functionality
-            markAllReadBtn.addEventListener('click', function() {
-                markAllAsRead();
-            });
-
-            // Simple function to load notifications
-            async function loadNotifications() {
-                try {
-                    const response = await fetch('/notifications');
-                    const data = await response.json();
-
-                    if (data.notifications) {
-                        renderNotifications(data.notifications);
-                        updateBadge(data.notifications);
+                    if (isDropdownOpen) {
+                        loadNotifications();
                     }
-                } catch (error) {
-                    console.error('Error loading notifications:', error);
-                    notificationList.innerHTML =
-                        '<div class="p-4 text-center text-gray-500">Error loading notifications</div>';
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                        notificationDropdown.classList.add('hidden');
+                        isDropdownOpen = false;
+                    }
+                });
+
+                // Mark all as read functionality
+                markAllReadBtn.addEventListener('click', function() {
+                    markAllAsRead();
+                });
+
+                // Simple function to load notifications
+                async function loadNotifications() {
+                    try {
+                        const response = await fetch('/notifications');
+                        const data = await response.json();
+
+                        if (data.notifications) {
+                            renderNotifications(data.notifications);
+                            updateBadge(data.notifications);
+                        }
+                    } catch (error) {
+                        console.error('Error loading notifications:', error);
+                        notificationList.innerHTML =
+                            '<div class="p-4 text-center text-gray-500">Error loading notifications</div>';
+                    }
                 }
-            }
 
 
-            // Simple function to render notifications
-            function renderNotifications(notifications) {
-                if (notifications.length === 0) {
-                    notificationList.innerHTML =
-                        '<div class="p-4 text-center text-gray-500">No notifications yet</div>';
-                    markAllReadBtn.classList.add('hidden');
-                    return;
-                }
+                // Simple function to render notifications
+                function renderNotifications(notifications) {
+                    if (notifications.length === 0) {
+                        notificationList.innerHTML =
+                            '<div class="p-4 text-center text-gray-500">No notifications yet</div>';
+                        markAllReadBtn.classList.add('hidden');
+                        return;
+                    }
 
-                markAllReadBtn.classList.remove('hidden');
+                    markAllReadBtn.classList.remove('hidden');
 
-                notificationList.innerHTML = notifications.map(notification => {
-                    const isUnread = !notification.read_at;
-                    const timeAgo = getTimeAgo(notification.created_at);
+                    notificationList.innerHTML = notifications.map(notification => {
+                        const isUnread = !notification.read_at;
+                        const timeAgo = getTimeAgo(notification.created_at);
 
-                    return `
+                        return `
                         <div class="p-4 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition-colors" 
                              onclick="handleNotificationClick('${notification.id}', '${notification.data?.url || ''}')">
                             <div class="flex items-start space-x-3">
@@ -391,145 +393,148 @@
                             </div>
                         </div>
                     `;
-                }).join('');
-            }
-
-            // Simple function to update badge
-            function updateBadge(notifications) {
-                const unreadCount = notifications.filter(n => !n.read_at).length;
-
-                if (unreadCount > 0) {
-                    notificationBadge.textContent = unreadCount;
-                    notificationBadge.classList.remove('hidden');
-                } else {
-                    notificationBadge.classList.add('hidden');
+                    }).join('');
                 }
-            }
 
-            // Simple function to get time ago
-            function getTimeAgo(dateString) {
-                const now = new Date();
-                const date = new Date(dateString);
-                const diffInSeconds = Math.floor((now - date) / 1000);
+                // Simple function to update badge
+                function updateBadge(notifications) {
+                    const unreadCount = notifications.filter(n => !n.read_at).length;
 
-                if (diffInSeconds < 60) return 'Just now';
-                if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-                if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-                return `${Math.floor(diffInSeconds / 86400)}d ago`;
-            }
-
-            // Simple function to handle notification click (mark as read + navigate)
-            async function handleNotificationClick(notificationId, url) {
-                try {
-                    // Mark as read first
-                    await fetch(`/notifications/${notificationId}/mark-read`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
-                        }
-                    });
-
-                    // Navigate to URL if provided
-                    if (url && url.trim() !== '') {
-                        window.location.href = url;
+                    if (unreadCount > 0) {
+                        notificationBadge.textContent = unreadCount;
+                        notificationBadge.classList.remove('hidden');
                     } else {
-                        // If no URL, just reload notifications
-                        loadNotifications();
+                        notificationBadge.classList.add('hidden');
                     }
-                } catch (error) {
-                    console.error('Error handling notification click:', error);
                 }
-            }
 
-            // Simple function to mark all as read
-            async function markAllAsRead() {
-                try {
-                    await fetch('/notifications/mark-all-read', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
-                        }
-                    });
-                    loadNotifications(); // Reload to update UI
-                } catch (error) {
-                    console.error('Error marking all as read:', error);
+                // Simple function to get time ago
+                function getTimeAgo(dateString) {
+                    const now = new Date();
+                    const date = new Date(dateString);
+                    const diffInSeconds = Math.floor((now - date) / 1000);
+
+                    if (diffInSeconds < 60) return 'Just now';
+                    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+                    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+                    return `${Math.floor(diffInSeconds / 86400)}d ago`;
                 }
-            }
 
-            // Simple real-time listener
-            const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
+                // Simple function to handle notification click (mark as read + navigate)
+                async function handleNotificationClick(notificationId, url) {
+                    try {
+                        // Mark as read first
+                        await fetch(`/notifications/${notificationId}/mark-read`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        });
 
-            // Listen to admins channel (registrar, super_admin)
-            if (userRoles.some(role => ['registrar', 'super_admin'].includes(role))) {
-                console.log('Setting up admin notification listener');
-                console.log('Connecting to admins channel...');
-
-                window.Echo.channel('admins')
-                    .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
-                        console.log('Admin notification received:', e);
-                        loadNotifications();
-
-                        if (Notification.permission === 'granted') {
-                            new Notification(e.title, {
-                                body: e.message,
-                                icon: '/favicon.ico'
-                            });
+                        // Navigate to URL if provided
+                        if (url && url.trim() !== '') {
+                            window.location.href = url;
+                        } else {
+                            // If no URL, just reload notifications
+                            loadNotifications();
                         }
-                    })
-                    .subscribed(() => {
-                        console.log('Successfully subscribed to admins channel');
-                    })
-                    .error((error) => {
-                        console.error('Admins channel error:', error);
-                    });
+                    } catch (error) {
+                        console.error('Error handling notification click:', error);
+                    }
+                }
+
+                // Simple function to mark all as read
+                async function markAllAsRead() {
+                    try {
+                        await fetch('/notifications/mark-all-read', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        });
+                        loadNotifications(); // Reload to update UI
+                    } catch (error) {
+                        console.error('Error marking all as read:', error);
+                    }
+                }
+
+                // Simple real-time listener
+                const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
+
+                // Listen to admins channel (registrar, super_admin)
+                if (userRoles.some(role => ['registrar', 'super_admin'].includes(role))) {
+                    console.log('Setting up admin notification listener');
+                    console.log('Connecting to admins channel...');
+
+                    window.Echo.channel('admins')
+                        .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
+                            console.log('Admin notification received:', e);
+                            loadNotifications();
+
+                            if (Notification.permission === 'granted') {
+                                new Notification(e.title, {
+                                    body: e.message,
+                                    icon: '/favicon.ico'
+                                });
+                            }
+                        })
+                        .subscribed(() => {
+                            console.log('Successfully subscribed to admins channel');
+                        })
+                        .error((error) => {
+                            console.error('Admins channel error:', error);
+                        });
+                }
+
+                // Listen to teachers channel (head_teacher, teacher)
+                if (userRoles.some(role => ['head_teacher', 'teacher'].includes(role))) {
+                    console.log('Setting up teacher notification listener');
+                    console.log('Connecting to teachers channel...');
+
+                    window.Echo.channel('teachers')
+                        .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
+                            console.log('Teacher notification received:', e);
+                            loadNotifications();
+
+                            if (Notification.permission === 'granted') {
+                                new Notification(e.title, {
+                                    body: e.message,
+                                    icon: '/favicon.ico'
+                                });
+                            }
+                        })
+                        .subscribed(() => {
+                            console.log('Successfully subscribed to teachers channel');
+                        })
+                        .error((error) => {
+                            console.error('Teachers channel error:', error);
+                        });
+                }
+
+                if (!userRoles.some(role => ['registrar', 'super_admin', 'head_teacher', 'teacher'].includes(
+                    role))) {
+                    console.log('User does not have admin or teacher role, skipping Echo setup');
+                }
+
+                // Request notification permission
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+
+                // Initial load
+                loadNotifications();
+
+                // Make function globally accessible for HTML onclick
+                window.handleNotificationClick = handleNotificationClick;
+
+                // Debug: Check Echo connection
+                console.log('Echo instance:', window.Echo);
+                console.log('Laravel user:', window.Laravel?.user);
+                console.log('User roles:', window.Laravel?.user?.roles);
             }
 
-            // Listen to teachers channel (head_teacher, teacher)
-            if (userRoles.some(role => ['head_teacher', 'teacher'].includes(role))) {
-                console.log('Setting up teacher notification listener');
-                console.log('Connecting to teachers channel...');
-
-                window.Echo.channel('teachers')
-                    .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
-                        console.log('Teacher notification received:', e);
-                        loadNotifications();
-
-                        if (Notification.permission === 'granted') {
-                            new Notification(e.title, {
-                                body: e.message,
-                                icon: '/favicon.ico'
-                            });
-                        }
-                    })
-                    .subscribed(() => {
-                        console.log('Successfully subscribed to teachers channel');
-                    })
-                    .error((error) => {
-                        console.error('Teachers channel error:', error);
-                    });
-            }
-
-            if (!userRoles.some(role => ['registrar', 'super_admin', 'head_teacher', 'teacher'].includes(role))) {
-                console.log('User does not have admin or teacher role, skipping Echo setup');
-            }
-
-            // Request notification permission
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-
-            // Initial load
-            loadNotifications();
-
-            // Make function globally accessible for HTML onclick
-            window.handleNotificationClick = handleNotificationClick;
-
-            // Debug: Check Echo connection
-            console.log('Echo instance:', window.Echo);
-            console.log('Laravel user:', window.Laravel?.user);
-            console.log('User roles:', window.Laravel?.user?.roles);
         });
     </script>
 

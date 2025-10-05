@@ -106,20 +106,28 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
 
     // Admin Dashboard
     Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
-    Route::get('/admin/recent-applications', [ApplicationFormController::class, 'getRecentApplications'])->name('admin.recent-applications');
+    
+    // DataTables routes for applications
+    Route::get('/getRecentApplications', [ApplicationFormController::class, 'getRecentApplications'])->name('get.recent-applications');
+    Route::get('/getApprovedApplications', [ApplicationFormController::class, 'getApprovedApplications'])->name('get.approved-applications');
+    Route::get('/getPendingDocumentsApplications', [ApplicationFormController::class, 'getPendingDocumentsApplications'])->name('get.pending-documents-applications');
+    Route::get('/getRejectedApplications', [ApplicationFormController::class, 'getRejectedApplications'])->name('get.rejected-applications');
 
     // School Settings
     Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
     Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
 
     // Application Management
-    Route::get('/applications/pending', [ApplicationFormController::class, 'pending'])->name('applications.pending');
-    Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'show'])->name('pending.details');
-    Route::get('/selected-applications', [ApplicationFormController::class, 'selected'])->name('applications.approved');
+    Route::get('/applications/pending', [ApplicationFormController::class, 'show'])->name('applications.pending');
+    Route::get('/applications/approved', [ApplicationFormController::class, 'show'])->name('applications.approved');
+    Route::get('/applications/pending-documents', [ApplicationFormController::class, 'show'])->name('applications.pending-documents');
+    Route::get('/applications/rejected', [ApplicationFormController::class, 'show'])->name('applications.rejected');
+    Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'showApplicationDetails'])->name('pending.details');
+    Route::get('/selected-applications', [ApplicationFormController::class, 'index'])->name('applications.approved');
     Route::get('/selected-application/interview-details/{id}', [InterviewController::class, 'show'])->name('selected.details');
 
     // Document Management
-    Route::get('/pending-documents', [ApplicationFormController::class, 'pendingDocuments'])->name('documents');
+    Route::get('/pending-documents', [ApplicationFormController::class, 'index'])->name('applications.pending-documents');
     Route::get('/pending-documents/document-details/{applicant}', [DocumentsSubmissionController::class, 'index'])->name('documents');
     Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents.index');
     Route::post('/required-docs', [DocumentsController::class, 'store'])->name('documents.store');
@@ -204,6 +212,21 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::get('/invoice/{id}', [InvoiceController::class, 'show']);
     Route::get('/getPayments', [InvoicePaymentController::class, 'getPayments']);
     Route::post('/invoice/{invoice}/payments', [InvoicePaymentController::class, 'store'])->name('invoice.payments.store');
+    
+    // Invoice Downloads
+    Route::get('/invoice/{invoice}/schedule/{schedule}/download', [InvoiceController::class, 'downloadScheduleInvoice'])->name('invoice.schedule.download');
+    Route::get('/invoice/{invoice}/schedule/{schedule}/receipt', [InvoiceController::class, 'downloadScheduleReceipt'])->name('invoice.schedule.receipt');
+    
+    // One-time payment invoice and receipt
+    Route::get('/invoice/{invoice}/onetime/download', [InvoiceController::class, 'downloadOneTimeInvoice'])->name('invoice.onetime.download');
+    Route::get('/invoice/{invoice}/onetime/receipt', [InvoiceController::class, 'downloadOneTimeReceipt'])->name('invoice.onetime.receipt');
+    
+    // Payment Plans
+    Route::post('/invoice/{invoice}/payment-plan', [App\Http\Controllers\PaymentPlanController::class, 'store'])->name('invoice.payment-plan.store');
+    Route::get('/invoice/{invoice}/payment-plan', [App\Http\Controllers\PaymentPlanController::class, 'show'])->name('invoice.payment-plan.show');
+    Route::post('/payment-plan/calculate', [App\Http\Controllers\PaymentPlanController::class, 'calculate'])->name('payment-plan.calculate');
+    Route::put('/payment-plan/{paymentPlan}', [App\Http\Controllers\PaymentPlanController::class, 'update'])->name('payment-plan.update');
+    Route::delete('/payment-plan/{paymentPlan}', [App\Http\Controllers\PaymentPlanController::class, 'destroy'])->name('payment-plan.destroy');
 });
 
 /*

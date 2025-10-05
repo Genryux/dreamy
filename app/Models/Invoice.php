@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    protected $fillable = ['student_id', 'academic_term_id', 'status', 'invoice_number'];
+    protected $fillable = ['student_id', 'academic_term_id', 'status', 'invoice_number', 'has_payment_plan', 'payment_mode'];
 
     public static function boot()
     {
@@ -51,6 +51,16 @@ class Invoice extends Model
         return $this->belongsTo(AcademicTerms::class, 'academic_term_id');
     }
 
+    public function paymentPlan()
+    {
+        return $this->hasOne(PaymentPlan::class);
+    }
+
+    public function paymentSchedules()
+    {
+        return $this->hasMany(PaymentSchedule::class);
+    }
+
     public function getTotalAmountAttribute()
     {
         return $this->items()->sum('amount');
@@ -66,5 +76,20 @@ class Invoice extends Model
     public function getBalanceAttribute()
     {
         return $this->total_amount - $this->paid_amount;
+    }
+
+    /**
+     * Get next due schedule
+     */
+    public function getNextDueScheduleAttribute()
+    {
+        if (!$this->has_payment_plan) {
+            return null;
+        }
+
+        return $this->paymentSchedules()
+            ->where('status', '!=', 'paid')
+            ->orderBy('installment_number')
+            ->first();
     }
 }

@@ -8,6 +8,7 @@ class InvoicePayment extends Model
 {
     protected $fillable = [
         'invoice_id',
+        'payment_schedule_id',
         'amount',
         'payment_date',
         'method',
@@ -36,5 +37,13 @@ class InvoicePayment extends Model
     public function academicTerm()
     {
         return $this->belongsTo(AcademicTerms::class, 'academic_term_id');
+    }
+
+    /**
+     * A payment can belong to a payment schedule.
+     */
+    public function paymentSchedule()
+    {
+        return $this->belongsTo(PaymentSchedule::class);
     }
 }

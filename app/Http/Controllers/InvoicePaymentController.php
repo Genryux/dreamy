@@ -5,11 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
+use App\Services\PaymentPlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 class InvoicePaymentController extends Controller
 {
+    protected $paymentPlanService;
+
+    public function __construct(PaymentPlanService $paymentPlanService)
+    {
+        $this->paymentPlanService = $paymentPlanService;
+    }
+
     public function store(Request $request, Invoice $invoice)
     {
         $validated = $request->validate([
@@ -18,33 +26,55 @@ class InvoicePaymentController extends Controller
             'method' => 'nullable|string|max:50',
             'type' => 'nullable|string|max:50',
             'reference_no' => 'nullable|string|max:100',
+            'payment_schedule_id' => 'nullable|integer|exists:payment_schedules,id',
         ]);
 
+        // Additional validation for one-time payments
+        if ($invoice->payment_mode === 'full') {
+            // For one-time payments, if this is the first payment, it must be the full amount
+            if ($invoice->paid_amount == 0 && $validated['amount'] < $invoice->total_amount) {
+                return redirect()->back()->with('error', 'For one-time payments, the first payment must be the full amount of ₱' . number_format($invoice->total_amount, 2));
+            }
+            
+            // For subsequent payments, ensure we don't exceed the remaining balance
+            if ($validated['amount'] > $invoice->balance) {
+                return redirect()->back()->with('error', 'Payment amount cannot exceed the remaining balance of ₱' . number_format($invoice->balance, 2));
+            }
+        }
+
         try {
-            DB::transaction(function () use ($invoice, $validated) {
-                // Get the active academic term
-                $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-                
-                if (!$activeTerm) {
-                    throw new \Exception('No active academic term found. Please activate an academic term first.');
+            // If paying toward a specific schedule, enforce exact remaining due for months 1..9 only
+            if (isset($validated['payment_schedule_id'])) {
+                $schedule = $invoice->paymentSchedules()->findOrFail($validated['payment_schedule_id']);
+                // Only enforce exact amount for monthly installments (installment_number > 0)
+                if ($schedule->installment_number > 0) {
+                    $remainingDue = round($schedule->amount_due - $schedule->amount_paid, 2);
+                    $amount = round($validated['amount'], 2);
+                    if ($amount !== $remainingDue) {
+                        return redirect()->back()->with('error', 'Payment must match the exact remaining amount for the selected schedule (₱' . number_format($remainingDue, 2) . ').');
+                    }
                 }
+            }
 
-                InvoicePayment::create([
-                    'invoice_id' => $invoice->id,
-                    'academic_term_id' => $activeTerm->id,
-                    'amount' => $validated['amount'],
-                    'payment_date' => $validated['payment_date'],
-                    'method' => $validated['method'] ?? null,
-                    'type' => $validated['type'] ?? null,
-                    'reference_no' => $validated['reference_no'] ?? null,
-                ]);
+            $paymentData = [
+                'payment_date' => $validated['payment_date'],
+                'method' => $validated['method'] ?? null,
+                'type' => $validated['type'] ?? null,
+                'reference_no' => $validated['reference_no'] ?? null,
+            ];
 
-                $invoice->refresh();
-                if ($invoice->balance <= 0) {
-                    $invoice->status = 'paid';
-                    $invoice->save();
-                }
-            });
+            // If a specific schedule is selected, use the new method
+            if (isset($validated['payment_schedule_id'])) {
+                $this->paymentPlanService->recordPaymentToSchedule(
+                    $invoice, 
+                    $validated['payment_schedule_id'], 
+                    $validated['amount'], 
+                    $paymentData
+                );
+            } else {
+                // Fallback to original method for invoices without payment plans
+                $this->paymentPlanService->recordPayment($invoice, $validated['amount'], $paymentData);
+            }
 
             return redirect()->back()->with('success', 'Payment recorded successfully.');
         } catch (\Throwable $th) {
