@@ -37,7 +37,7 @@ class StudentsController extends Controller
             }
 
             // Limit to avoid sending thousands at once
-            $students = $query->with('user')->select('id', 'lrn', 'grade_level', 'program')
+            $students = $query->with('user')->select('id', 'lrn', 'grade_level', 'program', 'user_id')
                 ->limit(50)
                 ->first();
 
@@ -60,17 +60,21 @@ class StudentsController extends Controller
                 })
                 ->get();
 
+            // Get the active academic term
+            $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+            
             return response()->json([
                 'success' => true,
                 'data' => $students,
                 'fees' => $schoolFee,
-                'hasInvoice' => Invoice::where('student_id', $students->id)
-                    ->where('status', 'unpaid')
-                    ->exists()
+                'hasInvoice' => $activeTerm ? Invoice::where('student_id', $students->id)
+                    ->where('academic_term_id', $activeTerm->id)
+                    ->exists() : false
             ]);
         } catch (\Throwable $th) {
-
+            \Log::error('Student search error: ' . $th->getMessage());
             return response()->json([
+                'success' => false,
                 'error' => $th->getMessage()
             ]);
         }

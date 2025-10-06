@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Program;
 use App\Models\SchoolFee;
+use App\Models\SchoolSetting;
 use Illuminate\Http\Request;
 
 class SchoolFeeController extends Controller
@@ -11,68 +12,46 @@ class SchoolFeeController extends Controller
 
     public function getSchoolFees(Request $request)
     {
-
-        //dd($request->all());
-
-        //return response()->json(['ewan' => $request->all()]);
-
         $query = SchoolFee::query();
-        //dd($query);
 
-        // search filter
+        // Search filter
         if ($search = $request->input('search.value')) {
-            $query->whereAny(['name', 'year_level', 'room'], 'like', "%{$search}%");
+            $query->whereAny(['name', 'grade_level'], 'like', "%{$search}%");
         }
 
-        // // Filtering
-        // if ($program = $request->input('program_filter')) {
-        //     $query->whereHas('record', fn($q) => $q->where('program', $program));
-        // }
+        if ($program = $request->input('program_filter')) {
+            $query->where('program_id', $program);
+        }
 
+        // Grade filter
         if ($grade = $request->input('grade_filter')) {
-            $query->where('year_level', $grade);
+            \Log::info('Grade filter applied', ['grade' => $grade]);
+            $query->where('grade_level', $grade);
         }
-
-        // // Sorting
-        // // Column mapping: must match order of your <th> and JS columns
-        // $columns = ['lrn', 'first_name', 'grade_level', 'program', 'contact_number', 'email_address'];
-
-        // // Get sort column index and direction
-        // $orderColumnIndex = $request->input('order.0.column');
-        // $orderDir = $request->input('order.0.dir', 'asc');
-
-        // // Map to actual column name
-        // $sortColumn = $columns[$orderColumnIndex] ?? 'id';
-
-        // // Apply sorting
-        // $query->orderBy($sortColumn, $orderDir);
 
         $total = $query->count();
         $filtered = $total;
 
-        // $limit = $request->input('length', 10);  // default to 10 per page
-        // $offset = $request->input('start', 0);
-
-        $start = $request->input('start', 0);
+        // Secure pagination with bounds
+        $start = max(0, (int) $request->input('start', 0));
+        $length = (int) $request->input('length', 10);
+        $length = max(10, min($length, 100)); // Clamp to [10, 100] records per page
 
         $data = $query
             ->with('program')
             ->offset($start)
-            ->limit($request->length)
-            ->get(['id', 'name', 'grade_level', 'amount','program_id'])
+            ->limit($length)
+            ->get(['id', 'name', 'grade_level', 'amount', 'program_id'])
             ->map(function ($item, $key) use ($start) {
-                // dd($item);
                 return [
                     'index' => $start + $key + 1,
                     'name' => $item->name ?? '-',
                     'applied_to_program' => $item->program->code ?? 'All Programs',
                     'applied_to_level' => $item->grade_level ?? 'All Year Levels',
-                    'amount' => '₱ ' . $item->amount ?? '-',
+                    'amount' => '₱ ' . number_format($item->amount, 2) ?? '-',
                     'id' => $item->id
                 ];
             });
-
-        //dd($data);
 
         return response()->json([
             'draw' => intval($request->draw),
@@ -83,23 +62,55 @@ class SchoolFeeController extends Controller
     }
 
     // Display a listing of the resource.
-    public function index()
+    public function index(Request $request)
     {
         $schoolFees = SchoolFee::all();
         $programs = Program::all();
+        $schoolSetting = \App\Models\SchoolSetting::first();
 
-        // foreach ($schoolFees as $fee) {
-        //     if ($fee->program) {
-        //         dump($fee->program->name);
-        //     } else {
-        //         dump('No program assigned');
-        //     }
-        // }
+        // Get selected academic term or default to current
+        $academicTermService = app(\App\Services\AcademicTermService::class);
+        $selectedTermId = $request->input('term_id', 'current');
 
-        // dd($schoolFees);
+        $allTerm = $academicTermService->getAllAcademicTerms();
 
-        return view('user-admin.school-fees.index', compact('schoolFees', 'programs'));
-        return response()->json($schoolFees);
+        if ($selectedTermId === 'current') {
+            $selectedAcademicTerm = $academicTermService->fetchCurrentAcademicTerm();
+        } else {
+            $selectedAcademicTerm = \App\Models\AcademicTerms::find($selectedTermId);
+        }
+
+        // Calculate financial statistics for selected academic term
+        // School fees are general and not tied to specific academic terms
+        // Always show the total of all school fees regardless of academic term selection
+        $totalSchoolFees = SchoolFee::sum('amount');
+        $totalInvoices = \App\Models\Invoice::where('academic_term_id', $selectedAcademicTerm?->id)->count();
+        $pendingInvoices = \App\Models\Invoice::where('academic_term_id', $selectedAcademicTerm?->id)->where('status', 'unpaid')->count();
+        $paidInvoices = \App\Models\Invoice::where('academic_term_id', $selectedAcademicTerm?->id)->where('status', 'paid')->count();
+        $partiallyPaidInvoices = \App\Models\Invoice::where('academic_term_id', $selectedAcademicTerm?->id)->where('status', 'partially_paid')->count();
+
+        // Calculate total revenue from paid invoices for selected academic term
+        $totalRevenue = \App\Models\Invoice::where('academic_term_id', $selectedAcademicTerm?->id)
+            ->where('status', 'paid')
+            ->with('items')
+            ->get()
+            ->sum(function ($invoice) {
+                return $invoice->items->sum('amount');
+            });
+
+        return view('user-admin.school-fees.index', compact(
+            'schoolFees',
+            'programs',
+            'schoolSetting',
+            'selectedAcademicTerm',
+            'totalSchoolFees',
+            'totalInvoices',
+            'pendingInvoices',
+            'paidInvoices',
+            'partiallyPaidInvoices',
+            'totalRevenue',
+            'allTerm'
+        ));
     }
 
     // Show the form for creating a new resource.
@@ -112,24 +123,47 @@ class SchoolFeeController extends Controller
     // Store a newly created resource in storage.
     public function store(Request $request)
     {
-
         try {
             $validated = $request->validate([
-                'name' => 'required|string',
-                'amount' => 'required|numeric',
+                'name' => 'required|string|max:255',
+                'amount' => 'required|numeric|min:0',
                 'program_id' => 'nullable|exists:programs,id',
-                'grade_level' => 'nullable|string',
-                // Add other fields as needed
+                'grade_level' => 'nullable|string|max:50',
             ]);
 
             $schoolFee = SchoolFee::create($validated);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage()
-            ]);
-        }
 
-        return response()->json($schoolFee, 201);
+            // Audit logging for school fee creation
+            \Log::info('School fee created', [
+                'school_fee_id' => $schoolFee->id,
+                'fee_name' => $schoolFee->name,
+                'amount' => $schoolFee->amount,
+                'created_by' => auth()->user()->id,
+                'created_by_email' => auth()->user()->email,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            // Calculate updated total school fees
+            $totalSchoolFees = SchoolFee::sum('amount');
+
+            return response()->json([
+                'id' => $schoolFee->id,
+                'name' => $schoolFee->name,
+                'amount' => $schoolFee->amount,
+                'totalSchoolFees' => $totalSchoolFees
+            ], 201);
+        } catch (\Throwable $th) {
+            \Log::error('School fee creation failed', [
+                'error' => $th->getMessage(),
+                'user_id' => auth()->user()->id,
+                'ip_address' => $request->ip()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to create school fee: ' . $th->getMessage()
+            ], 422);
+        }
     }
 
     // Display the specified resource.

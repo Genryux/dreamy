@@ -100,6 +100,11 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('view system settings', 'System Settings Management', 'View system settings (school name, address, contact, etc.)');
         $this->createPermissionWithCategory('edit system settings', 'System Settings Management', 'Edit system settings');
 
+        // Dashboard viewing
+        $this->createPermissionWithCategory('view enrollment dashboard', 'Page Viewing', 'View enrollment dashboard');
+        $this->createPermissionWithCategory('view head teacher dashboard','Page Viewing','View head teacher dashboard');
+        $this->createPermissionWithCategory('view teachers dashboard', 'Page Viewing', 'View teachers dashboard');
+
         // Site Management
         // Note: Contents are yet to be completed as per user's list
 

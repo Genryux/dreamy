@@ -24,6 +24,10 @@ class SchoolSetting extends Model
         'registrar_name',
         'registrar_title',
         'logo_path',
+        // Financial/Payments
+        'down_payment',
+        'due_day_of_month',
+        'use_last_day_if_shorter',
     ];
 }
 

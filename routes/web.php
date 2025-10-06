@@ -116,6 +116,9 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     // School Settings
     Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
     Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
+    Route::match(['PUT', 'POST'], '/admin/settings/school/payments', [SchoolSettingController::class, 'updatePayments'])
+        ->middleware('throttle:10,1') // 10 requests per minute
+        ->name('admin.settings.school.payments.update');
 
     // Application Management
     Route::get('/applications/pending', [ApplicationFormController::class, 'show'])->name('applications.pending');
@@ -180,17 +183,17 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::delete('/admin/users/{user}/cancel-invitation', [UserInvitationController::class, 'cancelInvitation'])->name('admin.users.cancel-invitation');
 
     // User Management Tabs - Roles and Permissions
-    Route::get('/admin/users/roles', [UserInvitationController::class, 'roles'])->name('admin.users.roles');
+    Route::get('/admin/users/roles', [UserInvitationController::class, 'roles'])->name('admin.users.roles')->middleware('permission:view roles');
 
     // Role Management Routes
     Route::get('/admin/roles/data', [UserInvitationController::class, 'getRolesData'])->name('admin.roles.data');
     Route::get('/admin/roles', [UserInvitationController::class, 'getAllRoles'])->name('admin.roles.index');
     Route::get('/admin/permissions', [UserInvitationController::class, 'getAllPermissions'])->name('admin.permissions.index');
-    Route::get('/admin/roles/{role}', [UserInvitationController::class, 'getRole'])->name('admin.roles.show');
-    Route::post('/admin/roles', [UserInvitationController::class, 'createRole'])->name('admin.roles.create');
-    Route::put('/admin/roles/{role}', [UserInvitationController::class, 'updateRole'])->name('admin.roles.update');
-    Route::post('/admin/roles/{role}/permissions', [UserInvitationController::class, 'updateRolePermissions'])->name('admin.roles.permissions');
-    Route::delete('/admin/roles/{role}', [UserInvitationController::class, 'deleteRole'])->name('admin.roles.delete');
+    Route::get('/admin/roles/{role}', [UserInvitationController::class, 'getRole'])->name('admin.roles.show')->middleware('permission:view roles');
+    Route::post('/admin/roles', [UserInvitationController::class, 'createRole'])->name('admin.roles.create')->middleware('permission:create roles');
+    Route::put('/admin/roles/{role}', [UserInvitationController::class, 'updateRole'])->name('admin.roles.update')->middleware('permission:edit roles');
+    Route::post('/admin/roles/{role}/permissions', [UserInvitationController::class, 'updateRolePermissions'])->name('admin.roles.permissions')->middleware('permission:edit roles');
+    Route::delete('/admin/roles/{role}', [UserInvitationController::class, 'deleteRole'])->name('admin.roles.delete')->middleware('permission:delete roles');
 
 
     // News Management
@@ -202,16 +205,31 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
 
     // School Fees and Invoices
-    Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index');
-    Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])->name('school-fees.invoices');
-    Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])->name('school-fees.payments');
+    Route::get('/school-fees', [SchoolFeeController::class, 'index'])
+        ->name('school-fees.index')
+        ->middleware('permission:view school fees');
+
+    Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])
+        ->name('school-fees.invoices')
+        ->middleware('permission:view invoice');
+
+    Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])
+        ->name('school-fees.payments')
+        ->middleware('permission:view payment history');
+
     Route::get('/getSchoolFees', [SchoolFeeController::class, 'getSchoolFees']);
-    Route::post('/school-fees', [SchoolFeeController::class, 'store']);
-    Route::post('/invoice', [InvoiceController::class, 'store']);
+    Route::post('/school-fees', [SchoolFeeController::class, 'store'])
+        ->middleware(['permission:create school fees', 'throttle:30,1']); // 30 requests per minute
+
+    Route::post('/invoice', [InvoiceController::class, 'store'])
+        ->middleware(['permission:create invoice', 'throttle:20,1']); // 20 requests per minute
+        
     Route::get('/getInvoices', [InvoiceController::class, 'getInvoices']);
     Route::get('/invoice/{id}', [InvoiceController::class, 'show']);
     Route::get('/getPayments', [InvoicePaymentController::class, 'getPayments']);
-    Route::post('/invoice/{invoice}/payments', [InvoicePaymentController::class, 'store'])->name('invoice.payments.store');
+    Route::post('/invoice/{invoice}/payments', [InvoicePaymentController::class, 'store'])
+        ->name('invoice.payments.store')
+        ->middleware('permission:record payment');
     
     // Invoice Downloads
     Route::get('/invoice/{invoice}/schedule/{schedule}/download', [InvoiceController::class, 'downloadScheduleInvoice'])->name('invoice.schedule.download');
@@ -283,7 +301,9 @@ Route::middleware(['auth', 'role:super_admin|head_teacher'])->group(function () 
 
 Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(function () {
     Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
-    Route::post('/programs', [ProgramController::class, 'store'])->name('programs.store');
+    Route::post('/programs', [ProgramController::class, 'store'])
+        ->middleware('throttle:30,1') // 30 requests per minute
+        ->name('programs.store');
     Route::get('/program/{program}', [ProgramController::class, 'show'])->name('program.show');
     Route::post('/updateProgram/{program}', [ProgramController::class, 'update'])->name('program.update');
     Route::delete('/program/{program}', [ProgramController::class, 'destroy'])->name('program.destroy');

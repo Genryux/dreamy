@@ -166,14 +166,17 @@
                             </span>
 
                         </x-nav-link>
-                        <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
+                        @can('view school fees')
+                            <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
 
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
-                            </span>
+                                <span class="flex flex-row items-center space-x-4">
+                                    <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
+                                </span>
 
-                        </x-nav-link>
+                            </x-nav-link>
+                        @endcan
+
                         <x-nav-link href="/homepage" :active="request()->is('homepage')">
 
                             <span class="flex flex-row items-center space-x-4">
@@ -514,7 +517,7 @@
                 }
 
                 if (!userRoles.some(role => ['registrar', 'super_admin', 'head_teacher', 'teacher'].includes(
-                    role))) {
+                        role))) {
                     console.log('User does not have admin or teacher role, skipping Echo setup');
                 }
 

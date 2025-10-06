@@ -21,8 +21,12 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('website')->nullable();
-            $table->string('registrar_name')->nullable();
-            $table->string('registrar_title')->nullable();
+
+            // school fees
+            $table->unsignedTinyInteger('due_day_of_month')->nullable(); // 1-31, recurring day each month
+            $table->boolean('use_last_day_if_shorter')->default(true); // snap to last day if month shorter
+            $table->integer('down_payment')->nullable();
+
             $table->string('logo_path')->nullable();
             $table->timestamps();
         });

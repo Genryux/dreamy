@@ -22,7 +22,7 @@ return new class extends Migration
             $table->time('time')->nullable();
             $table->string('location')->nullable();
             $table->text('add_info')->nullable();
-            $table->string('status')->nullable();
+            $table->enum('status', ['Taking-Exam', 'Exam-Completed', 'Exam-Passed', 'Exam-Failed'])->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
         });

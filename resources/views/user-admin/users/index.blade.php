@@ -260,7 +260,7 @@
                     </div>
                     <p class="font-bold text-[20px]" id="total-registrars">0</p>
                     <p class="text-[10px] truncate text-gray-300">Admin staff</p>
-            </div>
+                </div>
 
                 <div
                     class="analytics-card flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-6 py-4 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
@@ -302,72 +302,72 @@
     </div>
 
     @if (Route::is('admin.users.index'))
-    <div class="flex flex-row justify-center items-start gap-4">
-        <div
-            class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-            <div class="flex flex-row justify-between items-center w-full">
-                <span class="font-semibold text-[18px]">
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-row justify-between items-center w-full">
+                    <span class="font-semibold text-[18px]">
                         All Users
-                </span>
-                <div id="dropdown_btn"
-                    class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
+                    </span>
+                    <div id="dropdown_btn"
+                        class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
 
-                    <div
-                        class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                        <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
-                    </div>
-
-                    <div id="dropdown_selection"
-                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                        <button id="export-modal-btn"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export Sections
-                        </button>
-                        <button
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export Report
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-            <div class="flex flex-row justify-between items-center w-full">
-
-                <div class="w-full flex flex-row justify-between items-center gap-4">
-
-                    <label for="myCustomSearch"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
-                        <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
-                        <input type="search" name="" id="myCustomSearch"
-                            class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
-                            placeholder="Search by section name, program, etc.">
-                        <button id="clear-btn"
-                            class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
-                            <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
-                        </button>
-                    </label>
-                    <div class="flex flex-row justify-start items-center w-full gap-2">
                         <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                            <select name="pageLength" id="page-length-selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                <option selected disabled>Entries</option>
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="150">150</option>
-                                <option value="200">200</option>
-                            </select>
-                            <i id="clear-gender-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
+                            <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
                         </div>
 
+                        <div id="dropdown_selection"
+                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
+                            <button id="export-modal-btn"
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export Sections
+                            </button>
+                            <button
+                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export Report
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
+
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by section name, program, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
                             <div id="role_selection_container"
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
 
                                 <select name="role_selection" id="role_selection"
-                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option value="" disabled selected>Role</option>
                                     <option value="super_admin">Super Admin</option>
                                     <option value="registrar">Registrar</option>
@@ -375,79 +375,80 @@
                                     <option value="head_teacher">Head Teacher</option>
                                     <option value="student">Student</option>
                                     <option value="applicant">Applicant</option>
-                            </select>
+                                </select>
                                 <i id="clear-role-filter-btn"
-                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+                            <!-- Layout Toggle Button -->
+                            <div id="layout_toggle_container"
+                                class="flex flex-row justify-center items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <button id="layout-toggle-btn"
+                                    class="flex flex-row justify-center items-center gap-2 text-[14px] font-medium text-gray-700 hover:text-[#1A3165] transition-colors duration-150">
+                                    <i id="layout-toggle-icon"
+                                        class="fi fi-sr-apps text-[16px] flex justify-center items-center"></i>
+                                    <span id="layout-toggle-text">Cards</span>
+                                </button>
+                            </div>
 
                         </div>
+                    </div>
 
-                        <!-- Layout Toggle Button -->
-                        <div id="layout_toggle_container"
-                            class="flex flex-row justify-center items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-                            <button id="layout-toggle-btn"
-                                class="flex flex-row justify-center items-center gap-2 text-[14px] font-medium text-gray-700 hover:text-[#1A3165] transition-colors duration-150">
-                                    <i id="layout-toggle-icon" class="fi fi-sr-apps text-[16px] flex justify-center items-center"></i>
-                                <span id="layout-toggle-text">Cards</span>
-                            </button>
-                        </div>
+                </div>
 
+                <!-- Table Layout Container -->
+                <div id="table-layout-container" class="w-full hidden">
+                    <table id="users-table" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Email</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Role</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Created</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Card Layout Container -->
+                <div id="card-layout-container" class="w-full">
+                    <div id="users-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+
+                    <!-- Card Layout Pagination -->
+                    <div id="card-pagination" class="flex justify-center items-center mt-6 gap-2">
+                        <!-- Pagination will be dynamically inserted here -->
                     </div>
                 </div>
-
             </div>
-
-            <!-- Table Layout Container -->
-            <div id="table-layout-container" class="w-full hidden">
-                    <table id="users-table" class="w-full table-fixed">
-                    <thead class="text-[14px]">
-                        <tr>
-                            <th class="text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Email</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Role</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
-                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Created</span>
-                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
-                            </th>
-                            <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
-                            </th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Card Layout Container -->
-            <div id="card-layout-container" class="w-full">
-                    <div id="users-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Cards will be dynamically inserted here -->
-                </div>
-
-                <!-- Card Layout Pagination -->
-                <div id="card-pagination" class="flex justify-center items-center mt-6 gap-2">
-                    <!-- Pagination will be dynamically inserted here -->
-                </div>
-            </div>
-        </div>
     @endif
 
     @if (Route::is('admin.users.roles'))
@@ -460,12 +461,15 @@
                         Role Management
                     </span>
                     <div class="flex flex-row justify-center items-center gap-2">
-                        <button id="create-role-modal-btn"
-                            class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
-                            <i class="fi fi-rr-plus flex justify-center items-center"></i>
-                            Create Role
-                        </button>
-    </div>
+                        @can('create roles')
+                            <button id="create-role-modal-btn"
+                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
+                                <i class="fi fi-rr-plus flex justify-center items-center"></i>
+                                Create Role
+                            </button>
+                        @endcan
+
+                    </div>
                 </div>
 
                 <!-- Search and Filters -->
@@ -647,17 +651,18 @@
                         // Reset all card backgrounds to default first
                         const allCards = document.querySelectorAll('.analytics-card');
                         allCards.forEach(card => {
-                            card.classList.remove('bg-red-500/20', 'border-red-400/30', 'bg-green-500/20', 'border-green-400/30');
+                            card.classList.remove('bg-red-500/20', 'border-red-400/30', 'bg-green-500/20',
+                                'border-green-400/30');
                             card.classList.add('bg-[#E3ECFF]/30');
                         });
-                        
+
                         // Add visual indicators for expired invitations
                         const expiredElement = document.getElementById('expired-invitations');
                         if (analytics.expired_invitations > 0) {
                             expiredElement.parentElement.classList.remove('bg-[#E3ECFF]/30');
                             expiredElement.parentElement.classList.add('bg-red-500/20', 'border-red-400/30');
                         }
-                        
+
                         // Add visual indicators for new users
                         const newUsersElement = document.getElementById('new-users-this-week');
                         if (analytics.new_users_this_week > 0) {
@@ -850,23 +855,23 @@
                             <!-- Action Buttons -->
                             <div class="pt-2 border-t border-gray-100">
                                 ${user.status === 'Invited' ? `
-                                                <div class="flex gap-2">
-                                                    <button onclick="resendInvitation(${user.id})" 
-                                                        class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
-                                                        <i class="fi fi-rr-envelope text-sm"></i>
-                                                        Resend
-                                                    </button>
-                                                    <button onclick="cancelInvitation(${user.id})" 
-                                                        class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                                        <i class="fi fi-rr-cross text-sm"></i>
-                                                        Cancel
-                                                    </button>
-                            </div>
-                                            ` : `
-                                                <div class="text-center text-sm text-gray-500 py-2">
-                                                    No actions available
-                                                </div>
-                                            `}
+                                                        <div class="flex gap-2">
+                                                            <button onclick="resendInvitation(${user.id})" 
+                                                                class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
+                                                                <i class="fi fi-rr-envelope text-sm"></i>
+                                                                Resend
+                                                            </button>
+                                                            <button onclick="cancelInvitation(${user.id})" 
+                                                                class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                                <i class="fi fi-rr-cross text-sm"></i>
+                                                                Cancel
+                                                            </button>
+                                    </div>
+                                                    ` : `
+                                                        <div class="text-center text-sm text-gray-500 py-2">
+                                                            No actions available
+                                                        </div>
+                                                    `}
                             </div>
                         </div>
                     </div>
@@ -920,7 +925,7 @@
                 try {
                     const response = await fetch(
                         `/admin/users/data?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&role_filter=${window.selectedRole}&status_filter=${window.selectedStatus}&search[value]=${document.getElementById('myCustomSearch').value}`
-                        );
+                    );
                     const data = await response.json();
 
                     window.usersData = data.data;

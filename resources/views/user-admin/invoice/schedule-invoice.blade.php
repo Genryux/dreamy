@@ -464,9 +464,9 @@
                     The remaining balance will be divided into 9 monthly installments.
                 @else
                     This is installment {{ $schedule->installment_number }} of a 9-month payment plan. 
-                    Payment is due within 15 days of the due date. Late payments may incur additional charges.
+                    Payment is due on the 10th day of each month Late payments may incur additional charges.
                 @endif
-                Failure to make payments as scheduled may result in enrollment suspension.
+                Failure to make payments as scheduled may result in a temporary hold on enrollment.
             </div>
         </div>
 

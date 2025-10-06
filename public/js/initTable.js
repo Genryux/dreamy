@@ -11,6 +11,8 @@ export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInpu
             url: ajaxUrl,
             data: function (d) {
                 // Always read latest values at request time
+                d.grade_filter = window.selectedGrade || '';
+                d.program_filter = window.selectedProgram || '';
                 d.role_filter = window.selectedRole || '';
                 d.status_filter = window.selectedStatus || '';
                 d.pageLength = window.selectedPageLength || 10;
