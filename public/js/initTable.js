@@ -1,29 +1,33 @@
-export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInputId, columnDefs = []) {
+export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInputId, columnDefs = [], paging = true, layoutBottomStart = 'info') {
     const customSearch = document.querySelector(`#${searchInputId}`);
 
     let table = new DataTable(`#${tableId}`, {
-        paging: true,
+        paging: paging,
         searching: true,
         autoWidth: false,
         serverSide: true,
         processing: true,
+        scrollCollapse: false,
         ajax: {
             url: ajaxUrl,
             data: function (d) {
                 // Always read latest values at request time
+                
                 d.grade_filter = window.selectedGrade || '';
                 d.program_filter = window.selectedProgram || '';
                 d.role_filter = window.selectedRole || '';
                 d.status_filter = window.selectedStatus || '';
+                d.method_filter = window.selectedMethod || '';
+                d.term_filter = window.selectedTerm || '';
                 d.pageLength = window.selectedPageLength || 10;
             }
         },
         order: order,
-        columnDefs: columnDefs, // 🔥 dynamically injected
+        columnDefs: columnDefs.length > 0 ? columnDefs : undefined, // 🔥 dynamically injected
         layout: {
             topStart: null,
             topEnd: null,
-            bottomStart: 'info',
+            bottomStart: layoutBottomStart,
             bottomEnd: 'paging',
         },
         columns: columns,

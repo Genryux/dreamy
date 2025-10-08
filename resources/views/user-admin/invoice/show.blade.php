@@ -99,6 +99,40 @@
         </x-slot>
 
     </x-modal>
+    {{-- delete item --}}
+    <x-modal modal_id="delete-invoice-item-modal" modal_name="Delete Invoice Item"
+        close_btn_id="delete-invoice-item-close-btn" modal_container_id="modal-container-2">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-trash flex justify-center items-center text-red-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Deletion</h3>
+                    <p class="text-gray-600">Are you sure you want to remove this item? If the invoice becomes empty, it
+                        will be permanently deleted and need to be reassigned.
+                    </p>
+                    <p class="font-semibold mt-2" id="invoice_item_text"></p>
+                </div>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="delete-invoice-item-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <form id="delete-invoice-item-form" class="inline">
+                @csrf
+                <button type="submit" id="delete-invoice-item-submit-btn"
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                    Delete Item
+                </button>
+            </form>
+        </x-slot>
+
+    </x-modal>
 @endsection
 
 @section('content')
@@ -109,7 +143,8 @@
                 <!-- Header Section -->
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center gap-4">
-                        <img src="{{ asset('images/Dreamy_logo.png') }}" alt="Logo" class="w-12 h-12 object-contain">
+                        <img src="{{ asset('images/Dreamy_logo.png') }}" alt="Logo"
+                            class="w-12 h-12 object-contain">
                         <div>
                             <h1 class="text-2xl font-bold text-[#1A3165]">Invoice Details</h1>
                             <p class="text-sm text-gray-600">Invoice #{{ $invoice->invoice_number }}</p>
@@ -161,40 +196,27 @@
                 </div>
 
                 <!-- Invoice Items Section -->
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-[#1A3165] mb-4">Invoice Items</h3>
-                    <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-                        <table class="min-w-full divide-y divide-gray-200">
+                <div class="mb-8 bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-[#1A3165]">Invoice Items</h3>
+                    </div>
+                    <div class="overflow-hidden border border-gray-200 rounded-xl">
+                        <table id="invoice-items" class="w-full" style="width: 100% !important; table-layout: fixed;">
                             <thead class="bg-[#1A3165]">
                                 <tr>
-                                    <th
+                                    <th style="width: 50%;"
                                         class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                         Description</th>
-                                    <th
-                                        class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">
+                                    <th style="width: 30%;"
+                                        class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                         Amount</th>
+                                    <th style="width: 20%;"
+                                        class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                                        Action</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($invoice->items as $item)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $item->fee?->name ?? 'School Fee' }}</div>
-                                        </td>
-                                        <td
-                                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
-                                            ₱{{ number_format($item->amount, 2) }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="2" class="px-6 py-8 text-center text-gray-500">
-                                            <i class="fi fi-sr-document text-4xl mb-2 block"></i>
-                                            No items found.
-                                        </td>
-                                    </tr>
-                                @endforelse
+
                             </tbody>
                         </table>
                     </div>
@@ -330,23 +352,87 @@
             showAlert
         } from "/js/alert.js";
         import {
-            initCustomDataTable
-        } from "/js/initTable.js";
-        import {
             showLoader,
             hideLoader
         } from "/js/loader.js";
+        import {
+            initCustomDataTable
+        } from "/js/initTable.js";
 
         let table1;
         let selectedGrade = '';
         let selectedProgram = '';
         let selectedPageLength = '';
 
+        let invoiceId = @json($invoice->id)
+
         document.addEventListener("DOMContentLoaded", function() {
             // Initialize Record Payment modal using existing modal system
             initModal('record-payment-modal', 'record-payment-open', 'record-payment-modal-close-btn',
                 'record-payment-modal-cancel-btn',
                 'modal-container-1');
+
+            let schoolfeeTable = initCustomDataTable(
+                'invoice-items',
+                `/getInvoiceItems/${invoiceId}`,
+                [{
+                        data: 'name',
+                        render: function(data, type, row) {
+                            return `<span class="text-sm font-medium text-gray-900">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'amount',
+                        render: function(data, type, row) {
+                            return `<span class="text-sm font-semibold text-gray-900">₱${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function(data, type, row) {
+                            return `
+                            <div class='flex flex-row justify-center items-center gap-2'>
+                                <button type="button"
+                                    id="open-delete-invoice-item-btn-${data}"
+                                    data-invoice-item-id="${data}"
+                                    data-item-name="${row.name}"
+                                    data-invoice-id="${invoiceId}"
+                                    data-school-fee-id="${row.school_fee_id || ''}"
+                                    class="delete-invoice-item-btn group relative inline-flex items-center gap-1 bg-red-100 text-red-500 font-semibold p-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                    <i class="fi fi-rr-trash text-[16px] flex justify-center items-center"></i>
+                                    Remove
+                                </button>
+                            </div>`;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                [
+                    [0, 'asc']
+                ],
+                null,
+                [{
+                        targets: 0,
+                        width: '50%',
+                        className: 'text-left'
+                    },
+                    {
+                        targets: 1,
+                        width: '30%',
+                        className: 'text-left'
+                    },
+                    {
+                        targets: 2,
+                        width: '20%',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    }
+                ],
+                false, // paging = false,
+                null
+            );
 
             // Amount validation for one-time payments
             const amountInput = document.getElementById('amount');
@@ -426,6 +512,152 @@
                     } else {
                         clearAmountLock();
                     }
+                });
+            }
+
+            // Variables to track current item for deletion
+            let currentItemId = null;
+            let currentInvoiceId = null;
+            let currentSchoolFeeId = null;
+
+            // Function to initialize delete invoice item modals (following the roles pattern)
+            function initializeDeleteInvoiceItemModals() {
+                document.querySelectorAll('.delete-invoice-item-btn').forEach((button, index) => {
+                    let itemId = button.getAttribute('data-invoice-item-id');
+                    let buttonId = `open-delete-invoice-item-btn-${itemId}`;
+
+                    console.log('Initializing modal for button:', buttonId);
+
+                    // Initialize modal for this specific button
+                    initModal('delete-invoice-item-modal', buttonId,
+                        'delete-invoice-item-close-btn',
+                        'delete-invoice-item-cancel-btn',
+                        'modal-container-2');
+
+                    // Add click event listener
+                    button.addEventListener('click', () => {
+                        const itemName = button.getAttribute('data-item-name');
+                        const invoiceIdAttr = button.getAttribute('data-invoice-id');
+                        const schoolFeeId = button.getAttribute('data-school-fee-id');
+
+                        console.log('Delete button clicked:', {
+                            itemId,
+                            itemName,
+                            invoiceId: invoiceIdAttr,
+                            schoolFeeId
+                        });
+
+                        // Store current item info
+                        currentItemId = itemId;
+                        currentInvoiceId = invoiceIdAttr;
+                        currentSchoolFeeId = schoolFeeId;
+
+                        // Update modal text
+                        const itemTextElement = document.querySelector('#invoice_item_text');
+                        if (itemTextElement) {
+                            itemTextElement.innerHTML = `Item: ${itemName}`;
+                        }
+
+                        console.log('Modal should open now for item:', itemId);
+                    });
+                });
+            }
+
+            // Initialize delete invoice item modals after table draws
+            schoolfeeTable.on('draw', function() {
+                initializeDeleteInvoiceItemModals();
+            });
+
+            // Also initialize on page load (in case there's initial data)
+            initializeDeleteInvoiceItemModals();
+
+            // Delete invoice item form submission
+            const deleteInvoiceItemForm = document.getElementById('delete-invoice-item-form');
+            if (deleteInvoiceItemForm) {
+                deleteInvoiceItemForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    console.log('Form submitted:', {
+                        currentItemId,
+                        currentInvoiceId,
+                        currentSchoolFeeId
+                    }); // Debug log
+
+                    if (!currentItemId) {
+                        alert('No item selected for deletion');
+                        return;
+                    }
+
+                    const deleteUrl = `/invoice/${currentInvoiceId}/item/${currentItemId}`;
+                    console.log('Making DELETE request to:', deleteUrl); // Debug log
+
+
+                    showLoader();
+
+
+                    fetch(deleteUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status); // Debug log
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Response data:', data); // Debug log
+
+                            hideLoader();
+
+                            if (data.success === false && data.is_paid === false) {
+
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+                                showAlert('error', data.message);
+
+                            } else if (data.success === false && data.has_payment_plans === true) {
+
+                                showAlert('success', data.message);
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+
+                            } else if (data.success === false && data.has_payments === true) {
+
+                                showAlert('error', data.message);
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+
+                            } else if (data.success === true && data.is_invoice_empty === false) {
+
+                                showAlert('success', data.message);
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+                                setTimeout(() => {
+                                    window.location.reload()
+                                }, 2000);
+
+                            } else if (data.success === true && data.is_invoice_empty === true) {
+
+                                showAlert('success', data.message || 'Unknown error occurred');
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+
+                                setTimeout(() => {
+                                    window.location.href = '/school-fees/invoices'
+                                }, 2000);
+
+                            } else {
+                                showAlert('error', data.message || 'Unknown error occurred');
+                            }
+                        })
+                        .catch(error => {
+                            if (typeof hideLoader === 'function') {
+                                hideLoader();
+                            }
+                            console.error('Fetch error:', error);
+                            if (typeof showAlert === 'function') {
+                                showAlert('error', 'An error occurred while deleting the invoice item');
+                            } else {
+                                alert('An error occurred while deleting the invoice item');
+                            }
+                        });
                 });
             }
 

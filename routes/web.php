@@ -9,6 +9,7 @@ use App\Http\Controllers\DocumentsSubmissionController;
 use App\Http\Controllers\EnrollmentPeriodController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoiceItemController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SchoolFeeController;
@@ -106,7 +107,7 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
 
     // Admin Dashboard
     Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
-    
+
     // DataTables routes for applications
     Route::get('/getRecentApplications', [ApplicationFormController::class, 'getRecentApplications'])->name('get.recent-applications');
     Route::get('/getApprovedApplications', [ApplicationFormController::class, 'getApprovedApplications'])->name('get.approved-applications');
@@ -117,7 +118,7 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
     Route::post('/admin/settings/school', [SchoolSettingController::class, 'update'])->name('admin.settings.school.update');
     Route::match(['PUT', 'POST'], '/admin/settings/school/payments', [SchoolSettingController::class, 'updatePayments'])
-        ->middleware('throttle:10,1') // 10 requests per minute
+        ->middleware(['permission:create school fees', 'throttle:10,1']) // 10 requests per minute
         ->name('admin.settings.school.payments.update');
 
     // Application Management
@@ -205,40 +206,46 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
 
     // School Fees and Invoices
-    Route::get('/school-fees', [SchoolFeeController::class, 'index'])
-        ->name('school-fees.index')
-        ->middleware('permission:view school fees');
-
-    Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])
-        ->name('school-fees.invoices')
-        ->middleware('permission:view invoice');
-
-    Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])
-        ->name('school-fees.payments')
-        ->middleware('permission:view payment history');
-
+    Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index')->middleware('permission:view school fees');
     Route::get('/getSchoolFees', [SchoolFeeController::class, 'getSchoolFees']);
-    Route::post('/school-fees', [SchoolFeeController::class, 'store'])
-        ->middleware(['permission:create school fees', 'throttle:30,1']); // 30 requests per minute
 
-    Route::post('/invoice', [InvoiceController::class, 'store'])
-        ->middleware(['permission:create invoice', 'throttle:20,1']); // 20 requests per minute
-        
+    // Invoices (must come before /school-fees/{id} to avoid route conflict)
+    Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])->name('school-fees.invoices')->middleware('permission:view invoice records');
+
+    Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])->name('school-fees.payments')->middleware('permission:view payment history');
+
+    // School fee show route (must come after specific routes)
+    Route::get('/school-fees/{id}', [SchoolFeeController::class, 'show'])->middleware('permission:view school fees');
+
+    Route::post('/school-fees', [SchoolFeeController::class, 'store'])->middleware(['permission:create school fees', 'throttle:30,1']); // 30 requests per minute
+    Route::put('/school-fees/{id}', [SchoolFeeController::class, 'update'])->middleware(['permission:update school fees', 'throttle:30,1']); // 30 requests per minute
+    Route::delete('/school-fees/{id}', [SchoolFeeController::class, 'destroy'])->middleware(['permission:delete school fees', 'throttle:30,1']); // 30 requests per minute
     Route::get('/getInvoices', [InvoiceController::class, 'getInvoices']);
-    Route::get('/invoice/{id}', [InvoiceController::class, 'show']);
+    Route::get('/invoice/{id}', [InvoiceController::class, 'show'])->middleware(['permission:view invoice records']);
+    Route::post('/invoice', [InvoiceController::class, 'store'])->middleware(['permission:create invoice', 'throttle:20,1']); // 20 requests per minute
+    Route::get('/getInvoiceItems/{invoice}', [InvoiceItemController::class, 'getInvoiceItems']);
+    Route::delete('/invoice/{invoice}/item/{item}', [InvoiceController::class, 'removeInvoiceItem'])->name('invoice.item.remove')
+        ->middleware(['permission:remove invoice item', 'throttle:10,1']);
+
+    // Invoice History
     Route::get('/getPayments', [InvoicePaymentController::class, 'getPayments']);
+    Route::get('/getInvoiceHistory', [InvoiceController::class, 'getInvoiceHistory']);
+
+
     Route::post('/invoice/{invoice}/payments', [InvoicePaymentController::class, 'store'])
         ->name('invoice.payments.store')
         ->middleware('permission:record payment');
-    
+
+
+
     // Invoice Downloads
     Route::get('/invoice/{invoice}/schedule/{schedule}/download', [InvoiceController::class, 'downloadScheduleInvoice'])->name('invoice.schedule.download');
     Route::get('/invoice/{invoice}/schedule/{schedule}/receipt', [InvoiceController::class, 'downloadScheduleReceipt'])->name('invoice.schedule.receipt');
-    
+
     // One-time payment invoice and receipt
     Route::get('/invoice/{invoice}/onetime/download', [InvoiceController::class, 'downloadOneTimeInvoice'])->name('invoice.onetime.download');
     Route::get('/invoice/{invoice}/onetime/receipt', [InvoiceController::class, 'downloadOneTimeReceipt'])->name('invoice.onetime.receipt');
-    
+
     // Payment Plans
     Route::post('/invoice/{invoice}/payment-plan', [App\Http\Controllers\PaymentPlanController::class, 'store'])->name('invoice.payment-plan.store');
     Route::get('/invoice/{invoice}/payment-plan', [App\Http\Controllers\PaymentPlanController::class, 'show'])->name('invoice.payment-plan.show');
@@ -340,7 +347,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/getAvailableSubjects/{section}', [SectionController::class, 'getAvailableSubjects']);
     Route::get('/getTeachers', [SectionController::class, 'getTeachers']);
     Route::get('/getSectionSubject/{sectionSubjectId}', [SectionController::class, 'getSectionSubject']);
-    
+
     // Notification routes - optimized for performance
     Route::get('/notifications', function () {
         $notifications = auth()->user()
@@ -351,7 +358,7 @@ Route::middleware('auth')->group(function () {
             ->get();
         return response()->json(['notifications' => $notifications]);
     });
-    
+
     Route::post('/notifications/{notification}/mark-read', function ($notificationId) {
         $notification = auth()->user()->notifications()->find($notificationId);
         if ($notification) {
@@ -360,7 +367,7 @@ Route::middleware('auth')->group(function () {
         }
         return response()->json(['success' => false], 404);
     });
-    
+
     Route::post('/notifications/mark-all-read', function () {
         auth()->user()->unreadNotifications()->update(['read_at' => now()]);
         return response()->json(['success' => true]);
@@ -383,11 +390,11 @@ Route::get('/test-notification', function () {
     $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
     $teachers = \App\Models\User::role(['head_teacher', 'teacher'])->get();
     $students = \App\Models\User::role(['student'])->get();
-    
+
     if ($admins->isEmpty() && $teachers->isEmpty() && $students->isEmpty()) {
         return response()->json(['error' => 'No admin, teacher, or student users found']);
     }
-    
+
     // Send to admin roles
     if (!$admins->isEmpty()) {
         Notification::send($admins, new \App\Notifications\QueuedNotification(
@@ -395,7 +402,7 @@ Route::get('/test-notification', function () {
             "This is a test notification for admin roles!",
             url('/admin/users')
         ));
-        
+
         Notification::route('broadcast', 'admins')
             ->notify(new \App\Notifications\ImmediateNotification(
                 "Test Admin Notification",
@@ -403,7 +410,7 @@ Route::get('/test-notification', function () {
                 url('/admin/users')
             ));
     }
-    
+
     // Send to teacher roles
     if (!$teachers->isEmpty()) {
         Notification::send($teachers, new \App\Notifications\QueuedNotification(
@@ -411,7 +418,7 @@ Route::get('/test-notification', function () {
             "This is a test notification for teacher roles!",
             url('/enrolled-students')
         ));
-        
+
         Notification::route('broadcast', 'teachers')
             ->notify(new \App\Notifications\ImmediateNotification(
                 "Test Teacher Notification",
@@ -419,12 +426,12 @@ Route::get('/test-notification', function () {
                 url('/enrolled-students')
             ));
     }
-    
+
     // Send to student roles (for mobile app testing)
     if (!$students->isEmpty()) {
         // Generate a shared ID for both queued and immediate notifications
         $sharedNotificationId = 'test-student-' . time() . '-' . uniqid();
-        
+
         // Database notification (queued)
         Notification::send($students, new \App\Notifications\QueuedNotification(
             "Test Student Notification",
@@ -432,7 +439,7 @@ Route::get('/test-notification', function () {
             null, // No URL needed for mobile
             $sharedNotificationId // Shared ID for mobile app matching
         ));
-        
+
         // Real-time broadcast (immediate)
         Notification::route('broadcast', 'students')
             ->notify(new \App\Notifications\ImmediateNotification(
@@ -442,7 +449,7 @@ Route::get('/test-notification', function () {
                 $sharedNotificationId // Same shared ID for matching
             ));
     }
-    
+
     return response()->json([
         'success' => true,
         'message' => 'Test notifications sent to ' . $admins->count() . ' admin(s), ' . $teachers->count() . ' teacher(s), and ' . $students->count() . ' student(s)',
@@ -458,9 +465,9 @@ Route::get('/debug-notifications', function () {
     if (!$user) {
         return response()->json(['error' => 'Not authenticated']);
     }
-    
+
     $notifications = $user->notifications()->latest()->take(20)->get();
-    
+
     return response()->json([
         'user' => $user->email,
         'user_roles' => $user->roles->pluck('name'),
@@ -476,14 +483,14 @@ Route::get('/test-notification-direct', function () {
     if (!$user) {
         return response()->json(['error' => 'Not authenticated']);
     }
-    
+
     try {
         $user->notify(new \App\Notifications\QueuedNotification(
             "Direct Test Notification",
             "This notification was created directly to test the system.",
             url('/admin/users')
         ));
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Notification sent successfully',
@@ -503,26 +510,26 @@ Route::get('/test-notification-comprehensive', function () {
     try {
         // Test 1: Check if admin users exist
         $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
-        
+
         if ($admins->isEmpty()) {
             return response()->json(['error' => 'No admin users found']);
         }
-        
+
         $results = [];
-        
+
         // Test 2: Try to create notification for each admin
         foreach ($admins as $admin) {
             try {
                 $beforeCount = $admin->notifications()->count();
-                
+
                 $admin->notify(new \App\Notifications\QueuedNotification(
                     "Comprehensive Test Notification",
                     "This is a comprehensive test of the notification system.",
                     url('/admin/users')
                 ));
-                
+
                 $afterCount = $admin->notifications()->count();
-                
+
                 $results[] = [
                     'admin_email' => $admin->email,
                     'before_count' => $beforeCount,
@@ -538,14 +545,13 @@ Route::get('/test-notification-comprehensive', function () {
                 ];
             }
         }
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Comprehensive test completed',
             'admin_count' => $admins->count(),
             'results' => $results
         ]);
-        
     } catch (\Exception $e) {
         return response()->json([
             'error' => 'Comprehensive test failed',

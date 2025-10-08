@@ -51,12 +51,20 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('edit student', 'Student Management', 'Edit student information');
 
         // Payment Management
-        $this->createPermissionWithCategory('create school fees', 'Payment Management', 'Create and manage school fees');
-        $this->createPermissionWithCategory('create invoice', 'Payment Management', 'Create invoices for students');
-        $this->createPermissionWithCategory('record payment', 'Payment Management', 'Record student payments');
         $this->createPermissionWithCategory('view school fees', 'Payment Management', 'View school fees information');
-        $this->createPermissionWithCategory('view invoice', 'Payment Management', 'View student invoices');
+        $this->createPermissionWithCategory('create school fees', 'Payment Management', 'Create and manage school fees');
+        $this->createPermissionWithCategory('delete school fees', 'Payment Management', 'Delete school fees');
+        $this->createPermissionWithCategory('update school fees', 'Payment Management', 'Update school fees');
+
+        // Invoice
+        $this->createPermissionWithCategory('create invoice', 'Payment Management', 'Create invoices for students');
+        $this->createPermissionWithCategory('view invoice records', 'Payment Management', 'View student invoices');
+        $this->createPermissionWithCategory('view invoice', 'Payment Management', 'View student invoice');
+        $this->createPermissionWithCategory('remove invoice item', 'Payment Management', 'Remove invoice items');
+
+        // Invoice history
         $this->createPermissionWithCategory('view payment history', 'Payment Management', 'View payment history and records');
+        $this->createPermissionWithCategory('record payment', 'Payment Management', 'Record student payments');
 
         // Program Management
         $this->createPermissionWithCategory('view programs', 'Program Management', 'View all programs');

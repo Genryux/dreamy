@@ -14,7 +14,7 @@
 
     <div class="flex flex-col justify-start items-start gap-1">
         <p class="font-bold leading-none" id="alertTitle">{{ $title }}</p>
-        <p class="opacity-70 font-regular text-[14px] self-start" id="alertMessage"></p>
+        <p class="opacity-70 font-medium text-[14px] self-start" id="alertMessage"></p>
     </div>
 
     <button id="alert-close-btn">

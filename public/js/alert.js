@@ -31,5 +31,5 @@ export function showAlert(type, message) {
         alertContainer.classList.remove('opacity-100');
         alertContainer.classList.add('opacity-0');
         alertContainer.classList.add('pointer-events-none');
-    }, 4000);
+    }, 6000);
 }

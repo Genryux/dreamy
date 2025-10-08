@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\AcademicTerms;
+use App\Models\SchoolSetting;
 use App\Models\StudentEnrollment;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -447,7 +448,7 @@ class FinancialController extends Controller
                 $paymentPlanService = app(\App\Services\PaymentPlanService::class);
                 
                 // Fixed down payment for now (TODO: Get from admin settings)
-                $downPayment = 4500;
+                $downPayment = SchoolSetting::value('down_payment') ?? 0;
                 
                 $paymentPlan = $paymentPlanService->createInstallmentPlan(
                     $invoice,

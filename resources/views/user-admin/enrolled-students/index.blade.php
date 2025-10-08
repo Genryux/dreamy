@@ -741,6 +741,7 @@
                         } else if (data.error) {
 
                             showAlert('error', data.error);
+                            console.log(data.error)
                         }
                     })
                     .catch(err => {

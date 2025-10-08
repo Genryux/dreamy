@@ -15,7 +15,7 @@
                 <label for="name">Enter amount</label>
 
                 <input type="text" name="down_payment" id="down_payment" required
-                    class="border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60  transition duration-200 placeholder:italic placeholder:text-[14px]"
+                    class="border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px]"
                     placeholder="₱5,000, ₱10,000, ₱15,000...">
                 <p class="text-[14px] mt-2 text-gray-600 text-center w-full px-2">
                     This sets the default down payment used when generating monthly installment plans. You can change it
@@ -90,8 +90,7 @@
     <x-modal modal_id="create-school-fee-modal" modal_name="Create School Fee"
         close_btn_id="create-school-fee-modal-close-btn" modal_container_id="modal-container-1">
         <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-
+            <i class='fi fi-rr-usd-circle flex justify-center items-center '></i>
         </x-slot>
 
         <form id="create-school-fee-modal-form" class="p-6">
@@ -106,7 +105,7 @@
                     </label>
                     <input type="text" name="name" id="name" required
                         placeholder="e.g., Tuition Fee, Laboratory Fee"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                 </div>
 
                 <div class="w-full">
@@ -115,7 +114,7 @@
                         Applied to Program
                     </label>
                     <select name="program_id" id="program_id"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                         <option value="">All Programs</option>
                         @foreach ($programs as $program)
                             <option value="{{ $program->id }}">{{ $program->name }}</option>
@@ -129,7 +128,7 @@
                         Applied to Year Level
                     </label>
                     <select name="grade_level" id="grade_level"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                         <option value="">All Year Levels</option>
                         <option value="Grade 11">Grade 11</option>
                         <option value="Grade 12">Grade 12</option>
@@ -143,7 +142,7 @@
                     </label>
                     <input type="number" name="amount" id="amount" required min="0" step="0.01"
                         placeholder="0.00"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                 </div>
             </div>
 
@@ -151,12 +150,12 @@
 
         <x-slot name="modal_buttons">
             <button id="create-school-fee-modal-cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="create-school-fee-modal-form" id="create-school-fee-submit-btn"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Create Fee
             </button>
         </x-slot>
@@ -166,7 +165,7 @@
     <x-modal modal_id="create-invoice-modal" modal_name="Create Invoice" close_btn_id="create-invoice-modal-close-btn"
         modal_container_id="modal-container-2">
         <x-slot name="modal_icon">
-            <i class='fi fi-rr-receipt flex justify-center items-center text-blue-600'></i>
+            <i class='fi fi-rr-receipt flex justify-center items-center'></i>
         </x-slot>
 
         <form method="POST" action="/invoice" id="create-invoice-modal-form" class="flex flex-col h-full">
@@ -183,10 +182,10 @@
                             <i class="fi fi-rs-search text-gray-400"></i>
                         </div>
                         <input type="text" name="search" id="studentSearch"
-                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 text-sm"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-10 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
                             placeholder="Search by last name or LRN">
                         <div id="search-status" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
-                            <i id="search-icon" class="text-sm"></i>
+                            <i id="search-icon" class="text-sm flex flex justify-center items-center"></i>
                         </div>
                     </div>
                     <p class="text-xs text-gray-500">Enter at least 2 characters to search</p>
@@ -277,13 +276,119 @@
             </button>
             <button type="submit" form="create-invoice-modal-form" name="action" value="create"
                 id="create-invoice-submit-btn"
-                class="bg-blue-500 text-[14px] px-4 py-2 rounded-md text-white font-semibold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled>
-                <span class="flex items-center gap-2">
-                    <i class="fi fi-rr-receipt"></i>
-                    Create Invoice
-                </span>
+                Create Invoice
+
             </button>
+        </x-slot>
+
+    </x-modal>
+    {{-- edit school fee --}}
+    <x-modal modal_id="edit-school-fee-modal" modal_name="Edit School Fee" close_btn_id="edit-school-fee-modal-close-btn"
+        modal_container_id="modal-container-5">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-usd-circle flex justify-center items-center '></i>
+        </x-slot>
+
+        <form id="edit-school-fee-modal-form" class="p-6">
+            @csrf
+
+            <div class="flex flex-col justify-center items-center space-y-4">
+
+                <div class="w-full">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-tags mr-2"></i>
+                        Fee Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" id="name" required
+                        placeholder="e.g., Tuition Fee, Laboratory Fee"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                </div>
+
+                <div class="w-full">
+                    <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-graduation-cap mr-2"></i>
+                        Applied to Program
+                    </label>
+                    <select name="program_id" id="program_id"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                        <option value="">All Programs</option>
+                        @foreach ($programs as $program)
+                            <option value="{{ $program->id }}">{{ $program->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="w-full">
+                    <label for="grade_level" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-school mr-2"></i>
+                        Applied to Year Level
+                    </label>
+                    <select name="grade_level" id="grade_level"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                        <option value="">All Year Levels</option>
+                        <option value="Grade 11">Grade 11</option>
+                        <option value="Grade 12">Grade 12</option>
+                    </select>
+                </div>
+
+                <div class="w-full">
+                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-usd-circle mr-2"></i>
+                        Amount <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="amount" id="amount" required min="0" step="0.01"
+                        placeholder="0.00"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                </div>
+            </div>
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="edit-school-fee-modal-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="edit-school-fee-modal-form" id="edit-school-fee-submit-btn"
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                Update Fee
+            </button>
+        </x-slot>
+
+    </x-modal>
+
+    {{-- delete school fee --}}
+    <x-modal modal_id="delete-school-fee-modal" modal_name="Delete School Fee" close_btn_id="delete-school-fee-close-btn"
+        modal_container_id="modal-container-delete-school-fee">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-trash flex justify-center items-center text-red-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Deletion</h3>
+                    <p class="text-gray-600">Are you sure you want to delete this school fee? This action cannot be undone.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="delete-school-fee-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <form id="delete-school-fee-form" class="inline">
+                @csrf
+                <button type="submit" id="delete-school-fee-submit-btn"
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                    Delete Fee
+                </button>
+            </form>
         </x-slot>
 
     </x-modal>
@@ -295,7 +400,7 @@
             <p class="text-[14px]  text-gray-900/60">View and manage school fees, invoices, and payment history.
             </p>
         </div>
-        <div class="flex flex-row items-center gap-2">
+        <div class="flex flex-row items-center gap-2 h-full">
             <label for="academic-term-selector" class="text-sm font-medium text-gray-600">Academic Term:</label>
             <select id="academic-term-selector"
                 class="border border-gray-300 rounded-lg px-3 py-1 text-sm bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
@@ -317,7 +422,7 @@
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
                 <div class="flex flex-col items-start justify-end gap-2 pt-4">
-                    <h1 class="text-[36px] font-black" id="section_name">Financial Summary Overview</h1>
+                    <h1 class="text-[36px] font-black" id="section_name">Financial Summary</h1>
                     <p class="text-[16px]  text-white/60">School fees, invoices, and payment tracking for the current
                         academic
                         term
@@ -325,12 +430,23 @@
                 </div>
 
                 <div class="flex flex-col items-end justify-center">
-                    <div class="flex flex-row justify-center items-center gap-2">
+                    <div class="relative flex flex-row justify-center items-center gap-2">
                         <button id="set-down-payment-btn"
                             class="p-2 mt-1 rounded-lg hover:bg-[#f8f8f8]/20 transition duration-200"><i
                                 class="fi fi-rs-pencil text-[16px] flex justify-center items-center"></i></button>
-                        <p id="studentCount" class="text-[48px] font-bold ">
-                            ₱{{ number_format($schoolSetting->down_payment ?? 0) }}</p>
+
+                        @if (isset($schoolSetting->down_payment))
+                            <p id="studentCount" class="text-[48px] font-bold ">
+                                ₱{{ number_format($schoolSetting->down_payment) }}</p>
+                        @else
+                            <p id="studentCount" class="text-[48px] font-bold ">
+                                ₱0</p>
+                            <div id="mark"
+                                class="absolute right-0 top-3 border border-white rounded-full w-[12px] h-[12px] bg-red-500">
+                            </div>
+                        @endif
+
+
                     </div>
                     <div class="flex flex-row justify-center items-center opacity-70 gap-2 text-[14px]">
                         <p class="text-[16px]">Down payment</p>
@@ -357,7 +473,7 @@
                         <i class="fi fi-rr-receipt flex flex-row justify-center items-center"></i>
                         <p class="text-[14px]">Total Invoices</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $totalInvoices }}</p>
+                    <p id="totalInvoicesDisplay" class="font-bold text-[24px]">{{ $totalInvoices }}</p>
                     <p class="font-medium text-[14px]">Generated invoices</p>
                 </div>
 
@@ -367,7 +483,7 @@
                         <i class="fi fi-rr-check-circle flex justify-center items-center"></i>
                         <p class="text-[14px]">Paid Invoices</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $paidInvoices }}</p>
+                    <p id="paidInvoicesDisplay" class="font-bold text-[24px]">{{ $paidInvoices }}</p>
                     <p class="font-medium text-[14px]">Successfully paid</p>
                 </div>
             </div>
@@ -379,7 +495,7 @@
                         <i class="fi fi-rr-clock flex justify-center items-center"></i>
                         <p class="text-[14px]">Pending Invoices</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $pendingInvoices }}</p>
+                    <p id="pendingInvoicesDisplay" class="font-bold text-[24px]">{{ $pendingInvoices }}</p>
                     <p class="font-medium text-[14px]">Awaiting payment</p>
                 </div>
 
@@ -403,7 +519,9 @@
                         of
                         Month</p>
                     <button id="set-due-date-btn"
-                        class="font-bold text-[14px] hover:text-[#199BCF] transition duration-200">Edit</button>
+                        class="flex flex-row justify-center items-center font-bold text-[14px] bg-gray-50/5 hover:bg-gray-50/15 w-1/2 rounded-md transition duration-200 gap-2">
+                        <i class="fi fi-rs-pencil text-[12px] flex justify-center items-center"></i>Edit
+                    </button>
 
                 </div>
             </div>
@@ -419,29 +537,38 @@
     <div
         class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-300">
         <ul class="flex flex-wrap -mb-px">
-            <li class="me-2">
-                <a href="{{ route('school-fees.index') }}"
-                    class="inline-block p-4 border-b-2 rounded-t-lg 
+
+            @can('view school fees')
+                <li class="me-2">
+                    <a href="{{ route('school-fees.index') }}"
+                        class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('school-fees.index') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
-                    School Fees
-                </a>
-            </li>
+                        School Fees
+                    </a>
+                </li>
+            @endcan
 
-            <li class="me-2">
-                <a href="{{ route('school-fees.invoices') }}"
-                    class="inline-block p-4 border-b-2 rounded-t-lg 
+
+            @can('view invoice')
+                <li class="me-2">
+                    <a href="{{ route('school-fees.invoices') }}"
+                        class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('school-fees.invoices') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
-                    Invoices
-                </a>
+                        Invoices
+                    </a>
+                @endcan
             </li>
 
-            <li class="me-2">
-                <a href="{{ route('school-fees.payments') }}"
-                    class="inline-block p-4 border-b-2 rounded-t-lg 
+            @can('view payment history')
+                <li class="me-2">
+                    <a href="{{ route('school-fees.payments') }}"
+                        class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('school-fees.payments') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
-                    Payment History
-                </a>
-            </li>
+                        Payment History
+                    </a>
+                </li>
+            @endcan
+
 
 
 
@@ -452,17 +579,19 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-2 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col justify-center my-2 items-center w-full">
                     <span class="font-semibold text-[18px]">
                         School Fees
                     </span>
-
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Manage school fees and their amounts
+                    </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full h-full py-2">
                     <div class="flex flex-row justify-between w-2/3 items-center gap-4">
 
                         <label for="school-fee-search"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[65%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm">
                             <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                             <input type="search" name="" id="school-fee-search"
                                 class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
@@ -501,7 +630,7 @@
                                     <option value="" data-id="">All Programs</option>
                                 </select>
                                 <i id="clear-program-filter-btn"
-                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
                             </div>
 
 
@@ -516,19 +645,21 @@
                                     <option data-grade-level="">All Year Level</option>
                                 </select>
                                 <i id="clear-grade-filter-btn"
-                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
 
                             </div>
 
 
                         </div>
                     </div>
+                    @can('create school fees')
+                        <button id="create-school-fee-modal-btn"
+                            class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                            <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                            Create new fee
+                        </button>
+                    @endcan
 
-                    <button id="create-school-fee-modal-btn"
-                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
-                        Create new fee
-                    </button>
 
                 </div>
 
@@ -578,19 +709,21 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-2 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
                         Invoices
                     </span>
-
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Student's invoice list across different academic terms
+                    </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full h-full py-2">
                     <div class="flex flex-row justify-between w-3/4 items-center gap-4">
 
                         <label for="invoice-search"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm">
                             <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
-                            <input type="search" name="" id="myCustomSearch"
+                            <input type="search" name="" id="invoice-search"
                                 class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
                                 placeholder="Search by Invoice no., Student, etc.">
                             <button id="clear-btn"
@@ -627,27 +760,30 @@
                                     <option value="" data-status="overdue">Overdue</option>
 
                                 </select>
-                                <i id="clear-grade-filter-btn"
-                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                <i id="clear-status-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
 
                             </div>
 
                             <div id="method-selection-container"
                                 class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
-                                <select name="" id="program_selection"
+                                <select name="method-selection" id="method-selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
                                     <option value="" selected disabled>Method</option>
-                                    <option value="" data-method="installment">Installment</option>
-                                    <option value="" data-method="full">Full</option>
+                                    <option value="installment" data-method="installment">Installment</option>
+                                    <option value="full" data-method="full">Full</option>
+                                    <option value="" data-method="flexible">Not Set</option>
+
+
                                 </select>
-                                <i id="clear-program-filter-btn"
-                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                <i id="clear-method-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
                             </div>
 
                             <div id="term-selection-container"
                                 class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
 
-                                <select name="term_selection" id="term_selection"
+                                <select name="term-selection" id="term-selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option value="" disabled selected>Academic Terms</option>
                                     @foreach ($allTerm as $term)
@@ -655,8 +791,8 @@
                                             {{ $term->year . ' - ' . $term->semester }}</option>
                                     @endforeach
                                 </select>
-                                <i id="clear-grade-filter-btn"
-                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                <i id="clear-term-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
 
                             </div>
 
@@ -664,14 +800,13 @@
                         </div>
                     </div>
 
-
-                    <button id="create-invoice-modal-btn"
-                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
-                        Assign Invoice
-                    </button>
-
-
+                    @can('create invoice')
+                        <button id="create-invoice-modal-btn"
+                            class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                            <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                            Assign Invoice
+                        </button>
+                    @endcan
 
                 </div>
 
@@ -737,17 +872,26 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <span class="font-semibold text-[18px]">
-                    Payment History
-                </span>
+                <div class="flex flex-col justify-center items-center w-full my-2">
+                    <span class="font-semibold text-[18px]">
+                        Invoice History
+                    </span>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Student's invoice history across different academic terms
+                    </span>
+                </div>
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="w-full flex flex-row justify-between items-center gap-4">
-                        <label for="payment-history-search"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                        <label for="invoice-search"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm">
                             <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
-                            <input type="search" id="payment-history-search"
-                                class="bg-transparent outline-none text-[14px] w-full peer"
-                                placeholder="Search by reference, student, method...">
+                            <input type="search" name="search" id="payment-history-search"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by Reference no., Student, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
                         </label>
                     </div>
                 </div>
@@ -756,21 +900,30 @@
                     <table id="payments" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
-                                <th class="w-[4%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">#</th>
-                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">Date
+                                <th class="w-[4%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                    <span class="mr-2 font-medium opacity-60">#</span>
+                                </th>
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60">Invoice No.</span>
                                 </th>
                                 <th class="w-[18%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    Reference</th>
+                                    <span class="mr-2 font-medium opacity-60">Total</span>
+                                </th>
                                 <th class="w-[16%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    Method</th>
-                                <th class="w-[16%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">Type
+                                    <span class="mr-2 font-medium opacity-60">Method</span>
+                                </th>
+                                <th class="w-[16%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60">Status</span>
                                 </th>
                                 <th class="w-[14%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    Amount</th>
+                                    <span class="mr-2 font-medium opacity-60">Student</span>
+                                </th>
                                 <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    Student</th>
+                                    <span class="mr-2 font-medium opacity-60">Term</span>
+                                </th>
                                 <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    Actions</th>
+                                    <span class="mr-2 font-medium opacity-60">Actions</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -806,11 +959,17 @@
         let selectedGrade = '';
         let selectedProgram = '';
         let selectedPageLength = '';
+        let selectedStatus = '';
+        let selectedMethod = '';
+        let selectedTerm = '';
 
         // Set global variables for initTable.js
         window.selectedGrade = selectedGrade;
         window.selectedProgram = selectedProgram;
         window.selectedPageLength = selectedPageLength;
+        window.selectedStatus = selectedStatus;
+        window.selectedMethod = selectedMethod;
+        window.selectedTerm = selectedTerm;
 
         // Academic Term Selector Change Handler
         document.getElementById('academic-term-selector').addEventListener('change', function() {
@@ -827,6 +986,82 @@
             window.location.href = url.toString();
         });
 
+        // Global reusable filter functions
+        function handleFilterChange(filterType, dataAttribute, globalVariable, table, selectElement, containerElement,
+            clearBtnElement) {
+            return function(e) {
+                let selectedOption = e.target.selectedOptions[0];
+                let value = selectedOption.getAttribute(dataAttribute);
+
+                // Update global variable
+                window[globalVariable] = value;
+
+                // Update local variable if it exists
+                if (typeof window[globalVariable] !== 'undefined') {
+                    eval(`${globalVariable} = value`);
+                }
+
+                // Apply visual styling when filter is active
+                if (value && value !== '') {
+                    if (containerElement) {
+                        containerElement.classList.remove('bg-gray-100');
+                        containerElement.classList.add('bg-slate-50', 'border-slate-300', 'hover:bg-slate-100');
+                    }
+
+                    if (selectElement) {
+                        selectElement.classList.remove('text-gray-700');
+                        selectElement.classList.add('text-slate-800');
+                    }
+
+                    if (clearBtnElement) {
+                        clearBtnElement.classList.remove('fi-rr-caret-down', 'text-gray-500');
+                        clearBtnElement.classList.add('fi-bs-cross-small', 'cursor-pointer', 'text-slate-600');
+                    }
+                }
+
+                // Redraw table
+                if (table) {
+                    table.draw();
+                }
+            };
+        }
+
+        // Reusable clear filter function
+        function createClearFilterHandler(selectElement, containerElement, clearBtnElement, globalVariable, table,
+            filterType) {
+            if (!clearBtnElement || !selectElement) return;
+
+            clearBtnElement.addEventListener('click', () => {
+                // Reset visual styling
+                if (containerElement) {
+                    containerElement.classList.remove('bg-slate-50', 'border-slate-300', 'hover:bg-slate-100');
+                    containerElement.classList.add('bg-gray-100');
+                }
+
+                if (clearBtnElement) {
+                    clearBtnElement.classList.remove('fi-bs-cross-small', 'cursor-pointer', 'text-slate-600');
+                    clearBtnElement.classList.add('fi-rr-caret-down', 'text-gray-500');
+                }
+
+                if (selectElement) {
+                    selectElement.classList.remove('text-slate-800');
+                    selectElement.classList.add('text-gray-700');
+                    selectElement.selectedIndex = 0;
+                }
+
+                // Reset variables
+                window[globalVariable] = '';
+                if (typeof window[globalVariable] !== 'undefined') {
+                    eval(`${globalVariable} = ''`);
+                }
+
+                // Redraw table
+                if (table) {
+                    table.draw();
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
 
             initModal('set-down-payment-modal', 'set-down-payment-btn', 'set-down-payment-close-btn',
@@ -842,9 +1077,100 @@
                 initializeSchoolFeeTab();
             } else if (currentPath === '/school-fees/invoices') {
                 initializeInvoiceTab();
+            } else if (currentPath === '/school-fees/payments') {
+                initializePaymentHistoryTab();
             }
 
         });
+
+        // Initialize edit school fee modals dynamically
+        function initializeEditSchoolFeeModals() {
+            document.querySelectorAll('.edit-school-fee-btn').forEach((button) => {
+                let schoolFeeId = button.getAttribute('data-school-fee-id');
+                let buttonId = `open-edit-modal-btn-${schoolFeeId}`;
+
+                // Initialize modal for this specific button
+                initModal('edit-school-fee-modal', buttonId, 'edit-school-fee-modal-close-btn',
+                    'edit-school-fee-modal-cancel-btn', 'modal-container-5');
+
+                button.addEventListener('click', () => {
+                    // Clear any existing hidden inputs first
+                    let form = document.getElementById('edit-school-fee-modal-form');
+                    let existingInputs = form.querySelectorAll('input[name="school_fee_id"]');
+                    existingInputs.forEach(input => input.remove());
+
+                    // Add school fee ID as hidden input
+                    let schoolFeeIdInput = document.createElement('input');
+                    schoolFeeIdInput.type = 'hidden';
+                    schoolFeeIdInput.value = schoolFeeId;
+                    schoolFeeIdInput.name = "school_fee_id";
+                    schoolFeeIdInput.id = "edit_school_fee_id";
+                    form.appendChild(schoolFeeIdInput);
+
+                    // Fetch school fee data and populate the form
+                    showLoader();
+                    fetch(`/school-fees/${schoolFeeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success && data.schoolFee) {
+                                const schoolFee = data.schoolFee;
+
+                                // Populate form fields
+                                document.getElementById('edit-school-fee-modal-form').querySelector(
+                                    'input[name="name"]').value = schoolFee.name || '';
+                                document.getElementById('edit-school-fee-modal-form').querySelector(
+                                    'select[name="program_id"]').value = schoolFee.program_id || '';
+                                document.getElementById('edit-school-fee-modal-form').querySelector(
+                                        'select[name="grade_level"]').value = schoolFee.grade_level ||
+                                    '';
+                                document.getElementById('edit-school-fee-modal-form').querySelector(
+                                    'input[name="amount"]').value = schoolFee.amount || '';
+
+                                console.log('Edit modal opened for school fee ID:', schoolFeeId);
+                            } else {
+                                showAlert('error', 'Error loading school fee: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while loading the school fee');
+                        });
+                });
+            });
+        }
+
+        // Initialize delete school fee modals dynamically
+        function initializeDeleteSchoolFeeModals() {
+            document.querySelectorAll('.delete-school-fee-btn').forEach((button) => {
+                let schoolFeeId = button.getAttribute('data-school-fee-id');
+                let buttonId = `open-delete-modal-btn-${schoolFeeId}`;
+
+                // Initialize modal for this specific button
+                initModal('delete-school-fee-modal', buttonId, 'delete-school-fee-close-btn',
+                    'delete-school-fee-cancel-btn', 'modal-container-delete-school-fee');
+
+                button.addEventListener('click', () => {
+                    // Clear any existing hidden inputs first
+                    let form = document.getElementById('delete-school-fee-form');
+                    let existingInputs = form.querySelectorAll('input[name="school_fee_id"]');
+                    existingInputs.forEach(input => input.remove());
+
+                    // Set the form action dynamically
+                    form.action = `/school-fees/${schoolFeeId}`;
+
+                    // Add school fee ID as hidden input
+                    let schoolFeeIdInput = document.createElement('input');
+                    schoolFeeIdInput.type = 'hidden';
+                    schoolFeeIdInput.name = 'school_fee_id';
+                    schoolFeeIdInput.value = schoolFeeId;
+                    form.appendChild(schoolFeeIdInput);
+
+                    console.log('Delete modal opened for school fee ID:', schoolFeeId);
+                });
+            });
+        }
 
         // SCHOOL FEES
         function initializeSchoolFeeTab() {
@@ -852,6 +1178,10 @@
                 'create-school-fee-modal-close-btn',
                 'create-school-fee-modal-cancel-btn',
                 'modal-container-1');
+            initModal('edit-school-fee-modal', 'edit-school-fee-modal-btn',
+                'edit-school-fee-modal-close-btn',
+                'edit-school-fee-modal-cancel-btn',
+                'modal-container-5');
 
 
 
@@ -881,14 +1211,17 @@
                         data: 'id',
                         render: function(data, type, row) {
                             return `
-                            <div class='flex flex-row justify-center items-center opacity-100'>
-                                <a href="/program/${data}/sections" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
-                                    <span class="relative w-4 h-4">
-                                        <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-                                        <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-                                    </span>
-                                    View
-                                </a>
+                            <div class='flex flex-row justify-center items-center gap-2'>
+                                <button type="button" id="open-edit-modal-btn-${data}"
+                                    data-school-fee-id="${data}"
+                                    class="edit-school-fee-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold p-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                    <i class="fi fi-rr-edit text-[16px] flex justify-center items-center"></i>
+                                </button>
+                                <button type="button" id="open-delete-modal-btn-${data}"
+                                    data-school-fee-id="${data}"
+                                    class="delete-school-fee-btn group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold p-2 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                    <i class="fi fi-rr-trash text-[16px] flex justify-center items-center"></i>
+                                </button>
                             </div>`;
                         },
                         orderable: false,
@@ -937,83 +1270,23 @@
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
             let gradeContainer = document.querySelector('#grade_selection_container');
 
-            programSelection.addEventListener('change', (e) => {
+            // Apply filter handlers using reusable functions
+            programSelection.addEventListener('change', handleFilterChange('program', 'data-id', 'selectedProgram',
+                schoolfeeTable, programSelection, null, document.querySelector('#clear-program-filter-btn')));
+            gradeSelection.addEventListener('change', handleFilterChange('grade', 'data-grade-level', 'selectedGrade',
+                schoolfeeTable, gradeSelection, gradeContainer, clearGradeFilterBtn));
 
-                let selectedOption = e.target.selectedOptions[0];
-                let id = selectedOption.getAttribute('data-id');
-
-                selectedProgram = id;
-                window.selectedProgram = id;
-                schoolfeeTable.draw();
-
-                //console.log(id);
-            })
-
+            // Special handler for page length (different behavior)
             pageLengthSelection.addEventListener('change', (e) => {
-
                 let selectedPageLength = parseInt(e.target.value, 10);
-
                 schoolfeeTable.page.len(selectedPageLength).draw();
-
-                //console.log(id);
             })
 
-            gradeSelection.addEventListener('change', (e) => {
-
-                let selectedOption = e.target.selectedOptions[0];
-                let data = selectedOption.getAttribute('data-grade-level');
-
-                console.log('Grade selected:', data);
-                console.log('Global selectedGrade:', window.selectedGrade);
-
-                selectedGrade = data;
-                window.selectedGrade = data; // Update global variable for initTable.js
-                console.log('Updated global selectedGrade:', window.selectedGrade);
-                schoolfeeTable.draw();
-
-                let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
-                let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                let gradeSelectionAdd = ['text-[#1A3165]'];
-                let gradeContainerRem = ['bg-gray-100'];
-                let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
-                    'hover:bg-[#1A73E8]/25'
-                ];
-
-                clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
-                clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
-                gradeSelection.classList.remove(...gradeSelectionRem);
-                gradeSelection.classList.add(...gradeSelectionAdd);
-                gradeContainer.classList.remove(...gradeContainerRem);
-                gradeContainer.classList.add(...gradeContainerAdd);
-
-                handleClearGradeFilter(selectedOption)
-            })
-
-            function handleClearGradeFilter(selectedOption) {
-
-                clearGradeFilterBtn.addEventListener('click', () => {
-
-                    gradeContainer.classList.remove('bg-[#1A73E8]/15')
-                    gradeContainer.classList.remove('border-blue-300')
-                    gradeContainer.classList.remove('hover:bg-blue-300')
-                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
-
-                    clearGradeFilterBtn.classList.add('fi-rr-caret-down');
-                    gradeContainer.classList.add('bg-gray-100')
-                    gradeSelection.classList.remove('text-[#1A3165]')
-                    gradeSelection.classList.add('text-gray-700')
-                    clearGradeFilterBtn.classList.remove('text-[#1A3165]')
-                    clearGradeFilterBtn.classList.add('text-gray-500')
-
-
-                    gradeSelection.selectedIndex = 0
-                    selectedGrade = '';
-                    window.selectedGrade = ''; // Update global variable for initTable.js
-                    schoolfeeTable.draw();
-                })
-
-            }
+            // Apply clear handlers to school fees table filters
+            createClearFilterHandler(programSelection, null, document.querySelector('#clear-program-filter-btn'),
+                'selectedProgram', schoolfeeTable, 'program');
+            createClearFilterHandler(gradeSelection, gradeContainer, clearGradeFilterBtn, 'selectedGrade', schoolfeeTable,
+                'grade');
 
             window.onload = function() {
                 gradeSelection.selectedIndex = 0
@@ -1048,7 +1321,7 @@
 
                         console.log('Response data:', data);
 
-                        if (data.id) {
+                        if (data.id && data.success) {
                             // Reset form
                             form.reset();
 
@@ -1086,6 +1359,160 @@
                         showAlert('error', 'Something went wrong while creating the school fee');
                     });
             });
+
+            // Initialize edit and delete modals dynamically
+            initializeEditSchoolFeeModals();
+            initializeDeleteSchoolFeeModals();
+
+            // Reinitialize modals after table draw
+            schoolfeeTable.on('draw', function() {
+                initializeEditSchoolFeeModals();
+                initializeDeleteSchoolFeeModals();
+            });
+
+            // Edit school Fee Form Submission
+            document.getElementById('edit-school-fee-modal-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let form = e.target;
+                let formData = new FormData(form);
+                const schoolFeeId = formData.get('school_fee_id');
+
+                if (!schoolFeeId) {
+                    showAlert('error', 'School fee ID not found');
+                    return;
+                }
+
+                // Add the school fee ID to the form data
+                formData.append('_method', 'PUT');
+
+                // Show loader
+                showLoader("Updating school fee...");
+
+                fetch(`/school-fees/${schoolFeeId}`, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Accept": "application/json"
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        hideLoader();
+
+                        console.log('Response data:', data);
+
+                        if (data.success) {
+                            // Reset form
+                            form.reset();
+
+                            // Remove hidden input
+                            const hiddenInput = document.getElementById('edit_school_fee_id');
+                            if (hiddenInput) {
+                                hiddenInput.remove();
+                            }
+
+                            // Close modal
+                            closeModal('edit-school-fee-modal', 'modal-container-5');
+
+                            // Show success alert
+                            showAlert('success', 'School fee updated successfully!');
+
+                            // Update total school fees display
+                            if (data.totalSchoolFees !== undefined) {
+                                const formattedAmount = Math.round(data.totalSchoolFees)
+                                    .toLocaleString();
+                                document.getElementById('totalSchoolFeesDisplay').textContent =
+                                    `₱${formattedAmount}`;
+                            }
+
+                            // Refresh table
+                            if (typeof schoolfeeTable !== 'undefined') {
+                                schoolfeeTable.draw();
+                            }
+
+                        } else if (data.error) {
+                            closeModal('edit-school-fee-modal', 'modal-container-5');
+                            showAlert('error', data.error);
+                        } else if (data.message) {
+                            closeModal('edit-school-fee-modal', 'modal-container-5');
+                            showAlert('error', data.message);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        console.error('Error:', err);
+                        closeModal('edit-school-fee-modal', 'modal-container-5');
+                        showAlert('error', 'Something went wrong while updating the school fee');
+                    });
+            });
+
+            // Delete school fee form submission
+            const deleteSchoolFeeForm = document.getElementById('delete-school-fee-form');
+            if (deleteSchoolFeeForm) {
+                deleteSchoolFeeForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const schoolFeeId = formData.get('school_fee_id');
+
+                    showLoader();
+                    fetch(`/school-fees/${schoolFeeId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success === false && data.has_invoice_items === true) {
+                                showAlert('error', data.error);
+                                closeModal('delete-school-fee-modal', 'modal-container-delete-school-fee');
+                            } else if (data.success === true) {
+                                showAlert('success', data.message);
+                                schoolfeeTable.draw(); // Refresh the table
+
+                                // Update total school fees display
+                                fetch('/getSchoolFees', {
+                                        method: 'GET',
+                                        headers: {
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.data) {
+                                            const totalAmount = data.data.reduce((sum, fee) => {
+                                                const amount = parseFloat(fee.amount.replace(
+                                                    /[₱,]/g, ''));
+                                                return sum + amount;
+                                            }, 0);
+                                            const formattedAmount = Math.round(totalAmount)
+                                                .toLocaleString();
+                                            document.getElementById('totalSchoolFeesDisplay').textContent =
+                                                `₱${formattedAmount}`;
+                                        }
+                                    });
+
+                                // Close modal
+                                document.getElementById('delete-school-fee-close-btn').click();
+                            } else {
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while deleting the school fee');
+                        });
+                });
+            }
 
         }
 
@@ -1229,12 +1656,53 @@
                     [0, 'desc']
                 ],
                 'invoice-search', {
-                    grade_filter: selectedGrade,
-                    program_filter: selectedProgram,
+                    status_filter: selectedStatus,
+                    method_filter: selectedMethod,
+                    term_filter: selectedTerm,
                     pageLength: selectedPageLength
                 }
 
             )
+
+            clearSearch('clear-btn', 'invoice-search', invoiceTable)
+
+            let statusSelection = document.querySelector('#status-selection');
+            let methodSelection = document.querySelector('#method-selection');
+            let termSelection = document.querySelector('#term-selection');
+            let pageLengthSelection = document.querySelector('#page-length-selection');
+
+            let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
+            let gradeContainer = document.querySelector('#grade_selection_container');
+
+
+            // Apply filter handlers
+            statusSelection.addEventListener('change', handleFilterChange('status', 'data-status', 'selectedStatus',
+                invoiceTable, statusSelection, null, document.querySelector('#clear-status-filter-btn')));
+            methodSelection.addEventListener('change', handleFilterChange('method', 'data-method', 'selectedMethod',
+                invoiceTable, methodSelection, document.querySelector('#method-selection-container'), document
+                .querySelector('#clear-method-filter-btn')));
+            termSelection.addEventListener('change', handleFilterChange('term', 'data-term', 'selectedTerm', invoiceTable,
+                termSelection, null, document.querySelector('#clear-term-filter-btn')));
+
+            // Special handler for page length (different behavior)
+            pageLengthSelection.addEventListener('change', (e) => {
+                let selectedPageLength = parseInt(e.target.value, 10);
+                invoiceTable.page.len(selectedPageLength).draw();
+            })
+
+
+            // Apply clear handlers to all filters
+            createClearFilterHandler(statusSelection, null, document.querySelector('#clear-status-filter-btn'),
+                'selectedStatus', invoiceTable, 'status');
+            createClearFilterHandler(methodSelection, document.querySelector('#method-selection-container'), document
+                .querySelector('#clear-method-filter-btn'), 'selectedMethod', invoiceTable, 'method');
+            createClearFilterHandler(termSelection, null, document.querySelector('#clear-term-filter-btn'), 'selectedTerm',
+                invoiceTable, 'term');
+
+            window.onload = function() {
+                statusSelection.selectedIndex = 0
+                pageLengthSelection.selectedIndex = 0
+            }
 
             document.querySelector('#studentSearch').addEventListener('input', function(e) {
                 e.preventDefault();
@@ -1280,9 +1748,9 @@
 
                 let searchTerm = e.target.value.trim();
                 if (searchTerm.length < 2) {
-                    studentSeach.classList.remove('ring-2', 'ring-red-500', 'ring-green-500',
+                    this.classList.remove('ring-2', 'ring-red-500', 'ring-green-500',
                         'border-red-500', 'border-green-500');
-                    studentSeach.classList.add('border-gray-300');
+                    this.classList.add('border-gray-300');
 
                     fullName.innerHTML = '-';
                     lrn.innerHTML = '-';
@@ -1313,9 +1781,9 @@
                         if (data.success) {
                             if (data.data === null) {
                                 // Student not found
-                                studentSeach.classList.remove('ring-green-500',
+                                this.classList.remove('ring-green-500',
                                     'border-green-500');
-                                studentSeach.classList.add('ring-2', 'ring-red-500',
+                                this.classList.add('ring-2', 'ring-red-500',
                                     'border-red-500');
 
                                 // Show error message in the fees container
@@ -1328,8 +1796,8 @@
 
                             } else if (data.data !== null) {
                                 // Student found
-                                studentSeach.classList.remove('ring-red-500', 'border-red-500');
-                                studentSeach.classList.add('ring-2', 'ring-green-500',
+                                this.classList.remove('ring-red-500', 'border-red-500');
+                                this.classList.add('ring-2', 'ring-green-500',
                                     'border-green-500');
 
                                 fullName.innerHTML = data.data.user ?
@@ -1352,31 +1820,33 @@
                                 }
 
                                 // Clear any previous messages
-                                if (data.hasInvoice) {
-                                    // Student already has an invoice
-                                    feesContainer.innerHTML = `
-                                            <div class="text-center">
-                                                <i class="fi fi-rr-exclamation-triangle text-orange-500 text-3xl mb-3"></i>
-                                                <p class="text-sm text-orange-600 font-medium">This student already has an invoice for the current academic term</p>
-                                                <p class="text-xs text-orange-500 mt-2">Only one invoice per student per academic term is allowed</p>
-                                            </div>
-                                        `;
-                                    feesContainer.classList.remove('space-y-2');
-                                    feesContainer.classList.add('flex', 'items-center',
-                                        'justify-center', 'min-h-[120px]');
+                                // if (data.hasInvoice) {
+                                //     // Student already has an invoice
+                                //     feesContainer.innerHTML = `
+                            //             <div class="text-center">
+                            //                 <i class="fi fi-rr-exclamation-triangle text-orange-500 text-3xl mb-3"></i>
+                            //                 <p class="text-sm text-orange-600 font-medium">This student already has an invoice for the current academic term</p>
+                            //                 <p class="text-xs text-orange-500 mt-2">Only one invoice per student per academic term is allowed</p>
+                            //             </div>
+                            //         `;
+                                //     feesContainer.classList.remove('space-y-2');
+                                //     feesContainer.classList.add('flex', 'items-center',
+                                //         'justify-center', 'min-h-[120px]');
 
-                                    // Disable select all checkbox
-                                    document.getElementById('select-all-fees').disabled = true;
-                                    document.querySelector('label[for="select-all-fees"]')
-                                        .classList
-                                        .remove('text-gray-700', 'cursor-pointer');
-                                    document.querySelector('label[for="select-all-fees"]')
-                                        .classList
-                                        .add('text-gray-500', 'cursor-not-allowed');
+                                //     // Disable select all checkbox
+                                //     document.getElementById('select-all-fees').disabled = true;
+                                //     document.querySelector('label[for="select-all-fees"]')
+                                //         .classList
+                                //         .remove('text-gray-700', 'cursor-pointer');
+                                //     document.querySelector('label[for="select-all-fees"]')
+                                //         .classList
+                                //         .add('text-gray-500', 'cursor-not-allowed');
 
-                                    // Disable submit button
-                                    submitBtn.disabled = true;
-                                } else if (data.fees && data.fees.length > 0) {
+                                //     // Disable submit button
+                                //     submitBtn.disabled = true;
+                                // } else 
+
+                                if (data.fees && data.fees.length > 0) {
                                     // Remove empty state styling and add proper container styling
                                     feesContainer.classList.remove('flex', 'items-center',
                                         'justify-center', 'min-h-[120px]');
@@ -1483,8 +1953,8 @@
                             }
                         } else {
                             // Handle error response
-                            studentSeach.classList.remove('ring-green-500', 'border-green-500');
-                            studentSeach.classList.add('ring-2', 'ring-red-500',
+                            this.classList.remove('ring-green-500', 'border-green-500');
+                            this.classList.add('ring-2', 'ring-red-500',
                                 'border-red-500');
 
                             feesContainer.innerHTML = `
@@ -1625,6 +2095,19 @@
                             // Show success message
                             showAlert('success', data.message || 'Invoice created successfully!');
 
+                            // Update invoice counts display
+                            if (data.totalInvoices !== undefined) {
+                                document.getElementById('totalInvoicesDisplay').textContent = data
+                                    .totalInvoices;
+                            }
+                            if (data.pendingInvoices !== undefined) {
+                                document.getElementById('pendingInvoicesDisplay').textContent = data
+                                    .pendingInvoices;
+                            }
+                            if (data.paidInvoices !== undefined) {
+                                document.getElementById('paidInvoicesDisplay').textContent = data.paidInvoices;
+                            }
+
                             // Reset form
                             resetInvoiceForm();
 
@@ -1635,6 +2118,7 @@
                         } else {
                             showAlert('error', data.error ||
                                 'Failed to create invoice. Please try again.');
+                            console.log(data.error)
                         }
                     })
                     .catch(err => {
@@ -1724,75 +2208,114 @@
         function initializePaymentHistoryTab() {
             let paymentHistory = initCustomDataTable(
                 'payments',
-                `/getPayments`,
+                `/getInvoiceHistory`,
                 [{
                         data: 'index',
-                        width: '4%'
+                        width: '3%',
+                        searchable: true
                     },
                     {
-                        data: 'date',
-                        width: '12%',
-                        render: DataTable.render.text()
-                    },
-                    {
-                        data: 'reference_no',
-                        width: '18%',
-                        render: DataTable.render.text()
-                    },
-                    {
-                        data: 'method',
-                        width: '12%',
-                        render: DataTable.render.text()
-                    },
-                    {
-                        data: 'type',
-                        width: '12%',
-                        render: DataTable.render.text()
-                    },
-                    {
-                        data: 'amount',
+                        data: 'invoice_number',
                         width: '14%',
                         render: DataTable.render.text()
                     },
                     {
-                        data: 'student',
-                        width: '20%',
+                        data: 'total',
+                        width: '10%',
                         render: DataTable.render.text()
                     },
                     {
-                        data: 'invoice_id',
-                        width: '17%',
+                        data: 'payment_method',
+                        width: '10%',
+                        render: function(data, type, row) {
+                            let badgeClass = '';
+                            let badgeText = data;
+
+                            switch (data) {
+                                case 'installment':
+                                    badgeClass = 'bg-green-100 text-green-800';
+                                    badgeText = 'Installment';
+                                    break;
+                                case 'full':
+                                    badgeClass = 'bg-yellow-100 text-yellow-800';
+                                    badgeText = 'Full';
+                                    break;
+                                case 'Not Set':
+                                default:
+                                    badgeClass = 'bg-gray-200 text-gray-800';
+                                    badgeText = 'Not Set';
+                                    break;
+                            }
+
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+                        }
+                    },
+                    {
+                        data: 'status',
+                        width: '10%',
+                        render: function(data, type, row) {
+                            let badgeClass = '';
+                            let badgeText = data;
+
+                            if (data === 'paid') {
+                                badgeClass = 'bg-green-100 text-green-800';
+                                badgeText = 'Paid';
+                            }
+
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+                        }
+                    },
+                    {
+                        data: 'student',
+                        width: '14%',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'academic_term',
+                        width: '15%',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'id',
                         className: 'text-center',
-                        orderable: false,
-                        searchable: false,
-                        render: function(id, type, row) {
+                        width: '10%',
+                        render: function(data, type, row) {
                             return `
-                                <a href="/invoice/${id}?from=history" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+                            <div class='flex flex-row justify-center items-center opacity-100'>
+
+                                <a href="/invoice/${data}?from=history" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+
                                     <span class="relative w-4 h-4">
                                         <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
                                         <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
                                     </span>
-                                    View Invoice
-                                </a>`;
-                        }
-                    },
-                ],
 
+                                    View
+                                </a>
+
+                            </div>
+                            
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+
+                ],
                 [
                     [0, 'desc']
                 ],
-                'myCustomSearch', {
-                    grade_filter: selectedGrade,
-                    program_filter: selectedProgram,
+                'payment-history-search', {
+                    status_filter: selectedStatus,
+                    method_filter: selectedMethod,
+                    term_filter: selectedTerm,
                     pageLength: selectedPageLength
                 }
 
             )
+
+            clearSearch('clear-btn', 'payment-history-search', paymentHistory)
         }
-
-        //Overriding default search input
-        const customSearch1 = document.getElementById("myCustomSearch");
-
 
         // =========================
         // Down Payment Auto-Format
@@ -1898,7 +2421,7 @@
             showLoader('Saving...');
 
 
-            fetch(`{{ route('admin.settings.school.payments.update') }}`, {
+            fetch('/admin/settings/school/payments', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -1907,26 +2430,49 @@
                         'X-HTTP-Method-Override': 'PUT'
                     }
                 })
-                .then(res => res.json())
+                .then(res => {
+                    console.log('Response status:', res.status);
+                    console.log('Response headers:', res.headers);
+                    return res.json();
+                })
                 .then((data) => {
+                    console.log('Response data:', data);
                     hideLoader();
-                    if (data && data.success) {
-                        // Update the display with the new down payment value
-                        const newDownPayment = data.data?.down_payment || 0;
-                        const formattedAmount = newDownPayment.toLocaleString();
-                        document.getElementById('studentCount').textContent = `₱${formattedAmount}`;
+                    
+                    if (data.success === true) {
+                        try {
+                            // Update the display with the new down payment value
+                            const newDownPayment = data.data?.down_payment || 0;
+                            const formattedAmount = newDownPayment.toLocaleString();
+                            
+                            // Safely update elements
+                            const studentCountElement = document.getElementById('studentCount');
+                            const markElement = document.getElementById('mark');
+                            
+                            if (studentCountElement) {
+                                studentCountElement.textContent = `₱${formattedAmount}`;
+                            }
+                            
+                            if (markElement) {
+                                markElement.classList.add('hidden');
+                            }
 
-                        closeModal('set-down-payment-modal', 'modal-container-3');
-                        showAlert('success', 'Settings saved successfully.');
+                            closeModal('set-down-payment-modal', 'modal-container-3');
+                            showAlert('success', 'Settings saved successfully.');
+                        } catch (updateError) {
+                            closeModal('set-down-payment-modal', 'modal-container-3');
+                            showAlert('success', 'Settings saved successfully.');
+                        }
                     } else {
                         showAlert('error', (data && data.error) || 'Failed to save settings.');
                     }
                 })
-                .catch(() => {
+                .catch((error) => {
                     hideLoader();
-                    showAlert('error', 'Failed to save settings. Please try again.');
+                    showAlert('error', 'Network error occurred.');
                 });
         });
+
 
 
         function closeModal(modalId, modalContainerId) {

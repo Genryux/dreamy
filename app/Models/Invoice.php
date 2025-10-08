@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['student_id', 'academic_term_id', 'status', 'invoice_number', 'has_payment_plan', 'payment_mode'];
 
     public static function boot()
@@ -23,12 +26,17 @@ class Invoice extends Model
         $prefix = "INV-{$date}";
 
         // Count invoices today
-        $count = self::whereDate('created_at', now()->toDateString())->count() + 1;
+        $count = self::withTrashed()->whereDate('created_at', now()->toDateString())->count() + 1;
 
         // Pad with zeros (0001, 0002, etc.)
         $sequence = str_pad($count, 4, '0', STR_PAD_LEFT);
 
         return "{$prefix}-{$sequence}";
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->withTrashed()->where($field ?? 'id', $value)->firstOrFail();
     }
 
     public function student()

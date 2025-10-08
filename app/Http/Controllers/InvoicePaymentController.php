@@ -84,16 +84,22 @@ class InvoicePaymentController extends Controller
 
     public function getPayments(Request $request)
     {
-        $query = InvoicePayment::with(['invoice.student']);
+        $query = InvoicePayment::with(['invoice.student.user']);
 
         if ($search = $request->input('search.value')) {
-            $query->whereAny(['reference_no', 'method', 'type'], 'like', "%{$search}%")
-                ->orWhereHas('invoice', function ($q) use ($search) {
-                    $q->whereHas('student', function ($qq) use ($search) {
-                        $qq->where('last_name', 'like', "%{$search}%")
-                           ->orWhere('first_name', 'like', "%{$search}%");
-                    });
-                });
+            $query->where(function ($q) use ($search) {
+                $q->where('reference_no', 'like', "%{$search}%")
+                  ->orWhere('method', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%")
+                  ->orWhereHas('invoice', function ($qq) use ($search) {
+                      $qq->whereHas('student', function ($qqq) use ($search) {
+                          $qqq->whereHas('user', function ($qqqq) use ($search) {
+                              $qqqq->where('last_name', 'like', "%{$search}%")
+                                   ->orWhere('first_name', 'like', "%{$search}%");
+                          });
+                      });
+                  });
+            });
         }
 
         $total = $query->count();

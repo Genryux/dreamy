@@ -109,11 +109,11 @@ class StudentRecordController extends Controller
             return response()->json(['success' => 'Import completed successfully']);
         } catch (ValidationException $e) {
             return response()->json([
-                'error' => "Some data fields in your uploaded file are not valid."
+                'error' => "Some data fields in your uploaded file are not valid. {$e}"
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => "Something went wrong during import. Please try again.",
+                'error' => "Something went wrong during import. Please try again. {$e}",
                 'code' => $e->getMessage()
             ], 500);
         }

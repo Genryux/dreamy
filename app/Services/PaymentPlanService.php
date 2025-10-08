@@ -5,8 +5,12 @@ namespace App\Services;
 use App\Models\Invoice;
 use App\Models\PaymentPlan;
 use App\Models\PaymentSchedule;
+use App\Models\SchoolSetting;
+use App\Notifications\PrivateImmediateNotification;
+use App\Notifications\PrivateQueuedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class PaymentPlanService
 {
@@ -23,44 +27,53 @@ class PaymentPlanService
     {
         return DB::transaction(function () use ($invoice, $downPaymentAmount, $installmentMonths, $startDate) {
             $totalAmount = $invoice->total_amount;
-            
+
             // Calculate payment plan
             $planData = PaymentPlan::calculate($totalAmount, $downPaymentAmount, $installmentMonths);
             $planData['payment_type'] = 'installment';
             $planData['invoice_id'] = $invoice->id;
-            
+
             // Create payment plan
             $paymentPlan = PaymentPlan::create($planData);
-            
+
             // Set start date (default to next month)
             $startDate = $startDate ?? Carbon::now()->addMonth()->startOfMonth();
-            
+
             // Get active academic term
             $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-            
+
             if (!$activeTerm) {
                 throw new \Exception('No active academic term found.');
             }
-            
+
             // Create down payment schedule (installment_number = 0)
+            // Get the due day from school settings and create the due date
+            $dueDay = SchoolSetting::value('due_day_of_month') ?? 10; // Default to 15th if not set
+            $downPaymentDueDate = Carbon::now()->day($dueDay);
+            
+            // If the due day has already passed this month, set it for next month
+            if ($downPaymentDueDate->isPast()) {
+                $downPaymentDueDate = $downPaymentDueDate->addMonth();
+            }
+
             $downPaymentSchedule = PaymentSchedule::create([
                 'payment_plan_id' => $paymentPlan->id,
                 'invoice_id' => $invoice->id,
                 'installment_number' => 0,
                 'amount_due' => $downPaymentAmount,
                 'amount_paid' => 0, // Student hasn't paid yet
-                'due_date' => Carbon::now(),
+                'due_date' => $downPaymentDueDate,
                 'status' => 'pending', // Wait for actual payment
                 'description' => 'Down Payment',
             ]);
-            
+
             // Don't create payment record yet - wait for actual payment
-            
+
             // Create monthly payment schedules
             for ($i = 1; $i <= $installmentMonths; $i++) {
                 $amount = ($i === 1) ? $planData['first_month_amount'] : $planData['monthly_amount'];
                 $dueDate = $startDate->copy()->addMonths($i - 1);
-                
+
                 PaymentSchedule::create([
                     'payment_plan_id' => $paymentPlan->id,
                     'invoice_id' => $invoice->id,
@@ -72,15 +85,15 @@ class PaymentPlanService
                     'description' => $dueDate->format('F Y'), // e.g., "November 2025"
                 ]);
             }
-            
+
             // Update invoice
             $invoice->update([
                 'has_payment_plan' => true,
                 'payment_mode' => 'installment',
             ]);
-            
+
             // Invoice status remains 'unpaid' until actual payments are made
-            
+
             return $paymentPlan;
         });
     }
@@ -97,7 +110,7 @@ class PaymentPlanService
     {
         return DB::transaction(function () use ($invoice, $amount, $paymentData) {
             $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-            
+
             if (!$activeTerm) {
                 throw new \Exception('No active academic term found.');
             }
@@ -105,19 +118,19 @@ class PaymentPlanService
             // If invoice has payment plan, apply to schedules
             if ($invoice->has_payment_plan) {
                 $remainingAmount = $amount;
-                
+
                 // Get unpaid/partial schedules in order
                 $schedules = $invoice->paymentSchedules()
                     ->whereIn('status', ['pending', 'partial', 'overdue'])
                     ->orderBy('installment_number')
                     ->get();
-                
+
                 foreach ($schedules as $schedule) {
                     if ($remainingAmount <= 0) break;
-                    
+
                     $scheduleBalance = $schedule->amount_due - $schedule->amount_paid;
                     $paymentAmount = min($remainingAmount, $scheduleBalance);
-                    
+
                     // Create payment record
                     $payment = \App\Models\InvoicePayment::create([
                         'invoice_id' => $invoice->id,
@@ -129,24 +142,24 @@ class PaymentPlanService
                         'type' => $paymentData['type'] ?? 'Installment Payment',
                         'reference_no' => $paymentData['reference_no'] ?? null,
                     ]);
-                    
+
                     // Update schedule
                     $schedule->amount_paid += $paymentAmount;
                     $schedule->updateStatus();
-                    
+
                     $remainingAmount -= $paymentAmount;
                 }
-                
+
                 // Check if this payment affects the down payment schedule
                 $downPaymentSchedule = $invoice->paymentSchedules()
                     ->where('installment_number', 0)
                     ->first();
-                
+
                 if ($downPaymentSchedule && $downPaymentSchedule->amount_paid > 0) {
                     // Down payment has been made, recalculate the plan
                     $this->recalculatePaymentPlan($invoice);
                 }
-                
+
                 // Update invoice status
                 $invoice->refresh();
                 if ($invoice->balance <= 0) {
@@ -155,9 +168,8 @@ class PaymentPlanService
                     $invoice->status = 'partially_paid';
                 }
                 $invoice->save();
-                
+
                 return $payment ?? null;
-                
             } else {
                 // Flexible payment (existing logic)
                 $payment = \App\Models\InvoicePayment::create([
@@ -169,13 +181,13 @@ class PaymentPlanService
                     'type' => $paymentData['type'] ?? null,
                     'reference_no' => $paymentData['reference_no'] ?? null,
                 ]);
-                
+
                 $invoice->refresh();
                 if ($invoice->balance <= 0) {
                     $invoice->status = 'paid';
                     $invoice->save();
                 }
-                
+
                 return $payment;
             }
         });
@@ -198,36 +210,36 @@ class PaymentPlanService
                 $actualDownPayment,
                 $paymentPlan->installment_months
             );
-            
+
             // Update payment plan
             $paymentPlan->update($planData);
-            
+
             // Update down payment schedule
             $downPaymentSchedule = $paymentPlan->schedules()
                 ->where('installment_number', 0)
                 ->first();
-            
+
             if ($downPaymentSchedule) {
                 $downPaymentSchedule->update([
                     'amount_due' => $actualDownPayment,
                     'amount_paid' => $actualDownPayment,
                 ]);
             }
-            
+
             // Update monthly schedules
             $monthlySchedules = $paymentPlan->schedules()
                 ->where('installment_number', '>', 0)
                 ->orderBy('installment_number')
                 ->get();
-            
+
             foreach ($monthlySchedules as $index => $schedule) {
-                $amount = ($schedule->installment_number === 1) 
-                    ? $planData['first_month_amount'] 
+                $amount = ($schedule->installment_number === 1)
+                    ? $planData['first_month_amount']
                     : $planData['monthly_amount'];
-                
+
                 $schedule->update(['amount_due' => $amount]);
             }
-            
+
             return $paymentPlan->fresh();
         });
     }
@@ -246,7 +258,7 @@ class PaymentPlanService
 
         $paymentPlan = $invoice->paymentPlan;
         $schedules = $invoice->paymentSchedules()->orderBy('installment_number')->get();
-        
+
         return [
             'total_amount' => $paymentPlan->total_amount,
             'down_payment' => $paymentPlan->down_payment_amount,
@@ -293,10 +305,10 @@ class PaymentPlanService
 
         // Calculate remaining balance after student's actual payment
         $remainingBalance = $totalAmount - $actualDownPayment;
-        
+
         // Calculate monthly amount (shortfall is already included in remainingBalance)
         $monthlyAmount = round($remainingBalance / $installmentMonths, 2);
-        
+
         // Distribute rounding residual to the first month so totals align exactly
         $totalMonthly = $monthlyAmount * $installmentMonths;
         $difference = round($remainingBalance - $totalMonthly, 2); // can be negative/positive within cents
@@ -324,7 +336,7 @@ class PaymentPlanService
 
         foreach ($monthlySchedules as $index => $schedule) {
             $newAmount = ($schedule->installment_number === 1) ? $firstMonthAmount : $monthlyAmount;
-            
+
             // Only update if no payment has been made yet
             if ($schedule->amount_paid == 0) {
                 $schedule->update([
@@ -347,14 +359,14 @@ class PaymentPlanService
     {
         return DB::transaction(function () use ($invoice, $scheduleId, $amount, $paymentData) {
             $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-            
+
             if (!$activeTerm) {
                 throw new \Exception('No active academic term found.');
             }
 
             // Find the specific schedule
             $schedule = $invoice->paymentSchedules()->findOrFail($scheduleId);
-            
+
             // Check if schedule is already fully paid
             if ($schedule->status === 'paid') {
                 throw new \Exception('This payment schedule is already fully paid.');
@@ -376,27 +388,62 @@ class PaymentPlanService
                 'type' => $paymentData['type'] ?? 'Installment Payment',
                 'reference_no' => $paymentData['reference_no'] ?? null,
             ]);
-            
+
             // Update schedule
             $schedule->amount_paid += $amount;
             $schedule->updateStatus();
-            
+
             // Check if this payment affects the down payment schedule and trigger recalculation
             if ($schedule->installment_number === 0 && $schedule->amount_paid > 0) {
                 $this->recalculatePaymentPlan($invoice);
             }
-            
+
+            $student = $invoice->student;
+            $user = $student->user;
+
+            $portion = $schedule->installment_number;
+
+            if ($portion === 0) {
+                $scheduleText = "down payment";
+            } else {
+                $scheduleText = "installment {$portion} of 9";
+            }
+
+            // Send notification to student's user account
+            if ($user) {
+
+
+                $sharedNotificationId = 'monthly-reminder-' . time() . '-' . uniqid();
+
+                $user->notify(new PrivateQueuedNotification(
+                    "Payment Received!",
+                    "We’ve successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
+                    null,
+                    $sharedNotificationId
+                ));
+
+                Notification::route('broadcast', 'user.' . $user->id)
+                    ->notify(new PrivateImmediateNotification(
+                        "Payment Received!",
+                        "We’ve successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
+                        null,
+                        $sharedNotificationId,
+                        'user.' . $student->id
+                    ));
+            }
+
             // Update invoice status
             $invoice->refresh();
             if ($invoice->balance <= 0) {
                 $invoice->status = 'paid';
+                $invoice->save();
+                // Soft delete the invoice after saving the status
+                $invoice->delete();
             } elseif ($invoice->paid_amount > 0) {
                 $invoice->status = 'partially_paid';
+                $invoice->save();
             }
-            $invoice->save();
-            
             return $payment;
         });
     }
 }
-

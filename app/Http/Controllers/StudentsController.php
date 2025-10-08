@@ -67,9 +67,9 @@ class StudentsController extends Controller
                 'success' => true,
                 'data' => $students,
                 'fees' => $schoolFee,
-                'hasInvoice' => $activeTerm ? Invoice::where('student_id', $students->id)
-                    ->where('academic_term_id', $activeTerm->id)
-                    ->exists() : false
+                // 'hasInvoice' => $activeTerm ? Invoice::where('student_id', $students->id)
+                //     ->where('academic_term_id', $activeTerm->id)
+                //     ->exists() : false
             ]);
         } catch (\Throwable $th) {
             \Log::error('Student search error: ' . $th->getMessage());

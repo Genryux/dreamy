@@ -88,36 +88,50 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
             [
                 'grade_level'    => $row['grade_level'],
                 'program'        => $row['program'],
+                'section_id'=> null,
+                'enrollment_date'=> null,
                 'status'         => 'Officially Enrolled'
             ]
         );
 
         $students->record()->firstOrCreate(
             [
-                'middle_name'             => null,
-                'birthdate'               => null,
-                'gender'                  => null,
-                'age'                     => null,
-                'place_of_birth'          => null,
+                'student_id' => null,
+                'middle_name' => null,
+                'birthdate' => null,
+                'gender' => null,
+                'age' => null,
+                'place_of_birth' => null,
 
-                'contact_number'          => $row['contact_number'],
-                'current_address'         => null,
-                'permanent_address'       => null,
+                'contact_number' => $row['contact_number'],
+                'current_address' => null,
+                'permanent_address' => null,
 
-                'father_name'             => null,
-                'father_contact_number'   => null,
-                'mother_name'             => null,
-                'mother_contact_number'   => null,
-                'guardian_name'           => null,
+                'house_no' => null,
+                'street' => null,
+                'barangay' => null,
+                'city' => null,
+                'province' => null,
+                'country' => null,
+                'zip_code' => null,
+
+                'father_name' => null,
+                'father_contact_number' => null,
+                'mother_name' => null,
+                'mother_contact_number' => null,
+                'guardian_name' => null,
                 'guardian_contact_number' => null,
 
-                'current_school'          => null,
-                'previous_school'         => null,
-                'school_contact_info'     => null,
+                'current_school' => null,
+                'previous_school' => null,
+                'school_contact_info' => null,
+                'acad_term_applied' => null,
+                'semester_applied' => null,
+                'admission_date' => null,
 
-                'has_special_needs'       => null,
-                'belongs_to_ip'           => null,
-                'is_4ps_beneficiary'      => null,
+                'has_special_needs' => null,
+                'belongs_to_ip' => null,
+                'is_4ps_beneficiary' => null
             ]
         );
 
@@ -139,7 +153,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         // Auto-enroll imported students in the active academic term
         if (config('app.use_term_enrollments')) {
             $activeTerm = AcademicTerms::where('is_active', true)->first();
-            
+
             if ($activeTerm) {
                 StudentEnrollment::firstOrCreate(
                     [

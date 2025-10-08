@@ -10,7 +10,7 @@ return new class extends Migration
     {
         // Add academic_term_id to invoices
         Schema::table('invoices', function (Blueprint $table) {
-            $table->foreignId('academic_term_id')->nullable()->constrained('academic_terms')->nullOnDelete();
+            $table->foreignId('academic_term_id')->nullable()->after('student_id')->constrained('academic_terms')->nullOnDelete();
             $table->index('academic_term_id');
         });
 
