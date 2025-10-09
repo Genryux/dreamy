@@ -24,6 +24,7 @@ use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\TeacherManagementController;
 use App\Http\Controllers\UserInvitationController;
+use App\Http\Controllers\TrackController;
 use App\Models\Applicants;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -157,6 +158,7 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
     Route::post('/students/{id}', [StudentRecordController::class, 'store']);
     Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
+    Route::post('/removeStudentFromSection/{section}', [StudentsController::class, 'removeStudentFromSection'])->middleware(['permission:remove assigned subject to a section', 'throttle:10,1']);
 
     // Student Records
     Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
@@ -287,15 +289,17 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
 | Routes for managing sections (accessible to admin and head_teacher)
 */
 
-Route::middleware(['auth', 'role:super_admin|head_teacher'])->group(function () {
-    Route::get('/sections', [SectionController::class, 'index'])->name('sections.index');
-    Route::post('/section', [SectionController::class, 'store'])->name('sections.store');
-    Route::get('/section/{section}', [SectionController::class, 'show'])->name('sections.show');
-    Route::post('/section/{section}', [SectionController::class, 'update'])->name('sections.update');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/sections', [SectionController::class, 'index'])->middleware(['permission:view sections'])->name('sections.index');
+    Route::post('/section', [SectionController::class, 'store'])->middleware(['permission:create section'])->name('sections.store');
+    Route::get('/section/{section}', [SectionController::class, 'show'])->middleware(['permission:view section'])->name('sections.show');
+    Route::post('/section/{section}', [SectionController::class, 'update'])->middleware(['permission:edit section'])->name('sections.update');
+    Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->middleware(['permission:delete section'])->name('sections.destroy');
 
     // Section Subject Management
-    Route::post('/assignSubject/{section}', [SectionController::class, 'assignSubject'])->name('sections.assign-subject');
-    Route::post('/updateSubject/{section}', [SectionController::class, 'updateSubject'])->name('sections.update-subject');
+    Route::post('/assignSubject/{section}', [SectionController::class, 'assignSubject'])->middleware(['permission:assign subject to a section'])->name('sections.assign-subject');
+    Route::post('/updateSubject/{section}', [SectionController::class, 'updateSubject'])->middleware(['permission:edit subject assigned to a section'])->name('sections.update-subject');
+    Route::post('/removeSubjectFromSection/{section}', [SectionController::class, 'removeSubjectFromSection'])->middleware(['permission:remove assigned subject to a section'])->name('sections.remove-subject');
     Route::post('/checkScheduleConflict/{section}', [SectionController::class, 'checkScheduleConflict'])->name('sections.check-conflict');
 });
 
@@ -308,15 +312,33 @@ Route::middleware(['auth', 'role:super_admin|head_teacher'])->group(function () 
 
 Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(function () {
     Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
-    Route::post('/programs', [ProgramController::class, 'store'])
-        ->middleware('throttle:30,1') // 30 requests per minute
+    Route::post('/programs/{tracks}', [ProgramController::class, 'store'])
+        ->middleware(['permission:create strand', 'throttle:30,1']) // 30 requests per minute
         ->name('programs.store');
     Route::get('/program/{program}', [ProgramController::class, 'show'])->name('program.show');
-    Route::post('/updateProgram/{program}', [ProgramController::class, 'update'])->name('program.update');
-    Route::delete('/program/{program}', [ProgramController::class, 'destroy'])->name('program.destroy');
-    Route::get('/program/{program}/sections', [ProgramController::class, 'show'])->name('program.sections');
-    Route::get('/program/{program}/subjects', [ProgramController::class, 'show'])->name('program.subjects');
+    Route::post('/updateProgram/{program}', [ProgramController::class, 'update'])->middleware(['permission:edit strand'])->name('program.update');
+    Route::delete('/program/{program}', [ProgramController::class, 'destroy'])->middleware(['permission:delete strand'])->name('program.destroy');
+    Route::get('/program/{program}/sections', [ProgramController::class, 'show'])->middleware(['permission:view sections'])->name('program.sections');
+    Route::get('/program/{program}/subjects', [ProgramController::class, 'show'])->middleware(['permission:view subjects'])->name('program.subjects');
     Route::get('/getPrograms', [ProgramController::class, 'getPrograms']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| TRACK MANAGEMENT ROUTES
+|--------------------------------------------------------------------------
+| Routes for managing tracks (accessible to admin)
+*/
+
+Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(function () {
+    Route::get('/tracks', [TrackController::class, 'index'])->name('tracks.index')->middleware(['permission:view track']);
+    Route::post('/tracks', [TrackController::class, 'store'])
+        ->middleware(['permission:create track', 'throttle:30,1']) // 30 requests per minute
+        ->name('tracks.store');
+    Route::get('/tracks/{track}', [TrackController::class, 'show'])->name('tracks.show');
+    Route::put('/tracks/{track}', [TrackController::class, 'update'])->middleware(['permission:can edit track'])->name('tracks.update');
+    Route::delete('/tracks/{track}', [TrackController::class, 'destroy'])->middleware(['permission:delete track'])->name('tracks.destroy');
+    Route::get('/tracks/{track}/programs', [TrackController::class, 'getPrograms'])->name('tracks.programs');
 });
 
 /*
@@ -326,8 +348,18 @@ Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(fu
 | Routes for managing subjects (accessible to admin and head_teacher)
 */
 
-Route::middleware(['auth', 'role:super_admin|head_teacher'])->group(function () {
-    Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/subjects', [SubjectController::class, 'index'])->middleware(['permission:view subjects'])->name('subjects.index');
+    Route::post('/subjects', [SubjectController::class, 'store'])
+        ->middleware(['permission:create subject', 'throttle:30,1']) // 30 requests per minute
+        ->name('subjects.store');
+    Route::get('/subjects/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
+    Route::put('/subjects/{subject}', [SubjectController::class, 'update'])
+        ->middleware(['permission:edit subject', 'throttle:30,1']) // 30 requests per minute
+        ->name('subjects.update');
+    Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])
+        ->middleware(['permission:edit subject', 'throttle:30,1']) // 30 requests per minute
+        ->name('subjects.destroy');
     Route::get('/getSubjects/{program}', [SubjectController::class, 'getSubjects']);
     Route::get('/subjects/auto-assign', [SubjectController::class, 'getAutoAssignSubjects']);
 });

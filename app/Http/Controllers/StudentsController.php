@@ -140,6 +140,51 @@ class StudentsController extends Controller
         ]);
     }
 
+    public function removeStudentFromSection(Section $section, Request $request)
+    {
+        $studentId = $request->input('student_id');
+
+        try {
+            DB::transaction(function () use ($studentId, $section) {
+                // Update Student model (for admin panel compatibility)
+                Student::where('id', $studentId)
+                    ->update(['section_id' => null]);
+
+                // Update StudentEnrollment model (for mobile app API)
+                // Get the active academic term
+                $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+                
+                if ($activeTerm) {
+                    \App\Models\StudentEnrollment::where('student_id', $studentId)
+                        ->where('academic_term_id', $activeTerm->id)
+                        ->update(['section_id' => null]);
+
+                    // Remove student from all subjects in this section
+                    $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
+                    
+                    foreach ($sectionSubjects as $sectionSubject) {
+                        \App\Models\StudentSubject::where('student_id', $studentId)
+                            ->where('section_subject_id', $sectionSubject->id)
+                            ->delete();
+                    }
+                }
+            });
+
+            $studentCount = $section->students->count();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Student successfully removed from section',
+                'studentCount' => $studentCount
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove student from section: ' . $th->getMessage()
+            ]);
+        }
+    }
+
     public function getUsers(Request $request)
     {
         // Feature flag: use new per-term enrollment system or fallback to old system

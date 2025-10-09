@@ -20,6 +20,9 @@ export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInpu
                 d.method_filter = window.selectedMethod || '';
                 d.term_filter = window.selectedTerm || '';
                 d.pageLength = window.selectedPageLength || 10;
+                d.semester_filter = window.selectedSemester || '';
+                d.category_filter = window.selectedCategory || '';
+                d.gender_filter = window.selectedGender || '';
             }
         },
         order: order,

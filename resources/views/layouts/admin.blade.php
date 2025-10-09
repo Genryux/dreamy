@@ -134,14 +134,18 @@
                             </span>
 
                         </x-nav-link>
-                        <x-nav-link href="/programs" :active="request()->is('programs')">
+                        @can('view track')
+                            <x-nav-link href="/tracks" :active="str_starts_with(request()->path(), 'tracks') ||
+                                str_starts_with(request()->path(), 'sections') ||
+                                str_starts_with(request()->path(), 'program')">
 
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-lesson text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">Programs</p>
-                            </span>
+                                <span class="flex flex-row items-center space-x-4">
+                                    <i class="fi fi-rr-lesson text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">Curriculum</p>
+                                </span>
 
-                        </x-nav-link>
+                            </x-nav-link>
+                        @endcan
                         <x-nav-link href="/sections" :active="request()->is('sections')">
 
                             <span class="flex flex-row items-center space-x-4">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Track;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,6 +15,7 @@ return new class extends Migration
         // Programs Table
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Track::class);
             $table->string('code')->unique(); // e.g., HUMSS
             $table->string('name'); // e.g., Humanities and Social Sciences
             $table->timestamps();

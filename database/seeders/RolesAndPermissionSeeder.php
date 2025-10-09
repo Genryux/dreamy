@@ -66,14 +66,21 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('view payment history', 'Payment Management', 'View payment history and records');
         $this->createPermissionWithCategory('record payment', 'Payment Management', 'Record student payments');
 
-        // Program Management
-        $this->createPermissionWithCategory('view programs', 'Program Management', 'View all programs');
-        $this->createPermissionWithCategory('create program', 'Program Management', 'Create new programs');
-        $this->createPermissionWithCategory('edit program', 'Program Management', 'Edit existing programs');
-        $this->createPermissionWithCategory('delete program', 'Program Management', 'Delete programs');
+        // Track Management
+        $this->createPermissionWithCategory('view track', 'Track Management', 'View all track');
+        $this->createPermissionWithCategory('create track', 'Track Management', 'Create new track');
+        $this->createPermissionWithCategory('edit track', 'Track Management', 'Edit existing track');
+        $this->createPermissionWithCategory('delete track', 'Track Management', 'Delete track');
+
+        // Strand Management
+        $this->createPermissionWithCategory('view strand', 'Strand Management', 'View all strands');
+        $this->createPermissionWithCategory('create strand', 'Strand Management', 'Create new strands');
+        $this->createPermissionWithCategory('edit strand', 'Strand Management', 'Edit existing strands');
+        $this->createPermissionWithCategory('delete strand', 'Strand Management', 'Delete strands');
 
         // Section Management
         $this->createPermissionWithCategory('view sections', 'Section Management', 'View all sections');
+        $this->createPermissionWithCategory('view section', 'Section Management', 'View specific section');
         $this->createPermissionWithCategory('create section', 'Section Management', 'Create new sections');
         $this->createPermissionWithCategory('edit section', 'Section Management', 'Edit existing sections');
         $this->createPermissionWithCategory('delete section', 'Section Management', 'Delete sections');
@@ -110,7 +117,7 @@ class RolesAndPermissionSeeder extends Seeder
 
         // Dashboard viewing
         $this->createPermissionWithCategory('view enrollment dashboard', 'Page Viewing', 'View enrollment dashboard');
-        $this->createPermissionWithCategory('view head teacher dashboard','Page Viewing','View head teacher dashboard');
+        $this->createPermissionWithCategory('view head teacher dashboard', 'Page Viewing', 'View head teacher dashboard');
         $this->createPermissionWithCategory('view teachers dashboard', 'Page Viewing', 'View teachers dashboard');
 
         // Site Management

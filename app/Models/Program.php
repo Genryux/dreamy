@@ -13,6 +13,7 @@ class Program extends Model
         'code',
         'name',
         'track',
+        'track_id',
         'status',
     ];
 
@@ -30,6 +31,18 @@ class Program extends Model
     public function subjects()
     {
         return $this->hasMany(Subject::class);
+    }
+
+    public function track() {
+        return $this->belongsTo(Track::class);
+    }
+
+    public function teachers() {
+        return $this->hasMany(Teacher::class);
+    }
+
+    public function totalTeachers() {
+        return $this->teachers()->count();
     }
 
     /**

@@ -102,8 +102,6 @@ class SectionController extends Controller
             if ($search = $request->input('search.value')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('lrn', 'like', "%{$search}%")
-                        ->orWhere('program', 'like', "%{$search}%")
-                        ->orWhere('grade_level', 'like', "%{$search}%")
                         ->orWhereHas('user', function ($userQuery) use ($search) {
                             $userQuery->where('first_name', 'like', "%{$search}%")
                                 ->orWhere('last_name', 'like', "%{$search}%")
@@ -111,18 +109,11 @@ class SectionController extends Controller
                                 ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
                         })
                         ->orWhereHas('record', function ($recordQuery) use ($search) {
-                            $recordQuery->where('contact_number', 'like', "%{$search}%");
+                            $recordQuery->where('contact_number', 'like', "%{$search}%")
+                                ->orWhere('age', 'like', "%{$search}%")
+                                ->orWhere('gender', 'like', "%{$search}%");
                         });
                 });
-            }
-
-            // Filtering
-            if ($program = $request->input('program_filter')) {
-                $query->where('program', $program);
-            }
-
-            if ($grade = $request->input('grade_filter')) {
-                $query->where('grade_level', $grade);
             }
 
             if ($gender = $request->input('gender_filter')) {
@@ -131,15 +122,45 @@ class SectionController extends Controller
                 });
             }
 
-            // Sorting
-            $columns = ['lrn', 'grade_level', 'program'];
-            $orderColumnIndex = $request->input('order.0.column');
-            $orderDir = $request->input('order.0.dir', 'asc');
-            $sortColumn = $columns[$orderColumnIndex] ?? 'id';
-            $query->orderBy($sortColumn, $orderDir);
-
+            // Get total count before applying sorting and pagination
             $total = $query->count();
             $filtered = $total;
+
+            // Sorting
+            $columns = ['lrn', 'full_name', 'age', 'gender'];
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderDir = $request->input('order.0.dir', 'asc');
+            
+            if ($orderColumnIndex !== null && isset($columns[$orderColumnIndex])) {
+                $sortColumn = $columns[$orderColumnIndex];
+                
+                switch ($sortColumn) {
+                    case 'lrn':
+                        $query->orderBy('lrn', $orderDir);
+                        break;
+                    case 'full_name':
+                        $query->leftJoin('users', 'students.user_id', '=', 'users.id')
+                              ->orderBy('users.last_name', $orderDir)
+                              ->orderBy('users.first_name', $orderDir)
+                              ->select('students.*');
+                        break;
+                    case 'age':
+                        $query->leftJoin('student_records', 'students.id', '=', 'student_records.student_id')
+                              ->orderBy('student_records.age', $orderDir)
+                              ->select('students.*');
+                        break;
+                    case 'gender':
+                        $query->leftJoin('student_records', 'students.id', '=', 'student_records.student_id')
+                              ->orderBy('student_records.gender', $orderDir)
+                              ->select('students.*');
+                        break;
+                    default:
+                        $query->orderBy('id', $orderDir);
+                        break;
+                }
+            } else {
+                $query->orderBy('id', 'asc');
+            }
 
             $start = $request->input('start', 0);
 
@@ -234,9 +255,13 @@ class SectionController extends Controller
                 return $section;
             });
 
-            return response()->json($section, 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Section successfully created.'
+            ]);
         } catch (\Throwable $e) {
             return response()->json([
+                'success' => false,
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -282,16 +307,28 @@ class SectionController extends Controller
 
     public function getAvailableSubjects(Section $section)
     {
+        // Get the current active academic term to determine the semester
+        $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+        
+        if (!$activeTerm) {
+            return response()->json([
+                'subjects' => [],
+                'error' => 'No active academic term found'
+            ]);
+        }
+
         // Get subjects that are not already assigned to this section
         $assignedSubjectIds = $section->sectionSubjects()->pluck('subject_id');
 
         $subjects = Subject::where('program_id', $section->program_id)
             ->where('grade_level', $section->year_level)
+            ->where('semester', $activeTerm->semester) // Filter by current semester
             ->whereNotIn('id', $assignedSubjectIds)
-            ->get(['id', 'name', 'category']);
+            ->get(['id', 'name', 'category', 'semester']);
 
         return response()->json([
-            'subjects' => $subjects
+            'subjects' => $subjects,
+            'current_semester' => $activeTerm->semester
         ]);
     }
 
@@ -464,6 +501,39 @@ class SectionController extends Controller
         }
     }
 
+    public function removeSubjectFromSection(Request $request, Section $section)
+    {
+        $validated = $request->validate([
+            'section_subject_id' => 'required|exists:section_subjects,id'
+        ]);
+
+        try {
+            DB::transaction(function () use ($validated, $section) {
+                $sectionSubject = \App\Models\SectionSubject::find($validated['section_subject_id']);
+                
+                if (!$sectionSubject || $sectionSubject->section_id !== $section->id) {
+                    throw new \Exception('Section subject not found or does not belong to this section');
+                }
+
+                // Remove all student enrollments for this subject
+                \App\Models\StudentSubject::where('section_subject_id', $sectionSubject->id)->delete();
+
+                // Delete the section subject
+                $sectionSubject->delete();
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Subject successfully removed from section'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove subject from section: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     private function formatTime($time)
     {
         return date('g:i A', strtotime($time));
@@ -485,16 +555,22 @@ class SectionController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'room' => 'nullable|string|max:50',
+                'teacher_id' => 'nullable|exists:teachers,id',
             ]);
 
             $section->update($validated);
 
             $newSectionName = $section->name;
             $newRoom = $section->room;
+            $newTeacher = $section->teacher ? $section->teacher->name : 'Not assigned';
 
             return response()->json([
                 'success' => 'Section successfully updated',
-                'newData' => ['newSectionName' => $newSectionName, 'newRoom' => $newRoom]
+                'newData' => [
+                    'newSectionName' => $newSectionName, 
+                    'newRoom' => $newRoom,
+                    'newTeacher' => $newTeacher
+                ]
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -505,9 +581,69 @@ class SectionController extends Controller
         return response()->json($section);
     }
 
-    public function destroy(Section $section)
+    public function destroy(Section $section, Request $request)
     {
-        $section->delete();
-        return response()->json(['message' => 'Program deleted successfully']);
+        try {
+            DB::transaction(function () use ($section) {
+                // Get all students in this section
+                $students = $section->students;
+                
+                // Remove all students from this section
+                foreach ($students as $student) {
+                    // Update Student model (for admin panel compatibility)
+                    $student->update(['section_id' => null]);
+                    
+                    // Update StudentEnrollment model (for mobile app API)
+                    $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+                    if ($activeTerm) {
+                        \App\Models\StudentEnrollment::where('student_id', $student->id)
+                            ->where('academic_term_id', $activeTerm->id)
+                            ->update(['section_id' => null]);
+                    }
+                }
+                
+                // Get all section subjects
+                $sectionSubjects = $section->sectionSubjects;
+                
+                // Remove all student enrollments for each subject
+                foreach ($sectionSubjects as $sectionSubject) {
+                    \App\Models\StudentSubject::where('section_subject_id', $sectionSubject->id)->delete();
+                }
+                
+                // Delete all section subjects
+                $section->sectionSubjects()->delete();
+                
+                // Finally, delete the section itself
+                $section->delete();
+            });
+
+            // Determine redirect URL based on referrer or program
+            $redirectUrl = '/tracks'; // Default fallback (replaced /programs)
+            
+            if ($request->has('redirect_to')) {
+                $redirectUrl = $request->input('redirect_to');
+            } elseif ($request->header('referer')) {
+                $referer = $request->header('referer');
+                // If coming from a program page, redirect back to that program
+                if (strpos($referer, '/programs/') !== false) {
+                    $redirectUrl = $referer;
+                }
+                // If coming from tracks page, redirect back to tracks
+                elseif (strpos($referer, '/tracks') !== false) {
+                    $redirectUrl = $referer;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Section deleted successfully',
+                'redirect_url' => $redirectUrl
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete section: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

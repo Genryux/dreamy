@@ -6,6 +6,7 @@ use App\Models\Program;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Track;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as FacadesRoute;
@@ -67,14 +68,16 @@ class ProgramController extends Controller
         return response()->json(['message' => 'Show form to create program']);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Track $tracks)
     {
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:programs,code',
             'name' => 'required|string|max:255',
-            'track' => 'nullable|string|max:255',
             'status' => 'nullable|in:active,inactive',
         ]);
+
+        // Add track_id from the route parameter
+        $validated['track_id'] = $tracks->id;
 
         $program = Program::create($validated);
         $programCount = Program::count();
@@ -122,11 +125,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        return response()->json([
-            'test' => "You're hitting the right route",
-            
-        ]);
-
+    
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:programs,code,' . $program->id,
             'name' => 'required|string|max:255',
@@ -144,7 +143,58 @@ class ProgramController extends Controller
 
     public function destroy(Program $program)
     {
-        $program->delete();
-        return response()->json(['message' => 'Program deleted successfully']);
+        try {
+            // Check for dependencies before deletion
+            $dependencies = [];
+            
+            // Check for students
+            $studentCount = \App\Models\Student::where('program', $program->code)->count();
+            if ($studentCount > 0) {
+                $dependencies[] = "{$studentCount} student(s)";
+            }
+            
+            // Check for sections
+            $sectionCount = $program->sections()->count();
+            if ($sectionCount > 0) {
+                $dependencies[] = "{$sectionCount} section(s)";
+            }
+            
+            // Check for subjects
+            $subjectCount = $program->subjects()->count();
+            if ($subjectCount > 0) {
+                $dependencies[] = "{$subjectCount} subject(s)";
+            }
+            
+            // Check for teachers
+            $teacherCount = $program->teachers()->count();
+            if ($teacherCount > 0) {
+                $dependencies[] = "{$teacherCount} teacher(s)";
+            }
+            
+            // If there are dependencies, return error
+            if (!empty($dependencies)) {
+                $dependencyList = implode(', ', $dependencies);
+                return response()->json([
+                    'success' => false,
+                    'message' => "Cannot delete program. It is still referenced by: {$dependencyList}. Please remove these references first.",
+                    'dependencies' => $dependencies
+                ], 422);
+            }
+            
+            // Safe to delete
+            $program->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Program deleted successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete program',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
