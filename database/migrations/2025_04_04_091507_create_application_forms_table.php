@@ -82,7 +82,7 @@ return new class extends Migration
 
             // Special Needs
             $table->boolean('has_special_needs')->nullable();
-            $table->string('special_needs')->nullable(); // assuming multiple needs stored as array
+            $table->json('special_needs')->nullable(); // stores array of special needs
 
             // Previous School
             $table->string('last_grade_level_completed')->nullable();

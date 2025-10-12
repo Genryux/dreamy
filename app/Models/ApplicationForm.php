@@ -8,72 +8,84 @@ class ApplicationForm extends Model
 {
     //
     protected $table = "application_forms";
+    
+    protected $casts = [
+        'special_needs' => 'array',
+        'has_special_needs' => 'boolean',
+        'belongs_to_ip' => 'boolean',
+        'is_4ps_beneficiary' => 'boolean',
+        'is_returning' => 'boolean',
+        'birthdate' => 'date',
+        'last_school_year_completed' => 'date',
+        'admission_date' => 'datetime',
+    ];
+    
     protected $fillable = [
         'academic_terms_id',
         'enrollment_period_id',
         'applicants_id',
 
-        'preferred_sched',
-        'is_returning',
-        'lrn',
-        'grade_level',
-        'primary_track',
-        'secondary_track',
-        'acad_term_applied',
-        'semester_applied',
-        'admission_date',
+        'preferred_sched',//no need
+        'is_returning', //no need (isama sa student record)
+        'lrn', // m/n
+        'grade_level', // m/n
+        'primary_track', // w/n
+        'secondary_track', // w/n
+        'acad_term_applied', // m/n
+        'semester_applied', // m/n
+        'admission_date', // m/n
 
-        'last_name',
-        'first_name',
-        'middle_name',
-        'extension_name',
-        'gender', //
-        'birthdate',
-        'age',
-        'place_of_birth',
-        'mother_tongue',
-        'belongs_to_ip',
-        'is_4ps_beneficiary',
-        'contact_number', //
+        'last_name', //meron nasa user model
+        'first_name', //meron nasa user model
+        'middle_name', //meron nasa user model
+        'extension_name', //meron nasa user model
+        'gender', // m/n
+        'birthdate', // m/n
+        'age', // m/n meron/need
+        'place_of_birth', // m/n
+        'mother_tongue', // w/n
+        'belongs_to_ip', // m/n
+        'is_4ps_beneficiary', // m/n
+        'contact_number', // m/n
 
-        'cur_house_no',
-        'cur_street',
-        'cur_barangay',
-        'cur_city',
-        'cur_province',
-        'cur_country',
-        'cur_zip_code',
+        'cur_house_no',  //m/n
+        'cur_street', //m/n
+        'cur_barangay', //m/n
+        'cur_city', //m/n
+        'cur_province', //m/n
+        'cur_country', //m/n
+        'cur_zip_code', //m/n
 
-        'perm_house_no',
-        'perm_street',
-        'perm_barangay',
-        'perm_city',
-        'perm_province',
-        'perm_country',
-        'perm_zip_code',
+        'perm_house_no', //m/n
+        'perm_street', //m/n
+        'perm_barangay', //m/n
+        'perm_city', //m/n
+        'perm_province', //m/n
+        'perm_country', //m/n
+        'perm_zip_code', //m/n
 
-        'father_last_name',
-        'father_first_name',
-        'father_middle_name',
-        'father_contact_number',
+        'father_last_name', //m/n
+        'father_first_name', //m/n
+        'father_middle_name', //m/n
+        'father_contact_number', //m/n
 
-        'mother_last_name',
-        'mother_first_name',
-        'mother_middle_name',
-        'mother_contact_number',
+        'mother_last_name', //m/n
+        'mother_first_name', //m/n
+        'mother_middle_name', //m/n
+        'mother_contact_number', //m/n
 
-        'guardian_last_name',
-        'guardian_first_name',
-        'guardian_middle_name',
-        'guardian_contact_number',
+        'guardian_last_name', //m/n
+        'guardian_first_name', //m/n
+        'guardian_middle_name', //m/n
+        'guardian_contact_number', //m/n
         
-        'has_special_needs',
-        'special_needs',
+        'has_special_needs',// m/n
+        'special_needs', // w/n
 
-        'last_grade_level_completed',
-        'last_school_attended',
-        'last_school_year_completed',
-        'school_id',
+        'last_grade_level_completed', //w/n
+        'last_school_attended',//m/n
+        'last_school_year_completed', //w/n
+        'school_id', // w/n
     ];
 
     public function applicant()

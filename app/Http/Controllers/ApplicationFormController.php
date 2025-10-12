@@ -647,8 +647,10 @@ class ApplicationFormController extends Controller
     public function create()
     {
         $user = $this->userService->fetchAuthenticatedUser();
-        // dd($user->first_name);
-        return view('user-applicant.application-form', compact('user'));
+        $tracks = \App\Models\Track::where('status', 'active')->get();
+        $programs = \App\Models\Program::where('status', 'active')->get();
+        
+        return view('user-applicant.application-form', compact('user', 'tracks', 'programs'));
     }
 
     /**
