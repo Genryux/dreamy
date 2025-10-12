@@ -62,68 +62,59 @@ class DashboardDataService
 
     public function getAdmissionDashboardData()
     {
+        $cacheKey = 'admission_dashboard_' . auth()->id();
+        
+        return \Cache::remember($cacheKey, 10, function () { // 5 minutes cache
+            // Eager load applicant with all necessary relationships to prevent N+1 queries
+            $applicant = $this->applicant->fetchAuthenticatedApplicant();
 
-        $applicant = $this->applicant->fetchAuthenticatedApplicant();
+            if (!$applicant) {
+                return ['applicant' => null];
+            }
 
-        if ($applicant) {
-            $applicant->load('interview');
-        }
+            // Eager load all relationships in one query
+            $applicant->load([
+                'interview',
+                'applicationForm',
+                'assignedDocuments.documents',
+                'assignedDocuments.submissions'
+            ]);
 
-        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+            $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
-        if (!$applicant) {
+            if (!$currentAcadTerm) {
+                return [
+                    'currentAcadTerm' => null,
+                    'activeEnrollmentPeriod' => null,
+                    'applicant' => $applicant
+                ];
+            }
 
-            return [
-                'applicant' => null
-            ];
-        }
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
 
-        if (!$currentAcadTerm) {
+            if (!$activeEnrollmentPeriod) {
+                return [
+                    'currentAcadTerm' => $currentAcadTerm,
+                    'activeEnrollmentPeriod' => null,
+                    'applicant' => $applicant
+                ];
+            }
 
-            return [
-                'currentAcadTerm' => null,
-                'activeEnrollmentPeriod' => null,
-                'applicant' => $applicant
-            ];
-        }
+            // Get assigned documents (already eager loaded)
+            $assignedDocuments = $applicant->assignedDocuments()->get();
 
-        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
-
-        if (!$activeEnrollmentPeriod) {
-
-            return [
-                'currentAcadTerm' => $currentAcadTerm,
-                'activeEnrollmentPeriod' => null,
-                'applicant' => $applicant
-            ];
-        }
-
-        $assignedDocuments = $applicant->assignedDocuments;
-
-        $documents = Documents::all();
-
-        if (!$assignedDocuments) {
+            // Only load documents that are actually assigned to this applicant
+            // This prevents loading ALL documents unnecessarily
+            $assignedDocumentIds = $assignedDocuments->pluck('documents_id')->unique();
+            $documents = Documents::whereIn('id', $assignedDocumentIds)->get();
 
             return [
                 'currentAcadTerm' => $currentAcadTerm,
                 'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
                 'applicant' => $applicant,
-                'assignedDocuments' => null
+                'assignedDocuments' => $assignedDocuments,
+                'documents' => $documents
             ];
-        }
-
-        // dd($applicant->submissions-get);
-
-        //$documentSubmissions = DocumentSubmissions::where('applicants_id', $applicant->id)->get()->keyBy('documents_id');
-
-
-
-        return [
-            'currentAcadTerm' => $currentAcadTerm,
-            'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
-            'applicant' => $applicant,
-            'assignedDocuments' => $assignedDocuments,
-            'documents' => $documents
-        ];
+        });
     }
 }

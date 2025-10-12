@@ -18,6 +18,7 @@
 
         <main id="content" class="p-[10px] overflow-auto h-full flex flex-col justify-center items-center relative">
 
+            @yield('alert')
 
 
             @if ($applicant->application_status == null)
@@ -35,15 +36,20 @@
                     @yield('status')
                     @yield('pending')
                 </div>
-            @elseif ($applicant->application_status == 'Selected')
+            @elseif ($applicant->application_status == 'Accepted')
                 <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
                     @yield('status')
-                    @yield('selected')
+                    @yield('accepted')
                 </div>
             @elseif ($applicant->application_status == 'Pending-Documents')
                 <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
                     @yield('status')
                     @yield('pending-documents')
+                </div>
+            @elseif ($applicant->application_status == 'Completed-Failed')
+                <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
+                    @yield('status')
+                    @yield('completed-failed')
                 </div>
             @elseif ($applicant->application_status == 'Officially Enrolled')
                 <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">

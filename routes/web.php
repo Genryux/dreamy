@@ -104,16 +104,11 @@ Route::middleware('auth')->group(function () {
 | Routes accessible only to super_admin and registrar roles
 */
 
-Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     // Admin Dashboard
     Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
 
-    // DataTables routes for applications
-    Route::get('/getRecentApplications', [ApplicationFormController::class, 'getRecentApplications'])->name('get.recent-applications');
-    Route::get('/getApprovedApplications', [ApplicationFormController::class, 'getApprovedApplications'])->name('get.approved-applications');
-    Route::get('/getPendingDocumentsApplications', [ApplicationFormController::class, 'getPendingDocumentsApplications'])->name('get.pending-documents-applications');
-    Route::get('/getRejectedApplications', [ApplicationFormController::class, 'getRejectedApplications'])->name('get.rejected-applications');
 
     // School Settings
     Route::get('/admin/settings/school', [SchoolSettingController::class, 'edit'])->name('admin.settings.school.edit');
@@ -123,16 +118,24 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
         ->name('admin.settings.school.payments.update');
 
     // Application Management
-    Route::get('/applications/pending', [ApplicationFormController::class, 'show'])->name('applications.pending');
-    Route::get('/applications/approved', [ApplicationFormController::class, 'show'])->name('applications.approved');
-    Route::get('/applications/pending-documents', [ApplicationFormController::class, 'show'])->name('applications.pending-documents');
+    Route::get('/applications/pending', [ApplicationFormController::class, 'index'])->name('applications.pending');
+    Route::get('/applications/accepted', [ApplicationFormController::class, 'index'])->name('applications.accepted');
+    Route::get('/applications/pending-documents', [ApplicationFormController::class, 'index'])->name('applications.pending-documents');
     Route::get('/applications/rejected', [ApplicationFormController::class, 'show'])->name('applications.rejected');
-    Route::get('/pending-application/form-details/{id}', [ApplicationFormController::class, 'showApplicationDetails'])->name('pending.details');
-    Route::get('/selected-applications', [ApplicationFormController::class, 'index'])->name('applications.approved');
-    Route::get('/selected-application/interview-details/{id}', [InterviewController::class, 'show'])->name('selected.details');
+    Route::get('/pending-application/form-details/{applicant}', [ApplicationFormController::class, 'showApplicationDetails'])->name('pending.details');
+    Route::get('/selected-application/interview-details/{applicant}', [InterviewController::class, 'show'])->name('selected.details');
+
+    // Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
+
+    // DataTables routes for applications
+    Route::get('/getRecentApplications', [ApplicationFormController::class, 'getRecentApplications'])->name('get.recent-applications');
+    Route::get('/getPendingApplications', [ApplicationFormController::class, 'getPendingApplications'])->name('get.pending-applications');
+    Route::get('/getAcceptedApplications', [ApplicationFormController::class, 'getAcceptedApplications'])->name('get.accepted-applications');
+    Route::get('/getPendingDocumentsApplications', [ApplicationFormController::class, 'getPendingDocumentsApplications'])->name('get.pending-documents-applications');
+    Route::get('/getRejectedApplications', [ApplicationFormController::class, 'getRejectedApplications'])->name('get.rejected-applications');
+
 
     // Document Management
-    Route::get('/pending-documents', [ApplicationFormController::class, 'index'])->name('applications.pending-documents');
     Route::get('/pending-documents/document-details/{applicant}', [DocumentsSubmissionController::class, 'index'])->name('documents');
     Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents.index');
     Route::post('/required-docs', [DocumentsController::class, 'store'])->name('documents.store');
@@ -145,8 +148,11 @@ Route::middleware(['auth', 'role:super_admin|registrar'])->group(function () {
     Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->name('enrollment-period.patch');
 
     // Interview Management
-    Route::post('/set-interview/{id}', [InterviewController::class, 'store'])->name('interview.post');
-    Route::patch('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
+    Route::post('/schedule-admission/{applicant}', [InterviewController::class, 'store'])->name('admission.post');
+    Route::put('/record-admission-result/{applicant}', [InterviewController::class, 'recordAdmissionResult'])->name('admission.record');
+    Route::post('/update-status/{id}', [InterviewController::class, 'updateStatus'])->name('admission.update.status');
+    // Route::put('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
+    Route::post('/reject-application/{applicant}', [ApplicationFormController::class, 'reject'])->name('application.reject');
 
     // Student Management
     Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');

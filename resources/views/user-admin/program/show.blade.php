@@ -1492,7 +1492,8 @@
                             method: "POST",
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
+                                    .getAttribute('content'),
+                                "Accept": "application/json"
                             },
                             body: formData
                         })

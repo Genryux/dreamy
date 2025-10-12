@@ -28,21 +28,8 @@ class DocumentsSubmissionController extends Controller
      */
     public function index(Applicants $applicant)
     {
-
-
-
-
-
         $assignedDocuments = $applicant->assignedDocuments()->get();
         $submittedDocuments = $assignedDocuments->flatMap->submissions;
-
-        // dd($assignedDocuments);
-
-        // $submittedDocuments = $assignedDocuments->submissions;
-        // dd($submittedDocuments);
-
-
-
 
         return view('user-admin.pending-documents.document-details', compact('applicant', 'submittedDocuments', 'assignedDocuments'));
     }
@@ -126,8 +113,18 @@ class DocumentsSubmissionController extends Controller
                     );
                 }
             });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Uploaded files have been successfully submitted.'
+            ]);
         } catch (\Throwable $th) {
-            return response()->json(['error' => $th->getMessage()]);
+            // return response()->json(['error' => $th->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while submitting the files.'
+            ]);
         }
 
 
@@ -195,9 +192,9 @@ class DocumentsSubmissionController extends Controller
         // Only update when there's an actual change to avoid unnecessary writes
         if (($assigned->status ?? null) !== $newStatus) {
             try {
-            $assigned->update(['status' => $newStatus]);
+                $assigned->update(['status' => $newStatus]);
             } catch (\Throwable $e) {
-            return redirect()->back()->withErrors(['error' => 'Failed to update document status.']);
+                return redirect()->back()->withErrors(['error' => 'Failed to update document status.']);
             }
         }
 

@@ -17,6 +17,12 @@ class Applicants extends Model
         'first_name',
         'last_name',
         'application_status',
+        'accepted_at',
+        'accepted_by',
+        'rejection_reason',
+        'rejection_remarks',
+        'rejected_at',
+        'rejected_by'
     ];
 
     public function applicationForm()
@@ -27,6 +33,19 @@ class Applicants extends Model
     public function getFullNameAttribute()
     {
         return "{$this->last_name}, {$this->first_name}";
+    }
+
+    public function getDocumentStatusAttribute()
+    {
+        $totalDocs = $this->assignedDocuments->count();
+        $submittedDocs = $this->assignedDocuments->whereNotIn('status', ['Pending', 'not-submitted'])->count();
+        $overdueDocs = $this->assignedDocuments->where('submit_before', '<', now())->whereIn('status', ['Pending', 'not-submitted'])->count();
+        
+        if ($totalDocs == 0) return 'No Requirements';
+        if ($submittedDocs == $totalDocs) return 'Complete';
+        if ($overdueDocs > 0) return 'Overdue';
+        
+        return "Pending ({$submittedDocs}/{$totalDocs})";
     }
 
     public function user()

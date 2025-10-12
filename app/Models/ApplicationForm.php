@@ -78,7 +78,7 @@ class ApplicationForm extends Model
 
     public function applicant()
     {
-        return $this->belongsTo(Applicants::class);
+        return $this->belongsTo(Applicants::class, 'applicants_id');
     }
 
     public function enrollmentPeriod()

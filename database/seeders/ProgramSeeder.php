@@ -17,8 +17,8 @@ class ProgramSeeder extends Seeder
 
         $tracks = [
             ['name' => 'Academic Track', 'code' => null, 'description' => null, 'status' => 'active'],
-            ['name' => 'Tech-Voc Track', 'code' => null, 'description' => null, 'status' => 'active'],
-            ['name' => 'Sports Track', 'code' => null, 'description' => null, 'status' => 'active'],
+            ['name' => 'Tech-Voc Track', 'code' => null, 'description' => null, 'status' => 'inactive'],
+            ['name' => 'Sports Track', 'code' => null, 'description' => null, 'status' => 'inactive'],
         ];
 
         foreach ($tracks as $track) {

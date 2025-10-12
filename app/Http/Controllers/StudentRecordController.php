@@ -7,6 +7,7 @@ use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
 use App\Models\Applicants;
 use App\Models\DocumentSubmissions;
+use App\Models\Invoice;
 use App\Models\StudentRecord;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -21,12 +22,16 @@ use Maatwebsite\Excel\Validators\ValidationException as ValidatorsValidationExce
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SchoolSetting;
 use App\Services\AcademicTermService;
+use App\Services\StudentService;
 use Carbon\Carbon;
+use App\Services\InvoiceService;
 
 class StudentRecordController extends Controller
 {
     public function __construct(
-        protected AcademicTermService $academic_term_service
+        protected AcademicTermService $academic_term_service,
+        protected StudentService $student_service,
+        protected InvoiceService $invoiceService
     ) {}
     /**
      * Display a listing of the resource.
@@ -126,12 +131,6 @@ class StudentRecordController extends Controller
      */
     public function store(Request $request)
     {
-        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
-        
-        if (!$activeTerm) {
-            return response()->json(['error' => 'No active academic term found'], 400);
-        }
-
         $applicant = Applicants::where('applicants.id', $request->id)->first();
 
         if (!$applicant) {
@@ -142,95 +141,54 @@ class StudentRecordController extends Controller
             return response()->json(['error' => 'Application form not found for this applicant'], 404);
         }
 
-        //dd($applicant->applicationForm);
         try {
 
-            DB::transaction(function () use ($applicant, $activeTerm) {
-                $form = $applicant->applicationForm;
-                $user = $applicant->user;
+            $student = DB::transaction(function () use ($applicant) {
 
+                $applicant->update(['application_status' => 'Officially Enrolled']);
 
-                $student = Student::firstOrCreate(
-                    [
-                        'user_id'         => $user->id,
-                    ],
-                    [
-                        'lrn'             => $form->lrn,
-                        'grade_level'     => $form->grade_level,
-                        'program'         => $form->primary_track,
-                        'enrollment_date' => Carbon::now()->toDateString(),
-                        'status'          => 'Officially Enrolled'
-                    ]
-                );
-
-                $user->syncRoles('student');
-                $studentId = $student->id;
-
-                $student->record()->firstOrCreate([
-                    'middle_name'             => $form->middle_name,
-                    'birthdate'               => $form->birthdate,
-                    'gender'                  => $form->gender,
-                    'age'                     => $form->age,
-                    'place_of_birth'          => $form->place_of_birth,
-                    'contact_number'          => $form->contact_number,
-                    'current_address'         => $form->currentAddress(),
-                    'permanent_address'       => $form->permanentAddress(),
-                    'acad_term_applied'       => $form->acad_term_applied,
-                    'semester_applied'        => $form->semester_applied,
-                    'admission_date'          => $form->admission_date,
-
-                    'house_no'                => $form->cur_house_no,
-                    'street'                  => $form->cur_street,
-                    'barangay'                => $form->cur_barangay,
-                    'city'                    => $form->cur_city,
-                    'province'                => $form->cur_province,
-                    'country'                 => $form->cur_country,
-                    'zip_code'                => $form->cur_zip_code,
-
-                    'father_name'             => $form->fatherFullName(),
-                    'father_contact_number'   => $form->father_contact_number,
-                    'mother_name'             => $form->motherFullName(),
-                    'mother_contact_number'   => $form->mother_contact_number,
-                    'guardian_name'           => $form->guardianFullName(),
-                    'guardian_contact_number' => $form->guardian_contact_number,
-                    'current_school'          => 'Dreamy School Philippines',
-                    'previous_school'         => $form->last_school_attended,
-                    'has_special_needs'       => $form->has_special_needs,
-                    'belongs_to_ip'           => $form->belongs_to_ip,
-                    'is_4ps_beneficiary'      => $form->is_4ps_beneficiary,
-                ]);
-
-                foreach ($applicant->assignedDocuments as $doc) {
-                    $student->assignedDocuments()->create([
-                        'documents_id'   => $doc->documents_id,
-                        'status'        => $doc->status,
-                        'submit_before' => $doc->submit_before,
-                    ]);
-                }
-
-                $applicant->submissions()->update([
-                    'owner_id'   => $student->id,
-                    'owner_type' => Student::class,
-                ]);
-
-
-                $student->enrollments()->firstOrCreate(
-                    [
-                        'student_id' => $student->id,
-                        'academic_term_id' => $activeTerm->id,
-                    ],
-                    [
-                        'status' => 'enrolled',
-                        'program_id' => null, // Can be set later
-                        'section_id' => null, // Can be set later
-                        'enrolled_at' => Carbon::now()
-                    ]
-                );
+                return $this->student_service->enrollStudent($applicant);
             });
 
-            return response()->json(['message' => 'Student record created.']);
-        } catch (StudentRecordException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            try {
+                $invoice = $this->invoiceService->assignInvoiceAfterPromotion($student->id);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Student enrollment has been completed successfully, and the relevant school fees have been set.',
+                    'student_id' => $student->id,
+                    'invoice_id' => $invoice->id
+                ]);
+            } catch (\InvalidArgumentException $e) {
+                // Invoice assignment failed, but enrollment was successful
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
+                    'student_id' => $student->id,
+                    'warning' => $e->getMessage()
+                ]);
+            } catch (\Exception $e) {
+                // Log invoice assignment error but don't fail the enrollment
+                Log::warning('Invoice assignment failed after successful enrollment', [
+                    'student_id' => $student->id,
+                    'error' => $e->getMessage()
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
+                    'student_id' => $student->id
+                ]);
+            }
+
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 422); // Unprocessable Entity
+        } catch (\Exception $e) {
+            Log::error('Student enrollment failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'An unexpected error occurred. Please try again.'], 500);
         }
     }
 

@@ -58,10 +58,17 @@ class ApplicantService
 
     public function fetchAuthenticatedApplicant(): ?Applicants
     {
-        // Fetch the authenticated applicant
+        // Fetch the authenticated applicant with eager loading
         $authUser = $this->userService->fetchAuthenticatedUser();
 
-        $applicant = $authUser->applicant()->first();
+        $applicant = $authUser->applicant()
+            ->with([
+                'interview',
+                'applicationForm',
+                'assignedDocuments.documents',
+                'assignedDocuments.submissions'
+            ])
+            ->first();
 
         if (!$applicant) {
             return null; 

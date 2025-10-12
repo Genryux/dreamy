@@ -57,8 +57,7 @@ class InterviewService
         }
 
         // Update the interview status
-        $applicant->interview->status = $status;
-        $applicant->interview->save();
+        $applicant->interview->update(['status' => $status]);
 
         return $applicant->interview;
 

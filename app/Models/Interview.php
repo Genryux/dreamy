@@ -15,7 +15,9 @@ class Interview extends Model
         'location',
         'add_info',
         'status',
-        'remarks'
+        'remarks',
+        'recorded_by',
+        'recorded_at'
     ];
 
     public function applicant()

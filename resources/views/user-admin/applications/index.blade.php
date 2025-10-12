@@ -1,30 +1,4 @@
 @extends('layouts.admin')
-@section('breadcrumbs')
-    <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
-        <ol class="flex items-center gap-1 text-sm text-gray-700">
-            <li class="rtl:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </li>
-            <li>
-                <a href="/programs" class="block transition-colors hover:text-gray-900"> Applications </a>
-            </li>
-
-            <li class="rtl:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </li>
-
-        </ol>
-
-    </nav>
-@endsection
 @section('modal')
     @if (Route::is('applications.pending'))
         {{-- add student modal --}}
@@ -179,10 +153,10 @@
             </li>
 
             <li class="me-2">
-                <a href="{{ route('applications.approved') }}"
+                <a href="{{ route('applications.accepted') }}"
                     class="inline-block p-4 border-b-2 rounded-t-lg 
-              {{ Route::is('applications.approved') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
-                    Approved
+              {{ Route::is('applications.accepted') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Accepted
                 </a>
             </li>
 
@@ -209,35 +183,13 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
                         Pending Applications
                     </span>
-                    <div id="dropdown_btn"
-                        class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
-                        </div>
-
-                        <div id="dropdown_selection"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="import-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                            </button>
-                            <x-nav-link href="/students/export/excel"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                            </x-nav-link>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                            </button>
-                        </div>
-
-                    </div>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Course subjects and curriculum for this program
+                    </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
@@ -291,28 +243,17 @@
                                 <select name="" id="program_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
                                     <option value="" selected>All Programs</option>
-                                    @foreach(\App\Models\Program::where('status', 'active')->get() as $program)
+                                    @foreach (\App\Models\Program::where('status', 'active')->get() as $program)
                                         <option value="{{ $program->code }}">{{ $program->code }}</option>
                                     @endforeach
                                 </select>
-                                <i id="clear-program-filter-btn" class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                                <i id="clear-program-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
 
 
                         </div>
                     </div>
-
-                    <div class="flex flex-row justify-center items-center gap-2">
-                        <div class="flex flex-row justify-center items-center truncate">
-                            <button id="create-section-modal-btn"
-                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
-                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                Add New Application
-                            </button>
-                        </div>
-
-                    </div>
-
 
                 </div>
 
@@ -358,39 +299,17 @@
 
         </div>
     @endif
-    @if (Route::is('applications.approved'))
+    @if (Route::is('applications.accepted'))
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
-                        Approved Applications
+                        Accepted Applications
                     </span>
-                    <div id="dropdown_2"
-                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                        </div>
-
-                        <div id="dropdown_selection2"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="import-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                            </button>
-                            <x-nav-link href="/students/export/excel"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                            </x-nav-link>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                            </button>
-                        </div>
-
-                    </div>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Course subjects and curriculum for this program
+                    </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
@@ -423,17 +342,17 @@
                                 <i id="clear-gender-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
-                            <div
+                            <div id="status_selection_container"
                                 class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
-                                <select name="" id="program_selection"
+                                <select name="" id="status_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
-                                    <option value="" selected disabled>Category</option>
-                                    <option value="" data-id="Core">Core</option>
-                                    <option value="" data-id="Applied">Applied</option>
-                                    <option value="" data-id="Specialized">Specialized</option>
-
+                                    <option value="" selected>All Status</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Scheduled">Scheduled</option>
+                                    <option value="Taking-Exam">Taking-Exam</option>
+                                    <option value="Exam-Failed">Exam-Failed</option>
                                 </select>
-                                <i id="clear-program-filter-btn"
+                                <i id="clear-status-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
 
@@ -450,42 +369,26 @@
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
 
                             </div>
-                            <div id="semester_selection_container"
-                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
-
-                                <select name="semester_selection" id="semester_selection"
-                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
-                                    <option value="" disabled selected>Semester</option>
-                                    <option value="" data-sem="1st Semester">1st Semester</option>
-                                    <option value="" data-sem="2nd Semester">2nd Semester</option>
+                            <div id="program_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected>All Programs</option>
+                                    @foreach (\App\Models\Program::where('status', 'active')->get() as $program)
+                                        <option value="{{ $program->code }}">{{ $program->code }}</option>
+                                    @endforeach
                                 </select>
-                                <i id="clear-grade-filter-btn"
+                                <i id="clear-program-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
-
                             </div>
 
-
                         </div>
                     </div>
-
-                    <div class="flex flex-row justify-center items-center gap-2">
-
-                        <div class="flex flex-row justify-center items-center truncate">
-                            <button id="add-student-modal-btn"
-                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
-                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                Create New Subject
-                            </button>
-                        </div>
-
-
-                    </div>
-
 
                 </div>
 
                 <div class="w-full">
-                    <table id="approved-table" class="w-full table-fixed">
+                    <table id="accepted-table" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
@@ -511,6 +414,10 @@
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Accepted At</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
                                 <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
                                 </th>
@@ -529,35 +436,13 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
                         Pending Documents
                     </span>
-                    <div id="dropdown_3"
-                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                        </div>
-
-                        <div id="dropdown_selection3"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="import-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                            </button>
-                            <x-nav-link href="/students/export/excel"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                            </x-nav-link>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                            </button>
-                        </div>
-
-                    </div>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Course subjects and curriculum for this program
+                    </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
@@ -857,6 +742,7 @@
         // Global variables for applications
         window.selectedGrade = '';
         window.selectedProgram = '';
+        window.selectedStatus = '';
         window.selectedPageLength = 10;
         window.currentLayout = 'cards'; // 'table' or 'cards'
         window.currentPage = 1;
@@ -865,6 +751,7 @@
 
         // Table instances for each tab
         let pendingTable = null;
+        let acceptedTable = null;
         let approvedTable = null;
         let pendingDocumentsTable = null;
         let rejectedTable = null;
@@ -880,7 +767,19 @@
                 'modal-container-2');
 
             // Initialize tables based on current route
-            initializeTablesBasedOnRoute();
+            const currentPath = window.location.pathname;
+
+            if (currentPath === '/applications/pending') {
+                initializePendingTable();
+            } else if (currentPath === '/applications/accepted') {
+                initializeAcceptedTable();
+            } else if (currentPath === '/applications/pending-documents') {
+                initializePendingDocumentsTable();
+            } else if (currentPath === '/applications/rejected') {
+                initializeRejectedTable();
+            } else if (currentPath === '/school-fees/payments') {
+                initializePaymentHistoryTab();
+            }
 
             // Initialize dropdowns
             dropDown('dropdown_2', 'dropdown_selection2');
@@ -891,62 +790,49 @@
             initializeFilterListeners();
         });
 
-        // Function to initialize tables based on current route
-        function initializeTablesBasedOnRoute() {
-            @if (Route::is('applications.pending'))
-                initializePendingTable();
-            @elseif (Route::is('applications.approved'))
-                initializeApprovedTable();
-            @elseif (Route::is('applications.pending-documents'))
-                initializePendingDocumentsTable();
-            @elseif (Route::is('applications.rejected'))
-                initializeRejectedTable();
-            @endif
-        }
 
         // Initialize Pending Applications Table
         function initializePendingTable() {
-            if (document.getElementById('pending-table')) {
-                pendingTable = initCustomDataTable(
-                    'pending-table',
-                    '/getRecentApplications',
-                    [{
-                            data: 'index',
-                            width: '3%',
-                            searchable: true,
-                            orderable: false
-                        },
-                        {
-                            data: 'applicant_id',
-                            width: '15%',
-                            orderable: true
-                        },
-                        {
-                            data: 'full_name',
-                            width: '20%',
-                            orderable: true
-                        },
-                        {
-                            data: 'program',
-                            width: '15%',
-                            orderable: true
-                        },
-                        {
-                            data: 'grade_level',
-                            width: '15%',
-                            orderable: true
-                        },
-                        {
-                            data: 'created_at',
-                            width: '12%',
-                            orderable: true
-                        },
-                        {
-                            data: 'id',
-                            className: 'text-center',
-                            width: '10%',
-                            render: function(data, type, row) {
-                                return `
+            pendingTable = initCustomDataTable(
+                'pending-table',
+                '/getPendingApplications',
+                [{
+                        data: 'index',
+                        width: '3%',
+                        searchable: true,
+                        orderable: false
+                    },
+                    {
+                        data: 'applicant_id',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'full_name',
+                        width: '20%',
+                        orderable: true
+                    },
+                    {
+                        data: 'program',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'grade_level',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'submitted_at',
+                        width: '15%',
+                        orderable: true
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        width: '15%',
+                        render: function(data, type, row) {
+                            return `
                                 <div class='flex flex-row justify-center items-center opacity-100'>
                                     <a href="/pending-application/form-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
@@ -958,64 +844,77 @@
                                     </a>
                                 </div>
                                 `;
-                            },
-                            orderable: false,
-                            searchable: false
-                        }
-                    ],
-                    [[4, 'desc']], // Sort by created_at (column 4) descending by default
-                    'myCustomSearch', {
-                        grade_filter: window.selectedGrade,
-                        program_filter: window.selectedProgram,
-                        pageLength: window.selectedPageLength
+                        },
+                        orderable: false,
+                        searchable: false
                     }
-                );
-            }
+                ],
+                [
+                    [0, 'desc']
+                ], // Sort by created_at (column 4) descending by default
+                'myCustomSearch', {
+                    grade_filter: window.selectedGrade,
+                    program_filter: window.selectedProgram,
+                    pageLength: window.selectedPageLength
+                }
+            );
+            clearSearch('clear-btn', 'myCustomSearch', pendingTable);
+
         }
 
         // Initialize Approved Applications Table
-        function initializeApprovedTable() {
-            if (document.getElementById('approved-table')) {
-                approvedTable = initCustomDataTable(
-                    'approved-table',
-                    '/getApprovedApplications',
-                    [{
-                            data: 'index',
-                            width: '3%',
-                            searchable: true,
-                            orderable: false
-                        },
-                        {
-                            data: 'applicant_id',
-                            width: '15%',
-                            orderable: true
-                        },
-                        {
-                            data: 'full_name',
-                            width: '20%',
-                            orderable: true
-                        },
-                        {
-                            data: 'program',
-                            width: '15%',
-                            orderable: true
-                        },
-                        {
-                            data: 'grade_level',
-                            width: '15%',
-                            orderable: true
-                        },
-                        {
-                            data: 'status',
-                            width: '12%',
-                            orderable: true
-                        },
-                        {
-                            data: 'id',
-                            className: 'text-center',
-                            width: '10%',
-                            render: function(data, type, row) {
-                                return `
+        function initializeAcceptedTable() {
+            acceptedTable = initCustomDataTable(
+                'accepted-table',
+                '/getAcceptedApplications',
+                [{
+                        data: 'index',
+                        width: '3%',
+                        searchable: true,
+                        orderable: true
+                    },
+                    {
+                        data: 'applicant_id',
+                        width: '15%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'full_name',
+                        width: '15%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'program',
+                        width: '15%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'grade_level',
+                        width: '15%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'status',
+                        width: '12%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'accepted_at',
+                        width: '18%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        width: '10%',
+                        render: function(data, type, row) {
+                            return `
                                 <div class='flex flex-row justify-center items-center opacity-100'>
                                     <a href="/selected-application/interview-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-green-100 text-green-500 font-semibold px-3 py-1 rounded-xl hover:bg-green-500 hover:ring hover:ring-green-200 hover:text-white transition duration-150">
@@ -1027,19 +926,23 @@
                                     </a>
                                 </div>
                                 `;
-                            },
-                            orderable: false,
-                            searchable: false
-                        }
-                    ],
-                    [[0, 'desc']],
-                    'myCustomSearch', {
-                        grade_filter: window.selectedGrade,
-                        program_filter: window.selectedProgram,
-                        pageLength: window.selectedPageLength
+                        },
+                        orderable: false,
+                        searchable: false
                     }
-                );
-            }
+                ],
+                [
+                    [0, 'desc']
+                ],
+                'myCustomSearch', {
+                    grade_filter: window.selectedGrade,
+                    program_filter: window.selectedProgram,
+                    status_filter: window.selectedStatus,
+                    pageLength: window.selectedPageLength
+                }
+            );
+
+            clearSearch('clear-btn', 'myCustomSearch', acceptedTable);
         }
 
         // Initialize Pending Documents Table
@@ -1066,7 +969,7 @@
                             width: '15%'
                         },
                         {
-                            data: 'documents_status',
+                            data: 'status',
                             width: '15%'
                         },
                         {
@@ -1091,7 +994,9 @@
                             searchable: false
                         }
                     ],
-                    [[0, 'desc']],
+                    [
+                        [0, 'desc']
+                    ],
                     'myCustomSearch', {
                         grade_filter: window.selectedGrade,
                         program_filter: window.selectedProgram,
@@ -1150,7 +1055,9 @@
                             searchable: false
                         }
                     ],
-                    [[0, 'desc']],
+                    [
+                        [0, 'desc']
+                    ],
                     'myCustomSearch', {
                         grade_filter: window.selectedGrade,
                         program_filter: window.selectedProgram,
@@ -1164,12 +1071,15 @@
         function initializeFilterListeners() {
             let programSelection = document.querySelector('#program_selection');
             let gradeSelection = document.querySelector('#grade_selection');
+            let statusSelection = document.querySelector('#status_selection');
             let pageLengthSelection = document.querySelector('#page-length-selection');
 
             let clearProgramFilterBtn = document.querySelector('#clear-program-filter-btn');
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
+            let clearStatusFilterBtn = document.querySelector('#clear-status-filter-btn');
             let programContainer = document.querySelector('#program_selection_container');
             let gradeContainer = document.querySelector('#grade_selection_container');
+            let statusContainer = document.querySelector('#status_selection_container');
 
             // Program filter
             if (programSelection) {
@@ -1180,11 +1090,11 @@
                     // Update styling when program is selected
                     if (this.value) {
                         let clearProgramFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                        let clearProgramFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                        let clearProgramFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-600'];
                         let programSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                        let programSelectionAdd = ['text-[#1A3165]'];
+                        let programSelectionAdd = ['text-gray-800'];
                         let programContainerRem = ['bg-gray-100'];
-                        let programContainerAdd = ['bg-[#1A73E8]/15', 'border-[#1A73E8]', 'hover:bg-[#1A73E8]/25'];
+                        let programContainerAdd = ['bg-gray-200', 'border-gray-400', 'hover:bg-gray-300'];
 
                         clearProgramFilterBtn.classList.remove(...clearProgramFilterRem);
                         clearProgramFilterBtn.classList.add(...clearProgramFilterAdd);
@@ -1193,7 +1103,7 @@
                         programContainer.classList.remove(...programContainerRem);
                         programContainer.classList.add(...programContainerAdd);
 
-                        handleClearProgramFilter();
+                        // Clear filter handler is set up below
                     }
                 });
             }
@@ -1209,11 +1119,11 @@
                     // Update styling when grade is selected
                     if (gradeValue) {
                         let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                        let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                        let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-600'];
                         let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                        let gradeSelectionAdd = ['text-[#1A3165]'];
+                        let gradeSelectionAdd = ['text-gray-800'];
                         let gradeContainerRem = ['bg-gray-100'];
-                        let gradeContainerAdd = ['bg-[#1A73E8]/15', 'border-[#1A73E8]', 'hover:bg-[#1A73E8]/25'];
+                        let gradeContainerAdd = ['bg-gray-200', 'border-gray-400', 'hover:bg-gray-300'];
 
                         clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
                         clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
@@ -1222,7 +1132,34 @@
                         gradeContainer.classList.remove(...gradeContainerRem);
                         gradeContainer.classList.add(...gradeContainerAdd);
 
-                        handleClearGradeFilter(selectedOption);
+                        // Clear filter handler is set up below
+                    }
+                });
+            }
+
+            // Status filter
+            if (statusSelection) {
+                statusSelection.addEventListener('change', function() {
+                    window.selectedStatus = this.value;
+                    refreshCurrentTable();
+
+                    // Update styling when status is selected
+                    if (this.value) {
+                        let clearStatusFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
+                        let clearStatusFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-600'];
+                        let statusSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
+                        let statusSelectionAdd = ['text-gray-800'];
+                        let statusContainerRem = ['bg-gray-100'];
+                        let statusContainerAdd = ['bg-gray-200', 'border-gray-400', 'hover:bg-gray-300'];
+
+                        clearStatusFilterBtn.classList.remove(...clearStatusFilterRem);
+                        clearStatusFilterBtn.classList.add(...clearStatusFilterAdd);
+                        statusSelection.classList.remove(...statusSelectionRem);
+                        statusSelection.classList.add(...statusSelectionAdd);
+                        statusContainer.classList.remove(...statusContainerRem);
+                        statusContainer.classList.add(...statusContainerAdd);
+
+                        // Clear filter handler is set up below
                     }
                 });
             }
@@ -1237,16 +1174,18 @@
 
             // Clear program filter function
             function handleClearProgramFilter() {
+                if (!clearProgramFilterBtn || !programContainer || !programSelection) return;
+
                 clearProgramFilterBtn.addEventListener('click', () => {
-                    programContainer.classList.remove('bg-[#1A73E8]/15');
-                    programContainer.classList.remove('border-[#1A73E8]');
-                    programContainer.classList.remove('hover:bg-[#1A73E8]/25');
+                    programContainer.classList.remove('bg-gray-200');
+                    programContainer.classList.remove('border-gray-400');
+                    programContainer.classList.remove('hover:bg-gray-300');
                     clearProgramFilterBtn.classList.remove('fi-bs-cross-small');
                     clearProgramFilterBtn.classList.add('fi-rr-caret-down');
                     programContainer.classList.add('bg-gray-100');
-                    programSelection.classList.remove('text-[#1A3165]');
+                    programSelection.classList.remove('text-gray-800');
                     programSelection.classList.add('text-gray-700');
-                    clearProgramFilterBtn.classList.remove('text-[#1A3165]');
+                    clearProgramFilterBtn.classList.remove('text-gray-600');
                     clearProgramFilterBtn.classList.add('text-gray-500');
 
                     programSelection.selectedIndex = 0;
@@ -1256,17 +1195,19 @@
             }
 
             // Clear grade filter function
-            function handleClearGradeFilter(selectedOption) {
+            function handleClearGradeFilter() {
+                if (!clearGradeFilterBtn || !gradeContainer || !gradeSelection) return;
+
                 clearGradeFilterBtn.addEventListener('click', () => {
-                    gradeContainer.classList.remove('bg-[#1A73E8]/15');
-                    gradeContainer.classList.remove('border-[#1A73E8]');
-                    gradeContainer.classList.remove('hover:bg-[#1A73E8]/25');
+                    gradeContainer.classList.remove('bg-gray-200');
+                    gradeContainer.classList.remove('border-gray-400');
+                    gradeContainer.classList.remove('hover:bg-gray-300');
                     clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
                     clearGradeFilterBtn.classList.add('fi-rr-caret-down');
                     gradeContainer.classList.add('bg-gray-100');
-                    gradeSelection.classList.remove('text-[#1A3165]');
+                    gradeSelection.classList.remove('text-gray-800');
                     gradeSelection.classList.add('text-gray-700');
-                    clearGradeFilterBtn.classList.remove('text-[#1A3165]');
+                    clearGradeFilterBtn.classList.remove('text-gray-600');
                     clearGradeFilterBtn.classList.add('text-gray-500');
 
                     gradeSelection.selectedIndex = 0;
@@ -1275,12 +1216,40 @@
                 });
             }
 
+            // Clear status filter function
+            function handleClearStatusFilter() {
+                if (!clearStatusFilterBtn || !statusContainer || !statusSelection) return;
+
+                clearStatusFilterBtn.addEventListener('click', () => {
+                    statusContainer.classList.remove('bg-gray-200');
+                    statusContainer.classList.remove('border-gray-400');
+                    statusContainer.classList.remove('hover:bg-gray-300');
+                    clearStatusFilterBtn.classList.remove('fi-bs-cross-small');
+                    clearStatusFilterBtn.classList.add('fi-rr-caret-down');
+                    statusContainer.classList.add('bg-gray-100');
+                    statusSelection.classList.remove('text-gray-800');
+                    statusSelection.classList.add('text-gray-700');
+                    clearStatusFilterBtn.classList.remove('text-gray-600');
+                    clearStatusFilterBtn.classList.add('text-gray-500');
+
+                    statusSelection.selectedIndex = 0;
+                    window.selectedStatus = '';
+                    refreshCurrentTable();
+                });
+            }
+
             // Initialize default selections
             window.onload = function() {
                 if (gradeSelection) gradeSelection.selectedIndex = 0;
                 if (programSelection) programSelection.selectedIndex = 0;
+                if (statusSelection) statusSelection.selectedIndex = 0;
                 if (pageLengthSelection) pageLengthSelection.selectedIndex = 0;
             }
+
+            // Set up clear filter handlers
+            handleClearProgramFilter();
+            handleClearGradeFilter();
+            handleClearStatusFilter();
         }
 
         // Refresh the current table based on route
@@ -1289,9 +1258,9 @@
                 if (pendingTable) {
                     pendingTable.ajax.reload();
                 }
-            @elseif (Route::is('applications.approved'))
-                if (approvedTable) {
-                    approvedTable.ajax.reload();
+            @elseif (Route::is('applications.accepted'))
+                if (acceptedTable) {
+                    acceptedTable.ajax.reload();
                 }
             @elseif (Route::is('applications.pending-documents'))
                 if (pendingDocumentsTable) {

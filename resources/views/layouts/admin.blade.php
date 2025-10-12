@@ -113,7 +113,7 @@
                     </div>
 
                     <div
-                        class="flex flex-col space-y-2 flex-1 mt-2 max-h-[360px] w-full overflow-x-hidden overflow-y-scroll">
+                        class="flex flex-col space-y-2 flex-1 mt-2 max-h-[400px] w-full overflow-x-hidden overflow-y-scroll">
 
                         <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
 
@@ -136,7 +136,7 @@
                         </x-nav-link>
                         @can('view track')
                             <x-nav-link href="/tracks" :active="str_starts_with(request()->path(), 'tracks') ||
-                                str_starts_with(request()->path(), 'sections') ||
+                                str_starts_with(request()->path(), 'section') ||
                                 str_starts_with(request()->path(), 'program')">
 
                                 <span class="flex flex-row items-center space-x-4">
@@ -146,30 +146,6 @@
 
                             </x-nav-link>
                         @endcan
-                        <x-nav-link href="/sections" :active="request()->is('sections')">
-
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-users-class text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">Sections</p>
-                            </span>
-
-                        </x-nav-link>
-                        <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
-
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-envelope text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">User Invitations</p>
-                            </span>
-
-                        </x-nav-link>
-                        <x-nav-link href="/subjects" :active="request()->is('subjects')">
-
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">Subjects</p>
-                            </span>
-
-                        </x-nav-link>
                         @can('view school fees')
                             <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
 
@@ -186,6 +162,14 @@
                             <span class="flex flex-row items-center space-x-4">
                                 <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
                                 <p class="font-semibold text-[16px] nav-text truncate">Site Management</p>
+                            </span>
+
+                        </x-nav-link>
+                        <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
+
+                            <span class="flex flex-row items-center space-x-4">
+                                <i class="fi fi-rr-user text-[20px] flex-shrink-0"></i>
+                                <p class="font-semibold text-[16px] nav-text truncate">User Management</p>
                             </span>
 
                         </x-nav-link>

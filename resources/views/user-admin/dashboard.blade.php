@@ -2,7 +2,8 @@
 
 @section('modal')
     {{-- academic term modal --}}
-    <x-modal modal_id="acad-term-modal" modal_name="Add new academic term" close_btn_id="at-close-btn" modal_container_id="modal-container-1">
+    <x-modal modal_id="acad-term-modal" modal_name="Add new academic term" close_btn_id="at-close-btn"
+        modal_container_id="modal-container-1">
         <form action="/academic-terms" method="POST" id="academic-term-form" class="pt-2 pb-4 px-4 space-y-2">
             @csrf
             <div class="flex flex-row space-x-2">
@@ -74,7 +75,8 @@
         </x-slot>
     </x-modal>
     {{-- enrollment period modal --}}
-    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn" modal_container_id="modal-container-2">
+    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn"
+        modal_container_id="modal-container-2">
         <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="pt-2 pb-4 px-4 space-y-2">
             @csrf
             <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
@@ -276,9 +278,11 @@
                 <span class="font-semibold text-[18px] opacity-90">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
                     @if ($activeEnrollmentPeriod->status == 'Ongoing')
-                        <span id="status-span" class="text-[12px] md:text-[14px] font-bold text-[#34A853] bg-[#E6F4EA] px-2 py-1 rounded-full">Ongoing</span>
+                        <span id="status-span"
+                            class="text-[12px] md:text-[14px] font-bold text-[#34A853] bg-[#E6F4EA] px-2 py-1 rounded-full">Ongoing</span>
                     @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                        <span id="status-span" class="text-[12px] md:text-[14px] font-bold text-[#EA4335] bg-[#FCE8E6] px-2 py-1 rounded-full">Paused</span>
+                        <span id="status-span"
+                            class="text-[12px] md:text-[14px] font-bold text-[#EA4335] bg-[#FCE8E6] px-2 py-1 rounded-full">Paused</span>
                     @endif
                 @endif
             </div>
@@ -293,21 +297,25 @@
                 <div class="flex flex-row py-4 justify-between items-center">
                     <div class="flex flex-col">
                         <span class="font-semibold text-[16px] opacity-90">{{ $activeEnrollmentPeriod->name }}</span>
-                        <span class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                        <span
+                            class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
                     </div>
                     <div>
                         @if ($activeEnrollmentPeriod)
                             <span class="text-[14px] font-bold">
                                 {{-- toggle --}}
-                                <label for="toggleEnrollmentPeriod" class="relative inline-flex items-center cursor-pointer select-none">
+                                <label for="toggleEnrollmentPeriod"
+                                    class="relative inline-flex items-center cursor-pointer select-none">
                                     <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer"
                                         @if ($activeEnrollmentPeriod->status == 'Ongoing') checked 
                                     value="Paused"
                                 @elseif ($activeEnrollmentPeriod->status == 'Paused')
                                     value="Ongoing" @endif>
-                                    <div class="w-12 h-6 bg-[#EA4335]/70 peer-checked:bg-[#34A853]/70 rounded-full transition-colors duration-200">
+                                    <div
+                                        class="w-12 h-6 bg-[#EA4335]/70 peer-checked:bg-[#34A853]/70 rounded-full transition-colors duration-200">
                                     </div>
-                                    <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-6"></span>
+                                    <span
+                                        class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-6"></span>
                                 </label>
                             </span>
                         @endif
@@ -316,12 +324,14 @@
             @endif
             @if ($activeEnrollmentPeriod)
                 <div class="flex flex-row gap-2 py-4">
-                    <div class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#34A853]/20 rounded-xl px-5 py-3">
+                    <div
+                        class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#34A853]/20 rounded-xl px-5 py-3">
                         <div class="bg-[#E6F4EA] px-3 py-2 rounded-full">
                             <i class="fi fi-sr-calendar-check text-[22px] text-[#34A853]"></i>
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
+                            <span
+                                class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
                             <span class="text-[13px] md:text-[14px] opacity-60">Start Date</span>
                         </div>
                     </div>
@@ -330,12 +340,14 @@
                         <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
                     </div>
 
-                    <div class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#EA4335]/20 rounded-xl px-5 py-3">
+                    <div
+                        class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#EA4335]/20 rounded-xl px-5 py-3">
                         <div class="bg-[#FCE8E6] px-3 py-2 rounded-full">
                             <i class="fi fi-sr-calendar-xmark text-[22px] text-[#EA4335]"></i>
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
+                            <span
+                                class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
                             <span class="text-[13px] md:text-[14px] opacity-60">End Date</span>
                         </div>
                     </div>
@@ -361,9 +373,10 @@
         @if ($activeEnrollmentPeriod)
             <div class="flex flex-row items-center justify-between pt-3">
                 <span id="ep-time"
-                      data-end="{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->toIso8601String() }}"
-                      data-status="{{ $activeEnrollmentPeriod->status }}"
-                      class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[14px] md:text-[15px]">Time Remaining:
+                    data-end="{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->toIso8601String() }}"
+                    data-status="{{ $activeEnrollmentPeriod->status }}"
+                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[14px] md:text-[15px]">Time
+                    Remaining:
                     <span id="ep-time-value" class="opacity-100 font-bold">
                         @php
                             $remainingDays = max(
@@ -377,7 +390,8 @@
                     </span>
                 </span>
                 <div>
-                    <button id="end-enrollment-btn" class="bg-red-100 text-red-500 px-3 py-1 rounded-xl text-[14px] font-semibold hover:bg-red-500 hover:text-white hover:ring hover:ring-red-200 ease-in-out duration-150">End
+                    <button id="end-enrollment-btn"
+                        class="bg-red-100 text-red-500 px-3 py-1 rounded-xl text-[14px] font-semibold hover:bg-red-500 hover:text-white hover:ring hover:ring-red-200 ease-in-out duration-150">End
                         Period
                     </button>
                 </div>
@@ -400,7 +414,8 @@
             {{-- KPI card --}}
             <div class="flex flex-col justify-between bg-[#E3ECFF]/40 rounded-xl p-4">
                 <div class="flex flex-col items-center justify-center py-4">
-                    <span id="total-application" class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
+                    <span id="total-application"
+                        class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
                             class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
                     <span class="font-medium opacity-60">Total Applications</span>
                 </div>
@@ -416,36 +431,44 @@
 
             {{-- Stat tiles --}}
             <div class="md:col-span-2 grid grid-cols-2 gap-3">
-                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#FBBC04]/20">
+                <div
+                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#FBBC04]/20">
                     <div class="flex flex-row items-center gap-3">
-                        <div class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                        <div
+                            class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
                             {{ $pending_applications ?? '0' }}</div>
                         <p class="font-semibold text-[15px] md:text-[16px]">Pending</p>
                     </div>
                     <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
 
-                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#34A853]/20">
+                <div
+                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#34A853]/20">
                     <div class="flex flex-row items-center gap-3">
-                        <div class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                        <div
+                            class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
                             {{ $selected_applications ?? '0' }}</div>
                         <p class="font-semibold text-[15px] md:text-[16px]">Selected</p>
                     </div>
                     <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
 
-                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#9C27B0]/20">
+                <div
+                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#9C27B0]/20">
                     <div class="flex flex-row items-center gap-3">
-                        <div class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                        <div
+                            class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
                             0</div>
                         <p class="font-semibold text-[15px] md:text-[16px]">Pending Docs</p>
                     </div>
                     <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
                 </div>
 
-                <div class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#1A73E8]/20">
+                <div
+                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#1A73E8]/20">
                     <div class="flex flex-row items-center gap-3">
-                        <div class="bg-[#E7F0FD] border border-[#1A73E8]/60 text-[#1A73E8] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
+                        <div
+                            class="bg-[#E7F0FD] border border-[#1A73E8]/60 text-[#1A73E8] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
                             0</div>
                         <p class="font-semibold text-[15px] md:text-[16px]">Enrolled</p>
                     </div>
@@ -458,7 +481,6 @@
 @endsection
 
 @section('content')
-
     @error('year')
         <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
     @enderror
@@ -495,8 +517,7 @@
                     <table id="myTable" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
-                                <th
-                                    class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 truncate">
                                     <span class="mr-2 font-medium opacity-70">Applicant Id</span>
                                 </th>
                                 <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
@@ -509,11 +530,11 @@
                                     <span class="mr-2 font-medium opacity-70">Grade Level</span>
                                 </th>
                                 <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Created at</span>
+                                    <span class="mr-2 font-medium opacity-70">Submitted at</span>
                                 </th>
-                                <th
-                                    class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Actions</span></th>
+                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-70">Actions</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -569,7 +590,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @push('scripts')
@@ -588,58 +608,82 @@
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            // Initialize table using the AJAX component
-            table = initCustomDataTable(
+
+            let recentApplicationTable = initCustomDataTable(
                 'myTable',
-                '/admin/recent-applications',
-                [
-                    {
+                `/getRecentApplications`,
+                [{
                         data: 'applicant_id',
-                        width: '16%',
-                        orderable: true
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'full_name',
-                        width: '20%',
-                        orderable: true
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'program',
-                        width: '15%',
-                        orderable: true
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'grade_level',
-                        width: '15%',
-                        orderable: true
+                        render: DataTable.render.text()
                     },
                     {
-                        data: 'created_at',
-                        width: '15%',
-                        orderable: true
+                        data: 'submitted_at',
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'id',
-                        className: 'text-center',
-                        width: '10%',
                         render: function(data, type, row) {
-                            return `<a href="/pending-application/form-details/${data}" class="flex justify-center items-center text-blue-600 bg-blue-200 rounded hover:bg-blue-300 transition duration-150 p-1"><button type="button" class=""><i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i></button></a>`;
+                            return `
+                                <a href='pending-application/form-details/${data}' id="open-edit-modal-btn-${data}"
+                                    data-school-fee-id="${data}"
+                                    class="edit-school-fee-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold p-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                    <i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i>
+                                </a>
+                            `;
                         },
                         orderable: false,
                         searchable: false
                     }
                 ],
-                [[4, 'desc']], // Order by created_at descending
-                null, // No custom search input
-                [] // columnDefs parameter
+                [
+                    [0, 'desc']
+                ],
+                'school-fee-search',
+                [{
+                        width: '20%',
+                        targets: 0,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '18%',
+                        targets: 1
+                    },
+                    {
+                        width: '15%',
+                        targets: 2
+                    },
+                    {
+                        width: '15%',
+                        targets: 3
+                    },
+                    {
+                        width: '15%',
+                        targets: 4
+                    },
+                    {
+                        width: '10%',
+                        targets: 5,
+                        className: 'text-center'
+                    }
+                ],
             );
 
-            // Override some settings for dashboard table
-            table.page.len(10).draw();
-            table.search('').draw(); // Disable searching for dashboard
 
             initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn', 'modal-container-1');
-            initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn', 'modal-container-2');
+            initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn',
+                'modal-container-2');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn', 'modal-container-3');
 
@@ -647,44 +691,48 @@
 
             // Restrict fetching-recent-applications channel to super_admin and admin only
             const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
-            
+
             if (userRoles.some(role => ['super_admin', 'admin'].includes(role))) {
                 console.log('Setting up recent applications listener for admin users');
-                
-                window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (event) => {
-                    console.log('New application received:', event);
-                    console.log('Total applications:', event.total_applications);
-                    console.log('Application data:', event.application);
-                    
-                    // Update total applications counter
-                    if (totalApplications) {
-                        totalApplications.innerHTML = event.total_applications;
-                    }
 
-                    // Reload the table to show new data
-                    table.ajax.reload(function() {
-                        console.log('Table reloaded with new application data');
-                        
-                        // Highlight the first row (newest application) after reload
-                        setTimeout(() => {
-                            let firstRow = document.querySelector('#myTable tbody tr:first-child');
-                            if (firstRow) {
-                                firstRow.classList.add(
-                                    'duration-300',
-                                    'ease-in-out',
-                                    'bg-[#FBBC04]/30'
-                                );
+                window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (
+                    event) => {
+                        console.log('New application received:', event);
+                        console.log('Total applications:', event.total_applications);
+                        console.log('Application data:', event.application);
 
-                                // Remove highlight after 4000ms
-                                setTimeout(() => {
-                                    firstRow.classList.remove('bg-[#FBBC04]/30');
-                                }, 4000);
-                            }
-                        }, 500); // Small delay to ensure DOM is updated
-                    }, false); // false = don't reset paging
-                });
+                        // Update total applications counter
+                        if (totalApplications) {
+                            totalApplications.innerHTML = event.total_applications;
+                        }
+
+                        // Reload the table to show new data
+                        recentApplicationTable.ajax.reload(function() {
+                            console.log('Table reloaded with new application data');
+
+                            // Highlight the first row (newest application) after reload
+                            setTimeout(() => {
+                                let firstRow = document.querySelector(
+                                    '#myTable tbody tr:first-child');
+                                if (firstRow) {
+                                    firstRow.classList.add(
+                                        'duration-300',
+                                        'ease-in-out',
+                                        'bg-[#FBBC04]/30'
+                                    );
+
+                                    // Remove highlight after 4000ms
+                                    setTimeout(() => {
+                                        firstRow.classList.remove('bg-[#FBBC04]/30');
+                                    }, 4000);
+                                }
+                            }, 500); // Small delay to ensure DOM is updated
+                        }, false); // false = don't reset paging
+                    });
             } else {
-                console.log('User does not have super_admin or admin role, skipping recent applications channel subscription');
+                console.log(
+                    'User does not have super_admin or admin role, skipping recent applications channel subscription'
+                    );
             }
 
             // if (endEnrollmentBtn) {
@@ -798,10 +846,11 @@
             startCountdown();
 
             // Update countdown opacity and status dynamically on status events
-            window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (event) => {
-                if (!epTimeSpan) return;
-                epTimeSpan.setAttribute('data-status', event.enrollmentPeriod.status);
-            });
+            window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
+                event) => {
+                    if (!epTimeSpan) return;
+                    epTimeSpan.setAttribute('data-status', event.enrollmentPeriod.status);
+                });
 
 
 

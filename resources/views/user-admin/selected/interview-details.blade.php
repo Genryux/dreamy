@@ -3,12 +3,22 @@
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="mb-4 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
+            <li class="rtl:rotate-180 border border-gray-300 bg-gray-100 p-2 rounded-lg mr-1">
+                <a href="/applications/accepted" class="block transition-colors hover:text-gray-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </li>
             <li>
-                <a href="#" class="block transition-colors hover:text-gray-900"> Applications </a>
+                <a href="/applications/accepted" class="block transition-colors hover:text-gray-500 text-gray-400"> Applications
+                </a>
             </li>
 
             <li class="rtl:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 opacity-60" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                         clip-rule="evenodd" />
@@ -16,7 +26,7 @@
             </li>
 
             <li>
-                <a href="/selected-applications" class="block transition-colors hover:text-gray-900"> Selected Applications
+                <a class="block transition-colors hover:text-gray-500 text-gray-500"> Accepted Applications
                 </a>
             </li>
 
@@ -29,527 +39,732 @@
             </li>
 
             <li>
-                <a href="#" class="block transition-colors hover:text-gray-900"> Applicant Details </a>
+                <a href="#" class="block transition-colors hover:text-gray-900"> Admission Details </a>
             </li>
         </ol>
     </nav>
 @endsection
 
 @section('modal')
-    @if ($interview_details->status === 'Pending')
-        {{-- Schedule Interview Modal --}}
-        <x-modal modal_id="sched-interview-modal" modal_name="Schedule" close_btn_id="sched-interview-close-btn" modal_container_id="modal-container-1">
+    <x-modal modal_id="sched-admission-modal" modal_name="Schedule" close_btn_id="sched-admission-close-btn"
+        modal_container_id="modal-container-1">
 
-            <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
-                class="flex flex-col space-y-2 px-4 py-2">
-                @csrf
-                @method('PATCH')
-                <input type="hidden" name="applicant_id" value="{{ $applicant->id }}">
-                <div class="flex flex-row space-x-2">
-                    <div class="flex-1 space-y-1">
-
-                        <label for="date" class="text-[14px] font-bold">Date</label>
-                        <div
-                            class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                            <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                            <input type="date" name="date" id="date"
-                                class="bg-transparent outline-none font-medium text-[14px] w-full">
-                        </div>
-
+        <form id="admission-form" class="p-6">
+            @csrf
+            <input type="hidden" name="action" value="schedule-admission">
+            <div class="space-y-6">
+                <!-- Date and Time Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date -->
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-calendar mr-2"></i>
+                            Admission Exam Date <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="date" id="date" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                     </div>
-                    <div class="flex-1 space-y-1">
 
-                        <label for="time" class="text-[14px] font-bold">Time</label>
-                        <div
-                            class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                            <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
-                            <input type="time" name="time" id="time"
-                                class="bg-transparent outline-none font-medium text-[14px] w-full">
-                        </div>
-
-                    </div>
-                    <div class="flex-1 space-y-1">
-
-                        <label for="location" class="text-[14px] font-bold">Location</label>
-                        <div
-                            class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                            <i class="fi fi-rs-marker flex items-center opacity-60"></i>
-                            <input type="text" name="location" id="location"
-                                class="bg-transparent outline-none font-medium text-[14px] w-full">
-                        </div>
-
+                    <!-- Time -->
+                    <div>
+                        <label for="time" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-clock mr-2"></i>
+                            Admission Exam Time <span class="text-red-500">*</span>
+                        </label>
+                        <input type="time" name="time" id="time" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                     </div>
                 </div>
 
-                <div class="flex-1 space-y-1">
-
-                    <label for="" class="text-[14px] font-bold">Assign to</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] w-2/3 focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-user flex items-center opacity-60"></i>
-                        <select name="" id=""
-                            class="bg-transparent outline-none font-medium text-[14px] w-full">
-                            <option value="" class="font-Manrope">Juan Dela Cruz</option>
-                            <option value="">Peter Dela Cruz</option>
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="flex-1 space-y-1">
-
-                    <label for="add_info" class="text-[14px] font-bold">Additional Information</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-info flex items-center opacity-60"></i>
-                        <textarea name="add_info" id="add_info" cols="10" rows="10"
-                            class="bg-transparent outline-none font-medium text-[14px] w-full resize-none h-[100px]"></textarea>
-                    </div>
-
-                </div>
-
-            </form>
-
-            <x-slot name="modal_buttons">
-
-                <button id="cancel-btn"
-                    class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
-                    Cancel
-                </button>
-                <button form="interview-form" name="action" value="schedule-interview"
-                    class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
-                    Confirm
-                </button>
-
-            </x-slot>
-        </x-modal>
-    @elseif ($interview_details->status === 'Scheduled')
-        {{-- Record Interview Result Modal --}}
-        <x-modal modal_id="record-interview-modal" modal_name="Record Interview Result"
-            close_btn_id="record-interview-close-btn" modal_container_id='modal-container-2'>
-
-            <form action="/set-interview/{{ $interview_details->id }}" method="post" class="py-2 px-4 space-y-2"
-                form="interview-form" id="interview-form">
-
-                @csrf
-                @method('PATCH')
-                <input type="hidden" name="applicant_id" value="{{ $applicant->id }}">
-                <label for="passed"
-                    class="flex items-center justify-between has-checked:bg-red-500 has-checked:ring-red-500">
-                    <p>Passed</p>
-                    <input type="radio" name="result" id="passed" value="Interview-Passed" checked>
-                </label>
-
-                <label for="failed"
-                    class="flex items-center justify-between has-checked:ring-2 has-checked:ring-red-500">
-                    <p>Failed</p>
-                    <input type="radio" name="result" id="failed" value="Interview-Failed">
-                </label>
-
-                <label for="due-date">Submit before</label>
-                <input type="date" name="due-date" id="due-date">
-
-                <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant
-                </p>
-
-
-
-            </form>
-
-            <x-slot name="modal_buttons">
-                <button id="cancel-btn"
-                    class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
-                    Cancel
-                </button>
-                <button form="interview-form" name="action" value="record-result"
-                    class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
-                    Confirm
-                </button>
-            </x-slot>
-
-        </x-modal>
-
-        {{-- Edit Interview Schedule Modal --}}
-        <x-modal modal_id="edit-sched-modal" modal_name="Edit Interview Schedule" close_btn_id="edit-sched-close-btn" modal_container_id='modal-container-3'>
-
-            <form action="/set-interview/{{ $interview_details->id }}" method="post" id="interview-form"
-                class="flex flex-col space-y-2 px-4 py-2">
-                @csrf
-                @method('PATCH')
-
-                <div class="flex flex-row space-x-2">
-                    <div class="flex-1 space-y-1">
-                        <label for="date" class="text-[14px] font-bold">Date</label>
-                        <div
-                            class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                            <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                            <input type="date" name="date" id="date"
-                                class="bg-transparent outline-none font-medium text-[14px] w-full">
-                        </div>
-                    </div>
-                    <div class="flex-1 space-y-1">
-                        <label for="time" class="text-[14px] font-bold">Time</label>
-                        <div
-                            class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                            <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
-                            <input type="time" name="time" id="time"
-                                class="bg-transparent outline-none font-medium text-[14px] w-full">
-                        </div>
-                    </div>
-                    <div class="flex-1 space-y-1">
-                        <label for="location" class="text-[14px] font-bold">Location</label>
-                        <div
-                            class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                            <i class="fi fi-rs-marker flex items-center opacity-60"></i>
-                            <input type="text" name="location" id="location"
-                                class="bg-transparent outline-none font-medium text-[14px] w-full">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex-1 space-y-1">
-                    <label for="" class="text-[14px] font-bold">
-                        Assign to
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-marker mr-2"></i>
+                        Admission Location <span class="text-red-500">*</span>
                     </label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] w-2/3 focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-user flex items-center opacity-60"></i>
-                        <select name="" id=""
-                            class="bg-transparent outline-none font-medium text-[14px] w-full">
-                            <option value="" class="font-Manrope">Juan Dela Cruz</option>
-                            <option value="">Peter Dela Cruz</option>
-                        </select>
-                    </div>
+                    <input type="text" name="location" id="location" required
+                        placeholder="e.g., Main Office, Conference Room A"
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                 </div>
 
-                <div class="flex-1 space-y-1">
-                    <label for="add_info" class="text-[14px] font-bold">
+                <!-- Person to look for -->
+                <div>
+                    <label for="contact_person" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-user mr-2"></i>
+                        Contact Person
+                    </label>
+                    <select name="contact_person" id="contact_person"
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                        <option value="" disabled>Select contact person (optional)</option>
+                        @forelse (\App\Models\Teacher::with(['user', 'program'])->where('status', 'active')->get() as $teacher)
+                            <option value="{{ $teacher->id }}">
+                                {{ $teacher->getFullNameAttribute() }}
+                                @if ($teacher->program)
+                                    - {{ $teacher->program->name }}
+                                @endif
+                            </option>
+                        @empty
+                            <option value="" disabled>Not teacher was found.</option>
+                        @endforelse
+                    </select>
+                </div>
+
+                <!-- Additional Information -->
+                <div>
+                    <label for="add_info" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-info mr-2"></i>
                         Additional Information
                     </label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-info flex items-center opacity-60"></i>
-                        <textarea name="add_info" id="add_info" cols="10" rows="10"
-                            class="bg-transparent outline-none font-medium text-[14px] w-full resize-none h-[100px]"></textarea>
+                    <textarea name="add_info" id="add_info" rows="4"
+                        placeholder="Any additional notes or instructions for the admission exam..."
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px] resize-none"></textarea>
+                </div>
+            </div>
+
+        </form>
+
+        <x-slot name="modal_buttons">
+
+            <button id="cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                Cancel
+            </button>
+            <button form="admission-form" type="submit"
+                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                Confirm
+            </button>
+
+        </x-slot>
+    </x-modal>
+    {{-- Record Interview Result Modal --}}
+    <x-modal modal_id="record-interview-modal" modal_name="Record Interview Result"
+        close_btn_id="record-interview-close-btn" modal_container_id='modal-container-2'>
+
+        <form class="py-2 px-4 space-y-2" id="record-result-form">
+
+            @csrf
+
+            <label for="passed" class="flex items-center justify-between has-checked:bg-red-500 has-checked:ring-red-500">
+                <p>Passed</p>
+                <input type="radio" name="result" id="passed" value="Exam-Passed" checked>
+            </label>
+
+            <label for="failed" class="flex items-center justify-between has-checked:ring-2 has-checked:ring-red-500">
+                <p>Failed</p>
+                <input type="radio" name="result" id="failed" value="Exam-Failed">
+            </label>
+
+            <label for="due-date">Submit before</label>
+            <input type="date" name="due-date" id="due-date">
+
+            <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant
+            </p>
+
+
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                Cancel
+            </button>
+            <button form="record-result-form"
+                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                Confirm
+            </button>
+        </x-slot>
+
+    </x-modal>
+    {{-- Edit Interview Schedule Modal --}}
+    <x-modal modal_id="edit-sched-modal" modal_name="Edit Interview Schedule" close_btn_id="edit-sched-close-btn"
+        modal_container_id='modal-container-3'>
+
+        <form id="edit-schedule-form" class="p-6">
+            @csrf
+            <input type="hidden" name="action" value="edit-admission">
+            <div class="space-y-6">
+                <!-- Date and Time Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date -->
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-calendar mr-2"></i>
+                            Admission Exam Date <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="date" id="date" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                    </div>
+
+                    <!-- Time -->
+                    <div>
+                        <label for="time" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-clock mr-2"></i>
+                            Admission Exam Time <span class="text-red-500">*</span>
+                        </label>
+                        <input type="time" name="time" id="time" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                     </div>
                 </div>
 
-            </form>
+                <!-- Location -->
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-marker mr-2"></i>
+                        Admission Location <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="location" id="location" required
+                        placeholder="e.g., Main Office, Conference Room A"
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                </div>
 
-            <x-slot name="modal_buttons">
-                <button id="cancel-btn"
-                    class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
-                    Cancel
-                </button>
-                <button form="interview-form" name="action" value="edit-interview"
-                    class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
-                    Confirm
-                </button>
-            </x-slot>
+                <!-- Person to look for -->
+                <div>
+                    <label for="contact_person" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-user mr-2"></i>
+                        Contact Person
+                    </label>
+                    <select name="contact_person" id="contact_person"
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                        <option value="" disabled>Select contact person (optional)</option>
+                        @forelse (\App\Models\Teacher::with(['user', 'program'])->where('status', 'active')->get() as $teacher)
+                            <option value="{{ $teacher->id }}">
+                                {{ $teacher->getFullNameAttribute() }}
+                                @if ($teacher->program)
+                                    - {{ $teacher->program->name }}
+                                @endif
+                            </option>
+                        @empty
+                            <option value="" disabled>Not teacher was found.</option>
+                        @endforelse
+                    </select>
+                </div>
 
-        </x-modal>
-    @endif
+                <!-- Additional Information -->
+                <div>
+                    <label for="add_info" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-info mr-2"></i>
+                        Additional Information
+                    </label>
+                    <textarea name="add_info" id="add_info" rows="4"
+                        placeholder="Any additional notes or instructions for the admission exam..."
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px] resize-none"></textarea>
+                </div>
+            </div>
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                Cancel
+            </button>
+            <button form="edit-schedule-form"
+                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                Confirm
+            </button>
+        </x-slot>
+
+    </x-modal>
+    {{-- Update status for tracking modal --}}
+    <x-modal modal_id="update-status-modal" modal_name="Update Status" close_btn_id="update-status-modal-close-btn"
+        modal_container_id="modal-container-4">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-check flex justify-center items-center text-green-500'></i>
+        </x-slot>
+
+        <form id="update-status-form" class="p-6">
+            @csrf
+            <input type="hidden" name="action" value="update-status">
+
+            <div class="space-y-6">
+                <!-- Confirmation Message -->
+                <div class="text-center">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Confirm Update</h3>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Are you sure you want to update this status? You should only proceed if the applicant is about to
+                        take the admission exam for tracking purposes.
+                    </p>
+                </div>
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="cancel-update-status-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will act as the submit button --}}
+            <button type="submit" form="update-status-form"
+                class="self-end flex flex-row justify-center items-center bg-green-500 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-green-600 hover:scale-95 transition duration-200 shadow-green-500/20 hover:shadow-green-600/20 shadow-lg truncate">
+                Accept Application
+            </button>
+        </x-slot>
+
+    </x-modal>
 @endsection
 
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Applicant Details</h1>
+        <h1 class="text-[20px] font-black">Admission Details</h1>
         <p class="text-[14px]  text-gray-900/60">Manage approved applicants, set schedules, and record
             results.</p>
     </div>
 @endsection
 
 @section('content')
+    <x-alert />
     <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-2 text-[14px]">
-        <div class="flex flex-col p-6 text-[14px] gap-4">
-            <div class="flex flex-row justify-between items-center">
-                <div class="flex flex-row gap-2 justify-center items-center">
-                    <div class="rounded-full overflow-hidden bg-gray-200 ">
-                        <img src="{{ asset('images/business-man.png') }}" alt="user-icon"
-                            class="size-16 user-select-none">
-                    </div>
-                    <div>
-                        <p class="font-bold text-[18px]">{{ $applicant->getFullNameAttribute() }}</p>
-                        <div class="flex flex-row items-center justify-start gap-1">
-                            <p class="text-[16px] opacity-70 font-medium">Applicant ID: </p>
-                            <span class="text-[16px] font-black">{{ $applicant->applicant_id }}</span>
+        <!-- Professional Applicant Information Card -->
+        <div class="overflow-hidden rounded-xl">
+            <!-- Header Section -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <!-- Applicant Profile -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <div
+                                class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <span class="text-2xl font-bold text-white">
+                                    {{ strtoupper(substr($applicant->first_name, 0, 1) . substr($applicant->last_name, 0, 1)) }}
+                                </span>
+                            </div>
+                            <!-- Status Indicator -->
+                            <div
+                                class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
+                                @if ($applicant->application_status === 'Accepted') bg-green-500
+                                @elseif($applicant->application_status === 'Pending') bg-yellow-500
+                                @elseif($applicant->application_status === 'Rejected') bg-red-500
+                                @else bg-gray-400 @endif">
+                                <div class="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
                         </div>
-
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-1">{{ $applicant->getFullNameAttribute() }}</h2>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-sm text-gray-500">Applicant ID:</span>
+                                <span
+                                    class="text-sm font-mono font-semibold text-gray-700 bg-gray-100 px-1 py-1 rounded">{{ $applicant->applicant_id }}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div>
 
-                    {{-- @if ($applicant->application_status === 'Officially Enrolled')
-                    <button type="button" id="open-enroll-student-modal-btn" disabled
-                        class="py-2 px-4 bg-gray-300 text-gray-400 rounded-xl font-bold transition duration-200 cursor-not-allowed">
-                        Enroll applicant
-                    </button>
-                @else
-                    <button type="button" id="open-enroll-student-modal-btn"
-                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">
-                        Enroll applicant
-                    </button>
-                @endif --}}
-                    @if ($interview_details->status === 'Pending')
-                        <button id="record-btn"
-                            class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Schedule</button>
-                    @elseif ($interview_details->status === 'Scheduled' || $interview_details->status === 'Ongoing-Interview')
-                        <div class="flex flex-row justify-center items-center gap-2">
-                            <button id="edit-sched-btn"
-                                class="py-2 px-4 bg-[#f8f8f8] text-[#0f111c] border border-[#1e1e1e]/10 rounded-xl font-bold hover:ring hover:ring-blue-200 transition duration-200">Edit</button>
-                            <button id="record-interview-btn"
-                                class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-400 hover:ring hover:ring-blue-200 transition duration-200">Record
-                                Admission Result
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-3">
+                        @if (!$interview_details->status || $interview_details->status === null)
+                            <button id="record-btn"
+                                class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Schedule Interview
                             </button>
+                        @elseif ($interview_details->status === 'Scheduled')
+                            <div class="flex flex-col items-center space-y-1">
+                                <p class="self-end text-gray-400 pr-2 text-[12px]">Status will change to: Taking-Exam</p>
+
+                                <div class="flex flex-row justify-center items-center gap-2">
+                                    <button id="edit-sched-btn"
+                                        class="inline-flex items-center px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            </path>
+                                        </svg>
+                                        Edit
+                                    </button>
+                                    <button id="update-status-btn"
+                                        class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Update status for tracking
+                                    </button>
+                                </div>
+
+                            </div>
+                        @elseif (isset($interview_details->status) && $interview_details->status === 'Taking-Exam')
+                            <div class="flex items-center space-x-3">
+
+                                <button id="record-interview-btn"
+                                    class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Record Result
+                                </button>
+                            </div>
+                        @else
+                            <span class="p-6 border border-yellow-300 bg-yellow-50 rounded-xl text-yellow-600">
+                                Application already processed.
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Grid -->
+            <div class="p-8 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Academic Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Academic Information
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Grade Level</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->applicationForm->grade_level ?? 'Not specified' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Primary Track</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->applicationForm->primary_track ?? 'Not specified' }}</p>
+                            </div>
+                            @if ($applicant->applicationForm->secondary_track)
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Secondary Track</p>
+                                    <p class="text-[16px] font-semibold text-gray-900">
+                                        {{ $applicant->applicationForm->secondary_track }}</p>
+                                </div>
+                            @endif
                         </div>
-                    @else
-                        <button id="interview-btn" disabled
-                            class="py-2 px-4 bg-gray-200 text-gray-300 rounded-xl font-bold cursor-not-allowed">Start
-                            Interview
-                        </button>
-                    @endif
+                    </div>
 
+                    <!-- Contact Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Contact Information
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Phone Number</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->applicationForm->contact_number ?? 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Email</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->user->email ?? 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Application Date</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->created_at->format('M d, Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Details -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Admission Exam Details
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Admission Exam Date</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    @if ($interview_details->date)
+                                        {{ \Carbon\Carbon::parse($interview_details->date)->format('M d, Y') }}
+                                    @else
+                                        Not scheduled
+                                    @endif
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Admission Exam Time</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    @if ($interview_details->time)
+                                        {{ \Carbon\Carbon::parse($interview_details->time)->format('g:i A') }}
+                                    @else
+                                        Not scheduled
+                                    @endif
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Location</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $interview_details->location ?? 'Not specified' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Status -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Admission Exam Status
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Contact Person</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $interview_details->interviewer_name ?? 'Not assigned' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Status</p>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                    @if ($interview_details->status === 'Completed') bg-green-100 text-green-800
+                                    @elseif($interview_details->status === 'Scheduled') bg-blue-100 text-blue-800
+                                    @elseif($interview_details->status === 'Ongoing-Interview') bg-yellow-100 text-yellow-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                    {{ $interview_details->status ?? 'Pending' }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Recorded by</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $interview_details->recorded_by ?? '-' }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                @if ($interview_details->remarks)
+                    <div class="border border-blue-300 bg-blue-50 rounded-xl px-4 py-2 space-y-1">
+                        <p class="text-[16px] font-medium text-gray-900">Remarks</p>
+                        <p class="italic">“{{ $interview_details->remarks ?? '-' }}”</p>
+                    </div>
+                @endif
 
             </div>
-            <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
-            <div class="flex flex-row">
-                <div class="flex flex-col flex-1 space-y-4">
-                    <span>
-                        <p class="opacity-80">Grade</p>
-                        <p class="font-bold">Grade 11</p>
-                    </span>
-                    <span>
-                        <p class="opacity-80">Track</p>
-                        <p class="font-bold">HUMSS</p>
-                    </span>
-
-                </div>
-                <div class="flex flex-col flex-1 space-y-4">
-                    <span>
-                        <p class="opacity-80">Contact</p>
-                        <p class="font-bold">091234789</p>
-                    </span>
-                    <span>
-                        <p class="opacity-80">Interview Date</p>
-                        <p class="font-bold">June 21, 2025</p>
-                    </span>
-
-                    </span>
-                </div>
-                <div class="flex flex-col flex-1 space-y-4">
-                    <span>
-                        <p class="opacity-80">Interview Time</p>
-                        <p class="font-bold">10:30 AM</p>
-                    </span>
-                    <span>
-                        <p class="opacity-80">Location</p>
-                        <p class="font-bold">First floor, Room 301</p>
-                </div>
-                <div class="flex flex-col flex-1 space-y-4">
-                    <span>
-                        <p class="opacity-80">Interviewer</p>
-                        <p class="font-bold">Peter Dela Cruz</p>
-                    </span>
-                    <span>
-                        <p class="opacity-80">Status</p>
-                        <p class="font-bold">{{ $applicant->application_status }}</p>
-                    </span>
-                </div>
-            </div>
-
         </div>
         <div
-            class="flex flex-row items-center justify-between px-[14px] py-2 text-[14px] font-medium transition duration-150">
+            class="flex flex-row items-center justify-between px-[14px] pb-4 text-[14px] font-medium transition duration-150">
             <button id="show-details-btn"
                 class="flex flex-row gap-2 border border-[#1e1e1e]/15 rounded-md px-2 py-1 text-[#0f111c]/80 ">View
                 Applicant's Full Details <i
                     class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80"></i></button>
-
-
         </div>
-        <div id="details-container" class="hidden flex-col px-[14px] py-[14px] space-y-3 ">
-            <div class=" border border-[#1e1e1e]/10 rounded-xl shadow-sm">
+        <div id="details-container" class="hidden space-y-3 bg-[#f8f8f8] rounded-xl px-4 py-2">
+            <div
+                class=" border border-[#1e1e1e]/15 rounded-[8px] hover:shadow-xl hover:border-[#199BCF]/50 transition duration-200">
                 <table class="text-[#0f111c] w-full">
                     <thead class="">
                         <tr class="">
-                            <th class="px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px]">Learner Information</th>
+                            <th class="px-6 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px]">Learner Information</th>
                             <th class="bg-[#E3ECFF] text-start rounded-tr-[8px]"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="border-b border-t border-[#1e1e1e]/15 opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px]">Returning (Balik-Aral):</td>
+                            <td class="px-6 py-2 text-[14px]">Returning (Balik-Aral):</td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">With
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">With
                                 LRN:<span class="font-bold"> Yes</span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN: <span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">LRN: <span
+                                    class="font-bold">{{ $applicant->applicationForm->lrn ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to
-                                Enroll:<span class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to
+                                Enroll:<span class="font-bold">
+                                    {{ $applicant->applicationForm->grade_level ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->semester_applied ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary
-                                Track:<span class="font-bold"> </span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary
+                                Track:<span class="font-bold">
+                                    {{ $applicant->applicationForm->primary_track ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->secondary_track ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
-                                    class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->first_name ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->last_name ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
-                                    class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:<span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->middle_name ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/$applicant->applicationForm->-1/2">
+                                Extension Name:<span class="font-bold">
+                                    {{ $applicant->applicationForm->extension_name ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span
-                                    class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->birthdate ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span
                                     class="font-bold">
-                                </span></td>
+                                    {{ $applicant->applicationForm->age ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of
-                                Birth:<span class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:<span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Place of
+                                Birth:<span class="font-bold">
+                                    {{ $applicant->applicationForm->place_of_birth ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Mother Tongue:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->mother_tongue ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP
-                                community:<span class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span
-                                    class="font-bold"></span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP
+                                community:<span class="font-bold">
+                                    {{ $applicant->applicationForm->belong_to_ip ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->is_4ps_beneficiary ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px]">Learner with disability:</td>
+                            <td class="px-6 py-2 text-[14px]">Learner with disability:</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+            <div
+                class=" border border-[#1e1e1e]/15 rounded-[8px] hover:shadow-xl hover:border-[#199BCF]/50 transition duration-200">
                 <table class="text-[#0f111c] w-full">
                     <thead class="">
                         <tr class="">
                             <th
-                                class="border-r border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
+                                class="border-r border-[#1e1e1e]/15 px-6 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
                                 Current Address</th>
-                            <th class="px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">Permanent Address
+                            <th class="px-6 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">Permanent Address
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">House
-                                No:
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2 text-bold">House
+                                No:<span class="font-bold"> {{ $applicant->applicationForm->cur_house_no ?? '-' }}</span>
                             </td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:<span
-                                    class="font-bold"></span> </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">House No:
+                                <span class="font-bold"> {{ $applicant->applicationForm->perm_house_no ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Sitio/Street
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Sitio/Street
                                 Name:
+                                <span class="font-bold"> {{ $applicant->applicationForm->cur_street ?? '-' }}</span>
                             </td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street Name:</td>
-                        </tr>
-                        <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay:</td>
-                        </tr>
-                        <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
-                                Municipality/City:
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Sitio/Street
+                                Name:<span class="font-bold"> {{ $applicant->applicationForm->perm_street ?? '-' }}</span>
                             </td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:</td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:</td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Barangay:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->cur_barangay ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Barangay: <span
+                                    class="font-bold"> {{ $applicant->applicationForm->perm_barangay ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code:</td>
-                            <td class="px-4 py-2 text-[14px] w-1/2">Zip Code:</td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">
+                                Municipality/City:<span class="font-bold">
+                                    {{ $applicant->applicationForm->cur_city ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Municipality/City:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->perm_city ?? '-' }}</span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Country:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->cur_country ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Country:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->perm_country ?? '-' }}</span></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-6 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Zip Code: <span
+                                    class="font-bold"> {{ $applicant->applicationForm->cur_zip_code ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] w-1/2">Zip Code: <span class="font-bold">
+                                    {{ $applicant->applicationForm->perm_zip_code ?? '-' }}</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+            <div
+                class=" border border-[#1e1e1e]/15 rounded-[8px] hover:shadow-xl hover:border-[#199BCF]/50 transition duration-200">
                 <table class="text-[#0f111c] w-full table-fixed">
                     <thead class="">
                         <tr class="">
                             <th
-                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
+                                class="border-b border-[#1e1e1e]/15 px-6 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
                                 Parent/Guardian's Information</th>
-                            <th class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start text-[16px]"></th>
+                            <th class="border-b border-[#1e1e1e]/15 px-6 py-2 bg-[#E3ECFF] text-start text-[16px]"></th>
                             <th
-                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
+                                class="border-b border-[#1e1e1e]/15 px-6 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Mother's
+                            <td class="px-6 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Mother's
                                 Information:</td>
-                            <td class="px-4 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Father's
+                            <td class="px-6 py-2 text-[16px] border-b border-r border-[#1e1e1e]/15 font-bold">Father's
                                 Information:<span class="font-bold"></span></td>
-                            <td class="px-4 py-2 text-[16px] border-b border-[#1e1e1e]/15 font-bold">Guardian's
+                            <td class="px-6 py-2 text-[16px] border-b border-[#1e1e1e]/15 font-bold">Guardian's
                                 Information:<span class="font-bold"></span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:</td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->mother_last_name ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->father_last_name ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Last Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->guardian_last_name ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:</td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:<span
+                                    class="font-bold"> {{ $form->mother_first_name ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:<span
+                                    class="font-bold"> {{ $form->father_first_name ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
+                                    class="font-bold"> {{ $form->guardian_first_name ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:</td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->mother_middle_name ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->father_middle_name ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:<span
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->guardian_middle_name ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
-                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:</td>
-                            <td class="px-4 py-2 text-[14px] w-1/2">Contact Number:</td>
+                            <td class="px-6 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:<span
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->mother_contact_number ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:<span
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->father_contact_number ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] w-1/2">Contact Number:<span class="font-bold">
+                                    {{ $applicant->applicationForm->guardian_contact_number ?? '-' }}</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class=" border border-[#1e1e1e]/15 rounded-[8px]">
+            <div
+                class=" border border-[#1e1e1e]/15 rounded-[8px] hover:shadow-xl hover:border-[#199BCF]/50 transition duration-200">
                 <table class="text-[#0f111c] w-full">
                     <thead class="">
                         <tr class="">
                             <th
-                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
+                                class="border-b border-[#1e1e1e]/15 px-6 py-2 bg-[#E3ECFF] text-start rounded-tl-[8px] text-[16px]">
                                 Other Informations </th>
                             <th
-                                class="border-b border-[#1e1e1e]/15 px-4 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
+                                class="border-b border-[#1e1e1e]/15 px-6 py-2 bg-[#E3ECFF] text-start rounded-tr-[8px] text-[16px]">
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Preferred Class
-                                Schedule:</td>
-                            <td class="px-4 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Preferred Class
+                                Schedule:<span class="font-bold">
+                                    {{ $applicant->applicationForm->preffered_class_sched ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-4 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Parent/Guardian's
-                                Signature:
+                            <td class="px-6 py-2 text-[14px] w-1/2">Date Applied:<span class="font-bold">
+                                    {{ \Carbon\Carbon::parse($applicant->applicationForm->admission_date)->timezone('Asia/Manila')->format('M. d, Y — g:i A') ?? '-' }}</span>
                             </td>
-                            <td class="px-4 py-2 text-[14px] w-1/2">Date Applied:</td>
                         </tr>
                     </tbody>
                 </table>
@@ -563,26 +778,277 @@
         import {
             initModal
         } from "/js/modal.js";
+        import {
+            showLoader,
+            hideLoader
+        } from "/js/loader.js";
+        import {
+            showAlert
+        } from "/js/alert.js";
+
+        const applicantId = @json($applicant->id);
+        const interviewId = @json($interview_details->id ?? null);
+        console.log('Interview ID:', interviewId);
+        console.log('Applicant ID:', applicantId);
+
+
 
         document.addEventListener("DOMContentLoaded", function() {
-
-            initModal('edit-sched-modal', 'edit-sched-btn', 'edit-sched-close-btn', 'cancel-btn', 'modal-container-3');
-            initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn', 'modal-container-2');
-            initModal('sched-interview-modal', 'record-btn', 'sched-interview-close-btn', 'cancel-btn', 'modal-container-1');
-
+            initModal('update-status-modal', 'update-status-btn', 'update-status-close-btn', 'cancel-btn',
+                'modal-container-4');
+            initModal('edit-sched-modal', 'edit-sched-btn', 'edit-sched-close-btn', 'cancel-btn',
+                'modal-container-3');
+            initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn',
+                'modal-container-2');
+            initModal('sched-admission-modal', 'record-btn', 'sched-admission-close-btn', 'cancel-btn',
+                'modal-container-1');
             const detailsContainer = document.getElementById('details-container');
             const showDetailsBtn = document.getElementById('show-details-btn');
 
-            showDetailsBtn.addEventListener('click', function() {
-                detailsContainer.classList.toggle('hidden');
-                if (detailsContainer.classList.contains('hidden')) {
-                    showDetailsBtn.innerHTML =
-                        'View Applicant\'s Full Details <i class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80 transition duration-150"></i>';
-                } else {
-                    showDetailsBtn.innerHTML =
-                        'Hide Applicant\'s Full Details <i class="fi fi-rs-angle-small-up flex flex-row items-center text-[18px] text-[#0f111c]/80 transition duration-150"></i>';
+            const admissionForm = document.getElementById('admission-form');
+            if (admissionForm) {
+                admissionForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    let form = e.target;
+                    let formData = new FormData(form);
+
+                    // Show loader
+                    showLoader("Scheduling admission exam...");
+
+                    fetch(`/schedule-admission/${applicantId}`, {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+
+                            if (data.success) {
+                                // Reset form
+                                form.reset();
+
+                                // Close modal
+                                closeModal('schedule-admission-modal', 'modal-container-1');
+
+                                // Show success alert
+                                showAlert('success', data.message);
+
+                                // Reload page to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                                console.log('Success:', data.message);
+                            } else {
+                                console.error('Error:', data.message);
+                                closeModal('schedule-admission-modal', 'modal-container-1');
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(err => {
+                            hideLoader();
+                            console.error('Error:', err);
+                            closeModal('schedule-admission-modal', 'modal-container-1');
+                            showAlert('error',
+                                'Something went wrong while scheduling the admission exam');
+                        });
+                });
+            }
+
+            const editAdmissionForm = document.getElementById('edit-schedule-form');
+            if (editAdmissionForm) {
+                editAdmissionForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    let form = e.target;
+                    let formData = new FormData(form);
+
+                    // Show loader
+                    showLoader("Updating admission schedule...");
+
+                    fetch(`/schedule-admission/${applicantId}`, {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+
+                            if (data.success) {
+                                // Reset form
+                                form.reset();
+
+                                // Close modal
+                                closeModal('edit-schedule-modal', 'modal-container-3');
+
+                                // Show success alert
+                                showAlert('success', data.message);
+
+                                // Reload page to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                                console.log('Success:', data.message);
+                            } else {
+                                console.error('Error:', data.message);
+                                closeModal('edit-schedule-modal', 'modal-container-3');
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(err => {
+                            hideLoader();
+                            console.error('Error:', err);
+                            closeModal('schedule-admission-modal', 'modal-container-3');
+                            showAlert('error',
+                                'Something went wrong while scheduling the admission exam');
+                        });
+                });
+            }
+
+            const recordResult = document.getElementById('record-result-form');
+            if (recordResult) {
+                recordResult.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    let form = e.target;
+                    let formData = new FormData(form);
+
+
+                    // Show loader
+                    showLoader("Recording admission result...");
+
+                    // Add method override for PUT
+                    formData.append('_method', 'PUT');
+
+                    fetch(`/record-admission-result/${applicantId}`, {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+
+                            if (data.success) {
+                                // Reset form
+                                form.reset();
+
+                                // Close modal
+                                closeModal('record-interview-modal', 'modal-container-2');
+
+                                // Show success alert
+                                showAlert('success', data.message);
+
+                                // Reload page to show updated data
+                                setTimeout(() => {
+                                    window.location.href = '/applications/accepted';
+                                }, 1500);
+                                console.log('Success:', data.message);
+                            } else {
+                                console.error('Error:', data.message);
+                                closeModal('record-interview-modal', 'modal-container-2');
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(err => {
+                            hideLoader();
+                            console.error('Error:', err);
+                            closeModal('record-interview-modal', 'modal-container-2');
+                            showAlert('error',
+                                err);
+                        });
+                });
+            }
+
+            const updateStatusForm = document.getElementById('update-status-form');
+            if (updateStatusForm) {
+                updateStatusForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    let form = e.target;
+                    let formData = new FormData(form);
+
+                    // Show loader
+                    showLoader("Updating status...");
+
+                    fetch(`/schedule-admission/${applicantId}`, {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+
+                            if (data.success) {
+                                // Reset form
+                                form.reset();
+
+                                // Close modal
+                                closeModal('update-status-modal', 'modal-container-4');
+
+                                // Show success alert
+                                showAlert('success', data.message ||
+                                    'Application accepted successfully!');
+
+                                // Reload page to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+
+                            } else {
+                                console.error('Error:', data.message);
+                                closeModal('update-status-modal', 'modal-container-4');
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(err => {
+                            hideLoader();
+                            console.error('Error:', err);
+                            closeModal('update-status-modal', 'modal-container-4');
+                            showAlert('error', 'Something went wrong while accepting the application');
+                        });
+                });
+            }
+
+            if (showDetailsBtn && detailsContainer) {
+                showDetailsBtn.addEventListener('click', function() {
+                    detailsContainer.classList.toggle('hidden');
+                    if (detailsContainer.classList.contains('hidden')) {
+                        showDetailsBtn.innerHTML =
+                            'View Applicant\'s Full Details <i class="fi fi-rs-angle-small-down flex flex-row items-center text-[18px] text-[#0f111c]/80 transition duration-150"></i>';
+                    } else {
+                        showDetailsBtn.innerHTML =
+                            'Hide Applicant\'s Full Details <i class="fi fi-rs-angle-small-up flex flex-row items-center text-[18px] text-[#0f111c]/80 transition duration-150"></i>';
+                    }
+                });
+            }
+
+            function closeModal(modalId, modalContainerId) {
+                let modal = document.querySelector(`#${modalId}`)
+                let body = document.querySelector(`#${modalContainerId}`);
+
+                if (modal && body) {
+                    modal.classList.remove('opacity-100', 'scale-100');
+                    modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                    body.classList.remove('opacity-100');
+                    body.classList.add('opacity-0', 'pointer-events-none');
                 }
-            });
+            }
 
         });
     </script>

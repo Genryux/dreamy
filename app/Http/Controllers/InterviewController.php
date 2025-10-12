@@ -8,6 +8,7 @@ use App\Models\Documents;
 use App\Models\Interview;
 use App\Services\ApplicantService;
 use App\Services\InterviewService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -39,77 +40,244 @@ class InterviewController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Applicants $applicant, Request $request)
     {
-
         $action = $request->input('action');
 
-        //dd($request->all());
+        $user = Auth::user();
+        $role = $user?->getRoleNames()->first() ?? 'No Role';
 
         if ($action === 'accept-only') {
-
             $request->validate([
-
                 'date' => ['nullable', 'date'],
                 'time' => ['nullable'],
                 'location' => ['nullable'],
                 'add_info' => ['nullable'],
-
             ]);
-
-            Interview::create([
-                'applicants_id' => $request->id,
-                'status' => 'Pending'
-            ]);
-        } else if ($action === 'accept-with-schedule') {
-
+        } elseif ($action === 'accept-with-schedule' || $action === 'schedule-admission' || $action === 'edit-admission') {
             $request->validate([
-
-                'date' => ['required', 'date'],
-                'time' => ['required'],
-                'location' => ['required'],
-                'add_info' => ['required'],
-
-            ]);
-
-            Interview::create([
-                'applicants_id' => $request->id,
-                'date' => $request->date,
-                'time' => $request->time,
-                'location' => $request->location,
-                'add_info' => $request->add_info,
-                'status' => 'Scheduled'
+                'date' => 'required|date',
+                'time' => 'required',
+                'location' => 'required|string',
+                'contact_person' => 'nullable|exists:teachers,id',
+                'add_info' => 'required|string',
             ]);
         }
 
-        $applicant = Applicants::find($request->id);
+        try {
+            $result = DB::transaction(function () use ($action, $request, $applicant, $user, $role) {
+                $msg = '';
 
-        if ($applicant) {
-            $applicant->update([
-                'application_status' => 'Selected'
+                if ($action === 'accept-only') {
+                    $applicant->interview()->updateOrCreate(
+                        [
+                            'applicants_id' => $applicant->id
+                        ],
+                        [
+                            'status' => null
+                        ]
+                    );
+                    $msg = 'Applicant successfully accepted.';
+                } elseif ($action === 'update-status') {
+                    $applicant->interview()->updateOrCreate(
+                        [
+                            'applicants_id' => $applicant->id
+                        ],
+                        [
+                            'status' => 'Taking-Exam',
+                        ]
+                    );
+
+                    $msg = 'Status successfully updated.';
+                } elseif ($action === 'accept-with-schedule' || $action === 'schedule-admission') {
+                    $applicant->interview()->updateOrCreate(
+                        [
+                            'applicants_id' => $applicant->id
+                        ],
+                        [
+                            'date' => $request->date,
+                            'time' => $request->time,
+                            'location' => $request->location,
+                            'add_info' => $request->add_info,
+                            'teacher_id' => $request->contact_person,
+                            'status' => 'Scheduled',
+                        ]
+                    );
+
+                    if ($action === 'accept-with-schedule') {
+                        $msg = 'Applicant successfully accepted and scheduled.';
+                    } else {
+                        $msg = 'Applicant successfully scheduled.';
+                    }
+                } elseif ($action === 'edit-admission') {
+                    $applicant->interview()->updateOrCreate(
+                        [
+                            'applicants_id' => $applicant->id
+                        ],
+                        [
+                            'date' => $request->date,
+                            'time' => $request->time,
+                            'location' => $request->location,
+                            'add_info' => $request->add_info,
+                            'teacher_id' => $request->contact_person,
+                        ]
+                    );
+
+                    $msg = 'Admission schedule successfully updated.';
+                }
+
+                $applicant->update([
+                    'application_status' => 'Accepted',
+                    'accepted_by' => "{$user->first_name} - {$role}",
+                    'accepted_at' => Carbon::now(),
+                ]);
+
+                return $msg;
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => $result
+            ]);
+        } catch (\Throwable $th) {
+            Log::critical('Unhandled throwable', [
+                'message' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred. Please try again later.' . $th->getMessage()
+            ], 500);
+        } catch (\Exception $e) {
+            Log::error('Handled exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to accept applicant: Something went wrong while processing your request.'
+            ], 500);
+        }
+    }
+
+    public function recordAdmissionResult(Applicants $applicant, Request $request)
+    {
+
+        $request->validate([
+            'result' => 'required|in:Exam-Failed,Exam-Passed',
+            'due-date' => 'required_if:result,Exam-Passed|date|nullable',
+        ]);
+
+        $user = Auth::user();
+        $role = $user?->getRoleNames()->first() ?? 'No Role';
+
+        try {
+
+            $result = DB::transaction(function () use ($applicant, $request, $user, $role) {
+
+                if ($request->input('result') === 'Exam-Failed') {
+
+                    $applicant->interview()->update([
+                        'status' => 'Exam-Failed',
+                        'recorded_by' => "{$user->first_name} - {$role}",
+                        'recorded_at' => Carbon::now()
+                    ]);
+
+                    $applicant->update([
+                        'application_status' => 'Completed-Failed'
+                    ]);
+
+                    return 'Result successfully recorded.';
+                }
+
+                $applicant->interview()->update([
+                    'status' => 'Exam-Passed',
+                    'recorded_by' => "{$user->first_name} - {$role}",
+                    'recorded_at' => Carbon::now()
+                ]);
+
+                $applicant->update([
+                    'application_status' => 'Pending-Documents'
+                ]);
+
+                $required_docs = Documents::all();
+                $applicant->assignedDocuments()->delete();
+                $applicant->submissions()->delete(); // Clear previous submissions if any
+
+                // Assign fresh requirements
+                foreach ($required_docs as $doc) {
+
+                    $applicant->assignedDocuments()->create([
+                        'documents_id'  => $doc->id,
+                        'status'        => 'Pending', // default
+                        'submit_before' => $request->input('due-date')
+
+                    ]);
+                }
+
+                return 'Result recorded and documents successfully assigned.';
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => $result
+            ]);
+        } catch (\Throwable $th) {
+            Log::error('Error recording admission result', ['error' => $th]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while recording the result.'
             ]);
         }
+    }
 
-        return redirect()->back();
+    public function updateStatus(Request $request)
+    {
+
+        $validated = $request->validate([
+            'applicant_id' => 'required|exists:applicants,id',
+            'status'       => 'required|string|in:Exam-Completed'
+        ]);
+
+        try {
+            $this->interviewService->updateInterviewStatus($validated['applicant_id'], $validated['status']);
+            return redirect()->back();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong, please try again.'
+            ]);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Interview $interview, Request $request)
+    public function show(Applicants $applicant)
     {
+        $applicant_details = $applicant?->applicationForm;
+        $interview_details = $applicant?->interview;
 
-        $applicant = $this->applicant->fetchApplicant($request->id);
-        $applicantDetails = $applicant->applicationForm;
-        $interviewDetails = $applicant->interview;
+        // If no interview record exists, create a default one to avoid null errors
+        if (!$interview_details) {
+            $interview_details = new \App\Models\Interview([
+                'id' => null,
+                'applicants_id' => $applicant->id,
+                'status' => null,
+                'date' => null,
+                'time' => null,
+                'location' => null,
+                'interviewer_name' => null,
+                'notes' => null,
+                'created_at' => null,
+                'updated_at' => null
+            ]);
+        }
 
-        //dd($interviewDetails);
-
-        return view('user-admin.selected.interview-details', [
-            'applicant_form' => $applicantDetails,
-            'interview_details' => $interviewDetails,
-            'applicant' => $applicant
-        ]);
+        return view('user-admin.selected.interview-details', compact('applicant', 'applicant_details', 'interview_details'));
     }
 
     /**
@@ -123,142 +291,92 @@ class InterviewController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
-    {
+    // public function update(Request $request)
+    // {
 
-        //dd($request->id, $request->applicant_id);
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'You reached weansdmasdkl'
+    //     ]);
 
-        //dd(Auth::user());
-        //dd($request->$request->applicant_id);
-        $applicant = $this->applicant->fetchApplicant($request->applicant_id);
-        //dd($applicant);
-        $interview = Interview::where('id', $request->id)
-            ->where('applicants_id', $applicant->id)
-            ->first();
-        // dd($request->id, $applicant->id);
-        // dd($interview);
+    //     //dd($request->id, $request->applicant_id);
 
-        // FOR FUTURE REFACTORING
-        // match ($request->action) {
-        //     'status-change' => match ($request->status) {
-        //         'enrolled' => $applicant->update(['application_status' => 'Officially Enrolled']),
-        //         'declined' => $applicant->update(['application_status' => 'Declined']),
-        //         default => abort(400, 'Invalid status'),
-        //     },
+    //     //dd(Auth::user());
+    //     //dd($request->$request->applicant_id);
+    //     $applicant = $this->applicant->fetchApplicant($request->applicant_id);
+    //     //dd($applicant);
+    //     $interview = Interview::where('id', $request->id)
+    //         ->where('applicants_id', $applicant->id)
+    //         ->first();
+    //     // dd($request->id, $applicant->id);
+    //     // dd($interview);
 
-        //     'send-notification' => match ($request->type) {
-        //         'email' => $this->sendEmail($applicant),
-        //         'sms' => $this->sendSms($applicant),
-        //         default => abort(400, 'Invalid notification type'),
-        //     },
+    //     // FOR FUTURE REFACTORING
+    //     // match ($request->action) {
+    //     //     'status-change' => match ($request->status) {
+    //     //         'enrolled' => $applicant->update(['application_status' => 'Officially Enrolled']),
+    //     //         'declined' => $applicant->update(['application_status' => 'Declined']),
+    //     //         default => abort(400, 'Invalid status'),
+    //     //     },
 
-        //     default => abort(400, 'Invalid action'),
-        // };
+    //     //     'send-notification' => match ($request->type) {
+    //     //         'email' => $this->sendEmail($applicant),
+    //     //         'sms' => $this->sendSms($applicant),
+    //     //         default => abort(400, 'Invalid notification type'),
+    //     //     },
 
-        if ($request->input('action') === 'record-result') {
+    //     //     default => abort(400, 'Invalid action'),
+    //     // };
 
-            if ($request->input('result') === 'Interview-Failed') {
 
-                $interview->update([
-                    'status' => 'Interview-Failed'
-                ]);
+    //     } else if ($request->input('action') === 'edit-interview') {
 
-                $applicant->update([
-                    'application_status' => 'Completed-Failed'
-                ]);
-            } else if ($request->input('result') === 'Interview-Passed') {
+    //         $validated = $request->validate([
 
-                try {
+    //             'date' => ['required', 'date'],
+    //             'time' => ['required'],
+    //             'location' => ['required'],
+    //             'add_info' => ['required'],
 
-                    DB::transaction(function () use ($interview, $applicant, $request) {
+    //         ]);
 
-                        $interview->update([
-                            'status' => 'Interview-Passed'
-                        ]);
+    //         $interview->update([
+    //             'date' => $validated['date'],
+    //             'time' => $validated['time'],
+    //             'location' => $validated['location'],
+    //             'add_info' => $validated['add_info'],
+    //             'status' => 'Scheduled'
+    //         ]);
+    //     } else if ($request->input('action') === 'schedule-admission') {
 
-                        $applicant->update([
-                            'application_status' => 'Pending-Documents'
-                        ]);
+    //         $validated = $request->validate([
+    //             'date' => ['required', 'date'],
+    //             'time' => ['required'],
+    //             'location' => ['required'],
+    //             'add_info' => ['required'],
+    //             'applicant_id' => 'required|exists:interviews,applicants_id'
+    //         ]);
 
-                        $submit_before = $request->input('due-date');
-                        $required_docs = Documents::all();
-                        $applicant->assignedDocuments()->delete();
+    //         $interview->update([
+    //             'date' => $validated['date'],
+    //             'time' => $validated['time'],
+    //             'location' => $validated['location'],
+    //             'add_info' => $validated['add_info'],
+    //             'status' => 'Scheduled'
+    //         ]);
+    //     } else if ($request->input('action') === 'update-docs') {
 
-                        // Assign fresh requirements
-                        foreach ($required_docs as $doc) {
-                            $applicant->assignedDocuments()->create([
-                                'documents_id'  => $doc->id,
-                                'status'        => 'not-submitted', // default
-                                'submit-before' =>  $submit_before,
-                            ]);
-                        }
+    //         $validated = $request->validate([
+    //             'status' => 'required|string|in:Interview-Completed',
+    //             'applicant_id' => 'required|exists:interviews,applicants_id'
+    //         ]);
 
-                        $applicant->submissions()->delete(); // Clear previous submissions if any
-                    });
-                    return response()->json(
-                        [
-                            'success' =>
-                            "Required dcuments successfully assigned and statuses updated."
-                        ]
-                    );
-                } catch (\Throwable $th) {
-                    Log::error('Error assigning applicant documents: ' . $th->getMessage(), [
-                        'trace' => $th->getTraceAsString()
-                    ]);
+    //         $this->interviewService->updateInterviewStatus($applicant->id, $request->status);
 
-                    return response()->json([
-                        'message' => 'Something went wrong while updating applicant documents. Please try again later.'
-                    ], 500);
-                }
-            }
-        } else if ($request->input('action') === 'edit-interview') {
-
-            $validated = $request->validate([
-
-                'date' => ['required', 'date'],
-                'time' => ['required'],
-                'location' => ['required'],
-                'add_info' => ['required'],
-
-            ]);
-
-            $interview->update([
-                'date' => $validated['date'],
-                'time' => $validated['time'],
-                'location' => $validated['location'],
-                'add_info' => $validated['add_info'],
-                'status' => 'Scheduled'
-            ]);
-        } else if ($request->input('action') === 'schedule-interview') {
-
-            $validated = $request->validate([
-                'date' => ['required', 'date'],
-                'time' => ['required'],
-                'location' => ['required'],
-                'add_info' => ['required'],
-                'applicant_id' => 'required|exists:interviews,applicants_id'
-            ]);
-
-            $interview->update([
-                'date' => $validated['date'],
-                'time' => $validated['time'],
-                'location' => $validated['location'],
-                'add_info' => $validated['add_info'],
-                'status' => 'Scheduled'
-            ]);
-        } else if ($request->input('action') === 'update-docs') {
-
-            $validated = $request->validate([
-                'status' => 'required|string|in:Interview-Completed',
-                'applicant_id' => 'required|exists:interviews,applicants_id'
-            ]);
-
-            $this->interviewService->updateInterviewStatus($applicant->id, $request->status);
-
-            //dd('tangenamo');
-        }
-        return redirect()->back();
-    }
+    //         //dd('tangenamo');
+    //     }
+    //     return redirect()->back();
+    // }
 
     /**
      * Remove the specified resource from storage.

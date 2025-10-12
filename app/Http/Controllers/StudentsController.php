@@ -10,6 +10,7 @@ use App\Models\StudentEnrollment;
 use App\Models\StudentSubject;
 use App\Models\SectionSubject;
 use App\Models\AcademicTerms;
+use App\Models\Applicants;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,7 +63,7 @@ class StudentsController extends Controller
 
             // Get the active academic term
             $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $students,
@@ -93,7 +94,7 @@ class StudentsController extends Controller
                 // Update StudentEnrollment model (for mobile app API)
                 // Get the active academic term
                 $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-                
+
                 if ($activeTerm) {
                     \App\Models\StudentEnrollment::whereIn('student_id', $selectedStudents)
                         ->where('academic_term_id', $activeTerm->id)
@@ -101,14 +102,14 @@ class StudentsController extends Controller
 
                     // Auto-assign subjects: Get all subjects offered by this section
                     $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
-                    
+
                     foreach ($selectedStudents as $studentId) {
                         foreach ($sectionSubjects as $sectionSubject) {
                             // Check if student is already enrolled in this subject
                             $existingEnrollment = \App\Models\StudentSubject::where('student_id', $studentId)
                                 ->where('section_subject_id', $sectionSubject->id)
                                 ->first();
-                            
+
                             // Only create if not already enrolled
                             if (!$existingEnrollment) {
                                 \App\Models\StudentSubject::create([
@@ -153,7 +154,7 @@ class StudentsController extends Controller
                 // Update StudentEnrollment model (for mobile app API)
                 // Get the active academic term
                 $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-                
+
                 if ($activeTerm) {
                     \App\Models\StudentEnrollment::where('student_id', $studentId)
                         ->where('academic_term_id', $activeTerm->id)
@@ -161,7 +162,7 @@ class StudentsController extends Controller
 
                     // Remove student from all subjects in this section
                     $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
-                    
+
                     foreach ($sectionSubjects as $sectionSubject) {
                         \App\Models\StudentSubject::where('student_id', $studentId)
                             ->where('section_subject_id', $sectionSubject->id)
@@ -209,16 +210,6 @@ class StudentsController extends Controller
         return view('user-admin.enrolled-students.index');
     }
 
-    public function create() {}
-
-    public function store() {}
-
-    public function update() {}
-
-    public function show() {}
-
-    public function edit() {}
-
     /**
      * Get enrollment statistics for the current term
      */
@@ -236,10 +227,10 @@ class StudentsController extends Controller
 
         // Get selected term from URL parameter or default to active term
         $termId = $request->get('term_id');
-        $selectedTerm = $termId 
-            ? AcademicTerms::find($termId) 
+        $selectedTerm = $termId
+            ? AcademicTerms::find($termId)
             : AcademicTerms::where('is_active', true)->first();
-        
+
         if (!$selectedTerm) {
             return response()->json([
                 'total' => 0,
@@ -340,10 +331,10 @@ class StudentsController extends Controller
     {
         // Get selected term from URL parameter or default to active term
         $termId = $request->get('term_id');
-        $selectedTerm = $termId 
-            ? AcademicTerms::find($termId) 
+        $selectedTerm = $termId
+            ? AcademicTerms::find($termId)
             : AcademicTerms::where('is_active', true)->first();
-        
+
         if (!$selectedTerm) {
             // Fallback to original method if no term found (avoid recursion)
             return $this->getOriginalUsers($request);
@@ -352,7 +343,7 @@ class StudentsController extends Controller
         // Query enrollments for the selected term
         $query = StudentEnrollment::with(['student.record'])
             ->where('academic_term_id', $selectedTerm->id);
-            
+
         // Filter by status if specified
         $statusFilter = $request->input('status_filter');
         if ($statusFilter && in_array($statusFilter, ['enrolled', 'pending_confirmation'])) {
@@ -394,7 +385,7 @@ class StudentsController extends Controller
         // Apply sorting - use a simpler approach with eager loading
         $orderColumnIndex = $request->input('order.0.column');
         $orderDir = $request->input('order.0.dir', 'asc');
-        
+
         // For now, let's just order by enrollment id to avoid join complexity
         $query->orderBy('student_enrollments.id', $orderDir);
 
@@ -428,5 +419,23 @@ class StudentsController extends Controller
             'recordsFiltered' => $filtered,
             'data' => $data,
         ]);
+    }
+
+    /**
+     * Promote applicant to become an officially enrolled student
+     */
+    public function promoteApplicant(Request $request, Applicants $applicants)
+    {
+
+        $request->validate([
+            'action' => 'required|string|in:enroll-student',
+        ]);
+
+        match ($request->action) {
+            'enroll-student' => $applicants->update(['application_status' => 'Officially Enrolled']),
+            default => abort(400, 'Invalid action'),
+        };
+
+        return redirect()->back();
     }
 }

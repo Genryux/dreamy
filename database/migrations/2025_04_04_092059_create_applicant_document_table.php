@@ -20,7 +20,7 @@ return new class extends Migration
                 ->constrained()
                 ->onDelete('cascade');
             $table->date('submit_before')->nullable();
-            $table->enum('status', ['not-submitted', 'submitted', 'verified', 'rejected'])->default('not-submitted');
+            $table->enum('status', ['Pending', 'Submitted', 'Verified', 'Rejected'])->default('Pending');
             $table->timestamps(); 
         });
     }

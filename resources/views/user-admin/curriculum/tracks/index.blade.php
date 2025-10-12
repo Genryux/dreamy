@@ -153,7 +153,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-xl gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-10 pb-10 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-[#199BCF]/30 shadow-xl gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 

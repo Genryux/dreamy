@@ -170,15 +170,15 @@
             <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
         </x-slot>
 
-        <form action="/applicants/{{ $applicant->id }}" method="POST" id="enroll-student-form">
+        <form action="/students/{{ $applicant->id }}" method="POST" id="enroll-student-form">
             @csrf
-            @method('PATCH')
-
-            <input type="hidden" name="status" value="Officially Enrolled">
 
         </form>
 
         <p id="enroll-msg" class="py-8 px-6 space-y-2 font-regular text-[14px]"></p>
+        
+        <label for="">Auto-assign relevant school fees (based on grade level and program)</label>
+        <input type="checkbox" name="" id="">
 
         <x-slot name="modal_buttons">
             <button id="putanginamo_cancel-btn"
@@ -205,116 +205,222 @@
 
 @section('content')
     <x-alert />
-    <div class="flex flex-col p-6 text-[14px] gap-4 bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10">
-        <div class="flex flex-row justify-between items-center">
-            <div class="flex flex-row gap-2 justify-center items-center">
-                <div class="rounded-full overflow-hidden bg-gray-200 ">
-                    <img src="{{ asset('images/business-man.png') }}" alt="user-icon" class="size-16 user-select-none">
-                </div>
-                <div>
-                    <p class="font-bold text-[18px]">{{ $applicant->getFullNameAttribute() }}</p>
-                    <div class="flex flex-row items-center justify-start gap-1">
-                        <p class="text-[16px] opacity-70 font-medium">Applicant ID: </p>
-                        <span class="text-[16px] font-black">{{ $applicant->applicant_id }}</span>
+    <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-sm border border-[#1e1e1e]/10 p-2 text-[14px]">
+
+
+        <div class="overflow-hidden rounded-xl">
+            <!-- Header Section -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <!-- Applicant Profile -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <div
+                                class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                <span class="text-2xl font-bold text-white">
+                                    {{ strtoupper(substr($applicant->first_name, 0, 1) . substr($applicant->last_name, 0, 1)) }}
+                                </span>
+                            </div>
+                            <!-- Status Indicator -->
+                            <div
+                                class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
+                                @if ($applicant->application_status === 'Accepted') bg-green-500
+                                @elseif($applicant->application_status === 'Pending') bg-yellow-500
+                                @elseif($applicant->application_status === 'Rejected') bg-red-500
+                                @else bg-gray-400 @endif">
+                                <div class="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-1">{{ $applicant->getFullNameAttribute() }}</h2>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-sm text-gray-500">Applicant ID:</span>
+                                <span
+                                    class="text-sm font-mono font-semibold text-gray-700 bg-gray-100 px-1 py-1 rounded">{{ $applicant->applicant_id }}</span>
+                            </div>
+                        </div>
                     </div>
 
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-3">
+
+                        @if ($applicant->application_status === 'Officially Enrolled')
+                            <button type="button" id="open-enroll-student-modal-btn" disabled
+                                class="py-2 px-4 bg-gray-300 text-gray-400 rounded-xl font-bold transition duration-200 cursor-not-allowed">
+                                Enroll applicant
+                            </button>
+                        @else
+                            <button type="button" id="open-enroll-student-modal-btn"
+                                class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                Enroll applicant
+                            </button>
+                        @endif
+                    </div>
                 </div>
             </div>
-            <div>
 
-                @if ($applicant->application_status === 'Officially Enrolled')
-                    <button type="button" id="open-enroll-student-modal-btn" disabled
-                        class="py-2 px-4 bg-gray-300 text-gray-400 rounded-xl font-bold transition duration-200 cursor-not-allowed">
-                        Enroll applicant
-                    </button>
-                @else
-                    <button type="button" id="open-enroll-student-modal-btn"
-                        class="py-2 px-4 bg-blue-500 text-white rounded-xl font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-200">
-                        Enroll applicant
-                    </button>
-                @endif
+            <!-- Information Grid -->
+            <div class="p-4 space-y-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Academic Information -->
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Academic Information
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Grade Level</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->applicationForm->grade_level ?? 'Not specified' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Primary Track</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->applicationForm->primary_track ?? 'Not specified' }}</p>
+                            </div>
+                            @if ($applicant->applicationForm->secondary_track)
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Secondary Track</p>
+                                    <p class="text-[16px] font-semibold text-gray-900">
+                                        {{ $applicant->applicationForm->secondary_track }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Contact Information
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Phone Number</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->applicationForm->contact_number ?? 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Email</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->user->email ?? 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Application Date</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $applicant->created_at->format('M d, Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Submission Progress -->
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Document Submission
+                            Progress
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Required Documents</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $assignedDocuments->count() ?? 0 }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Documents Submitted</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $assignedDocuments->where('status', '!=', 'not-submitted')->count() ?? 0 }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Documents Verified</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $assignedDocuments->where('status', 'verified')->count() ?? 0 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Status Overview -->
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Document Status
+                            Overview
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Overall Status</p>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                    @if ($applicant->getDocumentStatusAttribute() === 'Complete') bg-green-100 text-green-800
+                                    @elseif($applicant->getDocumentStatusAttribute() === 'Overdue') bg-red-100 text-red-800
+                                    @elseif($applicant->getDocumentStatusAttribute() === 'No Requirements') bg-gray-100 text-gray-800
+                                    @else bg-yellow-100 text-yellow-800 @endif">
+                                    {{ $applicant->getDocumentStatusAttribute() }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Pending Review</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $assignedDocuments->where('status', 'submitted')->count() ?? 0 }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Rejected Documents</p>
+                                <p class="text-[16px] font-semibold text-gray-900">
+                                    {{ $assignedDocuments->where('status', 'rejected')->count() ?? 0 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
 
             </div>
-
         </div>
-        <x-divider color="#1e1e1e" opacity="0.10"></x-divider>
-        <div class="flex flex-row">
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Grade</p>
-                    <p class="font-bold">Grade 11</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Track</p>
-                    <p class="font-bold">HUMSS</p>
-                </span>
-
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Contact</p>
-                    <p class="font-bold">091234789</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Interview Date</p>
-                    <p class="font-bold">June 21, 2025</p>
-                </span>
-
-                </span>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Interview Time</p>
-                    <p class="font-bold">10:30 AM</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Location</p>
-                    <p class="font-bold">First floor, Room 301</p>
-            </div>
-            <div class="flex flex-col flex-1 space-y-4">
-                <span>
-                    <p class="opacity-80">Interviewer</p>
-                    <p class="font-bold">Peter Dela Cruz</p>
-                </span>
-                <span>
-                    <p class="opacity-80">Status</p>
-                    <p class="font-bold">{{ $applicant->application_status }}</p>
-                </span>
-            </div>
-        </div>
-
     </div>
 @endsection
 
 @section('docs_submission_progress')
-    <div class="flex flex-col text-[14px] shadow-sm">
+    <div class="flex flex-col text-[15px] shadow-lg">
 
-        <div class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-2">
+        <div class="bg-white flex flex-col rounded-2xl border border-gray-200 shadow-lg p-8 gap-4">
             <div>
                 <div class="flex flex-row justify-start items-center text-start pb-2">
-                    <p class="text-[18px] font-semibold">Documents Submission Progress</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <i class="fi fi-rs-document text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[20px] font-bold text-gray-900">Documents Submission Progress</h2>
+                            <p class="text-[14px] text-gray-500 mt-1">Review and manage submitted documents</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="w-full ">
+            <div class="w-full overflow-hidden border border-gray-100">
                 <table id="docs-table" class="w-full table-fixed">
-                    <thead class="text-[14px]">
-                        <tr>
+                    <thead class="text-[15px]">
+                        <tr class="bg-gradient-to-r from-blue-50 to-indigo-50">
                             <th
-                                class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 cursor-pointer ">
-                                <span class="mr-2">Document</span>
-                                <i class="fi fi-ss-sort text-[12px] opacity-60"></i>
+                                class="w-1/8 text-start bg-transparent border-b border-gray-200 px-6 py-2 cursor-pointer font-semibold text-gray-700">
+                                <span class="mr-2">Document Type</span>
+                                <i class="fi fi-ss-sort text-[13px] opacity-60"></i>
                             </th>
-                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                            <th
+                                class="w-1/8 text-center bg-transparent border-b border-gray-200 px-6 py-2 font-semibold text-gray-700">
                                 <span class="mr-2">Status</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <i class="fi fi-ss-sort text-[13px] cursor-pointer opacity-60"></i>
                             </th>
-                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                            <th
+                                class="w-1/8 text-center bg-transparent border-b border-gray-200 px-6 py-2 font-semibold text-gray-700">
+                                <span class="mr-2">Submit Before</span>
+                                <i class="fi fi-ss-sort text-[13px] cursor-pointer opacity-60"></i>
+                            </th>
+                            <th
+                                class="w-1/8 text-center bg-transparent border-b border-gray-200 px-6 py-2 font-semibold text-gray-700">
                                 <span class="mr-2">Date Submitted</span>
-                                <i class="fi fi-ss-sort text-[12px] cursor-pointer opacity-60"></i>
+                                <i class="fi fi-ss-sort text-[13px] cursor-pointer opacity-60"></i>
                             </th>
-
-                            <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                            <th
+                                class="w-1/8 text-center bg-transparent border-b border-gray-200 px-6 py-2 font-semibold text-gray-700">
                                 Actions
                             </th>
                         </tr>
@@ -323,111 +429,124 @@
                     <tbody>
                         @if ($assignedDocuments)
                             @foreach ($assignedDocuments as $index => $doc)
-                                <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md">
+                                <tr class="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-150">
                                     <td
-                                        class="w-1/8 text-start font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
-                                        {{ $doc->documents->type }}
+                                        class="w-1/8 text-start font-semibold py-2 text-[15px] text-gray-800 px-6 truncate">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fi fi-rs-file text-gray-400 text-sm"></i>
+                                            {{ $doc->documents->type }}
+                                        </div>
                                     </td>
-                                    <td class="w-1/8 text-center font-medium py-[8px] text-[14px] px-4 py-2 truncate">
-                                        @if ($doc->status == 'not-submitted')
-                                            <span class="bg-gray-200 text-gray-500 px-2 py-1 rounded-md font-semibold">
+                                    <td class="w-1/8 text-center font-medium py-2 text-[15px] px-6 truncate">
+                                        @if ($doc->status == 'Pending')
+                                            <span
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600">
+                                                <i class="fi fi-rs-clock mr-1.5 text-xs"></i>
                                                 Not Submitted
                                             </span>
-                                        @elseif ($doc->status == 'submitted')
-                                            <span class="bg-yellow-100 text-yellow-500 px-2 py-1 rounded-md font-semibold">
-                                                Submitted-Pending
+                                        @elseif ($doc->status == 'Submitted')
+                                            <span
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700">
+                                                <i class="fi fi-rs-hourglass mr-1.5 text-xs"></i>
+                                                Pending Review
                                             </span>
-                                        @elseif ($doc->status == 'verified')
-                                            <span class="bg-[#E6F4EA] text-[#34A853] px-2 py-1 rounded-md font-semibold">
+                                        @elseif ($doc->status == 'Verified')
+                                            <span
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                                                <i class="fi fi-rs-check mr-1.5 text-xs"></i>
                                                 Verified
                                             </span>
-                                        @elseif ($doc->status == 'rejected')
-                                            <span class="bg-[#FCE8E6] text-[#EA4335] px-2 py-1 rounded-md font-semibold">
+                                        @elseif ($doc->status == 'Rejected')
+                                            <span
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-red-100 text-red-700">
+                                                <i class="fi fi-rs-cross mr-1.5 text-xs"></i>
                                                 Rejected
                                             </span>
                                         @endif
-
                                     </td>
 
-                                    <td
-                                        class="w-1/8 text-center font-medium py-[8px] text-[14px] opacity-80 px-4 py-2 truncate">
+                                    <td class="w-1/8 text-center font-medium py-2 text-[15px] text-gray-600 px-6 truncate">
+                                        @if ($doc->submit_before)
+                                            <div class="flex flex-col items-center">
+                                                <span class="text-sm font-semibold">
+                                                    {{ \Carbon\Carbon::parse($doc->submit_before)->format('M d, Y') }}
+                                                </span>
+                                                <span class="text-xs text-gray-500">
+                                                    {{ \Carbon\Carbon::parse($doc->submit_before)->format('g:i A') }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 text-sm">-</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="w-1/8 text-center font-medium py-2 text-[15px] text-gray-600 px-6 truncate">
                                         @forelse ($doc->submissions as $submission)
-                                            {{ $submission->submitted_at->timezone('Asia/Manila')->format('M. d - g:i A') }}<br>
+                                            <div class="flex flex-col items-center">
+                                                <span class="text-sm font-semibold">
+                                                    {{ $submission->submitted_at->timezone('Asia/Manila')->format('M d, Y') }}
+                                                </span>
+                                                <span class="text-xs text-gray-500">
+                                                    {{ $submission->submitted_at->timezone('Asia/Manila')->format('g:i A') }}
+                                                </span>
+                                            </div>
                                         @empty
-                                            -
+                                            <span class="text-gray-400 text-sm">-</span>
                                         @endforelse
                                     </td>
 
-                                    <td class="w-1/8 text-center font-medium text-[14px] opacity-100 px-4 py-1 truncate">
-
+                                    <td class="w-1/8 text-center font-medium py-2 px-6">
                                         <div class="flex flex-row justify-center items-center gap-2">
                                             @forelse ($doc->submissions as $submission)
-                                                {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
-                                                target="_blank"
-                                                class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
-                                                title="View document">
-                                                <i
-                                                    class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
-                                                View
-                                            </x-nav-link> --}}
-                                                <button id="open-view-modal-btn-{{ $index }}"
+                                                <button id="open-view-modal-btn-{{ $doc->id }}"
+                                                    data-doc-id="{{ $doc->id }}"
                                                     data-file-url="{{ asset('storage/' . $submission->file_path) }}"
                                                     data-file-type="{{ pathinfo($submission->file_path, PATHINFO_EXTENSION) }}"
-                                                    class="view-document-btn flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-xl bg-[#1A73E8]/10 hover:ring hover:ring-[#1A73E8]/20 hover:bg-[#1A73E8] hover:text-white text-[#1A73E8] font-bold transition duration-200"
+                                                    class="view-document-btn inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100  hover:ring-2 hover:ring-blue-200 transition-all duration-200"
                                                     title="View document">
-                                                    <i
-                                                        class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
+                                                    <i class="fi fi-rs-eye text-sm flex justify-center items-center"></i>
                                                     View
                                                 </button>
 
-                                                @if ($doc->status !== 'verified')
+                                                @if ($doc->status !== 'Verified')
                                                     <button type="button" id="open-verify-modal-btn-{{ $doc->id }}"
                                                         data-document-id="{{ $doc->id }}"
-                                                        class="verify-document-btn flex flex-row gap-2 justify-center items-center text-[14px] text-[#34A853] py-2 px-3 rounded-xl bg-[#34A853]/10 hover:ring hover:ring-[#34A853]/20 hover:bg-[#34A853] hover:text-white font-bold transition duration-200"
-                                                        title="Accept document">
-                                                        <i
-                                                            class="fi fi-rs-check text-[16px] flex justify-center items-center"></i>
+                                                        class="verify-document-btn inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-green-50 text-green-700 hover:bg-green-100 hover:ring-2 hover:ring-green-200 transition-all duration-200"
+                                                        title="Verify document">
+                                                        <i class="fi fi-rs-check text-sm"></i>
                                                         Verify
                                                     </button>
                                                     <button type="button" id="open-reject-modal-btn-{{ $doc->id }}"
                                                         data-document-id="{{ $doc->id }}"
-                                                        class="reject-document-btn flex flex-row gap-1 justify-center items-center text-[14px] text-[#EA4335] py-2 px-4 rounded-xl bg-[#EA4335]/10 hover:bg-[#EA4335] hover:text-white hover:ring hover:ring-[#EA4335]/20 font-bold transition duration-200"
+                                                        class="reject-document-btn inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-red-50 text-red-700 hover:bg-red-100 hover:ring-2 hover:ring-red-200 transition-all duration-200"
                                                         title="Reject document">
                                                         <i
-                                                            class="fi fi-rs-cross-small text-[16px] flex justify-center items-center"></i>
+                                                            class="fi fi-rs-cross text-[9px] text-sm flex justify-center items-center"></i>
                                                         Reject
                                                     </button>
                                                 @endif
-                                                {{-- <x-nav-link href="{{ asset('storage/' . $submission->file_path) }}"
-                                                target="_blank"
-                                                class="flex flex-row gap-2 justify-center items-center text-[14px] py-2 px-3 rounded-md bg-[#1A73E8] text-white font-medium transition-colors duration-200"
-                                                title="View document">
-                                                <i
-                                                    class="fi fi-rs-eye text-[16px] flex justify-center items-center"></i>
-
-                                            </x-nav-link> --}}
-                                                {{-- Are you sure you want to reject this document? This action will mark the document as invalid and notify the relevant parties. --}}
-
-
-
                                             @empty
                                                 <button
-                                                    class="flex justify-center items-center gap-2 bg-orange-200 text-orange-500 font-bold py-2 px-20 rounded-xl hover:bg-orange-400 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
-                                                    <i class="fi fi-rs-bell flex justify-center items-center"></i>
-                                                    Send reminder
+                                                    class="inline-flex items-center gap-2 px-6 py-2 text-sm font-semibold rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 hover:ring-2 hover:ring-orange-200 transition-all duration-200">
+                                                    <i class="fi fi-rs-bell text-sm flex justify-center items-center"></i>
+                                                    Send Reminder
                                                 </button>
                                             @endforelse
-
-
                                         </div>
-
                                     </td>
 
                                 </tr>
                             @endforeach
                         @else
-                            @foreach ($assignedDocuments as $index => $doc)
-                            @endforeach
+                            <tr>
+                                <td colspan="5" class="text-center py-12 text-gray-500">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <i class="fi fi-rs-document text-4xl text-gray-300"></i>
+                                        <p class="text-lg font-medium">No documents assigned</p>
+                                        <p class="text-sm">This applicant has no document requirements.</p>
+                                    </div>
+                                </td>
+                            </tr>
                         @endif
 
                     </tbody>
@@ -463,9 +582,26 @@
                     [6, 'desc']
                 ],
                 columnDefs: [{
-                    width: '16.66%',
-                    targets: '_all'
-                }],
+                        width: '15%',
+                        targets: 0
+                    },
+                    {
+                        width: '12%',
+                        targets: 1
+                    },
+                    {
+                        width: '12%',
+                        targets: 2
+                    },
+                    {
+                        width: '12%',
+                        targets: 3
+                    },
+                    {
+                        width: '20%',
+                        targets: 4
+                    }
+                ],
                 layout: {
                     topStart: null,
                     bottomStart: 'info',
@@ -497,16 +633,22 @@
             let submittedDocs = @json($submittedDocuments);
             let submittedDocsArr = Object.values(requiredDocs)
 
-            const approvedCount = submittedDocsArr.filter(doc => doc.status === "verified").length;
+            console.log(requiredDocs);
+            console.log(submittedDocs);
+
+            const approvedCount = submittedDocsArr.filter(doc => doc.status === "Verified").length;
+
+            console.log(`Approved Count: ${approvedCount}`)
+            console.log(`Required Count: ${requiredDocs.length}`)
 
             let enrollMsg = document.querySelector('#enroll-msg')
 
             document.querySelector('#open-enroll-student-modal-btn').addEventListener('click', () => {
 
-                if (approvedCount.length < requiredDocs.length) {
+                if (approvedCount < requiredDocs.length) {
                     enrollMsg.innerHTML = `The applicant has <strong>not</strong> yet <strong>completed</strong> the required document submission.
                     Are you sure you want to proceed with officially enrolling this applicant?`
-                } else if (submittedDocs.length === requiredDocs.length && approvedCount.length <
+                } else if (submittedDocs.length === requiredDocs.length && approvedCount <
                     requiredDocs.length) {
                     enrollMsg.innerHTML = `The applicant's submitted documents have <strong>not</strong> been <strong>fully verified</strong>.
                     Are you sure you want to proceed with officially enrolling this applicant?`
@@ -531,7 +673,7 @@
                     let form = document.getElementById('verify-doc-form');
                     let existingInputs = form.querySelectorAll('input[name="document_id"]');
                     existingInputs.forEach(input => input.remove());
-                    
+
                     let documentId = button.getAttribute('data-document-id');
 
                     let input = document.createElement('input');
@@ -557,7 +699,7 @@
                     let form = document.getElementById('reject-doc-form');
                     let existingInputs = form.querySelectorAll('input[name="document_id"]');
                     existingInputs.forEach(input => input.remove());
-                    
+
                     let documentId = button.getAttribute('data-document-id');
 
                     let input = document.createElement('input');
@@ -580,7 +722,10 @@
 
             // Initialize document viewer modal
             document.querySelectorAll('.view-document-btn').forEach((button, index) => {
-                initModal('view-doc-modal', `open-view-modal-btn-${index}`, 'view-doc-close-btn',
+
+                let docId = button.getAttribute('data-doc-id');
+
+                initModal('view-doc-modal', `open-view-modal-btn-${docId}`, 'view-doc-close-btn',
                     'close-viewer-btn', 'modal-container-3');
 
                 button.addEventListener('click', async () => {

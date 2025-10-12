@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Teacher;
 use App\Services\DashboardDataService;
 use Illuminate\Http\Request;
 
@@ -22,45 +23,127 @@ class AdmissionDashboardController extends Controller
     {
         $data = $this->dashboardDataService->getAdmissionDashboardData();
 
+        // 'currentAcadTerm' => $currentAcadTerm,
+        // 'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
+        // 'applicant' => $applicant,
+        // 'assignedDocuments' => $assignedDocuments,
+        // 'documents' => $documents
+
+        // $applicant->load([
+        //     'interview',
+        //     'applicationForm',
+        //     'assignedDocuments.documents',
+        //     'assignedDocuments.submissions'
+        // ]);
+
         //dd($data['applicant']->interview());
 
         $applicant = $data['applicant'] ?? null;
-        $application_form = $applicant->applicationForm;
 
         if (!$applicant) {
             return null;
         }
 
         $application_status = $applicant->application_status;
-        $interview_status = optional($applicant->interview)->status;
-        $viewData = ['applicant' => $applicant];
 
-        if ($application_status === "Pending") {
-            return view('user-applicant.dashboard', compact('application_form', 'applicant'));
-        } else if ($application_status === "Selected") {
-            return view('user-applicant.dashboard', $viewData);
-        } else if ($application_status === "Pending-Documents") {
-
-            if ($interview_status === 'Interview-Passed') {
-                return view('user-applicant.dashboard', $viewData);
-            }
-
-            if ($interview_status === 'Interview-Completed') {
+        switch ($application_status) {
+            case null:
                 return view('user-applicant.dashboard', [
-                    'applicant' => $data['applicant'] ?? null,
-                    'assignedDocuments' => $data['assignedDocuments'] ?? null,
-                    // 'submissions' => $data['submissions'] ?? null
+                    'applicant' => $applicant,
+                    'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                    'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                 ]);
-            }
-        } else if ($application_status === "Officially Enrolled") {
-            return view('user-applicant.dashboard', $viewData);
+                break;
+
+            case 'Pending':
+                return view('user-applicant.dashboard', compact('applicant'));
+                break;
+            case 'Accepted':
+
+                $teacher = Teacher::find($applicant->interview->teacher_id);
+
+                if (isset($teacher->last_name)) {
+                    $teacherLastName = $teacher->last_name;
+                } else {
+                    $teacherLastName = 'Not Assigned';
+                }
+
+                return view('user-applicant.dashboard', compact('applicant', 'teacherLastName'));
+                break;
+
+            case 'Pending-Documents':
+                $interview_status = optional($applicant->interview)->status;
+
+                if ($interview_status === 'Exam-Failed') {
+                    return view('user-applicant.dashboard', [
+                        'applicant' => $applicant
+                    ]);
+                }
+
+                if ($interview_status === 'Exam-Passed') {
+                    return view('user-applicant.dashboard', [
+                        'applicant' => $applicant,
+                        'assignedDocuments' => $data['assignedDocuments'] ?? null
+                    ]);
+                }
+
+                if ($interview_status === 'Exam-Completed') {
+                    return view('user-applicant.dashboard', [
+                        'applicant' => $applicant,
+                        'assignedDocuments' => $data['assignedDocuments'] ?? null
+                    ]);
+                }
+
+
+                break;
+
+            case 'Officially Enrolled':
+                return view('user-applicant.dashboard', [
+                    'applicant' => $applicant
+                ]);
+                break;
+
+            default:
+                return view('user-applicant.dashboard', [
+                    'applicant' => $applicant,
+                    'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                    'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+                ]);
+                break;
         }
 
-        return view('user-applicant.dashboard', [
-            'applicant' => $data['applicant'] ?? null,
-            'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
-            'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
-        ]);
+
+
+        // $application_status = $applicant->application_status;
+        // $interview_status = optional($applicant->interview)->status;
+        // $viewData = ['applicant' => $applicant];
+
+        // if ($application_status === "Pending") {
+        //     return view('user-applicant.dashboard', compact('application_form', 'applicant'));
+        // } else if ($application_status === "Selected") {
+        //     return view('user-applicant.dashboard', $viewData);
+        // } else if ($application_status === "Pending-Documents") {
+
+        //     if ($interview_status === 'Interview-Passed') {
+        //         return view('user-applicant.dashboard', $viewData);
+        //     }
+
+        //     if ($interview_status === 'Interview-Completed') {
+        //         return view('user-applicant.dashboard', [
+        //             'applicant' => $data['applicant'] ?? null,
+        //             'assignedDocuments' => $data['assignedDocuments'] ?? null,
+        //             // 'submissions' => $data['submissions'] ?? null
+        //         ]);
+        //     }
+        // } else if ($application_status === "Officially Enrolled") {
+        //     return view('user-applicant.dashboard', $viewData);
+        // }
+
+        // return view('user-applicant.dashboard', [
+        //     'applicant' => $data['applicant'] ?? null,
+        //     'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+        //     'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+        // ]);
     }
 
     /**
