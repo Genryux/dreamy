@@ -54,7 +54,7 @@ class ProgramController extends Controller
         $code = Program::pluck('code')->toArray();
         $programIds = Program::pluck('id')->toArray();
 
-        $totalStudents = Student::whereIn('program', $code)->count();
+        $totalStudents = Student::whereIn('program_id', $programIds)->count();
         $activeSections = Section::whereIn('program_id', $programIds)->count();
         $specializedSubjects = Subject::whereIn('program_id', $programIds)
             ->whereIn('category', ['specialized', 'applied'])
@@ -104,15 +104,15 @@ class ProgramController extends Controller
 
         $programs = Program::all();
 
-        $totalStudents = $program->totalStudents($program->code);
+        $totalStudents = $program->totalStudents($program->id);
         $activeSections = $program->getTotalSections();
 
         if (FacadesRoute::is('program.sections')) {
 
-            return view('user-admin.program.show', compact('programs', 'program', 'totalStudents', 'activeSections'));
+            return view('user-admin.curriculum.program.show', compact('programs', 'program', 'totalStudents', 'activeSections'));
         } else if (FacadesRoute::is('program.subjects')) {
 
-            return view('user-admin.program.show', compact('program', 'programs', 'totalStudents', 'activeSections'));
+            return view('user-admin.curriculum.program.show', compact('program', 'programs', 'totalStudents', 'activeSections'));
         }
 
         return response()->json($program);
@@ -148,7 +148,7 @@ class ProgramController extends Controller
             $dependencies = [];
             
             // Check for students
-            $studentCount = \App\Models\Student::where('program', $program->code)->count();
+            $studentCount = \App\Models\Student::where('program_id', $program->id)->count();
             if ($studentCount > 0) {
                 $dependencies[] = "{$studentCount} student(s)";
             }

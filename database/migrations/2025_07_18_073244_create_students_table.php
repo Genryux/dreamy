@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Program;
 use App\Models\Section;
+use App\Models\Track;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,15 +19,10 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(Section::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(Track::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Program::class)->nullable()->constrained()->nullOnDelete();
             $table->string('lrn')->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('last_name');
             $table->string('grade_level')->nullable();
-            $table->string('program')->nullable();
-            $table->string('age')->nullable();
-            $table->string('gender')->nullable();
-            $table->string('contact_number')->nullable();
-            $table->string('email_address')->nullable();
             $table->date('enrollment_date')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();

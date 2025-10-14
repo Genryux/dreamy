@@ -173,7 +173,7 @@
                                 </div>
                                 <div>
                                     <p class="text-blue-100">Program</p>
-                                    <p class="font-semibold">{{ $invoice->student?->program ?? '-' }}</p>
+                                    <p class="font-semibold">{{ $invoice->student?->program->code ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <p class="text-blue-100">Year Level</p>

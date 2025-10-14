@@ -28,16 +28,18 @@
 
                             </x-nav-link>
                         @endrole
-                        @role(['super_admin', 'registrar'])
-                            <x-nav-link href="/applications/pending" :active="request()->is('admin')">
+                        @can('view applications')
+                            <x-nav-link href="/applications/pending" :active="request()->is('applications*')">
 
                                 <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
+                                    <i
+                                        class="fi fi-rs-memo-circle-check text-[20px] flex justify-center items-center flex-shrink-0"></i>
                                     <p class="font-semibold text-[16px] nav-text truncate"> Applications</p>
                                 </span>
 
                             </x-nav-link>
-                        @endrole
+                        @endcan
+
                         {{-- For head teacher --}}
                         @role('head_teacher')
                             <x-nav-link href="/head-teacher/dashboard" :active="request()->is('head-teacher/dashboard')">
@@ -61,52 +63,6 @@
                             </x-nav-link>
                         @endrole
 
-                        <div id="dropdown-button"
-                            class="cursor-pointer overflow-hidden ease-in-out duration-150 h-[40px] transition-all rounded-md">
-                            <div class="px-4 w-full h-[41px] flex flex-row items-center space-x-4 hover:bg-[#199BCF]/30">
-                                <div class="w-full h-[4px] flex flex-row items-center space-x-4 text-gray-300/80">
-                                    <i
-                                        class="fi fi-rs-memo-circle-check text-[20px] flex justify-center items-center flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate select-none">Applications</p>
-                                </div>
-                                <div>
-                                    <i class="fi fi-rs-angle-small-down text-[16px] text-white/60"></i>
-                                </div>
-                            </div>
-
-                            <div id="flex" class="flex flex-col space-y-1 mt-1">
-                                <x-nav-link href="/pending-applications" :active="request()->is('pending')">
-
-                                    <span class="">
-                                        <p class="px-8 mx-2 font-semibold text-[16px] nav-text truncate">Pending
-                                            Applications
-                                        </p>
-                                    </span>
-
-                                </x-nav-link>
-                                <x-nav-link href="/selected-applications" :active="request()->is('selected')">
-
-                                    <span class="">
-                                        <p class="px-8 mx-2 font-semibold text-[16px] nav-text truncate">Selected
-                                            Applications
-                                        </p>
-                                    </span>
-
-                                </x-nav-link>
-                                <x-nav-link href="/pending-documents" :active="request()->is('documents')">
-
-                                    <span class="">
-                                        <p class="px-8 mx-2 font-semibold text-[16px] nav-text truncate">Pending Documents
-                                        </p>
-                                    </span>
-
-                                </x-nav-link>
-
-
-                            </div>
-
-
-                        </div>
                         <span class='flex items-center mt-4'>
                             <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
                         </span>
@@ -127,11 +83,21 @@
                         </x-nav-link>
                         <x-nav-link href="/admin" :active="request()->is('documents')">
 
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
+                            <span class="flex flex-row justify-between items-center space-x-4 w-full">
+                                <div class="flex flex-row justify-between items-center space-x-4">
+                                    <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
+                                </div>
 
-                                <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
+                                @php
+                                    $hasDocuments = \App\Models\Documents::count();
+                                @endphp
+                                @if ($hasDocuments <= 0)
+                                    <div class="h-[8px] w-[8px] bg-red-500  rounded-full" title="No required documents set">
+                                    </div>
+                                @endif
                             </span>
+
 
                         </x-nav-link>
                         @can('view track')
@@ -149,9 +115,23 @@
                         @can('view school fees')
                             <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
 
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
+                                <span class="relative flex flex-row justify-between items-center space-x-4 w-full">
+                                    <div class="flex flex-row justify-between items-center space-x-4">
+                                        <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
+                                    </div>
+                                    @php
+                                        $hasSchoolFees = \App\Models\SchoolFee::count() > 0;
+                                        $hasDownPayment = \App\Models\SchoolSetting::whereNotNull('down_payment')
+                                            ->where('down_payment', '>', 0)
+                                            ->exists();
+                                        $showWarning = !$hasSchoolFees || !$hasDownPayment;
+                                    @endphp
+                                    @if ($showWarning)
+                                        <div class="h-[8px] w-[8px] bg-red-500  rounded-full"
+                                            title="School fees or down payment not configured">
+                                        </div>
+                                    @endif
                                 </span>
 
                             </x-nav-link>
@@ -187,8 +167,6 @@
 
             </x-side-nav-bar>
         @endunless
-
-
 
         <!-- Main content area -->
         <div id="content" class="relative flex-1 flex flex-col transition-all duration-300 w-full">

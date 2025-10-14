@@ -27,21 +27,25 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('end enrollment period', 'Academic Term Management', 'End enrollment periods');
 
         // Applicant/Application Management
-        $this->createPermissionWithCategory('create submit application form', 'Applicant/Application Management', 'Create and submit application forms');
-        $this->createPermissionWithCategory('view application', 'Applicant/Application Management', 'View applications (pending, approved, pending documents)');
-        $this->createPermissionWithCategory('accept and schedule application', 'Applicant/Application Management', 'Accept applications and schedule interviews');
+        $this->createPermissionWithCategory('submit form', 'Applicant/Application Management', 'Submit application forms');
+        $this->createPermissionWithCategory('submit document', 'Applicant/Application Management', 'Submit required document');
+        $this->createPermissionWithCategory('view applications', 'Applicant/Application Management', 'View all application');
+        $this->createPermissionWithCategory('view pending form', 'Applicant/Application Management', 'View pending application');
+        $this->createPermissionWithCategory('view accepted form', 'Applicant/Application Management', 'View accepted application');
+        $this->createPermissionWithCategory('view pending-document form', 'Applicant/Application Management', 'View pending-document application');
+        $this->createPermissionWithCategory('view rejected form', 'Applicant/Application Management', 'View rejected application');
+
+        $this->createPermissionWithCategory('accept and schedule', 'Applicant/Application Management', 'Accept applications and schedule interviews');
         $this->createPermissionWithCategory('reject application', 'Applicant/Application Management', 'Reject applications');
-        $this->createPermissionWithCategory('record admission exam result', 'Applicant/Application Management', 'Record admission exam results (passed or failed)');
-        $this->createPermissionWithCategory('promote applicant to officially enrolled', 'Applicant/Application Management', 'Promote applicants to officially enrolled students');
+        $this->createPermissionWithCategory('record result', 'Applicant/Application Management', 'Record admission exam results (passed or failed)');
+        $this->createPermissionWithCategory('enroll student', 'Applicant/Application Management', 'Promote applicants to officially enrolled students');
 
         // Document Management
         $this->createPermissionWithCategory('create documents', 'Document Management', 'Create new documents');
         $this->createPermissionWithCategory('edit documents', 'Document Management', 'Edit existing documents');
         $this->createPermissionWithCategory('view documents', 'Document Management', 'View all documents');
         $this->createPermissionWithCategory('delete documents', 'Document Management', 'Delete documents');
-        $this->createPermissionWithCategory('view submitted documents', 'Document Management', 'View documents submitted by users');
-        $this->createPermissionWithCategory('verify submitted documents', 'Document Management', 'Verify authenticity of submitted documents');
-        $this->createPermissionWithCategory('reject submitted documents', 'Document Management', 'Reject submitted documents');
+        $this->createPermissionWithCategory('manage submitted documents', 'Document Management', 'Reject submitted documents');
 
         // Student Management
         $this->createPermissionWithCategory('view student', 'Student Management', 'View student information and records');
@@ -130,25 +134,6 @@ class RolesAndPermissionSeeder extends Seeder
         $adminRole->givePermissionTo(Permission::all());
 
         $registrar = Role::firstOrCreate(['name' => 'registrar']);
-        $registrar->givePermissionTo([
-            'view application',
-            'accept and schedule application',
-            'reject application',
-            'record admission exam result',
-            'promote applicant to officially enrolled',
-            'view student',
-            'edit student',
-            'view submitted documents',
-            'verify submitted documents',
-            'reject submitted documents',
-            'view documents',
-            'create documents',
-            'edit documents',
-            'delete documents',
-            'view sections',
-            'add student to a section',
-            'remove student to a section'
-        ]);
 
         $teacher = Role::firstOrCreate(['name' => 'teacher']);
         $teacher->givePermissionTo([
@@ -174,7 +159,8 @@ class RolesAndPermissionSeeder extends Seeder
 
         $applicant = Role::firstOrCreate(['name' => 'applicant']);
         $applicant->givePermissionTo([
-            'create submit application form'
+            'submit form',
+            'submit document'
         ]);
 
         $student = Role::firstOrCreate(['name' => 'student']);

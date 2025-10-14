@@ -11,6 +11,7 @@ use App\Models\StudentSubject;
 use App\Models\SectionSubject;
 use App\Models\AcademicTerms;
 use App\Models\Applicants;
+use App\Models\Program;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,8 +27,11 @@ class StudentsController extends Controller
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('lrn', 'like', "%{$search}%")
-                        ->orWhere('program', 'like', "%{$search}%")
                         ->orWhere('grade_level', 'like', "%{$search}%")
+                        ->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('code', 'like', "%{$search}%")
+                                ->orWhere('name', 'like', "%{$search}%");
+                        })
                         ->orWhereHas('user', function ($userQuery) use ($search) {
                             $userQuery->where('first_name', 'like', "%{$search}%")
                                 ->orWhere('last_name', 'like', "%{$search}%")
@@ -38,7 +42,7 @@ class StudentsController extends Controller
             }
 
             // Limit to avoid sending thousands at once
-            $students = $query->with('user')->select('id', 'lrn', 'grade_level', 'program', 'user_id')
+            $students = $query->with(['user', 'program'])->select('id', 'lrn', 'grade_level', 'program_id', 'user_id')
                 ->limit(50)
                 ->first();
 
@@ -50,9 +54,7 @@ class StudentsController extends Controller
             }
 
             $schoolFee = SchoolFee::where(function ($q) use ($students) {
-                $q->whereHas('program', function ($sub) use ($students) {
-                    $sub->where('code', $students->program);
-                })
+                $q->where('program_id', $students->program_id)
                     ->orWhereNull('program_id'); // include general fees
             })
                 ->where(function ($q) use ($students) {
@@ -199,15 +201,12 @@ class StudentsController extends Controller
 
     public function index()
     {
+        // Get all active programs for the filter dropdown
+        $programs = Program::where('status', 'active')
+            ->orderBy('code')
+            ->get(['id', 'code', 'name']);
 
-        // $enrolled_students = Students::all();
-
-        // dd($enrolled_students);
-        $data = User::limit(10)->get();
-
-        // dd($data);
-
-        return view('user-admin.enrolled-students.index');
+        return view('user-admin.enrolled-students.index', compact('programs'));
     }
 
     /**
@@ -279,7 +278,7 @@ class StudentsController extends Controller
 
         // Filtering
         if ($program = $request->input('program_filter')) {
-            $query->where('program', $program);
+            $query->where('program_id', $program);
         }
 
         if ($grade = $request->input('grade_filter')) {
@@ -302,14 +301,14 @@ class StudentsController extends Controller
             ->with(['user', 'record'])
             ->offset($start)
             ->limit($request->length)
-            ->get(['id', 'lrn', 'grade_level', 'program'])
+            ->get(['id', 'lrn', 'grade_level', 'program_id'])
             ->map(function ($item, $key) use ($start) {
                 return [
                     'index' => $start + $key + 1,
                     'lrn' => $item->lrn,
                     'full_name' => $item->user->last_name . ', ' . $item->user->first_name,
                     'grade_level' => $item->grade_level,
-                    'program' => $item->program,
+                    'program' => $item->program->code,
                     'contact' => $item->record?->contact_number ?? '-',
                     'email' => $item->user->email,
                     'id' => $item->record?->id ?? $item->id
@@ -371,7 +370,7 @@ class StudentsController extends Controller
 
         // Filtering by program and grade
         if ($program = $request->input('program_filter')) {
-            $query->whereHas('student', fn($q) => $q->where('program', $program));
+            $query->whereHas('student', fn($q) => $q->where('program_id', $program));
         }
 
         if ($grade = $request->input('grade_filter')) {
@@ -401,11 +400,11 @@ class StudentsController extends Controller
                 return [
                     'index' => $start + $key + 1,
                     'lrn' => $student->lrn ?? '',
-                    'full_name' => ($student->user->last_name ?? '') . ', ' . ($student->user->first_name ?? ''),
-                    'grade_level' => $student->grade_level ?? '',
-                    'program' => $student->program ?? '',
-                    'contact' => $student->record?->contact_number ?? '',
-                    'email' => $student->user->email ?? '',
+                    'full_name' => ($student->user->last_name ?? '-') . ', ' . ($student->user->first_name ?? ''),
+                    'grade_level' => $student->grade_level ?? '-',
+                    'program' => $student->program->code ?? '-',
+                    'contact' => $student->record?->contact_number ?? '-',
+                    'email' => $student->user->email ?? '-',
                     'status' => $enrollment->status === 'enrolled' ? 'Enrolled' : 'Pending Confirmation',
                     'status_raw' => $enrollment->status,
                     'confirmed_at' => $enrollment->confirmed_at ? $enrollment->confirmed_at->format('M j, Y') : null,
@@ -419,6 +418,115 @@ class StudentsController extends Controller
             'recordsFiltered' => $filtered,
             'data' => $data,
         ]);
+    }
+
+    /**
+     * Get enrollment analytics data for charts
+     */
+    public function getEnrollmentAnalytics(Request $request)
+    {
+        try {
+            // Get selected term from URL parameter or default to active term
+            $termId = $request->get('term_id');
+            $selectedTerm = $termId
+                ? AcademicTerms::find($termId)
+                : AcademicTerms::where('is_active', true)->first();
+
+            if (!$selectedTerm) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No active academic term found'
+                ]);
+            }
+
+            // Get program analytics
+            $programAnalytics = $this->getProgramAnalytics($selectedTerm->id);
+            
+            // Get grade level analytics
+            $gradeLevelAnalytics = $this->getGradeLevelAnalytics($selectedTerm->id);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'programs' => $programAnalytics,
+                    'grade_levels' => $gradeLevelAnalytics
+                ]
+            ]);
+
+        } catch (\Throwable $th) {
+            \Log::error('Enrollment analytics error: ' . $th->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get program-wise enrollment analytics
+     */
+    private function getProgramAnalytics($termId)
+    {
+        if (config('app.use_term_enrollments')) {
+            // Use new enrollment system
+            $programData = StudentEnrollment::where('academic_term_id', $termId)
+                ->where('student_enrollments.status', 'enrolled')
+                ->join('students', 'student_enrollments.student_id', '=', 'students.id')
+                ->join('programs', 'students.program_id', '=', 'programs.id')
+                ->select('programs.code as program_code', 'programs.name as program_name')
+                ->selectRaw('COUNT(*) as student_count')
+                ->groupBy('programs.id', 'programs.code', 'programs.name')
+                ->orderBy('student_count', 'desc')
+                ->get();
+        } else {
+            // Use legacy system
+            $programData = Student::join('programs', 'students.program_id', '=', 'programs.id')
+                ->select('programs.code as program_code', 'programs.name as program_name')
+                ->selectRaw('COUNT(*) as student_count')
+                ->groupBy('programs.id', 'programs.code', 'programs.name')
+                ->orderBy('student_count', 'desc')
+                ->get();
+        }
+
+        return $programData->map(function ($item) {
+            return [
+                'code' => $item->program_code,
+                'name' => $item->program_name,
+                'count' => $item->student_count
+            ];
+        });
+    }
+
+    /**
+     * Get grade level-wise enrollment analytics
+     */
+    private function getGradeLevelAnalytics($termId)
+    {
+        if (config('app.use_term_enrollments')) {
+            // Use new enrollment system
+            $gradeData = StudentEnrollment::where('academic_term_id', $termId)
+                ->where('student_enrollments.status', 'enrolled')
+                ->join('students', 'student_enrollments.student_id', '=', 'students.id')
+                ->select('students.grade_level')
+                ->selectRaw('COUNT(*) as student_count')
+                ->groupBy('students.grade_level')
+                ->orderBy('students.grade_level')
+                ->get();
+        } else {
+            // Use legacy system
+            $gradeData = Student::select('grade_level')
+                ->selectRaw('COUNT(*) as student_count')
+                ->groupBy('grade_level')
+                ->orderBy('grade_level')
+                ->get();
+        }
+
+        return $gradeData->map(function ($item) {
+            return [
+                'grade_level' => $item->grade_level,
+                'count' => $item->student_count
+            ];
+        });
     }
 
     /**

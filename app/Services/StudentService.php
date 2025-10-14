@@ -33,6 +33,7 @@ class StudentService
             throw new \InvalidArgumentException('No user found.');
         }
 
+
         return DB::transaction(function () use ($form, $user, $applicant, $activeTerm) {
             $student = Student::firstOrCreate(
                 [
@@ -40,8 +41,9 @@ class StudentService
                 ],
                 [
                     'lrn'             => $form->lrn,
+                    'track_id'        => $applicant->track_id,
+                    'program_id'      => $applicant->program_id,
                     'grade_level'     => $form->grade_level,
-                    'program'         => $form->primary_track,
                     'enrollment_date' => Carbon::now()->toDateString(),
                     'status'          => 'Officially Enrolled'
                 ]
@@ -51,16 +53,16 @@ class StudentService
 
             $student->record()->firstOrCreate([
                 'middle_name'             => $form->middle_name,
+                'extension_name'          => $form->extension_name,
                 'birthdate'               => $form->birthdate,
                 'gender'                  => $form->gender,
                 'age'                     => $form->age,
                 'place_of_birth'          => $form->place_of_birth,
+                'mother_tongue'           => $form->mother_tongue,
+
                 'contact_number'          => $form->contact_number,
                 'current_address'         => $form->currentAddress(),
                 'permanent_address'       => $form->permanentAddress(),
-                'acad_term_applied'       => $form->acad_term_applied,
-                'semester_applied'        => $form->semester_applied,
-                'admission_date'          => $form->admission_date,
 
                 'house_no'                => $form->cur_house_no,
                 'street'                  => $form->cur_street,
@@ -76,9 +78,16 @@ class StudentService
                 'mother_contact_number'   => $form->mother_contact_number,
                 'guardian_name'           => $form->guardianFullName(),
                 'guardian_contact_number' => $form->guardian_contact_number,
-                'current_school'          => 'Dreamy School Philippines',
-                'previous_school'         => $form->last_school_attended,
+
+                'last_school_attended'    => $form->last_school_attended,
+                'last_grade_level_completed' => $form->last_grade_level_completed,
+                'school_id'                  => $form->school_id,
+                'acad_term_applied'       => $form->acad_term_applied,
+                'semester_applied'        => $form->semester_applied,
+                'admission_date'          => $form->admission_date,
+
                 'has_special_needs'       => $form->has_special_needs,
+                'special_needs'           => $form->special_needs,
                 'belongs_to_ip'           => $form->belongs_to_ip,
                 'is_4ps_beneficiary'      => $form->is_4ps_beneficiary,
             ]);

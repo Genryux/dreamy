@@ -7,13 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 class StudentRecord extends Model
 {
     protected $table = 'student_records';
+    
+    protected $casts = [
+        'special_needs' => 'array',
+        'has_special_needs' => 'boolean',
+        'belongs_to_ip' => 'boolean',
+        'is_4ps_beneficiary' => 'boolean',
+        'birthdate' => 'date',
+        'admission_date' => 'date',
+    ];
+    
     protected $fillable = [
         'student_id',
         'middle_name',
+        'extension_name',
         'birthdate',
         'gender',
         'age',
         'place_of_birth',
+        'mother_tongue',
 
         'contact_number',
         'current_address',
@@ -34,14 +46,15 @@ class StudentRecord extends Model
         'guardian_name',
         'guardian_contact_number',
 
-        'current_school',
-        'previous_school',
-        'school_contact_info',
+        'last_school_attended',
+        'last_grade_level_completed',
+        'school_id',
         'acad_term_applied',
         'semester_applied',
         'admission_date',
 
         'has_special_needs',
+        'special_needs',
         'belongs_to_ip',
         'is_4ps_beneficiary'
     ];

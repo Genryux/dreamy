@@ -14,6 +14,8 @@ class Applicants extends Model
     protected $fillable = [
         'user_id',
         'applicant_id',
+        'track_id',
+        'program_id',
         'first_name',
         'last_name',
         'application_status',
@@ -42,7 +44,7 @@ class Applicants extends Model
         $overdueDocs = $this->assignedDocuments->where('submit_before', '<', now())->whereIn('status', ['Pending', 'not-submitted'])->count();
         
         if ($totalDocs == 0) return 'No Requirements';
-        if ($submittedDocs == $totalDocs) return 'Complete';
+        if ($submittedDocs == $totalDocs) return "Complete ({$submittedDocs}/{$totalDocs})";
         if ($overdueDocs > 0) return 'Overdue';
         
         return "Pending ({$submittedDocs}/{$totalDocs})";
@@ -51,6 +53,14 @@ class Applicants extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function program() {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function track() {
+        return $this->belongsTo(Track::class);
     }
 
     public function interview()

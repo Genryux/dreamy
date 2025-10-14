@@ -31,7 +31,7 @@ class DocumentsSubmissionController extends Controller
         $assignedDocuments = $applicant->assignedDocuments()->get();
         $submittedDocuments = $assignedDocuments->flatMap->submissions;
 
-        return view('user-admin.pending-documents.document-details', compact('applicant', 'submittedDocuments', 'assignedDocuments'));
+        return view('user-admin.applications.pending-documents.show', compact('applicant', 'submittedDocuments', 'assignedDocuments'));
     }
 
     /**
@@ -198,7 +198,12 @@ class DocumentsSubmissionController extends Controller
             }
         }
 
-        return redirect()->back()->with('status', 'Document status updated to "' . $newStatus . '".');
+        // Return appropriate success message based on action
+        $successMessage = $data['action'] === 'verify' 
+            ? 'Document successfully verified' 
+            : 'Document successfully rejected';
+            
+        return redirect()->back()->with('status', $successMessage);
     }
 
     /**

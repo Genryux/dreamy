@@ -25,6 +25,10 @@ class Program extends Model
         return $this->hasMany(Section::class);
     }
 
+    public function applicants() {
+        return $this->hasMany(Applicants::class);
+    }
+
     /**
      * A program can have many subjects.
      */
@@ -48,12 +52,12 @@ class Program extends Model
     /**
      * Get total number of students across all sections in this program.
      */
-    public function totalStudents($code)
+    public function totalStudents($id)
     {
         $query = Student::query();
 
-        if ($code) {
-            $query->where('program', $code);
+        if ($id) {
+            $query->where('program_id', $id);
         }
 
         return $query->count();

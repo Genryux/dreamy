@@ -10,15 +10,15 @@
     <script>
         window.Laravel = {
             csrfToken: '{{ csrf_token() }}',
-            user: @json(auth()->user()) // Removed roles loading to avoid N+1 query
+            user: @json(auth()->user()?->load('roles')) // Restored roles for notifications
         };
     </script>
 
     {{-- AOS is now loaded locally via Vite --}}
 
+
     <!-- Defer non-critical scripts to avoid blocking render -->
     <script src="{{ asset('js/sidebar-toggle.js') }}" defer></script> 
-    <script src="{{ asset('js/dropdownNav.js') }}" defer></script>
 
     <!-- Move sidebar styles to CSS file - only keep critical styles inline -->
     <style>

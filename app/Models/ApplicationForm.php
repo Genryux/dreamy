@@ -28,9 +28,7 @@ class ApplicationForm extends Model
         'preferred_sched',//no need
         'is_returning', //no need (isama sa student record)
         'lrn', // m/n
-        'grade_level', // m/n
-        'primary_track', // w/n
-        'secondary_track', // w/n
+        'grade_level', 
         'acad_term_applied', // m/n
         'semester_applied', // m/n
         'admission_date', // m/n
@@ -80,7 +78,7 @@ class ApplicationForm extends Model
         'guardian_contact_number', //m/n
         
         'has_special_needs',// m/n
-        'special_needs', // w/n
+        'special_needs', // w/n done
 
         'last_grade_level_completed', //w/n
         'last_school_attended',//m/n

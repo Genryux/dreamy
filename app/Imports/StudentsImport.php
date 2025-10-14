@@ -6,7 +6,10 @@ use App\Models\Documents;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\AcademicTerms;
+use App\Models\Program;
 use App\Models\StudentEnrollment;
+use App\Models\Track;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -69,6 +72,19 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
 
         $required_docs = Documents::all();
 
+        // find program_id with program code
+        $program = Program::where('code', $row['program'])->first();
+
+        if (!$program) {
+            $program = null;
+        }
+
+        // find track_id with program_id (only if program exists)
+        $track = null;
+        if ($program) {
+            $track = Track::find($program->id);
+        }
+
         $user = User::firstOrCreate(
             ['email' => $row['email_address']],
             [
@@ -86,51 +102,54 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         $students = $user->student()->updateOrCreate(
             ['lrn'            => $row['lrn']],
             [
+                'track_id'       => $track->id ?? null,
+                'program_id'     => $program->id ?? null,
                 'grade_level'    => $row['grade_level'],
-                'program'        => $row['program'],
-                'section_id'=> null,
-                'enrollment_date'=> null,
+                'section_id'     => null,
+                'enrollment_date' => null,
                 'status'         => 'Officially Enrolled'
             ]
         );
 
         $students->record()->firstOrCreate(
             [
-                'student_id' => null,
-                'middle_name' => null,
-                'birthdate' => null,
-                'gender' => null,
-                'age' => null,
-                'place_of_birth' => null,
+                'middle_name'      => null,
+                'extension_name'   => null,
+                'birthdate'        => null,
+                'gender'           => null,
+                'age'              => null,
+                'place_of_birth'   => null,
+                'mother_tongue'    => null,
 
-                'contact_number' => $row['contact_number'],
-                'current_address' => null,
+                'contact_number'   => $row['contact_number'],
+                'current_address'  => null,
                 'permanent_address' => null,
 
-                'house_no' => null,
-                'street' => null,
-                'barangay' => null,
-                'city' => null,
-                'province' => null,
-                'country' => null,
-                'zip_code' => null,
+                'house_no'         => null,
+                'street'           => null,
+                'barangay'         => null,
+                'city'             => null,
+                'province'         => null,
+                'country'          => null,
+                'zip_code'         => null,
 
-                'father_name' => null,
+                'father_name'      => null,
                 'father_contact_number' => null,
-                'mother_name' => null,
+                'mother_name'      => null,
                 'mother_contact_number' => null,
-                'guardian_name' => null,
+                'guardian_name'         => null,
                 'guardian_contact_number' => null,
 
-                'current_school' => null,
-                'previous_school' => null,
-                'school_contact_info' => null,
+                'last_school_attended' => null,
+                'last_grade_level_completed' => null,
+                'school_id'         => null,
                 'acad_term_applied' => null,
-                'semester_applied' => null,
-                'admission_date' => null,
+                'semester_applied'  => null,
+                'admission_date'    => null,
 
                 'has_special_needs' => null,
-                'belongs_to_ip' => null,
+                'special_needs'     => null,
+                'belongs_to_ip'     => null,
                 'is_4ps_beneficiary' => null
             ]
         );
@@ -140,8 +159,8 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         foreach ($required_docs as $doc) {
             $students->assignedDocuments()->create([
                 'documents_id'  => $doc->id,
-                'status'        => 'not-submitted', // default
-                'submit-before' =>  null,
+                'status'        => 'Pending', // default
+                'submit_before' =>  null,
             ]);
         }
 
@@ -155,14 +174,16 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
             $activeTerm = AcademicTerms::where('is_active', true)->first();
 
             if ($activeTerm) {
-                StudentEnrollment::firstOrCreate(
+                $students->enrollments()->firstOrCreate(
                     [
                         'student_id' => $students->id,
                         'academic_term_id' => $activeTerm->id,
                     ],
                     [
                         'status' => 'enrolled',
-                        'enrolled_at' => now(),
+                        'program_id' => null, // Can be set later
+                        'section_id' => null, // Can be set later
+                        'enrolled_at' => Carbon::now()
                     ]
                 );
             }

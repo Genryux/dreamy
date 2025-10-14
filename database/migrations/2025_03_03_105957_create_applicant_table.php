@@ -2,6 +2,8 @@
 
 use App\Models\AcademicTerms;
 use App\Models\EnrollmentPeriod;
+use App\Models\Program;
+use App\Models\Track;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +19,8 @@ return new class extends Migration
         Schema::create('applicants', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Track::class)->nullable()->cascadeOnDelete();
+            $table->foreignIdFor(Program::class)->nullable()->nullOnDelete();
             $table->string('applicant_id')->unique();
             $table->string('first_name');
             $table->string('last_name');

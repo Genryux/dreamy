@@ -78,9 +78,9 @@
 @endsection
 
 @section('stat')
-    <div class="flex flex-row gap-4">
-        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
-            <div class="flex flex-col justify-center items-start space-y-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+        <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6 h-fit">
+            <div class="flex flex-col justify-center items-start space-y-3">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
                         <div class="bg-gray-200 flex justify-center items-center p-1 rounded-lg">
@@ -94,25 +94,51 @@
                     </div>
                 </div>
                 {{-- chart --}}
-                <canvas id="total_chart" width="180" height="180" class="self-center"></canvas>
-
-                <div class="flex flex-row justify-between items-center w-full">
-                    <div class="flex flex-col">
-                        <span class="font-regular text-gray-600 text-[14px]">Enrolled</span>
-                        <span class="font-regular text-gray-600 text-[14px]">Pending</span>
-                        <span class="font-regular text-gray-600 text-[14px]">Total</span>
+                <div class="relative w-[180px] h-[180px] self-center">
+                    <canvas id="total_chart" width="180" height="180" class="absolute inset-0"></canvas>
+                    <div id="total_chart_empty" class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
+                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+                            <i class="fi fi-rr-chart-simple text-gray-400 text-xl"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm font-medium">No data available</p>
+                        <p class="text-gray-300 text-xs mt-1">No enrollment data to display</p>
                     </div>
-                    <div class="flex flex-col">
-                        <span id="enrolled-count" class="font-bold text-green-600 text-[14px]">-</span>
-                        <span id="pending-count" class="font-bold text-yellow-600 text-[14px]">-</span>
-                        <span id="total-count" class="font-bold text-gray-600 text-[14px]">-</span>
+                </div>
+
+                <div class="flex flex-row justify-between items-center w-full" id="total-legend">
+                    <div class="flex flex-col" id="total-labels">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Enrolled</span>
+                        </div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Pending</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-gray-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Total</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col" id="total-counts">
+                        <div class="text-right mb-1">
+                            <div id="enrolled-count" class="font-bold text-sm" style="color: #10B981">-</div>
+                            <div id="enrolled-percentage" class="font-medium text-xs" style="color: #10B981; opacity: 0.7">-</div>
+                        </div>
+                        <div class="text-right mb-1">
+                            <div id="pending-count" class="font-bold text-sm" style="color: #F59E0B">-</div>
+                            <div id="pending-percentage" class="font-medium text-xs" style="color: #F59E0B; opacity: 0.7">-</div>
+                        </div>
+                        <div class="text-right">
+                            <div id="total-count" class="font-bold text-sm" style="color: #6B7280">-</div>
+                        </div>
                     </div>
                 </div>
 
             </div>
         </div>
-        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
-            <div class="flex flex-col justify-center items-start space-y-4">
+        <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6 h-fit">
+            <div class="flex flex-col justify-center items-start space-y-3">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
                         <div class="bg-gray-200 flex justify-center items-center p-1 rounded-lg">
@@ -127,22 +153,29 @@
                     </div>
                 </div>
                 {{-- chart --}}
-                <canvas id="grade_level_chart" width="180" height="180" class="self-center"></canvas>
-
-                <div class="flex flex-row justify-between items-center w-full">
-                    <div class="flex flex-col">
-                        <span class="font-regular text-gray-600">Grade 11</span>
-                        <span class="font-regular text-gray-600">Grade 12</span>
+                <div class="relative w-[180px] h-[180px] self-center">
+                    <canvas id="grade_level_chart" width="180" height="180" class="absolute inset-0"></canvas>
+                    <div id="grade_level_chart_empty" class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
+                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+                            <i class="fi fi-rr-graduation-cap text-gray-400 text-xl"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm font-medium">No data available</p>
+                        <p class="text-gray-300 text-xs mt-1">No grade level data to display</p>
                     </div>
-                    <div class="flex flex-col">
-                        <span class="font-bold text-gray-600">100</span>
-                        <span class="font-bold text-gray-600">100</span>
+                </div>
+
+                <div class="flex flex-row justify-between items-center w-full" id="grade-level-legend">
+                    <div class="flex flex-col" id="grade-level-labels">
+                        <!-- Grade level labels will be populated dynamically -->
+                    </div>
+                    <div class="flex flex-col" id="grade-level-counts">
+                        <!-- Grade level counts will be populated dynamically -->
                     </div>
                 </div>
             </div>
         </div>
-        <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
-            <div class="flex flex-col justify-center items-start space-y-4">
+        <div class="flex flex-col bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 p-6 h-fit">
+            <div class="flex flex-col justify-center items-start space-y-3">
                 <div class="flex flex-row justify-between items-center w-full">
                     <div class="flex flex-row justify-center items-center gap-2">
                         <div class="bg-gray-200 flex justify-center items-center p-1 rounded-lg">
@@ -157,15 +190,22 @@
                     </div>
                 </div>
                 {{-- chart --}}
-                <canvas id="program_chart" width="180" height="180" class="self-center"></canvas>
-                <div class="flex flex-row justify-between items-center w-full">
-                    <div class="flex flex-col">
-                        <span class="font-regular text-gray-600">HUMSS</span>
-                        <span class="font-regular text-gray-600">ABM</span>
+                <div class="relative w-[180px] h-[180px] self-center">
+                    <canvas id="program_chart" width="180" height="180" class="absolute inset-0"></canvas>
+                    <div id="program_chart_empty" class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
+                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-3">
+                            <i class="fi fi-rr-book-bookmark text-gray-400 text-xl"></i>
+                        </div>
+                        <p class="text-gray-400 text-sm font-medium">No data available</p>
+                        <p class="text-gray-300 text-xs mt-1">No program data to display</p>
                     </div>
-                    <div class="flex flex-col">
-                        <span class="font-bold text-gray-600">100</span>
-                        <span class="font-bold text-gray-600">100</span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full" id="program-legend">
+                    <div class="flex flex-col" id="program-labels">
+                        <!-- Program labels will be populated dynamically -->
+                    </div>
+                    <div class="flex flex-col" id="program-counts">
+                        <!-- Program counts will be populated dynamically -->
                     </div>
                 </div>
             </div>
@@ -180,12 +220,12 @@
     <div class="flex flex-row justify-center items-start gap-4">
         <div
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-            <div class="flex flex-row justify-between items-center w-full">
+            <div class="flex flex-row justify-between items-center w-full h-full py-2">
 
-                <div class="w-full flex flex-row justify-between items-center gap-4">
+                <div class="flex flex-row justify-start w-[90%] items-center gap-4">
 
                     <label for="myCustomSearch"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                        class="flex flex-row justify-end items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[30%] hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 focus-within:shadow-xl">
                         <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                         <input type="search" name="" id="myCustomSearch"
                             class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
@@ -198,20 +238,20 @@
                     
                     <!-- Status Filter Buttons -->
                     <div class="flex flex-row justify-start items-center gap-2">
-                        <button id="status-all" class="status-filter-btn px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 text-xs font-medium">
+                        <button id="status-all" class="status-filter-btn px-3 py-2 bg-[#199BCF] text-white rounded-lg hover:bg-[#33ACD6] transition duration-150 text-[14px] font-medium">
                             All Students
                         </button>
-                        <button id="status-enrolled" class="status-filter-btn px-3 py-1 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-150 text-xs font-medium">
+                        <button id="status-enrolled" class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
                             Enrolled
                         </button>
-                        <button id="status-pending" class="status-filter-btn px-3 py-1 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-150 text-xs font-medium">
+                        <button id="status-pending" class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
                             Pending
                         </button>
                     </div>
                     
-                    <div class="flex flex-row justify-start items-center w-full gap-2">
+                    <div class="flex flex-row justify-end items-center w-auto gap-2">
                         <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                             <select name="pageLength" id="page-length-selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                 <option selected disabled>Entries</option>
@@ -226,12 +266,13 @@
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                         </div>
                         <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
                             <select name="" id="program_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
                                 <option value="" selected disabled>Program</option>
-                                <option value="" data-id="HUMSS">HUMSS</option>
-                                <option value="" data-id="ABM">ABM</option>
+                                @foreach($programs as $program)
+                                    <option value="{{ $program->id }}" data-id="{{ $program->id }}">{{ $program->code }}</option>
+                                @endforeach
                             </select>
                             <i id="clear-program-filter-btn"
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
@@ -239,7 +280,7 @@
 
 
                         <div id="grade_selection_container"
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
 
                             <select name="grade_selection" id="grade_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
@@ -369,23 +410,389 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('enrolled-count').textContent = data.enrolled;
-                    document.getElementById('pending-count').textContent = data.pending;
-                    document.getElementById('total-count').textContent = data.total;
+                    const enrolled = data.enrolled || 0;
+                    const pending = data.pending || 0;
+                    const total = data.total || 0;
                     
-                    // Update the chart if needed
-                    updateEnrollmentChart(data.enrolled, data.pending);
+                    // Update counts with null checks
+                    const enrolledCountEl = document.getElementById('enrolled-count');
+                    const pendingCountEl = document.getElementById('pending-count');
+                    const totalCountEl = document.getElementById('total-count');
+                    
+                    if (enrolledCountEl) enrolledCountEl.textContent = enrolled;
+                    if (pendingCountEl) pendingCountEl.textContent = pending;
+                    if (totalCountEl) totalCountEl.textContent = total;
+                    
+                    // Update percentages with null checks
+                    const enrolledPercentageEl = document.getElementById('enrolled-percentage');
+                    const pendingPercentageEl = document.getElementById('pending-percentage');
+                    
+                    if (enrolledPercentageEl || pendingPercentageEl) {
+                        const enrolledPercentage = total > 0 ? ((enrolled / total) * 100).toFixed(1) : 0;
+                        const pendingPercentage = total > 0 ? ((pending / total) * 100).toFixed(1) : 0;
+                        
+                        if (enrolledPercentageEl) enrolledPercentageEl.textContent = `${enrolledPercentage}%`;
+                        if (pendingPercentageEl) pendingPercentageEl.textContent = `${pendingPercentage}%`;
+                    }
+                    
+                    // Update the chart and legend
+                    updateEnrollmentChart(enrolled, pending);
                 })
                 .catch(error => {
                     console.error('Error loading enrollment stats:', error);
                 });
         }
 
+        // Function to load enrollment analytics for charts
+        function loadEnrollmentAnalytics() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const termId = urlParams.get('term_id');
+            
+            let url = '/enrollment-analytics';
+            if (termId) {
+                url += `?term_id=${termId}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateProgramChart(data.data.programs);
+                        updateGradeLevelChart(data.data.grade_levels);
+                    } else {
+                        console.error('Error loading analytics:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading enrollment analytics:', error);
+                });
+        }
+
         // Function to update the enrollment chart with smooth animation
         function updateEnrollmentChart(enrolled, pending) {
+            const total = enrolled + pending;
+            const emptyState = document.getElementById('total_chart_empty');
+            
             if (typeof window.totalChart !== 'undefined' && window.totalChart) {
-                window.totalChart.data.datasets[0].data = [enrolled, pending];
+                if (total === 0) {
+                    // Show empty state
+                    if (emptyState) {
+                        emptyState.classList.remove('opacity-0', 'pointer-events-none');
+                        emptyState.classList.add('opacity-100');
+                    }
+                    window.totalChart.data.datasets[0].data = [0, 0];
+                } else {
+                    // Hide empty state and show chart
+                    if (emptyState) {
+                        emptyState.classList.add('opacity-0', 'pointer-events-none');
+                        emptyState.classList.remove('opacity-100');
+                    }
+                    window.totalChart.data.datasets[0].data = [enrolled, pending];
+                }
                 window.totalChart.update('active'); // Use 'active' animation for smooth transitions
+                
+                // Update the total legend
+                updateTotalLegend(enrolled, pending, total);
+            }
+        }
+
+        // Function to update total legend
+        function updateTotalLegend(enrolled, pending, total) {
+            const labelsDiv = document.getElementById('total-labels');
+            const countsDiv = document.getElementById('total-counts');
+            
+            if (labelsDiv && countsDiv) {
+                if (total === 0) {
+                    // Show empty state
+                    labelsDiv.innerHTML = '<span class="font-regular text-gray-400 text-sm">No data</span>';
+                    countsDiv.innerHTML = '<span class="font-bold text-gray-400 text-sm">0</span>';
+                } else {
+                    // Show normal legend
+                    labelsDiv.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Enrolled</span>
+                        </div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Pending</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-gray-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Total</span>
+                        </div>
+                    `;
+                    
+                    const enrolledPercentage = total > 0 ? ((enrolled / total) * 100).toFixed(1) : 0;
+                    const pendingPercentage = total > 0 ? ((pending / total) * 100).toFixed(1) : 0;
+                    
+                    countsDiv.innerHTML = `
+                        <div class="text-right mb-1">
+                            <div class="font-bold text-sm" style="color: #10B981">${enrolled}</div>
+                            <div class="font-medium text-xs" style="color: #10B981; opacity: 0.7">${enrolledPercentage}%</div>
+                        </div>
+                        <div class="text-right mb-1">
+                            <div class="font-bold text-sm" style="color: #F59E0B">${pending}</div>
+                            <div class="font-medium text-xs" style="color: #F59E0B; opacity: 0.7">${pendingPercentage}%</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-sm" style="color: #6B7280">${total}</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Function to update program chart with dynamic data
+        function updateProgramChart(programData) {
+            const emptyState = document.getElementById('program_chart_empty');
+            
+            if (typeof window.programChart !== 'undefined' && window.programChart) {
+                if (!programData || programData.length === 0 || programData.every(item => item.count === 0)) {
+                    // Show empty state
+                    if (emptyState) {
+                        emptyState.classList.remove('opacity-0', 'pointer-events-none');
+                        emptyState.classList.add('opacity-100');
+                    }
+                    window.programChart.data.labels = [];
+                    window.programChart.data.datasets[0].data = [];
+                    window.programChart.data.datasets[0].backgroundColor = [];
+                } else {
+                    // Hide empty state and show chart
+                    if (emptyState) {
+                        emptyState.classList.add('opacity-0', 'pointer-events-none');
+                        emptyState.classList.remove('opacity-100');
+                    }
+                    
+                    const labels = programData.map(item => item.code);
+                    const data = programData.map(item => item.count);
+                    
+                    // Generate colors dynamically
+                    const colors = generateColors(programData.length);
+                    
+                    window.programChart.data.labels = labels;
+                    window.programChart.data.datasets[0].data = data;
+                    window.programChart.data.datasets[0].backgroundColor = colors;
+                }
+                window.programChart.update('active');
+                
+                // Update the program legend
+                updateProgramLegend(programData);
+            }
+        }
+
+        // Function to update grade level chart with dynamic data
+        function updateGradeLevelChart(gradeData) {
+            const emptyState = document.getElementById('grade_level_chart_empty');
+            
+            if (typeof window.gradeLevelChart !== 'undefined' && window.gradeLevelChart) {
+                if (!gradeData || gradeData.length === 0 || gradeData.every(item => item.count === 0)) {
+                    // Show empty state
+                    if (emptyState) {
+                        emptyState.classList.remove('opacity-0', 'pointer-events-none');
+                        emptyState.classList.add('opacity-100');
+                    }
+                    window.gradeLevelChart.data.labels = [];
+                    window.gradeLevelChart.data.datasets[0].data = [];
+                    window.gradeLevelChart.data.datasets[0].backgroundColor = [];
+                } else {
+                    // Hide empty state and show chart
+                    if (emptyState) {
+                        emptyState.classList.add('opacity-0', 'pointer-events-none');
+                        emptyState.classList.remove('opacity-100');
+                    }
+                    
+                    const labels = gradeData.map(item => item.grade_level);
+                    const data = gradeData.map(item => item.count);
+                    
+                    // Generate colors dynamically
+                    const colors = generateColors(gradeData.length);
+                    
+                    window.gradeLevelChart.data.labels = labels;
+                    window.gradeLevelChart.data.datasets[0].data = data;
+                    window.gradeLevelChart.data.datasets[0].backgroundColor = colors;
+                }
+                window.gradeLevelChart.update('active');
+                
+                // Update the grade level legend
+                updateGradeLevelLegend(gradeData);
+            }
+        }
+
+        // Function to generate colors for charts
+        function generateColors(count) {
+            // Professional color palette with better contrast and visual appeal
+            const baseColors = [
+                '#3B82F6', // Blue
+                '#10B981', // Emerald
+                '#F59E0B', // Amber
+                '#EF4444', // Red
+                '#8B5CF6', // Violet
+                '#06B6D4', // Cyan
+                '#84CC16', // Lime
+                '#F97316', // Orange
+                '#EC4899', // Pink
+                '#6B7280'  // Gray
+            ];
+            const colors = [];
+            
+            for (let i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]);
+            }
+            
+            return colors;
+        }
+
+        // Function to update program legend
+        function updateProgramLegend(programData) {
+            const labelsDiv = document.getElementById('program-labels');
+            const countsDiv = document.getElementById('program-counts');
+            
+            if (labelsDiv && countsDiv && programData && programData.length > 0) {
+                const total = programData.reduce((sum, item) => sum + (item.count || 0), 0);
+                const colors = generateColors(programData.length);
+                
+                // Use compact layout for programs (many items)
+                if (programData.length > 3) {
+                    labelsDiv.innerHTML = `
+                        <div class="grid grid-cols-2 gap-1">
+                            ${programData.map((item, index) => `
+                                <div class="flex items-center gap-1">
+                                    <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
+                                    <span class="font-medium text-gray-700 text-xs">${item.code || 'Unknown'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    countsDiv.innerHTML = `
+                        <div class="grid grid-cols-2 gap-1">
+                            ${programData.map((item, index) => {
+                                const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+                                return `
+                                    <div class="text-right">
+                                        <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
+                                        <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    // Use vertical layout for fewer items
+                    labelsDiv.innerHTML = programData.map((item, index) => {
+                        const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="w-3 h-3 rounded-full" style="background-color: ${colors[index]}"></div>
+                                <span class="font-medium text-gray-700 text-sm">${item.code || 'Unknown'}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    countsDiv.innerHTML = programData.map((item, index) => {
+                        const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="text-right mb-1">
+                                <div class="font-bold text-sm" style="color: ${colors[index]}">${item.count || 0}</div>
+                                <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+            } else if (labelsDiv && countsDiv) {
+                // Show empty state
+                labelsDiv.innerHTML = '<span class="font-regular text-gray-400 text-sm">No data</span>';
+                countsDiv.innerHTML = '<span class="font-bold text-gray-400 text-sm">0</span>';
+            }
+        }
+
+        // Function to update grade level legend
+        function updateGradeLevelLegend(gradeData) {
+            const labelsDiv = document.getElementById('grade-level-labels');
+            const countsDiv = document.getElementById('grade-level-counts');
+            
+            if (labelsDiv && countsDiv && gradeData && gradeData.length > 0) {
+                const total = gradeData.reduce((sum, item) => sum + (item.count || 0), 0);
+                const colors = generateColors(gradeData.length);
+                
+                // Use compact layout for grade levels (many items)
+                if (gradeData.length > 4) {
+                    labelsDiv.innerHTML = `
+                        <div class="grid grid-cols-2 gap-1">
+                            ${gradeData.map((item, index) => `
+                                <div class="flex items-center gap-1">
+                                    <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
+                                    <span class="font-medium text-gray-700 text-xs">${item.grade_level || 'Unknown'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    countsDiv.innerHTML = `
+                        <div class="grid grid-cols-2 gap-1">
+                            ${gradeData.map((item, index) => {
+                                const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+                                return `
+                                    <div class="text-right">
+                                        <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
+                                        <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    // Use vertical layout for fewer items
+                    labelsDiv.innerHTML = gradeData.map((item, index) => {
+                        const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="w-3 h-3 rounded-full" style="background-color: ${colors[index]}"></div>
+                                <span class="font-medium text-gray-700 text-sm">${item.grade_level || 'Unknown'}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    countsDiv.innerHTML = gradeData.map((item, index) => {
+                        const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="text-right mb-1">
+                                <div class="font-bold text-sm" style="color: ${colors[index]}">${item.count || 0}</div>
+                                <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+            } else if (labelsDiv && countsDiv) {
+                // Show empty state
+                labelsDiv.innerHTML = '<span class="font-regular text-gray-400 text-sm">No data</span>';
+                countsDiv.innerHTML = '<span class="font-bold text-gray-400 text-sm">0</span>';
+            }
+        }
+
+        // Function to initialize empty states
+        function initializeEmptyStates() {
+            // Initially show empty states for all charts
+            const totalEmptyState = document.getElementById('total_chart_empty');
+            const gradeLevelEmptyState = document.getElementById('grade_level_chart_empty');
+            const programEmptyState = document.getElementById('program_chart_empty');
+            
+            if (totalEmptyState) {
+                totalEmptyState.classList.add('opacity-100');
+                totalEmptyState.classList.remove('opacity-0', 'pointer-events-none');
+            }
+            
+            if (gradeLevelEmptyState) {
+                gradeLevelEmptyState.classList.add('opacity-100');
+                gradeLevelEmptyState.classList.remove('opacity-0', 'pointer-events-none');
+            }
+            
+            if (programEmptyState) {
+                programEmptyState.classList.add('opacity-100');
+                programEmptyState.classList.remove('opacity-0', 'pointer-events-none');
             }
         }
 
@@ -404,6 +811,9 @@
             //Overriding default search input
             const customSearch1 = document.getElementById("myCustomSearch");
 
+            // Initialize empty states
+            initializeEmptyStates();
+            
             // Load initial enrollment statistics
             loadEnrollmentStats();
 
@@ -566,8 +976,9 @@
 
                 });
                 
-                // Refresh stats and chart after table renders for real-time feel
+                // Refresh stats and charts after table renders for real-time feel
                 loadEnrollmentStats();
+                loadEnrollmentAnalytics();
 
             });
 
@@ -586,13 +997,13 @@
                 button.addEventListener('click', function() {
                     // Remove active class from all buttons
                     document.querySelectorAll('.status-filter-btn').forEach(btn => {
-                        btn.classList.remove('bg-blue-600', 'text-white');
-                        btn.classList.add('bg-gray-300', 'text-gray-700');
+                        btn.classList.remove('bg-[#199BCF]', 'text-white', 'hover:bg-[#33ACD6]');
+                        btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
                     });
                     
                     // Add active class to clicked button
-                    this.classList.remove('bg-gray-300', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+                    this.classList.add('bg-[#199BCF]', 'text-white', 'hover:bg-[#33ACD6]');
                     
                     // Set filter value
                     if (this.id === 'status-all') {
@@ -612,18 +1023,40 @@
             let gradeSelection = document.querySelector('#grade_selection');
             let pageLengthSelection = document.querySelector('#page-length-selection');
 
+            let clearProgramFilterBtn = document.querySelector('#clear-program-filter-btn');
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
             let gradeContainer = document.querySelector('#grade_selection_container');
 
             programSelection.addEventListener('change', (e) => {
 
                 let selectedOption = e.target.selectedOptions[0];
-                let id = selectedOption.getAttribute('data-id');
+                let programId = selectedOption.getAttribute('data-id');
 
-                selectedProgram = id;
-                table1.draw();
+                // Only proceed if a valid program is selected (not the default option)
+                if (programId && programId !== '') {
+                    selectedProgram = programId;
+                    table1.draw();
 
-                //console.log(id);
+                    // Update program filter UI to show active state
+                    let clearProgramFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
+                    let clearProgramFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-600'];
+                    let programSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
+                    let programSelectionAdd = ['text-gray-600'];
+                    let programContainerRem = ['bg-gray-100'];
+                    let programContainerAdd = ['bg-gray-200', 'border-gray-300', 'hover:bg-gray-300'];
+
+                    clearProgramFilterBtn.classList.remove(...clearProgramFilterRem);
+                    clearProgramFilterBtn.classList.add(...clearProgramFilterAdd);
+                    programSelection.classList.remove(...programSelectionRem);
+                    programSelection.classList.add(...programSelectionAdd);
+                    
+                    // Update the program container styling
+                    let programContainer = clearProgramFilterBtn.closest('.flex');
+                    programContainer.classList.remove(...programContainerRem);
+                    programContainer.classList.add(...programContainerAdd);
+
+                    handleClearProgramFilter(selectedOption);
+                }
             })
 
             pageLengthSelection.addEventListener('change', (e) => {
@@ -643,14 +1076,13 @@
                 selectedGrade = email;
                 table1.draw();
 
+                // Update grade filter UI to show active state with neutral colors
                 let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-600'];
                 let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                let gradeSelectionAdd = ['text-[#1A3165]'];
+                let gradeSelectionAdd = ['text-gray-600'];
                 let gradeContainerRem = ['bg-gray-100'];
-                let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
-                    'hover:bg-[#1A73E8]/25'
-                ];
+                let gradeContainerAdd = ['bg-gray-200', 'border-gray-300', 'hover:bg-gray-300'];
 
                 clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
                 clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
@@ -659,32 +1091,47 @@
                 gradeContainer.classList.remove(...gradeContainerRem);
                 gradeContainer.classList.add(...gradeContainerAdd);
 
-
-                handleClearGradeFilter(selectedOption)
+                handleClearGradeFilter(selectedOption);
             })
 
+            function handleClearProgramFilter(selectedOption) {
+                clearProgramFilterBtn.addEventListener('click', () => {
+                    // Reset program filter UI
+                    let programContainer = clearProgramFilterBtn.closest('.flex');
+                    
+                    programContainer.classList.remove('bg-gray-200', 'border-gray-300', 'hover:bg-gray-300');
+                    programContainer.classList.add('bg-gray-100');
+                    
+                    clearProgramFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer', 'text-gray-600');
+                    clearProgramFilterBtn.classList.add('fi-rr-caret-down', 'text-gray-500');
+                    
+                    programSelection.classList.remove('text-gray-600');
+                    programSelection.classList.add('text-gray-700');
+
+                    // Reset filter value
+                    programSelection.selectedIndex = 0;
+                    selectedProgram = '';
+                    table1.draw();
+                });
+            }
+
             function handleClearGradeFilter(selectedOption) {
-
                 clearGradeFilterBtn.addEventListener('click', () => {
+                    // Reset grade filter UI with neutral colors
+                    gradeContainer.classList.remove('bg-gray-200', 'border-gray-300', 'hover:bg-gray-300');
+                    gradeContainer.classList.add('bg-gray-100');
+                    
+                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer', 'text-gray-600');
+                    clearGradeFilterBtn.classList.add('fi-rr-caret-down', 'text-gray-500');
+                    
+                    gradeSelection.classList.remove('text-gray-600');
+                    gradeSelection.classList.add('text-gray-700');
 
-                    gradeContainer.classList.remove('bg-[#1A73E8]/15')
-                    gradeContainer.classList.remove('border-blue-300')
-                    gradeContainer.classList.remove('hover:bg-blue-300')
-                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
-
-                    clearGradeFilterBtn.classList.add('fi-rr-caret-down');
-                    gradeContainer.classList.add('bg-gray-100')
-                    gradeSelection.classList.remove('text-[#1A3165]')
-                    gradeSelection.classList.add('text-gray-700')
-                    clearGradeFilterBtn.classList.remove('text-[#1A3165]')
-                    clearGradeFilterBtn.classList.add('text-gray-500')
-
-
-                    gradeSelection.selectedIndex = 0
+                    // Reset filter value
+                    gradeSelection.selectedIndex = 0;
                     selectedGrade = '';
                     table1.draw();
-                })
-
+                });
             }
 
             window.onload = function() {
@@ -733,9 +1180,10 @@
                             showAlert('success', data.success);
                             table1.draw();
                             
-                            // Refresh stats and chart after successful import for real-time feel
+                            // Refresh stats and charts after successful import for real-time feel
                             setTimeout(() => {
                                 loadEnrollmentStats();
+                                loadEnrollmentAnalytics();
                             }, 500); // Small delay to ensure data is processed
 
                         } else if (data.error) {
@@ -755,65 +1203,167 @@
             const gradeLevelChartCtx = document.getElementById('grade_level_chart').getContext('2d');
             const programChartCtx = document.getElementById('program_chart').getContext('2d');
 
-            const gradeLevelChart = new Chart(gradeLevelChartCtx, {
-                type: 'pie', // change to 'pie' for pie chart
+            window.gradeLevelChart = new Chart(gradeLevelChartCtx, {
+                type: 'doughnut',
                 data: {
-
+                    labels: [], // Will be populated dynamically
                     datasets: [{
                         label: 'Students',
-                        data: [19, 3],
-                        backgroundColor: ['#199BCF', '#1A3165'],
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    maintainAspectRatio: false
-                    // makes it a donut; remove for a pie chart
-                }
-            });
-
-            const programChart = new Chart(programChartCtx, {
-                type: 'pie', // change to 'pie' for pie chart
-                data: {
-
-                    datasets: [{
-                        label: 'Students',
-                        data: [20, 265],
-                        backgroundColor: ['#199BCF', '#1A3165'],
+                        data: [], // Will be populated dynamically
+                        backgroundColor: [], // Will be populated dynamically
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 4,
+                        hoverBorderColor: '#ffffff',
                     }]
                 },
                 options: {
                     responsive: false,
                     maintainAspectRatio: false,
-                    cutout: '70%'
-                    // makes it a donut; remove for a pie chart
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            display: false // We'll use custom legend
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} students (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                        intersect: false
+                    }
+                }
+            });
+
+            window.programChart = new Chart(programChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [], // Will be populated dynamically
+                    datasets: [{
+                        label: 'Students',
+                        data: [], // Will be populated dynamically
+                        backgroundColor: [], // Will be populated dynamically
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 4,
+                        hoverBorderColor: '#ffffff',
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            display: false // We'll use custom legend
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} students (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                        intersect: false
+                    }
                 }
             });
 
             window.totalChart = new Chart(totalChartCtx, {
-                type: 'pie', // change to 'pie' for pie chart
+                type: 'doughnut',
                 data: {
                     labels: ['Enrolled', 'Pending'],
                     datasets: [{
                         label: 'Students',
                         data: [0, 0], // Will be updated by loadEnrollmentStats()
                         backgroundColor: ['#10B981', '#F59E0B'], // Green for enrolled, yellow for pending
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 4,
+                        hoverBorderColor: '#ffffff',
                     }]
                 },
                 options: {
                     responsive: false,
                     maintainAspectRatio: false,
-                    cutout: '70%',
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            display: false // We'll use custom legend
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value} students (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
                     animation: {
-                        duration: 800, // Smooth animation duration
-                        easing: 'easeInOutQuart' // Smooth easing function
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
                     },
                     interaction: {
                         intersect: false
                     }
-                    // makes it a donut; remove for a pie chart
                 }
             });
+
+            // Load analytics after charts are initialized
+            loadEnrollmentAnalytics();
 
             function closeModal() {
 

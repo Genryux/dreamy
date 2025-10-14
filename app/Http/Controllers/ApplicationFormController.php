@@ -9,6 +9,7 @@ use App\Models\Applicant;
 use App\Models\Applicants;
 use App\Models\ApplicationForm;
 use App\Models\Interview;
+use App\Models\Program;
 use App\Models\User;
 use App\Notifications\QueuedNotification;
 use App\Notifications\ImmediateNotification;
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
+use InvalidArgumentException;
 
 class ApplicationFormController extends Controller
 {
@@ -44,7 +46,7 @@ class ApplicationFormController extends Controller
     public function getRecentApplications(Request $request)
     {
         try {
-            $query = Applicants::with(['applicationForm'])
+            $query = Applicants::with(['applicationForm', 'program'])
                 ->where('application_status', 'pending');
 
             // Filter by current academic term if feature is enabled
@@ -68,12 +70,12 @@ class ApplicationFormController extends Controller
                 ->orderBy('created_at', 'desc') // Order by most recent first
                 ->offset($start)
                 ->limit($length)
-                ->get(['id', 'first_name', 'last_name', 'created_at', 'applicant_id'])
+                ->get()
                 ->map(function ($item) {
                     return [
                         'applicant_id' => $item->applicant_id ?? 'N/A',
                         'full_name' => $item->last_name . ', ' . $item->first_name,
-                        'program' => $item->applicationForm->primary_track ?? 'N/A',
+                        'program' => $item->program ? $item->program->code : 'N/A',
                         'grade_level' => $item->applicationForm->grade_level ?? 'N/A',
                         'submitted_at' => \Carbon\Carbon::parse($item->created_at)->timezone('Asia/Manila')->format('M d, Y g:i A'),
                         'id' => $item->id // For actions
@@ -101,7 +103,7 @@ class ApplicationFormController extends Controller
     public function getPendingApplications(Request $request)
     {
         try {
-            $query = Applicants::withStatus('Pending');
+            $query = Applicants::withStatus('Pending')->with(['applicationForm', 'program']);
 
             // Filter by current academic term if feature is enabled
             if (config('app.use_term_enrollments')) {
@@ -118,17 +120,17 @@ class ApplicationFormController extends Controller
                     $q->where('applicant_id', 'like', "%{$search}%")
                         ->orWhere('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhereHas('applicationForm', function ($formQuery) use ($search) {
-                            $formQuery->where('primary_track', 'like', "%{$search}%")
-                                ->orWhere('grade_level', 'like', "%{$search}%");
+                        ->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%");
                         });
                 });
             }
 
             // Program filter
             if ($program = $request->input('program_filter')) {
-                $query->whereHas('applicationForm', function ($formQuery) use ($program) {
-                    $formQuery->where('primary_track', $program);
+                $query->whereHas('program', function ($formQuery) use ($program) {
+                    $formQuery->where('code', $program);
                 });
             }
 
@@ -160,14 +162,11 @@ class ApplicationFormController extends Controller
                             ->orderBy('first_name', $orderDir);
                         break;
                     case 'program':
-                        $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
-                            ->orderBy('application_forms.primary_track', $orderDir)
-                            ->select('applicants.*');
+                        $query->orderBy('program_id', $orderDir);
                         break;
                     case 'grade_level':
                         $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
-                            ->orderBy('application_forms.grade_level', $orderDir)
-                            ->select('applicants.*');
+                            ->orderBy('application_forms.grade_level', $orderDir);
                         break;
                     case 'submitted_at':
                         $query->orderBy('created_at', $orderDir);
@@ -186,13 +185,13 @@ class ApplicationFormController extends Controller
             $data = $query
                 ->offset($start)
                 ->limit($length)
-                ->get(['id', 'first_name', 'last_name', 'created_at', 'applicant_id'])
+                ->get()
                 ->map(function ($item, $key) use ($start) {
                     return [
                         'index' => $start + $key + 1,
                         'applicant_id' => $item->applicant_id ?? 'N/A',
                         'full_name' => $item->last_name . ', ' . $item->first_name,
-                        'program' => $item->applicationForm->primary_track ?? 'N/A',
+                        'program' => $item->program ? $item->program->code : 'N/A',
                         'grade_level' => $item->applicationForm->grade_level ?? 'N/A',
                         'submitted_at' => \Carbon\Carbon::parse($item->created_at)->timezone('Asia/Manila')->format('M d, Y g:i A'),
                         'id' => $item->id // For actions
@@ -223,7 +222,7 @@ class ApplicationFormController extends Controller
     public function getAcceptedApplications(Request $request)
     {
         try {
-            $query = Applicants::withStatus('Accepted');
+            $query = Applicants::withStatus('Accepted')->with(['applicationForm', 'program']);
 
             // Filter by current academic term if feature is enabled
             if (config('app.use_term_enrollments')) {
@@ -241,17 +240,20 @@ class ApplicationFormController extends Controller
                     $q->where('applicant_id', 'like', "%{$search}%")
                         ->orWhere('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%");
+                        })
                         ->orWhereHas('applicationForm', function ($formQuery) use ($search) {
-                            $formQuery->where('primary_track', 'like', "%{$search}%")
-                                ->orWhere('grade_level', 'like', "%{$search}%");
+                            $formQuery->where('grade_level', 'like', "%{$search}%");
                         });
                 });
             }
 
             // Program filter
             if ($program = $request->input('program_filter')) {
-                $query->whereHas('applicationForm', function ($formQuery) use ($program) {
-                    $formQuery->where('primary_track', $program);
+                $query->whereHas('program', function ($formQuery) use ($program) {
+                    $formQuery->where('code', $program);
                 });
             }
 
@@ -264,7 +266,12 @@ class ApplicationFormController extends Controller
 
             // Status filter
             if ($status = $request->input('status_filter')) {
-                $query->where('application_status', $status);
+                $query->where(function ($q) use ($status) {
+                    $q->where('application_status', $status)
+                        ->orWhereHas('interview', function ($interviewQuery) use ($status) {
+                            $interviewQuery->where('status', $status);
+                        });
+                });
             }
 
             // Get total count before applying sorting and pagination
@@ -292,7 +299,7 @@ class ApplicationFormController extends Controller
                         break;
                     case 'program':
                         $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
-                            ->orderBy('application_forms.primary_track', $orderDir)
+                            ->orderBy('applicants.program_id', $orderDir)
                             ->select('applicants.*');
                         break;
                     case 'grade_level':
@@ -320,13 +327,13 @@ class ApplicationFormController extends Controller
             $data = $query
                 ->offset($start)
                 ->limit($length)
-                ->get(['id', 'first_name', 'last_name', 'application_status', 'created_at', 'applicant_id', 'accepted_at'])
+                ->get(['id', 'first_name', 'last_name', 'program_id', 'application_status', 'created_at', 'applicant_id', 'accepted_at'])
                 ->map(function ($item, $key) use ($start) {
                     return [
                         'index' => $start + $key + 1,
                         'applicant_id' => $item->applicant_id ?? 'N/A',
                         'full_name' => $item->last_name . ', ' . $item->first_name,
-                        'program' => $item->applicationForm->primary_track ?? 'N/A',
+                        'program' => $item->program->code ?? 'N/A',
                         'grade_level' => $item->applicationForm->grade_level ?? 'N/A',
                         'status' => $item->interview->status ?? $item->application_status ?? '-',
                         'accepted_at' => $item->accepted_at ? \Carbon\Carbon::parse($item->accepted_at)->timezone('Asia/Manila')->format('M d, Y - g:i A') : '-',
@@ -358,7 +365,7 @@ class ApplicationFormController extends Controller
     public function getPendingDocumentsApplications(Request $request)
     {
         try {
-            $query = Applicants::withStatus('Pending-Documents')->with(['assignedDocuments', 'applicationForm']);
+            $query = Applicants::withStatus('Pending-Documents')->with(['assignedDocuments', 'applicationForm', 'program']);
 
             // Filter by current academic term if feature is enabled
             if (config('app.use_term_enrollments')) {
@@ -376,17 +383,20 @@ class ApplicationFormController extends Controller
                     $q->where('applicant_id', 'like', "%{$search}%")
                         ->orWhere('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%");
+                        })
                         ->orWhereHas('applicationForm', function ($formQuery) use ($search) {
-                            $formQuery->where('primary_track', 'like', "%{$search}%")
-                                ->orWhere('grade_level', 'like', "%{$search}%");
+                            $formQuery->where('grade_level', 'like', "%{$search}%");
                         });
                 });
             }
 
             // Program filter
             if ($program = $request->input('program_filter')) {
-                $query->whereHas('applicationForm', function ($formQuery) use ($program) {
-                    $formQuery->where('primary_track', $program);
+                $query->whereHas('program', function ($formQuery) use ($program) {
+                    $formQuery->where('code', $program);
                 });
             }
 
@@ -399,7 +409,12 @@ class ApplicationFormController extends Controller
 
             // Status filter
             if ($status = $request->input('status_filter')) {
-                $query->where('application_status', $status);
+                $query->where(function ($q) use ($status) {
+                    $q->where('application_status', $status)
+                        ->orWhereHas('interview', function ($interviewQuery) use ($status) {
+                            $interviewQuery->where('status', $status);
+                        });
+                });
             }
 
             // Get total count before applying sorting and pagination
@@ -427,7 +442,7 @@ class ApplicationFormController extends Controller
                         break;
                     case 'program':
                         $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
-                            ->orderBy('application_forms.primary_track', $orderDir)
+                            ->orderBy('applicants.program_id', $orderDir)
                             ->select('applicants.*');
                         break;
                     case 'grade_level':
@@ -455,13 +470,13 @@ class ApplicationFormController extends Controller
             $data = $query
                 ->offset($start)
                 ->limit($length)
-                ->get(['id', 'first_name', 'last_name', 'application_status', 'created_at', 'applicant_id', 'accepted_at'])
+                ->get(['id', 'first_name', 'last_name', 'program_id', 'application_status', 'created_at', 'applicant_id', 'accepted_at'])
                 ->map(function ($item, $key) use ($start) {
                     return [
                         'index' => $start + $key + 1,
                         'applicant_id' => $item->applicant_id ?? 'N/A',
                         'full_name' => $item->last_name . ', ' . $item->first_name,
-                        'program' => $item->applicationForm->primary_track ?? 'N/A',
+                        'program' => $item->program->code ?? 'N/A',
                         'grade_level' => $item->applicationForm->grade_level ?? 'N/A',
                         'status' => $item->document_status ?? '-',
                         'accepted_at' => $item->accepted_at ? \Carbon\Carbon::parse($item->accepted_at)->timezone('Asia/Manila')->format('M d, Y - g:i A') : '-',
@@ -486,8 +501,6 @@ class ApplicationFormController extends Controller
             ], 500);
         }
     }
-
-
 
 
     public function pending()
@@ -647,9 +660,18 @@ class ApplicationFormController extends Controller
     public function create()
     {
         $user = $this->userService->fetchAuthenticatedUser();
+        
+        // Check if user has already submitted an application form
+        $applicant = Applicants::where('user_id', $user->id)->first();
+        
+        if ($applicant && $applicant->applicationForm) {
+            // User has already submitted an application form
+            return redirect()->route('admission.dashboard')->with('error', 'You have already submitted an application form. Please check your application status in the dashboard.');
+        }
+        
         $tracks = \App\Models\Track::where('status', 'active')->get();
         $programs = \App\Models\Program::where('status', 'active')->get();
-        
+
         return view('user-applicant.application-form', compact('user', 'tracks', 'programs'));
     }
 
@@ -659,189 +681,135 @@ class ApplicationFormController extends Controller
     public function store(Request $request)
     {
 
-        //dd($request->all());
+        $user = Auth::user();
 
-        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
-        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
-        $validated = $this->applicationFormService->validateData($request->all());
-        $now = Carbon::now();
+        $validated = $request->validate([
 
+            'preferred_sched'            => 'required|string',
+            'is_returning'               => 'required|boolean',
+            'lrn'                        => 'nullable|digits:12|unique:application_forms,lrn',
+            'grade_level'                => 'required|string',
+            'primary_track'              => 'required|exists:tracks,id',
+            'secondary_track'            => 'nullable|exists:programs,id',
+            'last_name'                  => 'required|string',
+            'first_name'                 => 'required|string',
+            'middle_name'                => 'nullable|string',
+            'extension_name'             => 'nullable|string',
+            'birthdate'                  => 'required|date|before:today',
+            'age'                        => 'required|integer',
+            'gender'                     => 'required|string',
+            'contact_number'             => 'required|string',
+            'place_of_birth'             => 'required|string',
+            'mother_tongue'              => 'nullable|string',
+            'belongs_to_ip'              => 'nullable|boolean',
+            'is_4ps_beneficiary'         => 'nullable|boolean',
 
-        $applicant = Applicants::where('user_id', Auth::user()->id)->first();
+            'cur_house_no'               => 'required|string',
+            'cur_street'                 => 'nullable|string',
+            'cur_barangay'               => 'required|string',
+            'cur_city'                   => 'required|string',
+            'cur_province'               => 'required|string',
+            'cur_country'                => 'required|string',
+            'cur_zip_code'               => 'required|numeric',
+
+            'perm_house_no'              => 'required|string',
+            'perm_street'                => 'nullable|string',
+            'perm_barangay'              => 'required|string',
+            'perm_city'                  => 'required|string',
+            'perm_province'              => 'required|string',
+            'perm_country'               => 'required|string',
+            'perm_zip_code'              => 'required|numeric',
+
+            'father_last_name'           => 'required|string',
+            'father_first_name'          => 'required|string',
+            'father_middle_name'         => 'nullable|string',
+            'father_contact_number'      => 'nullable|string',
+            'mother_last_name'           => 'required|string',
+            'mother_first_name'          => 'required|string',
+            'mother_middle_name'         => 'nullable|string',
+            'mother_contact_number'      => 'nullable|string',
+            'guardian_last_name'         => 'required|string',
+            'guardian_first_name'        => 'required|string',
+            'guardian_middle_name'       => 'nullable|string',
+            'guardian_contact_number'    => 'required|string',
+            'has_special_needs'          => 'nullable|boolean',
+            'special_needs'              => 'nullable|array',
+
+            'last_grade_level_completed' => 'nullable|integer',
+            'last_school_attended'       => 'nullable|string',
+            'last_school_year_completed' => 'nullable|date|before:now',
+            'school_id'                  => 'nullable|string',
+        ]);
+
+        $applicant = Applicants::where('user_id', $user->id)->first();
 
         try {
 
-            DB::transaction(function () use ($applicant, $validated, $currentAcadTerm, $now, $activeEnrollmentPeriod) {
-                $form = $this->applicationFormService->saveApplication(
-                    [
-                        'applicants_id'              => $applicant->id,
-                        'academic_terms_id'          => $currentAcadTerm->id,
-                        'enrollment_period_id'       => $activeEnrollmentPeriod->id,
+            DB::transaction(function () use ($applicant, $validated, $user) {
+                $this->applicationFormService->createApplication($applicant, $validated);
 
-                        'preferred_sched'            => $validated['preferred_sched'],
-                        'is_returning'               => $validated['is_returning'],
-                        'lrn'                        => $validated['lrn'],
-                        'grade_level'                => $validated['grade_level'],
-                        'primary_track'              => $validated['primary_track'],
-                        'secondary_track'            => $validated['secondary_track'],
-                        'acad_term_applied'          => $currentAcadTerm->year,
-                        'semester_applied'           => $currentAcadTerm->semester,
-                        'admission_date'             => $now,
-
-                        'last_name'                  => $validated['last_name'],
-                        'first_name'                 => $validated['first_name'],
-                        'middle_name'                => $validated['middle_name'],
-                        'extension_name'             => $validated['extension_name'],
-                        'gender'                     => $validated['gender'],
-                        'birthdate'                  => $validated['birthdate'],
-                        'age'                        => $validated['age'],
-                        'place_of_birth'             => $validated['place_of_birth'],
-                        'mother_tongue'              => $validated['mother_tongue'],
-                        'belongs_to_ip'              => $validated['belongs_to_ip'],
-                        'is_4ps_beneficiary'         => $validated['is_4ps_beneficiary'],
-                        'contact_number'             => $validated['contact_number'],
-
-                        'cur_house_no'               => $validated['cur_house_no'],
-                        'cur_street'                 => $validated['cur_street'],
-                        'cur_barangay'               => $validated['cur_barangay'],
-                        'cur_city'                   => $validated['cur_city'],
-                        'cur_province'               => $validated['cur_province'],
-                        'cur_country'                => $validated['cur_country'],
-                        'cur_zip_code'               => $validated['cur_zip_code'],
-
-                        'perm_house_no'              => $validated['perm_house_no'],
-                        'perm_street'                => $validated['perm_street'],
-                        'perm_barangay'              => $validated['perm_barangay'],
-                        'perm_city'                  => $validated['perm_city'],
-                        'perm_province'              => $validated['perm_province'],
-                        'perm_country'               => $validated['perm_country'],
-                        'perm_zip_code'              => $validated['perm_zip_code'],
-
-                        'father_last_name'           => $validated['father_last_name'],
-                        'father_first_name'          => $validated['father_first_name'],
-                        'father_middle_name'         => $validated['father_middle_name'],
-                        'father_contact_number'      => $validated['father_contact_number'],
-                        'mother_last_name'           => $validated['mother_last_name'],
-                        'mother_first_name'          => $validated['mother_first_name'],
-                        'mother_middle_name'         => $validated['mother_middle_name'],
-                        'mother_contact_number'      => $validated['mother_contact_number'],
-                        'guardian_last_name'         => $validated['guardian_last_name'],
-                        'guardian_first_name'        => $validated['guardian_first_name'],
-                        'guardian_middle_name'       => $validated['guardian_middle_name'],
-                        'guardian_contact_number'    => $validated['guardian_contact_number'],
-                        'has_special_needs'          => $validated['has_special_needs'],
-                        'special_needs'              => $validated['special_needs'] ?? null,
-
-                        'last_grade_level_completed' => $validated['last_grade_level_completed'],
-                        'last_school_attended'       => $validated['last_school_attended'],
-                        'last_school_year_completed' => $validated['last_school_year_completed'],
-                        'school_id'                  => $validated['school_id'],
-
-                    ]
-                );
-
-                $total_applications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
-
-                // Update applicant status first
-                if ($applicant) {
-                    $applicant->update([
-                        'application_status' => 'Pending'
-                    ]);
-
-                    // Fire event with the applicant model (which has the applicant_id and relationships)
-                    event(new RecentApplicationTableUpdated($applicant, $total_applications));
-                }
-            });
-
-            // Send notifications after transaction is committed
-            // Use Laravel's bulk notification to avoid N+1 problem
-
-            // Send to admin roles (registrar, super_admin)
-            $admins = User::role(['registrar', 'super_admin'])->get();
-
-            Notification::send($admins, new QueuedNotification(
-                "Application form",
-                "A user just submitted an application. Please review the submission at your earliest convenience.",
-                url('/pending-applications')
-            ));
-
-            // Send broadcast for real-time updates (separate broadcasts, no N+1)
-            Notification::route('broadcast', 'admins')
-                ->notify(new ImmediateNotification(
-                    "Application form",
+                // Send to admin roles (registrar, super_admin)
+                $admins = User::role(['registrar', 'super_admin'])->get();
+                Notification::send($admins, new QueuedNotification(
+                    "New Application Submission Received",
                     "A user just submitted an application. Please review the submission at your earliest convenience.",
-                    url('/pending-applications')
+                    url('/applications/pending')
                 ));
 
-            $user = $applicant->user;
+                // Send broadcast for real-time updates (separate broadcasts, no N+1)
+                Notification::route('broadcast', 'admins')
+                    ->notify(new ImmediateNotification(
+                        "New Application Submission Received",
+                        "A user just submitted an application. Please review the submission at your earliest convenience.",
+                        url('/applications/pending')
+                    ));
 
-            $user->notify(new PrivateQueuedNotification(
-                "Application Submitted Successfully",
-                "Your application has been submitted successfully and is now being reviewed.",
-                null, // No URL needed for mobile
-                null
-            ));
-
-            // REAL-TIME notification for mobile app - NOT QUEUED
-            Notification::route('broadcast', 'user.' . $user->id)
-                ->notify(new PrivateImmediateNotification(
-                    "Application Submitted Successfully",
-                    "Your application has been submitted successfully and is now being reviewed.",
-                    null, // No URL needed for mobile
+                $user->notify(new PrivateQueuedNotification(
+                    "Application Form Received!",
+                    "Your application form has been successfully received and is now pending review. You’ll be notified once your application has been reviewed and approved.",
                     null
                 ));
 
-            return redirect('admission')->with('success', 'Application submitted successfully!');
+                Notification::route('broadcast', 'user.' . $user->id)
+                    ->notify(new PrivateImmediateNotification(
+                        "Application Form Received!",
+                        "Your application form has been successfully received and is now pending review. You’ll be notified once your application has been reviewed and approved.",
+                        null,
+                        'user.' . $user->id
+                    ));
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Form submitted successfully!'
+            ]);
+        } catch (InvalidArgumentException $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => "Failed to submit the form: {$e}"
+            ]);
         } catch (\Throwable $th) {
 
             Log::error('Application form submission failed', ['error' => $th->getMessage(), 'trace' => $th->getTraceAsString()]);
             throw new \Exception($th);
-            return redirect()->back()->with('error', 'An error occurred while submitting your application. Please try again later.');
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while submitting your application. Please try again later.'
+            ]);
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function showApplicationDetails(Applicants $applicant, Request $request)
+    public function pendingDetails(Applicants $applicant, Request $request)
     {
 
         $applicant = Applicants::with('applicationForm')->find($applicant->id);
 
-        //dd($form->applicant_id);
-
-        return view('user-admin.pending.pending-details', compact('applicant'));
+        return view('user-admin.applications.pending-applications.show', compact('applicant'));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ApplicationForm $applicationForm)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ApplicationForm $applicationForm)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ApplicationForm $applicationForm)
-    {
-        //
-    }
-
-
-
-
-
-
 
 
     /**
@@ -849,24 +817,129 @@ class ApplicationFormController extends Controller
      */
     public function getRejectedApplications(Request $request)
     {
-        $query = Applicants::where('application_status', 'Rejected');
+        try {
+            $query = Applicants::where('application_status', 'Rejected')->with(['applicationForm', 'program']);
 
-        return datatables($query)
-            ->addIndexColumn()
-            ->addColumn('full_name', function ($applicant) {
-                return $applicant->getFullNameAttribute();
-            })
-            ->addColumn('program', function ($applicant) {
-                return $applicant->applicationForm->program->name ?? 'N/A';
-            })
-            ->addColumn('grade_level', function ($applicant) {
-                return $applicant->applicationForm->grade_level ?? 'N/A';
-            })
-            ->addColumn('status', function ($applicant) {
-                return $applicant->application_status;
-            })
-            ->rawColumns(['full_name', 'program', 'grade_level', 'status'])
-            ->make(true);
+            // Filter by current academic term if feature is enabled
+            if (config('app.use_term_enrollments')) {
+                $activeTerm = AcademicTerms::where('is_active', true)->first();
+                if ($activeTerm) {
+                    $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
+                        $q->where('academic_terms_id', $activeTerm->id);
+                    });
+                }
+            }
+
+            // Search filter
+            if ($search = $request->input('search.value')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('applicant_id', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('code', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('applicationForm', function ($formQuery) use ($search) {
+                            $formQuery->where('grade_level', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            // Program filter
+            if ($program = $request->input('program_filter')) {
+                $query->whereHas('program', function ($formQuery) use ($program) {
+                    $formQuery->where('code', $program);
+                });
+            }
+
+            // Grade filter
+            if ($grade = $request->input('grade_filter')) {
+                $query->whereHas('applicationForm', function ($formQuery) use ($grade) {
+                    $formQuery->where('grade_level', $grade);
+                });
+            }
+
+            // Get total count before applying sorting and pagination
+            $totalRecords = Applicants::where('application_status', 'Rejected')->count();
+            $filtered = $query->count();
+
+            // Sorting
+            $columns = ['index', 'applicant_id', 'full_name', 'program', 'grade_level', 'status'];
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderDir = $request->input('order.0.dir', 'desc');
+
+            if ($orderColumnIndex !== null && isset($columns[$orderColumnIndex])) {
+                $sortColumn = $columns[$orderColumnIndex];
+
+                switch ($sortColumn) {
+                    case 'index':
+                        $query->orderBy('created_at', $orderDir);
+                        break;
+                    case 'applicant_id':
+                        $query->orderBy('applicant_id', $orderDir);
+                        break;
+                    case 'full_name':
+                        $query->orderBy('last_name', $orderDir)
+                            ->orderBy('first_name', $orderDir);
+                        break;
+                    case 'program':
+                        $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
+                            ->orderBy('applicants.program_id', $orderDir)
+                            ->select('applicants.*');
+                        break;
+                    case 'grade_level':
+                        $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
+                            ->orderBy('application_forms.grade_level', $orderDir)
+                            ->select('applicants.*');
+                        break;
+                    case 'status':
+                        $query->orderBy('application_status', $orderDir);
+                        break;
+                    default:
+                        $query->orderBy('created_at', 'desc');
+                        break;
+                }
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 10);
+
+            $data = $query
+                ->offset($start)
+                ->limit($length)
+                ->get(['id', 'first_name', 'last_name', 'program_id', 'application_status', 'created_at', 'applicant_id', 'rejected_at'])
+                ->map(function ($item, $key) use ($start) {
+                    return [
+                        'index' => $start + $key + 1,
+                        'applicant_id' => $item->applicant_id ?? 'N/A',
+                        'full_name' => $item->last_name . ', ' . $item->first_name,
+                        'program' => $item->program->code ?? 'N/A',
+                        'grade_level' => $item->applicationForm->grade_level ?? 'N/A',
+                        'status' => $item->application_status,
+                        'rejected_at' => $item->rejected_at ? \Carbon\Carbon::parse($item->rejected_at)->timezone('Asia/Manila')->format('M d, Y - g:i A') : '-',
+                        'id' => $item->id // For actions
+                    ];
+                });
+
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filtered,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getRejectedApplications error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => 'Failed to load rejected applications data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -899,6 +972,95 @@ class ApplicationFormController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reject application. Please try again.' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get application statistics for dashboard
+     */
+    public function getApplicationStatistics()
+    {
+        try {
+            // Get base query with academic term filtering if enabled
+            $baseQuery = Applicants::query();
+            
+            if (config('app.use_term_enrollments')) {
+                $activeTerm = AcademicTerms::where('is_active', true)->first();
+                if ($activeTerm) {
+                    $baseQuery->whereHas('applicationForm', function ($q) use ($activeTerm) {
+                        $q->where('academic_terms_id', $activeTerm->id);
+                    });
+                }
+            }
+
+            // Define the statuses to include in the total count
+            $includedStatuses = ['Pending', 'Accepted', 'Pending-Documents', 'Rejected', 'Completed-Failed'];
+            
+            // Get counts for each status
+            $statistics = [
+                'total' => (clone $baseQuery)->whereIn('application_status', $includedStatuses)->count(),
+                'pending' => (clone $baseQuery)->where('application_status', 'Pending')->count(),
+                'accepted' => (clone $baseQuery)->where('application_status', 'Accepted')->count(),
+                'pending_documents' => (clone $baseQuery)->where('application_status', 'Pending-Documents')->count(),
+                'rejected' => (clone $baseQuery)->where('application_status', 'Rejected')->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'statistics' => $statistics
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getApplicationStatistics error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load application statistics: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get application summary statistics for applicant dashboard
+     */
+    public function getApplicationSummary()
+    {
+        try {
+            // Get base query with academic term filtering if enabled
+            $baseQuery = Applicants::query();
+            
+            if (config('app.use_term_enrollments')) {
+                $activeTerm = AcademicTerms::where('is_active', true)->first();
+                if ($activeTerm) {
+                    $baseQuery->whereHas('applicationForm', function ($q) use ($activeTerm) {
+                        $q->where('academic_terms_id', $activeTerm->id);
+                    });
+                }
+            }
+
+            // Get total registrations (all applications regardless of status)
+            $totalRegistrations = $baseQuery->count();
+            
+            // Get successful applicants (accepted applications)
+            $successfulApplicants = (clone $baseQuery)->where('application_status', 'Accepted')->count();
+            
+            // Calculate acceptance rate
+            $acceptanceRate = $totalRegistrations > 0 ? round(($successfulApplicants / $totalRegistrations) * 100) : 0;
+
+            $summary = [
+                'total_registrations' => $totalRegistrations,
+                'successful_applicants' => $successfulApplicants,
+                'acceptance_rate' => $acceptanceRate,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'summary' => $summary
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getApplicationSummary error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load application summary: ' . $e->getMessage()
             ], 500);
         }
     }

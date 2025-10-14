@@ -41,53 +41,26 @@
             <p class="text-[14px]  text-gray-900/60">View and manage student applications across different statuses.
             </p>
         </div>
-
-        <div id="dropdown_2"
-            class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-            <div
-                class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-            </div>
-
-            <div id="dropdown_selection2"
-                class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                <button id="edit-program-modal-btn"
-                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                    <i class="fi fi-sr-file-import text-[16px]"></i>Edit Program
-                </button>
-                <x-nav-link href="/students/export/excel"
-                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                    <i class="fi fi-sr-file-excel text-[16px]"></i>Archive Program
-                </x-nav-link>
-                <button
-                    class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                    <i class="fi fi-sr-file-pdf text-[16px]"></i>Delete Program
-                </button>
-            </div>
-
-        </div>
     </div>
 @endsection
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-10 pb-10 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-[#199BCF]/30 shadow-xl gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
                 <div class="flex flex-col items-start justify-end gap-2 pt-4">
-                    <h1 class="text-[40px] font-black" id="section_name"></h1>
-                    <p class="text-[16px]  text-white/60">
+                    <h1 class="text-[40px] font-black">Application Summary</h1>
+                    <p class="text-[16px] text-white/60">
+                        Monitor and manage student applications across all statuses
                     </p>
                 </div>
 
                 <div class="flex flex-col items-end justify-center">
-                    <p id="studentCount" class="text-[50px] font-bold ">
-                    </p>
+                    <p id="totalApplicationsCount" class="text-[50px] font-bold">0</p>
                     <div class="flex flex-row justify-center items-center opacity-70 gap-2 text-[14px]">
-                        {{-- <i class="fi fi-sr-graduation-cap flex justify-center items-center "></i> --}}
-                        <p class="text-[16px]">Active Programs</p>
+                        <p class="text-[16px]">Total Applications</p>
                     </div>
                 </div>
 
@@ -97,39 +70,41 @@
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-150">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2">
-                        <i class="fi fi-rr-star flex justify-center items-center"></i>
-                        <p class="text-[14px]">Total Students</p>
+                        <i class="fi fi-rr-clock flex justify-center items-center"></i>
+                        <p class="text-[14px]">Pending Applications</p>
                     </div>
-                    <p class="font-bold text-[24px]"></p>
-                    <p class="text-[12px] truncate text-gray-300">Total students enrolled in this program</p>
+                    <p class="font-bold text-[24px]" id="pendingApplicationsCount">0</p>
+                    <p class="text-[12px] truncate text-gray-300">Applications awaiting review</p>
                 </div>
 
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2">
-                        <i class="fi fi-rr-lesson flex flex-row justify-center items-center"></i>
-                        <p class="text-[14px]">Active Sections</p>
+                        <i class="fi fi-rr-check-circle flex flex-row justify-center items-center"></i>
+                        <p class="text-[14px]">Accepted Applications</p>
                     </div>
-                    <p class="font-bold text-[24px]"></p>
-                    <p class="text-[12px] truncate text-gray-300">Active sections across this program</p>
+                    <p class="font-bold text-[24px]" id="acceptedApplicationsCount">0</p>
+                    <p class="text-[12px] truncate text-gray-300">Applications that have been accepted</p>
                 </div>
 
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2">
-                        <i class="fi fi-rr-school flex justify-center items-center"></i>
-                        <p class="text-[14px]">Faculty Members</p>
+                        <i class="fi fi-rr-document flex justify-center items-center"></i>
+                        <p class="text-[14px]">Pending Documents</p>
                     </div>
-                    <p class="font-bold text-[24px]" id="section_room"></p>
+                    <p class="font-bold text-[24px]" id="pendingDocumentsCount">0</p>
+                    <p class="text-[12px] truncate text-gray-300">Applicants with pending document</p>
                 </div>
 
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
-                        <i class="fi fi-rr-employee-man-alt flex justify-center items-center"></i>
-                        <p class="text-[14px] truncate">Specialized + Applied Subjects</p>
+                        <i class="fi fi-rr-cross-circle flex justify-center items-center"></i>
+                        <p class="text-[14px] truncate">Rejected Applications</p>
                     </div>
-                    <p class="font-bold text-[24px]"></p>
+                    <p class="font-bold text-[24px]" id="rejectedApplicationsCount">0</p>
+                    <p class="text-[12px] truncate text-gray-300">Applications that have been rejected</p>
                 </div>
             </div>
 
@@ -188,7 +163,7 @@
                         Pending Applications
                     </span>
                     <span class="font-medium text-gray-400 text-[14px]">
-                        Course subjects and curriculum for this program
+                        Applications awaiting review and approval
                     </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
@@ -308,7 +283,7 @@
                         Accepted Applications
                     </span>
                     <span class="font-medium text-gray-400 text-[14px]">
-                        Course subjects and curriculum for this program
+                        Applications that have been accepted and are in the admission process
                     </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
@@ -441,7 +416,7 @@
                         Pending Documents
                     </span>
                     <span class="font-medium text-gray-400 text-[14px]">
-                        Course subjects and curriculum for this program
+                        Applicants who need to submit required documents
                     </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
@@ -490,33 +465,20 @@
 
                             </div>
 
-                            <div
+                            <div id="program_selection_container"
                                 class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
                                 <select name="" id="program_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
-                                    <option value="" selected disabled>Program</option>
-                                    <option value="" data-id="STEM">STEM</option>
-                                    <option value="" data-id="ABM">ABM</option>
-                                    <option value="" data-id="HUMSS">HUMSS</option>
-                                    <option value="" data-id="GAS">GAS</option>
+                                    <option value="" selected>All Programs</option>
+                                    @foreach (\App\Models\Program::where('status', 'active')->get() as $program)
+                                        <option value="{{ $program->code }}">{{ $program->code }}</option>
+                                    @endforeach
                                 </select>
                                 <i id="clear-program-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
 
                         </div>
-                    </div>
-
-                    <div class="flex flex-row justify-center items-center gap-2">
-
-                        <div class="flex flex-row justify-center items-center truncate">
-                            <button id="add-student-modal-btn"
-                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
-                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                Add Document Requirement
-                            </button>
-                        </div>
-
                     </div>
 
                 </div>
@@ -528,7 +490,10 @@
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
                                 </th>
-
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Id</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
                                 <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
@@ -566,35 +531,13 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
                         Rejected Applications
                     </span>
-                    <div id="dropdown_3"
-                        class="relative space-y-10 h-full flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center text-[18px]"></i>
-                        </div>
-
-                        <div id="dropdown_selection3"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="import-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                            </button>
-                            <x-nav-link href="/students/export/excel"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                            </x-nav-link>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                            </button>
-                        </div>
-
-                    </div>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Applications that have been rejected
+                    </span>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
@@ -642,33 +585,20 @@
 
                             </div>
 
-                            <div
+                            <div id="program_selection_container"
                                 class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
                                 <select name="" id="program_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
-                                    <option value="" selected disabled>Program</option>
-                                    <option value="" data-id="STEM">STEM</option>
-                                    <option value="" data-id="ABM">ABM</option>
-                                    <option value="" data-id="HUMSS">HUMSS</option>
-                                    <option value="" data-id="GAS">GAS</option>
+                                    <option value="" selected>All Programs</option>
+                                    @foreach (\App\Models\Program::where('status', 'active')->get() as $program)
+                                        <option value="{{ $program->code }}">{{ $program->code }}</option>
+                                    @endforeach
                                 </select>
                                 <i id="clear-program-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                             </div>
 
                         </div>
-                    </div>
-
-                    <div class="flex flex-row justify-center items-center gap-2">
-
-                        <div class="flex flex-row justify-center items-center truncate">
-                            <button id="add-student-modal-btn"
-                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white">
-                                <i class="fi fi-rr-plus flex justify-center items-center "></i>
-                                View Rejection Details
-                            </button>
-                        </div>
-
                     </div>
 
                 </div>
@@ -680,27 +610,31 @@
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
                                 </th>
-
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant ID</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
                                 <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-
                                 <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">Grade Level</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
-
-                                <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Rejected At</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
                                 </th>
                             </tr>
@@ -766,6 +700,9 @@
                 'edit-program-cancel-btn',
                 'modal-container-2');
 
+            // Load application statistics
+            loadApplicationStatistics();
+
             // Initialize tables based on current route
             const currentPath = window.location.pathname;
 
@@ -790,6 +727,34 @@
             initializeFilterListeners();
         });
 
+        // Load Application Statistics
+        function loadApplicationStatistics() {
+            fetch('/api/application-statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalApplicationsCount').textContent = data.statistics.total || 0;
+                        document.getElementById('pendingApplicationsCount').textContent = data.statistics.pending || 0;
+                        document.getElementById('acceptedApplicationsCount').textContent = data.statistics.accepted ||
+                        0;
+                        document.getElementById('pendingDocumentsCount').textContent = data.statistics
+                            .pending_documents || 0;
+                        document.getElementById('rejectedApplicationsCount').textContent = data.statistics.rejected ||
+                        0;
+                    } else {
+                        console.error('Failed to load application statistics:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading application statistics:', error);
+                    // Set default values on error
+                    document.getElementById('totalApplicationsCount').textContent = '0';
+                    document.getElementById('pendingApplicationsCount').textContent = '0';
+                    document.getElementById('acceptedApplicationsCount').textContent = '0';
+                    document.getElementById('pendingDocumentsCount').textContent = '0';
+                    document.getElementById('rejectedApplicationsCount').textContent = '0';
+                });
+        }
 
         // Initialize Pending Applications Table
         function initializePendingTable() {
@@ -800,32 +765,38 @@
                         data: 'index',
                         width: '3%',
                         searchable: true,
-                        orderable: false
+                        orderable: false,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'applicant_id',
                         width: '15%',
-                        orderable: true
+                        orderable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'full_name',
                         width: '20%',
-                        orderable: true
+                        orderable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'program',
                         width: '15%',
-                        orderable: true
+                        orderable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'grade_level',
                         width: '15%',
-                        orderable: true
+                        orderable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'submitted_at',
                         width: '15%',
-                        orderable: true
+                        orderable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'id',
@@ -834,7 +805,7 @@
                         render: function(data, type, row) {
                             return `
                                 <div class='flex flex-row justify-center items-center opacity-100'>
-                                    <a href="/pending-application/form-details/${data}" 
+                                    <a href="/applications/pending/form-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
                                         <span class="relative w-4 h-4">
                                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
@@ -871,43 +842,71 @@
                         data: 'index',
                         width: '3%',
                         searchable: true,
-                        orderable: true
+                        orderable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'applicant_id',
                         width: '15%',
                         orderable: true,
-                        searchable: true
+                        searchable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'full_name',
                         width: '15%',
                         orderable: true,
-                        searchable: true
+                        searchable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'program',
                         width: '15%',
                         orderable: true,
-                        searchable: true
+                        searchable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'grade_level',
                         width: '15%',
                         orderable: true,
-                        searchable: true
+                        searchable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'status',
                         width: '12%',
                         orderable: true,
-                        searchable: true
+                        searchable: true,
+                        render: function(data, type, row) {
+                            let badgeClass = '';
+                            let badgeText = data;
+
+                            switch (data) {
+                                case 'Accepted':
+                                    badgeClass = 'bg-green-100 text-green-800';
+                                    badgeText = 'Accepted';
+                                    break;
+                                case 'Scheduled':
+                                    badgeClass = 'bg-blue-100 text-blue-800';
+                                    badgeText = 'Scheduled';
+                                    break;
+                                case 'Taking-Exam':
+                                default:
+                                    badgeClass = 'bg-yellow-200 text-yellow-800';
+                                    badgeText = 'Taking-Exam';
+                                    break;
+                            }
+
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+                        }
                     },
                     {
                         data: 'accepted_at',
                         width: '18%',
                         orderable: true,
-                        searchable: true
+                        searchable: true,
+                        render: DataTable.render.text()
                     },
                     {
                         data: 'id',
@@ -916,7 +915,7 @@
                         render: function(data, type, row) {
                             return `
                                 <div class='flex flex-row justify-center items-center opacity-100'>
-                                    <a href="/selected-application/interview-details/${data}" 
+                                    <a href="/applications/accepted/admission-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-green-100 text-green-500 font-semibold px-3 py-1 rounded-xl hover:bg-green-500 hover:ring hover:ring-green-200 hover:text-white transition duration-150">
                                         <span class="relative w-4 h-4">
                                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
@@ -957,20 +956,55 @@
                             searchable: true
                         },
                         {
+                            data: 'applicant_id',
+                            width: '20%',
+                            searchable: true
+                        },
+                        {
                             data: 'full_name',
-                            width: '20%'
+                            width: '20%',
+                            searchable: true
                         },
                         {
                             data: 'program',
-                            width: '15%'
+                            width: '15%',
+                            searchable: true
                         },
                         {
                             data: 'grade_level',
-                            width: '15%'
+                            width: '15%',
+                            searchable: true
                         },
                         {
                             data: 'status',
-                            width: '15%'
+                            width: '18%',
+
+                            render: function(data, type, row) {
+                                let badgeClass = '';
+                                let badgeText = data;
+
+                                switch (data) {
+                                    case 'No Requirements':
+                                        badgeClass = 'bg-gray-100 text-gray-800';
+                                        badgeText = 'No Requirements';
+                                        break;
+                                    case 'Overdue':
+                                        badgeClass = 'bg-red-100 text-red-800';
+                                        badgeText = 'Overdue';
+                                        break;
+                                    case 'Completed':
+                                        badgeClass = 'bg-green-100 text-green-800';
+                                        badgeText = 'Completed';
+                                        break;
+                                    case 'Pending':
+                                    default:
+                                        badgeClass = 'bg-yellow-200 text-yellow-800';
+                                        badgeText = data;
+                                        break;
+                                }
+
+                                return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+                            }
                         },
                         {
                             data: 'id',
@@ -979,7 +1013,7 @@
                             render: function(data, type, row) {
                                 return `
                                 <div class='flex flex-row justify-center items-center opacity-100'>
-                                    <a href="/pending-documents/document-details/${data}" 
+                                    <a href="/applications/pending-document/submission-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-orange-100 text-orange-500 font-semibold px-3 py-1 rounded-xl hover:bg-orange-500 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
                                         <span class="relative w-4 h-4">
                                             <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
@@ -1004,6 +1038,9 @@
                     }
                 );
             }
+
+            clearSearch('clear-btn', 'myCustomSearch', pendingDocumentsTable);
+
         }
 
         // Initialize Rejected Applications Table
@@ -1015,28 +1052,58 @@
                     [{
                             data: 'index',
                             width: '3%',
-                            searchable: true
+                            searchable: true,
+                            orderable: true,
+                            render: DataTable.render.text()
+                        },
+                        {
+                            data: 'applicant_id',
+                            width: '15%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
                         },
                         {
                             data: 'full_name',
-                            width: '20%'
+                            width: '20%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
                         },
                         {
                             data: 'program',
-                            width: '15%'
+                            width: '15%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
                         },
                         {
                             data: 'grade_level',
-                            width: '15%'
+                            width: '15%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
                         },
                         {
                             data: 'status',
-                            width: '15%'
+                            width: '12%',
+                            orderable: true,
+                            searchable: true,
+                            render: function(data, type, row) {
+                                return `<span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">${data}</span>`;
+                            }
+                        },
+                        {
+                            data: 'rejected_at',
+                            width: '12%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
                         },
                         {
                             data: 'id',
                             className: 'text-center',
-                            width: '12%',
+                            width: '10%',
                             render: function(data, type, row) {
                                 return `
                                 <div class='flex flex-row justify-center items-center opacity-100'>
@@ -1065,6 +1132,8 @@
                     }
                 );
             }
+
+            clearSearch('clear-btn', 'myCustomSearch', rejectedTable);
         }
 
         // Initialize filter event listeners

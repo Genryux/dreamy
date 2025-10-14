@@ -146,7 +146,7 @@ class TrackController extends Controller
                 ->get()
                 ->map(function ($program) {
                     // Get total students across all sections in this program
-                    $totalStudents = \App\Models\Student::where('program', $program->code)->count();
+                    $totalStudents = \App\Models\Student::where('program_id', $program->id)->count();
                     
                     return [
                         'id' => $program->id,

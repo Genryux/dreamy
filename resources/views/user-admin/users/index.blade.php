@@ -37,7 +37,7 @@
                         </label>
                         <input type="text" name="name" id="role_name" required
                             placeholder="e.g., content_manager, data_analyst"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            class="flex flex-row justify-start items-center border-2 border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                     </div>
 
 
@@ -61,11 +61,11 @@
 
             <x-slot name="modal_buttons">
                 <button id="create-role-cancel-btn"
-                    class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                    class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-200">
                     Cancel
                 </button>
                 <button type="submit" form="create-role-form" name="action" value="create-role"
-                    class="bg-[#199BCF] text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-[#C8A165]/40 hover:bg-[#C8A165] transition duration-200 shadow-sm">
+                    class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                     Create Role
                 </button>
             </x-slot>
@@ -170,7 +170,7 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-10 pb-10 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-[#199BCF]/30 shadow-xl gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
@@ -309,27 +309,6 @@
                     <span class="font-semibold text-[18px]">
                         All Users
                     </span>
-                    <div id="dropdown_btn"
-                        class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                        <div
-                            class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                            <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
-                        </div>
-
-                        <div id="dropdown_selection"
-                            class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                            <button id="export-modal-btn"
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-excel text-[16px]"></i>Export Sections
-                            </button>
-                            <button
-                                class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                                <i class="fi fi-sr-file-pdf text-[16px]"></i>Export Report
-                            </button>
-                        </div>
-
-                    </div>
                 </div>
                 <div class="flex flex-row justify-between items-center w-full">
 
@@ -461,22 +440,16 @@
                         Role Management
                     </span>
                     <div class="flex flex-row justify-center items-center gap-2">
-                        @can('create roles')
-                            <button id="create-role-modal-btn"
-                                class="bg-[#1A3165] p-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-[#0f1f3a] transition duration-150">
-                                <i class="fi fi-rr-plus flex justify-center items-center"></i>
-                                Create Role
-                            </button>
-                        @endcan
+
 
                     </div>
                 </div>
 
                 <!-- Search and Filters -->
-                <div class="flex flex-row justify-between items-center w-full">
-                    <div class="w-full flex flex-row justify-between items-center gap-4">
+                <div class="flex flex-row justify-between items-center w-full h-full py-2">
+                    <div class="flex flex-row justify-between items-center w-2/3 gap-4">
                         <label for="role-search"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[80%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
                             <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                             <input type="search" name="" id="role-search"
                                 class="bg-transparent outline-none text-[14px] w-full peer" placeholder="Search roles...">
@@ -486,7 +459,7 @@
                             </button>
                         </label>
 
-                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                        <div class="flex flex-row justify-start items-center w-1/3 gap-2">
                             <div
                                 class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                                 <select name="role-page-length" id="role-page-length"
@@ -501,7 +474,16 @@
                             </div>
                         </div>
                     </div>
+                    @can('create roles')
+                        <button id="create-role-modal-btn"
+                            class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                            <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                            Create Role
+                        </button>
+                    @endcan
                 </div>
+
+
 
                 <!-- Role Table -->
                 <div class="w-full">
@@ -821,8 +803,8 @@
                             <!-- Header -->
                             <div class="flex flex-row justify-between items-start">
                                 <div class="flex flex-col">
-                                    <h3 class="text-lg font-bold text-[#1A3165]">${user.name}</h3>
-                                    <p class="text-sm text-gray-600">${user.email}</p>
+                                    <h3 class="text-lg font-bold text-gray-800">${user.name}</h3>
+                                    <p class="text-sm text-gray-500">${user.email}</p>
                                 </div>
                                 <div class="flex flex-col items-end">
                                     <span class="text-xs text-gray-500">#${user.index}</span>
@@ -835,19 +817,23 @@
                             <!-- Details -->
                             <div class="space-y-3">
                                 <div class="flex flex-row items-center gap-3">
-                                    <i class="fi fi-sr-user-tie text-[#1A3165] text-sm"></i>
+                                    <div class="flex justify-center items-center bg-gray-200 p-1 h-[35px] w-[35px] rounded-full">
+                                        <i class="fi fi-rr-shield-check flex justify-center items-center text-gray-500"></i>
+                                    </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Role</span>
-                                        <span class="text-sm font-medium">${user.roles}</span>
+                                        <span class="text-sm font-medium text-gray-800">${user.roles}</span>
                                     </div>
                                 </div>
                                 
                                 
                                 <div class="flex flex-row items-center gap-3">
-                                    <i class="fi fi-sr-calendar text-[#1A3165] text-sm"></i>
+                                    <div class="flex justify-center items-center bg-gray-200 p-1 h-[35px] w-[35px] rounded-full">
+                                        <i class="fi fi-rr-calendar flex justify-center items-center text-gray-500"></i>
+                                    </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Created</span>
-                                        <span class="text-sm font-medium">${user.created_at}</span>
+                                        <span class="text-sm font-medium text-gray-800">${user.created_at}</span>
                                     </div>
                                 </div>
                             </div>
@@ -855,23 +841,23 @@
                             <!-- Action Buttons -->
                             <div class="pt-2 border-t border-gray-100">
                                 ${user.status === 'Invited' ? `
-                                                        <div class="flex gap-2">
-                                                            <button onclick="resendInvitation(${user.id})" 
-                                                                class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
-                                                                <i class="fi fi-rr-envelope text-sm"></i>
-                                                                Resend
-                                                            </button>
-                                                            <button onclick="cancelInvitation(${user.id})" 
-                                                                class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                                                <i class="fi fi-rr-cross text-sm"></i>
-                                                                Cancel
-                                                            </button>
-                                    </div>
-                                                    ` : `
-                                                        <div class="text-center text-sm text-gray-500 py-2">
-                                                            No actions available
-                                                        </div>
-                                                    `}
+                                                                    <div class="flex gap-2">
+                                                                        <button onclick="resendInvitation(${user.id})" 
+                                                                            class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
+                                                                            <i class="fi fi-rr-envelope text-sm"></i>
+                                                                            Resend
+                                                                        </button>
+                                                                        <button onclick="cancelInvitation(${user.id})" 
+                                                                            class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                                            <i class="fi fi-rr-cross text-sm"></i>
+                                                                            Cancel
+                                                                        </button>
+                                                </div>
+                                                                ` : `
+                                                                    <div class="text-center text-sm text-gray-500 py-2">
+                                                                        No actions available
+                                                                    </div>
+                                                                `}
                             </div>
                         </div>
                     </div>
@@ -898,7 +884,7 @@
                     for (let i = startPage; i <= endPage; i++) {
                         paginationHTML += `
                             <button onclick="changeCardPage(${i})" 
-                                    class="px-3 py-2 text-sm font-medium ${i === currentPage ? 'bg-[#1A3165] text-white' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'} rounded-lg transition-colors duration-150">
+                                    class="px-3 py-2 text-sm font-medium ${i === currentPage ? 'bg-[#199BCF] text-white' : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'} rounded-lg transition-colors duration-150">
                                 ${i}
                             </button>
                         `;
@@ -1194,6 +1180,9 @@
                 'role-search',
                 []
             );
+
+            clearSearch('clear-role-search-btn', 'role-search', rolesTable)
+
 
             // Initialize modals
             const createRoleBtn = document.getElementById('create-role-modal-btn');

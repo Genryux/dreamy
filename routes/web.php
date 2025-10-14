@@ -90,8 +90,10 @@ Route::middleware('auth')->group(function () {
     })->name('status');
 
     // Document Submission
-    Route::post('/submit-document', [DocumentsSubmissionController::class, 'store'])->name('documents.store');
-    Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update']);
+    Route::post('/submit-document', [DocumentsSubmissionController::class, 'store'])
+        ->middleware(['permission:submit document'])->name('documents.store');
+    Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update'])
+        ->middleware(['permission:manage submitted documents']);
 
     // Applicant Updates
     Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
@@ -118,12 +120,20 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.settings.school.payments.update');
 
     // Application Management
-    Route::get('/applications/pending', [ApplicationFormController::class, 'index'])->name('applications.pending');
-    Route::get('/applications/accepted', [ApplicationFormController::class, 'index'])->name('applications.accepted');
-    Route::get('/applications/pending-documents', [ApplicationFormController::class, 'index'])->name('applications.pending-documents');
-    Route::get('/applications/rejected', [ApplicationFormController::class, 'show'])->name('applications.rejected');
-    Route::get('/pending-application/form-details/{applicant}', [ApplicationFormController::class, 'showApplicationDetails'])->name('pending.details');
-    Route::get('/selected-application/interview-details/{applicant}', [InterviewController::class, 'show'])->name('selected.details');
+    Route::get('/applications/pending', [ApplicationFormController::class, 'index'])
+        ->middleware(['permission:view applications'])->name('applications.pending');
+    Route::get('/applications/accepted', [ApplicationFormController::class, 'index'])
+        ->middleware(['permission:view applications'])->name('applications.accepted');
+    Route::get('/applications/pending-documents', [ApplicationFormController::class, 'index'])
+        ->middleware(['permission:view applications'])->name('applications.pending-documents');
+    Route::get('/applications/rejected', [ApplicationFormController::class, 'index'])
+        ->middleware(['permission:view applications'])->name('applications.rejected');
+
+    // Individual application pages
+    Route::get('/applications/pending/form-details/{applicant}', [ApplicationFormController::class, 'pendingDetails'])
+        ->middleware(['permission:view pending form'])->name('pending.details');
+    Route::get('/applications/accepted/admission-details/{applicant}', [InterviewController::class, 'showAdmissionDetails'])
+        ->middleware(['permission:view accepted form'])->name('selected.details');
 
     // Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
 
@@ -133,12 +143,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/getAcceptedApplications', [ApplicationFormController::class, 'getAcceptedApplications'])->name('get.accepted-applications');
     Route::get('/getPendingDocumentsApplications', [ApplicationFormController::class, 'getPendingDocumentsApplications'])->name('get.pending-documents-applications');
     Route::get('/getRejectedApplications', [ApplicationFormController::class, 'getRejectedApplications'])->name('get.rejected-applications');
+    
+    // Application statistics API
+    Route::get('/api/application-statistics', [ApplicationFormController::class, 'getApplicationStatistics'])->name('api.application-statistics');
+    Route::get('/api/application-summary', [ApplicationFormController::class, 'getApplicationSummary'])->name('api.application-summary');
 
 
     // Document Management
-    Route::get('/pending-documents/document-details/{applicant}', [DocumentsSubmissionController::class, 'index'])->name('documents');
-    Route::get('/pending-documents/document-list', [DocumentsController::class, 'index'])->name('documents.index');
-    Route::post('/required-docs', [DocumentsController::class, 'store'])->name('documents.store');
+    Route::get('/applications/pending-document/submission-details/{applicant}', [DocumentsSubmissionController::class, 'index'])
+        ->middleware(['permission:view pending-document form'])->name('documents');
+    Route::get('/documents', [DocumentsController::class, 'index'])->middleware(['permission:view documents'])->name('documents.index');
+    Route::get('/getDocuments', [DocumentsController::class, 'getDocuments']);
+    Route::post('/required-docs', [DocumentsController::class, 'store'])->middleware(['permission:create documents'])->name('documents.store');
+    Route::get('/required-docs/{id}', [DocumentsController::class, 'show']);
+    Route::put('/required-docs/{id}', [DocumentsController::class, 'update'])->middleware(['permission:edit documents']);
+    Route::delete('/required-docs/{id}', [DocumentsController::class, 'destroy'])->middleware(['permission:delete documents']);
 
     // Academic Terms
     Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
@@ -148,21 +167,26 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->name('enrollment-period.patch');
 
     // Interview Management
-    Route::post('/schedule-admission/{applicant}', [InterviewController::class, 'store'])->name('admission.post');
-    Route::put('/record-admission-result/{applicant}', [InterviewController::class, 'recordAdmissionResult'])->name('admission.record');
-    Route::post('/update-status/{id}', [InterviewController::class, 'updateStatus'])->name('admission.update.status');
+    Route::post('/schedule-admission/{applicant}', [InterviewController::class, 'store'])
+        ->middleware(['permission:accept and schedule'])->name('admission.post');
+    Route::put('/record-admission-result/{applicant}', [InterviewController::class, 'recordAdmissionResult'])
+        ->middleware(['permission:record result'])->name('admission.record');
+    Route::post('/update-status/{applicant}', [InterviewController::class, 'updateStatus'])->name('admission.update.status');
     // Route::put('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
-    Route::post('/reject-application/{applicant}', [ApplicationFormController::class, 'reject'])->name('application.reject');
+    Route::post('/reject-application/{applicant}', [ApplicationFormController::class, 'reject'])
+        ->middleware(['permission:reject application'])->name('application.reject');
 
     // Student Management
     Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
     Route::get('/users', [StudentsController::class, 'getUsers']);
     Route::get('/enrollment-stats', [StudentsController::class, 'getEnrollmentStats']);
+    Route::get('/enrollment-analytics', [StudentsController::class, 'getEnrollmentAnalytics']);
     Route::post('/getStudent', [StudentsController::class, 'getStudent']);
     Route::post('/students/import', [StudentRecordController::class, 'import']);
     Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
     Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
-    Route::post('/students/{id}', [StudentRecordController::class, 'store']);
+    Route::post('/students/{id}', [StudentRecordController::class, 'store'])
+        ->middleware(['permission:enroll student']);
     Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
     Route::post('/removeStudentFromSection/{section}', [StudentsController::class, 'removeStudentFromSection'])->middleware(['permission:remove assigned subject to a section', 'throttle:10,1']);
 
@@ -342,7 +366,7 @@ Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(fu
         ->middleware(['permission:create track', 'throttle:30,1']) // 30 requests per minute
         ->name('tracks.store');
     Route::get('/tracks/{track}', [TrackController::class, 'show'])->name('tracks.show');
-    Route::put('/tracks/{track}', [TrackController::class, 'update'])->middleware(['permission:can edit track'])->name('tracks.update');
+    Route::put('/tracks/{track}', [TrackController::class, 'update'])->middleware(['permission:edit track'])->name('tracks.update');
     Route::delete('/tracks/{track}', [TrackController::class, 'destroy'])->middleware(['permission:delete track'])->name('tracks.destroy');
     Route::get('/tracks/{track}/programs', [TrackController::class, 'getPrograms'])->name('tracks.programs');
 });

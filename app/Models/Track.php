@@ -17,4 +17,8 @@ class Track extends Model
         return $this->hasMany(Program::class);
     }
 
+    public function applicants() {
+        return $this->hasMany(Applicants::class);
+    }
+
 }

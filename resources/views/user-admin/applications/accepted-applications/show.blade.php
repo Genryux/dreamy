@@ -13,7 +13,8 @@
                 </a>
             </li>
             <li>
-                <a href="/applications/accepted" class="block transition-colors hover:text-gray-500 text-gray-400"> Applications
+                <a href="/applications/accepted" class="block transition-colors hover:text-gray-500 text-gray-400">
+                    Applications
                 </a>
             </li>
 
@@ -46,7 +47,7 @@
 @endsection
 
 @section('modal')
-    <x-modal modal_id="sched-admission-modal" modal_name="Schedule" close_btn_id="sched-admission-close-btn"
+    <x-modal modal_id="sched-admission-modal" modal_name="Schedule Admission Exam" close_btn_id="sched-admission-close-btn"
         modal_container_id="modal-container-1">
 
         <form id="admission-form" class="p-6">
@@ -126,11 +127,11 @@
         <x-slot name="modal_buttons">
 
             <button id="cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                class="border border-[#1e1e1e]/15 text-[14px] bg-gray-50 px-3 py-2 rounded-xl text-[#0f111c]/80 hover:ring hover:ring-gray-200 hover:bg-gray-100 font-semibold">
                 Cancel
             </button>
             <button form="admission-form" type="submit"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Confirm
             </button>
 
@@ -140,38 +141,91 @@
     <x-modal modal_id="record-interview-modal" modal_name="Record Interview Result"
         close_btn_id="record-interview-close-btn" modal_container_id='modal-container-2'>
 
-        <form class="py-2 px-4 space-y-2" id="record-result-form">
-
+        <form class="py-6 px-6" id="record-result-form">
             @csrf
+            
+            <!-- Result Selection Section -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Admission Exam Result</h3>
+                
+                <div class="space-y-3">
+                    <!-- Passed Option -->
+                    <label for="passed" class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-green-300 transition-all duration-200 group has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
+                        <div class="flex items-center">
+                            <div class="relative">
+                                <input type="radio" name="result" id="passed" value="Exam-Passed" checked class="sr-only">
+                                <div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center group-has-[:checked]:border-green-500 group-has-[:checked]:bg-green-500 transition-all duration-200">
+                                    <div class="w-2 h-2 bg-white rounded-full opacity-0 group-has-[:checked]:opacity-100 transition-opacity duration-200"></div>
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Passed</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Applicant has successfully passed the interview</p>
+                            </div>
+                        </div>
+                    </label>
 
-            <label for="passed" class="flex items-center justify-between has-checked:bg-red-500 has-checked:ring-red-500">
-                <p>Passed</p>
-                <input type="radio" name="result" id="passed" value="Exam-Passed" checked>
-            </label>
+                    <!-- Failed Option -->
+                    <label for="failed" class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-all duration-200 group has-[:checked]:border-red-500 has-[:checked]:bg-red-50">
+                        <div class="flex items-center">
+                            <div class="relative">
+                                <input type="radio" name="result" id="failed" value="Exam-Failed" class="sr-only">
+                                <div class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center group-has-[:checked]:border-red-500 group-has-[:checked]:bg-red-500 transition-all duration-200">
+                                    <div class="w-2 h-2 bg-white rounded-full opacity-0 group-has-[:checked]:opacity-100 transition-opacity duration-200"></div>
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Failed</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Applicant did not meet the interview requirements</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
 
-            <label for="failed" class="flex items-center justify-between has-checked:ring-2 has-checked:ring-red-500">
-                <p>Failed</p>
-                <input type="radio" name="result" id="failed" value="Exam-Failed">
-            </label>
+            <!-- Conditional Section for Passed Result -->
+            <div id="passed-options" class="space-y-4 transition-all duration-300 ease-in-out">
+                <!-- Due Date Section -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <label for="due-date" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>Document Submission Deadline
+                    </label>
+                    <input type="date" name="due-date" id="due-date" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent text-sm bg-white">
+                    <p class="text-xs text-gray-500 mt-1">Set the deadline for document submission</p>
+                </div>
 
-            <label for="due-date">Submit before</label>
-            <input type="date" name="due-date" id="due-date">
-
-            <p>By selecting 'Passed', standard document requirements will be automatically assigned to this applicant
-            </p>
-
-
-
+                <!-- Information Message -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-gray-500 mt-0.5"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-700">Automatic Document Assignment</h4>
+                            <p class="text-sm text-gray-600 mt-1">
+                                By selecting 'Passed', standard document requirements will be automatically assigned to this applicant. 
+                                The applicant will receive notifications about the required documents and submission deadline.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
 
         <x-slot name="modal_buttons">
-            <button id="cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+            <button type="button" id="cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] bg-gray-50 px-3 py-2 rounded-xl text-[#0f111c]/80 hover:ring hover:ring-gray-200 hover:bg-gray-100 font-semibold">
                 Cancel
             </button>
-            <button form="record-result-form"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
-                Confirm
+            <button type="submit" form="record-result-form"
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate"></i>Confirm Result
             </button>
         </x-slot>
 
@@ -256,11 +310,11 @@
 
         <x-slot name="modal_buttons">
             <button id="cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                class="border border-[#1e1e1e]/15 text-[14px] bg-gray-50 px-3 py-2 rounded-xl text-[#0f111c]/80 hover:ring hover:ring-gray-200 hover:bg-gray-100 font-semibold">
                 Cancel
             </button>
             <button form="edit-schedule-form"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Confirm
             </button>
         </x-slot>
@@ -353,13 +407,13 @@
                     <div class="flex items-center space-x-3">
                         @if (!$interview_details->status || $interview_details->status === null)
                             <button id="record-btn"
-                                class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                class="inline-flex items-center px-6 py-3 bg-[#199BCF] text-white font-semibold rounded-xl hover:bg-[#C8A165] hover:ring hover:ring-[#C8A165]/40 hover:scale-95 transition-all duration-200 shadow-[#199BCF]/20 shadow-xl hover:shadow-[#C8A165]/20">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                     </path>
                                 </svg>
-                                Schedule Interview
+                                Schedule Admission
                             </button>
                         @elseif ($interview_details->status === 'Scheduled')
                             <div class="flex flex-col items-center space-y-1">
@@ -377,7 +431,7 @@
                                         Edit
                                     </button>
                                     <button id="update-status-btn"
-                                        class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                        class="inline-flex items-center px-3 py-2.5 bg-green-600 text-white font-semibold rounded-xl outline-none hover:ring hover:ring-green-200 hover:scale-95 focus:ring-green-500 transition-all duration-200 shadow-lg shadow-green-600/20">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -392,7 +446,7 @@
                             <div class="flex items-center space-x-3">
 
                                 <button id="record-interview-btn"
-                                    class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                    class="inline-flex items-center px-6 py-3 bg-[#199BCF] text-white font-semibold rounded-xl hover:bg-[#C8A165] hover:scale-95 hover:ring hover:ring-[#C8A165]/20 transition duration-200 shadow-xl">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -410,10 +464,10 @@
             </div>
 
             <!-- Information Grid -->
-            <div class="p-8 space-y-4">
+            <div class="p-4 space-y-2">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <!-- Academic Information -->
-                    <div class="space-y-4">
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
                         <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Academic Information
                         </h3>
                         <div class="space-y-3">
@@ -425,20 +479,20 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Primary Track</p>
                                 <p class="text-[16px] font-semibold text-gray-900">
-                                    {{ $applicant->applicationForm->primary_track ?? 'Not specified' }}</p>
+                                    {{ $applicant->track->name ?? 'Not specified' }}</p>
                             </div>
-                            @if ($applicant->applicationForm->secondary_track)
+                            @if ($applicant->program->code)
                                 <div>
                                     <p class="text-sm text-gray-500 mb-1">Secondary Track</p>
                                     <p class="text-[16px] font-semibold text-gray-900">
-                                        {{ $applicant->applicationForm->secondary_track }}</p>
+                                        {{ $applicant->program->code }}</p>
                                 </div>
                             @endif
                         </div>
                     </div>
 
                     <!-- Contact Information -->
-                    <div class="space-y-4">
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
                         <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Contact Information
                         </h3>
                         <div class="space-y-3">
@@ -461,7 +515,7 @@
                     </div>
 
                     <!-- Interview Details -->
-                    <div class="space-y-4">
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
                         <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Admission Exam Details
                         </h3>
                         <div class="space-y-3">
@@ -494,7 +548,7 @@
                     </div>
 
                     <!-- Interview Status -->
-                    <div class="space-y-4">
+                    <div class="space-y-4 p-6 hover:shadow-xl hover:-translate-y-1 transition duration-200 rounded-xl">
                         <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Admission Exam Status
                         </h3>
                         <div class="space-y-3">
@@ -562,18 +616,18 @@
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Grade Level to
                                 Enroll:<span class="font-bold">
-                                    {{ $applicant->applicationForm->grade_level ?? '-' }}</span></td>
+                                    {{ $applicant->applicationForm->grade_level ?? '-' }}</span>
+                            </td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Semester:<span
                                     class="font-bold"> {{ $applicant->applicationForm->semester_applied ?? '-' }}</span>
                             </td>
                         </tr>
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Primary
-                                Track:<span class="font-bold">
-                                    {{ $applicant->applicationForm->primary_track ?? '-' }}</span></td>
+                                Track:<span class="font-bold"> {{ $applicant->track->name ?? '-' }}</span></td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Secondary Track:<span
-                                    class="font-bold"> {{ $applicant->applicationForm->secondary_track ?? '-' }}</span>
-                            </td>
+                                    class="font-bold">
+                                    {{ $applicant->program->code . ' - ' . $applicant->program->name ?? '-' }}</span></td>
                         </tr>
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Last Name:<span
@@ -584,13 +638,15 @@
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
                                     class="font-bold"> {{ $applicant->applicationForm->middle_name ?? '-' }}</span></td>
-                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/$applicant->applicationForm->-1/2">
-                                Extension Name:<span class="font-bold">
-                                    {{ $applicant->applicationForm->extension_name ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Extension Name:<span
+                                    class="font-bold"> {{ $applicant->applicationForm->extension_name ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Birthdate:<span
-                                    class="font-bold"> {{ $applicant->applicationForm->birthdate ?? '-' }}</span></td>
+                                    class="font-bold">
+                                    {{ \Carbon\Carbon::parse($applicant->applicationForm->birthdate)->timezone('Asia/Manila')->format('M. d, Y') ?? '-' }}</span>
+                            </td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Age:<span
                                     class="font-bold">
                                     {{ $applicant->applicationForm->age ?? '-' }}</span></td>
@@ -605,13 +661,18 @@
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Belong to any IP
                                 community:<span class="font-bold">
-                                    {{ $applicant->applicationForm->belong_to_ip ?? '-' }}</span></td>
+                                    {{ $applicant->applicationForm->belongs_to_ip === 1 ? 'Yes' : 'No' }}</span></td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Beneficiary of 4Ps:<span
-                                    class="font-bold"> {{ $applicant->applicationForm->is_4ps_beneficiary ?? '-' }}</span>
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->is_4ps_beneficiary === 1 ? 'Yes' : 'No' }}</span>
                             </td>
                         </tr>
                         <tr class="opacity-[0.87]">
-                            <td class="px-6 py-2 text-[14px]">Learner with disability:</td>
+                            <td class="px-6 py-2 text-[14px] border-r border-[#1e1e1e]/15">Learner with disability: <span
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->has_special_needs === 1 ? 'Yes' : 'No' }}</span></td>
+                            <td class="px-6 py-2 text-[14px]">Special needs: <span class="font-bold">
+                                    {{ implode(', ', $applicant->applicationForm->special_needs ?? []) }}</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -711,11 +772,15 @@
                         </tr>
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                    class="font-bold"> {{ $form->mother_first_name ?? '-' }}</span></td>
+                                    class="font-bold"> {{ $applicant->applicationForm->mother_first_name ?? '-' }}</span>
+                            </td>
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                    class="font-bold"> {{ $form->father_first_name ?? '-' }}</span></td>
+                                    class="font-bold"> {{ $applicant->applicationForm->father_first_name ?? '-' }}</span>
+                            </td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">First Name:<span
-                                    class="font-bold"> {{ $form->guardian_first_name ?? '-' }}</span></td>
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->guardian_first_name ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-r border-[#1e1e1e]/15 w-1/2">Middle Name:<span
@@ -726,15 +791,18 @@
                             </td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2">Middle Name:<span
                                     class="font-bold">
-                                    {{ $applicant->applicationForm->guardian_middle_name ?? '-' }}</span></td>
+                                    {{ $applicant->applicationForm->guardian_middle_name ?? '-' }}</span>
+                            </td>
                         </tr>
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:<span
                                     class="font-bold">
-                                    {{ $applicant->applicationForm->mother_contact_number ?? '-' }}</span></td>
+                                    {{ $applicant->applicationForm->mother_contact_number ?? '-' }}</span>
+                            </td>
                             <td class="px-6 py-2 text-[14px] border-r border-[#1e1e1e]/15 w-1/2">Contact Number:<span
                                     class="font-bold">
-                                    {{ $applicant->applicationForm->father_contact_number ?? '-' }}</span></td>
+                                    {{ $applicant->applicationForm->father_contact_number ?? '-' }}</span>
+                            </td>
                             <td class="px-6 py-2 text-[14px] w-1/2">Contact Number:<span class="font-bold">
                                     {{ $applicant->applicationForm->guardian_contact_number ?? '-' }}</span></td>
                         </tr>
@@ -758,7 +826,32 @@
                         <tr class="opacity-[0.87]">
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Preferred Class
                                 Schedule:<span class="font-bold">
-                                    {{ $applicant->applicationForm->preffered_class_sched ?? '-' }}</span></td>
+                                    {{ $applicant->applicationForm->preferred_sched ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Last Grade Level
+                                Completed:<span class="font-bold">
+                                    {{ $applicant->applicationForm->last_grade_level_completed ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Lat School
+                                Attended:<span class="font-bold">
+                                    {{ $applicant->applicationForm->last_school_attended ?? '-' }}</span></td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">Last School Year
+                                Completed:<span class="font-bold">
+                                    {{ \Carbon\Carbon::parse($applicant->applicationForm->last_school_year_completed)->timezone('Asia/Manila')->format('M. d, Y') ?? '-' }}</span>
+                            </td>
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
+                        </tr>
+                        <tr class="opacity-[0.87]">
+                            <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold">School Id:<span
+                                    class="font-bold">
+                                    {{ $applicant->applicationForm->school_id ?? '-' }}</span></td>
                             <td class="px-6 py-2 text-[14px] border-b border-[#1e1e1e]/15 w-1/2 text-bold"></td>
                         </tr>
                         <tr class="opacity-[0.87]">
@@ -1051,5 +1144,40 @@
             }
 
         });
+        // Interview Result Modal - Conditional Visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const passedRadio = document.getElementById('passed');
+            const failedRadio = document.getElementById('failed');
+            const passedOptions = document.getElementById('passed-options');
+            
+            // Function to toggle visibility
+            function togglePassedOptions() {
+                if (passedRadio.checked) {
+                    passedOptions.style.display = 'block';
+                    passedOptions.style.opacity = '1';
+                    passedOptions.style.maxHeight = '500px';
+                } else {
+                    passedOptions.style.display = 'none';
+                    passedOptions.style.opacity = '0';
+                    passedOptions.style.maxHeight = '0';
+                }
+            }
+            
+            // Initial state
+            togglePassedOptions();
+            
+            // Add event listeners
+            passedRadio.addEventListener('change', togglePassedOptions);
+            failedRadio.addEventListener('change', togglePassedOptions);
+            
+            // Set default due date to 7 days from now
+            const dueDateInput = document.getElementById('due-date');
+            if (dueDateInput) {
+                const today = new Date();
+                const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+                dueDateInput.value = nextWeek.toISOString().split('T')[0];
+            }
+        });
+
     </script>
 @endpush

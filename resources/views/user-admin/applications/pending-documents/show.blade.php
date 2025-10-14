@@ -3,12 +3,23 @@
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="mb-4 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
+            <li class="rtl:rotate-180 border border-gray-300 bg-gray-100 p-2 rounded-lg mr-1">
+                <a href="/applications/pending-documents" class="block transition-colors hover:text-gray-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </li>
             <li>
-                <a href="#" class="block transition-colors hover:text-gray-900"> Applications </a>
+                <a href="/applications/pending-documents" class="block transition-colors hover:text-gray-500 text-gray-400">
+                    Applications
+                </a>
             </li>
 
             <li class="rtl:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 opacity-60" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                         clip-rule="evenodd" />
@@ -16,7 +27,7 @@
             </li>
 
             <li>
-                <a href="/pending-documents" class="block transition-colors hover:text-gray-900"> Pending Documents
+                <a class="block transition-colors hover:text-gray-500 text-gray-500"> Pending Documents
                 </a>
             </li>
 
@@ -29,71 +40,92 @@
             </li>
 
             <li>
-                <a href="#" class="block transition-colors hover:text-gray-900"> Documents Details </a>
+                <a href="#" class="block transition-colors hover:text-gray-900"> Document Submission Details </a>
             </li>
         </ol>
     </nav>
 @endsection
 
 @section('modal')
-    <x-modal modal_id="verify-doc-modal" modal_name="Verification confirmation" close_btn_id="verify-doc-close-btn"
+    <x-modal modal_id="verify-doc-modal" modal_name="Verification Confirmation" close_btn_id="verify-doc-close-btn"
         modal_container_id='modal-container-1'>
         <x-slot name="modal_icon">
-            <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
         </x-slot>
 
         <form action="/submit-document/{{ $applicant->id }}" method="POST" id="verify-doc-form">
             @csrf
             @method('PATCH')
-            {{-- <input type="hidden" name="doc_id" id="hidden-doc-id"> --}}
+            <input type="hidden" name="document_id" id="hidden-doc-id">
+            <input type="hidden" name="action" value="verify">
             {{-- This button will serve as an opener of modal when clicked --}}
 
         </form>
 
-        <p class="py-8 px-6 space-y-2 font-regular text-[14px]">Are you sure you want
-            to verify this document? This action
-            will mark the document as <strong>valid</strong> and <strong>approved</strong>.</p>
+
+        <div class="flex flex-col justify-center items-center py-8 px-6 font-regular text-[14px] text-center">
+            <div class="flex justify-center items-center w-auto p-6 bg-yellow-100 w-[300px] rounded-full">
+                <i class='fi fi-ss-exclamation flex justify-center text-[52px] items-center text-yellow-500'></i>
+            </div>
+            <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
+                <p class="text-gray-700 text-[16px] font-semibold">
+                    Are you sure you want to verify this document?
+                </p>
+                <p class="text-gray-500">
+                    This action will mark the document as <strong>valid</strong> and <strong>approved</strong>.
+                </p>
+            </div>
+
+        </div>
 
         <x-slot name="modal_buttons">
             <button id="cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="verify-doc-form" name="action" value="verify"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Confirm
             </button>
         </x-slot>
 
     </x-modal>
     {{-- Reject document modal --}}
-    <x-modal modal_id="reject-doc-modal" modal_name="Rejection confirmation" close_btn_id="reject-doc-close-btn"
+    <x-modal modal_id="reject-doc-modal" modal_name="Rejection Confirmation" close_btn_id="reject-doc-close-btn"
         modal_container_id='modal-container-4'>
-        <x-slot name="modal_icon">
-            <i class='fi fi-ss-exclamation flex justify-center items-center text-red-500'></i>
-        </x-slot>
 
         <form action="/submit-document/{{ $applicant->id }}" method="POST" id="reject-doc-form">
             @csrf
             @method('PATCH')
-            {{-- <input type="hidden" name="doc_id" id="hidden-doc-id"> --}}
+            <input type="hidden" name="document_id" id="hidden-reject-doc-id">
+            <input type="hidden" name="action" value="reject">
             {{-- This button will serve as an opener of modal when clicked --}}
 
         </form>
 
-        <p class="py-8 px-6 space-y-2 font-regular text-[14px]">Are you sure you want
-            to reject this document? This action
-            will mark the document as <strong>invalid</strong> and <strong>rejected</strong>.</p>
+        <div class="flex flex-col justify-center items-center py-8 px-6 font-regular text-[14px] text-center">
+            <div class="flex justify-center items-center w-auto p-6 bg-red-100 w-[300px] rounded-full">
+                <i class='fi fi-ss-exclamation flex justify-center text-[52px] items-center text-red-500'></i>
+            </div>
+            <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
+                <p class="text-gray-700 text-[16px] font-semibold">
+                    Are you sure you want to verify this document?
+                </p>
+                <p class="text-gray-500">
+                    This action will mark the document as <strong>invalid</strong> and <strong>rejected</strong>.
+                </p>
+            </div>
+
+        </div>
 
         <x-slot name="modal_buttons">
             <button id="reject-cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="reject-doc-form" name="action" value="reject"
-                class="bg-[#EA4335] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
                 Reject
             </button>
         </x-slot>
@@ -111,17 +143,17 @@
             <!-- PDF Navigation Header -->
             <div id="pdf-navigation" class="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
                 <button id="prev-page-btn"
-                    class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-                    <i class="fi fi-rs-angle-left"></i>
+                    class="flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:-translate-x-1 transition duration-200 truncate disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    <i class="fi fi-rs-angle-left items-center text-[14px]"></i>
                     Previous
                 </button>
                 <span id="page-info"
                     class="px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-gray-700">Page 1 of
                     1</span>
                 <button id="next-page-btn"
-                    class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    class="flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:translate-x-1 transition duration-200 truncate disabled:bg-gray-300 disabled:cursor-not-allowed">
                     Next
-                    <i class="fi fi-rs-angle-right"></i>
+                    <i class="fi fi-rs-angle-right flex justify-center items-center text-[14px]"></i>
                 </button>
             </div>
 
@@ -153,41 +185,57 @@
 
         <x-slot name="modal_buttons">
             <button id="external-view-btn"
-                class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                <i class="fi fi-rs-external-link"></i>
+                class="flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                <i class="fi fi-rr-share-square flex justify-center items-center"></i>
                 Open in New Tab
             </button>
             <button id="close-viewer-btn"
-                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                class="px-4 py-2 bg-gray-50 border border-gray-300 text-[14px] text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
                 Close
             </button>
         </x-slot>
     </x-modal>
     {{-- Enroll student modal --}}
-    <x-modal modal_id="enroll-student-modal" modal_name="Enrollment confirmation" close_btn_id="enroll-student-close-btn"
+    <x-modal modal_id="enroll-student-modal" modal_name="Enrollment Confirmation" close_btn_id="enroll-student-close-btn"
         modal_container_id='modal-container-2'>
-        <x-slot name="modal_icon">
-            <i class='fi fi-ss-exclamation flex justify-center items-center text-yellow-500'></i>
-        </x-slot>
 
-        <form action="/students/{{ $applicant->id }}" method="POST" id="enroll-student-form">
+        <form id="enroll-student-form">
             @csrf
-
+            <input type="hidden" name="action" value="enroll-student">
         </form>
 
-        <p id="enroll-msg" class="py-8 px-6 space-y-2 font-regular text-[14px]"></p>
-        
-        <label for="">Auto-assign relevant school fees (based on grade level and program)</label>
-        <input type="checkbox" name="" id="">
+        <div class="flex flex-col justify-center items-center py-8 px-6 font-regular text-[14px] text-center">
+            <div class="flex justify-center items-center w-auto p-6 bg-yellow-100 w-[300px] rounded-full">
+                <i class='fi fi-ss-exclamation flex justify-center text-[52px] items-center text-yellow-500'></i>
+            </div>
+            <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
+                <p class="text-gray-700 text-[16px] font-semibold">
+                    Are you sure you want to verify this document?
+                </p>
+                <p id="enroll-msg" class="text-gray-500 text-[14px]"></p>
+            </div>
+
+
+
+            <div class="flex items-center">
+                <input checked id="auto-assign" type="checkbox" value=""
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="auto-assign" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-500">
+                    Auto-assign relevant school fees (based on grade level and program)
+                </label>
+            </div>
+
+        </div>
+
 
         <x-slot name="modal_buttons">
             <button id="putanginamo_cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                class="px-4 py-2 bg-gray-50 border border-gray-300 text-[14px] text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
-            <button type="submit" form="enroll-student-form" name="action" value="enroll-student"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+            <button type="button" id="enroll-student-submit-btn"
+                class="flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Confirm
             </button>
         </x-slot>
@@ -224,10 +272,10 @@
                             <!-- Status Indicator -->
                             <div
                                 class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center
-                                @if ($applicant->application_status === 'Accepted') bg-green-500
-                                @elseif($applicant->application_status === 'Pending') bg-yellow-500
-                                @elseif($applicant->application_status === 'Rejected') bg-red-500
-                                @else bg-gray-400 @endif">
+                                @if ($applicant->document_status === 'No Requirements') bg-gray-500
+                                @elseif($applicant->document_status === 'Overdue') bg-red-500
+                                @elseif($applicant->document_status === 'Completed') bg-green-500
+                                @else bg-yellow-500 @endif">
                                 <div class="w-2 h-2 bg-white rounded-full"></div>
                             </div>
                         </div>
@@ -251,7 +299,7 @@
                             </button>
                         @else
                             <button type="button" id="open-enroll-student-modal-btn"
-                                class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                class="flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-4 rounded-xl text-[16px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                                 Enroll applicant
                             </button>
                         @endif
@@ -275,13 +323,13 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Primary Track</p>
                                 <p class="text-[16px] font-semibold text-gray-900">
-                                    {{ $applicant->applicationForm->primary_track ?? 'Not specified' }}</p>
+                                    {{ $applicant->track->name ?? 'Not specified' }}</p>
                             </div>
-                            @if ($applicant->applicationForm->secondary_track)
+                            @if ($applicant->program->code)
                                 <div>
                                     <p class="text-sm text-gray-500 mb-1">Secondary Track</p>
                                     <p class="text-[16px] font-semibold text-gray-900">
-                                        {{ $applicant->applicationForm->secondary_track }}</p>
+                                        {{ $applicant->program->code ?? '-' }}</p>
                                 </div>
                             @endif
                         </div>
@@ -325,13 +373,13 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Documents Submitted</p>
                                 <p class="text-[16px] font-semibold text-gray-900">
-                                    {{ $assignedDocuments->where('status', '!=', 'not-submitted')->count() ?? 0 }}
+                                    {{ $assignedDocuments->where('status', '!=', 'Pending')->count() ?? 0 }}
                                 </p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Documents Verified</p>
                                 <p class="text-[16px] font-semibold text-gray-900">
-                                    {{ $assignedDocuments->where('status', 'verified')->count() ?? 0 }}
+                                    {{ $assignedDocuments->where('status', 'Verified')->count() ?? 0 }}
                                 </p>
                             </div>
                         </div>
@@ -357,13 +405,13 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Pending Review</p>
                                 <p class="text-[16px] font-semibold text-gray-900">
-                                    {{ $assignedDocuments->where('status', 'submitted')->count() ?? 0 }}
+                                    {{ $assignedDocuments->where('status', 'Submitted')->count() ?? 0 }}
                                 </p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Rejected Documents</p>
                                 <p class="text-[16px] font-semibold text-gray-900">
-                                    {{ $assignedDocuments->where('status', 'rejected')->count() ?? 0 }}
+                                    {{ $assignedDocuments->where('status', 'Rejected')->count() ?? 0 }}
                                 </p>
                             </div>
                         </div>
@@ -471,9 +519,6 @@
                                                 <span class="text-sm font-semibold">
                                                     {{ \Carbon\Carbon::parse($doc->submit_before)->format('M d, Y') }}
                                                 </span>
-                                                <span class="text-xs text-gray-500">
-                                                    {{ \Carbon\Carbon::parse($doc->submit_before)->format('g:i A') }}
-                                                </span>
                                             </div>
                                         @else
                                             <span class="text-gray-400 text-sm">-</span>
@@ -564,6 +609,10 @@
         import {
             showAlert
         } from "/js/alert.js";
+        import {
+            showLoader,
+            hideLoader
+        } from "/js/loader.js";
 
         initModal('enroll-student-modal', 'open-enroll-student-modal-btn', 'enroll-student-close-btn',
             'putanginamo_cancel-btn', 'modal-container-2');
@@ -572,6 +621,15 @@
         let pendingApplications = document.querySelector('#pending-application');
 
         document.addEventListener("DOMContentLoaded", function() {
+            
+            // Handle flash messages from server
+            @if(session('status'))
+                showAlert('success', '{{ session('status') }}');
+            @endif
+            
+            @if($errors->any())
+                showAlert('error', '{{ $errors->first() }}');
+            @endif
 
             table = new DataTable('#docs-table', {
                 paging: true,
@@ -923,7 +981,64 @@
             initModal('record-interview-modal', 'record-interview-btn', 'record-interview-close-btn', 'cancel-btn');
             initModal('sched-interview-modal', 'record-btn', 'sched-interview-close-btn', 'cancel-btn');
 
+            // Handle enrollment form submission
+            document.getElementById('enroll-student-submit-btn')?.addEventListener('click', async function() {
+                const form = document.getElementById('enroll-student-form');
+                const formData = new FormData(form);
+                const autoAssign = document.getElementById('auto-assign')?.checked;
+                
+                // Add auto-assign checkbox value to form data
+                formData.append('auto_assign', autoAssign ? '1' : '0');
 
+                try {
+                    // Show loader
+                    showLoader('Enrolling student...');
+
+                    // Submit via AJAX
+                    const response = await fetch(`/students/{{ $applicant->id }}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    // Hide loader
+                    hideLoader();
+
+                    if (data.success) {
+                        // Show success message
+                        showAlert('success', data.message || 'Student enrolled successfully!');
+                        
+                        // Close modal
+                        const modal = document.getElementById('enroll-student-modal');
+                        const modalContainer = document.getElementById('modal-container-2');
+                        if (modal && modalContainer) {
+                            modal.classList.add('hidden');
+                            modalContainer.classList.add('hidden');
+                        }
+
+                        // Reload page to show updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+
+                    } else {
+                        // Show error message
+                        showAlert('error', data.error || 'Failed to enroll student. Please try again.');
+                    }
+
+                } catch (error) {
+                    // Hide loader
+                    hideLoader();
+                    
+                    console.error('Enrollment error:', error);
+                    showAlert('error', 'An error occurred while enrolling the student. Please try again.');
+                }
+            });
 
         });
     </script>

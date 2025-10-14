@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('type');
             $table->string('description')->nullable();
-            $table->string('file_type_restriction')->nullable();
+            $table->json('file_type_restriction')->nullable();
             $table->integer('max_file_size')->nullable(); // in KB
             $table->timestamps();
         });

@@ -129,14 +129,14 @@
 }
 
 .tab-button.active {
-    color: #2563eb;
-    border-color: #2563eb;
+    color: #C8A165;
+    border-color: #C8A165;
     background-color: #eff6ff;
 }
 
 .tab-button.completed {
-    color: #059669;
-    border-color: #059669;
+    color: #199BCF;
+    border-color: #199BCF;
 }
 
 .tab-button.locked {
@@ -162,12 +162,12 @@
 }
 
 /* Custom focus styles */
-input:focus, select:focus, textarea:focus {
+/* input:focus, select:focus, textarea:focus {
     outline: none;
     ring: 2px;
     ring-color: #2563eb;
     border-color: #2563eb;
-}
+} */
 
 /* Smooth transitions */
 .tab-content {
@@ -175,42 +175,34 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Button hover effects */
-button:hover {
+/* button:hover {
     transform: translateY(-1px);
     transition: transform 0.2s ease-in-out;
-}
+} */
 
 /* Form field styling improvements */
-input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
+/* input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
+} */
 
 /* Radio and checkbox styling */
 input[type="radio"], input[type="checkbox"] {
     transition: all 0.2s ease-in-out;
 }
 
-input[type="radio"]:checked, input[type="checkbox"]:checked {
+/* input[type="radio"]:checked, input[type="checkbox"]:checked {
     background-color: #2563eb;
     border-color: #2563eb;
-}
+} */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .tab-button {
         font-size: 0.75rem;
         padding: 0.5rem 0.25rem;
-    }
-    
-    .grid-cols-1.md\\:grid-cols-2 {
-        grid-template-columns: 1fr;
-    }
-    
-    .grid-cols-1.md\\:grid-cols-3 {
-        grid-template-columns: 1fr;
     }
 }

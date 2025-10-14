@@ -109,7 +109,7 @@ class DashboardDataService
             $documents = Documents::whereIn('id', $assignedDocumentIds)->get();
 
             return [
-                'currentAcadTerm' => $currentAcadTerm,
+                'currentAcadTerm' => $currentAcadTerm ?? null,
                 'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
                 'applicant' => $applicant,
                 'assignedDocuments' => $assignedDocuments,

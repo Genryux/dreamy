@@ -8,6 +8,7 @@ use App\Models\Documents;
 use App\Models\Interview;
 use App\Services\ApplicantService;
 use App\Services\InterviewService;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,8 @@ class InterviewController extends Controller
 {
     public function __construct(
         protected ApplicantService $applicant,
-        protected InterviewService $interviewService
+        protected InterviewService $interviewService,
+        protected NotificationService $notificationService
 
     ) {}
     /**
@@ -44,6 +46,8 @@ class InterviewController extends Controller
     {
         $action = $request->input('action');
 
+        $user_applicant = $applicant->user;
+
         $user = Auth::user();
         $role = $user?->getRoleNames()->first() ?? 'No Role';
 
@@ -65,7 +69,7 @@ class InterviewController extends Controller
         }
 
         try {
-            $result = DB::transaction(function () use ($action, $request, $applicant, $user, $role) {
+            $result = DB::transaction(function () use ($action, $request, $applicant, $user, $role, $user_applicant) {
                 $msg = '';
 
                 if ($action === 'accept-only') {
@@ -78,6 +82,11 @@ class InterviewController extends Controller
                         ]
                     );
                     $msg = 'Applicant successfully accepted.';
+                    $this->notificationService->NotifyPrivateUser(
+                        $user_applicant,
+                        'Application Form Accepted!',
+                        'Your application has been successfully accepted and is now awaiting scheduling. You’ll be notified once your schedule has been finalized.',
+                    );
                 } elseif ($action === 'update-status') {
                     $applicant->interview()->updateOrCreate(
                         [
@@ -234,17 +243,23 @@ class InterviewController extends Controller
         }
     }
 
-    public function updateStatus(Request $request)
+    public function updateStatus(Applicants $applicant, Request $request)
     {
 
         $validated = $request->validate([
-            'applicant_id' => 'required|exists:applicants,id',
             'status'       => 'required|string|in:Exam-Completed'
         ]);
 
         try {
-            $this->interviewService->updateInterviewStatus($validated['applicant_id'], $validated['status']);
+
+            $applicant->interview->update(['status' => $validated['status']]);
+            
+            // Clear the dashboard cache for this user
+            $cacheKey = 'admission_dashboard_' . auth()->id();
+            \Cache::forget($cacheKey);
+            
             return redirect()->back();
+            
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -256,7 +271,7 @@ class InterviewController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Applicants $applicant)
+    public function showAdmissionDetails(Applicants $applicant)
     {
         $applicant_details = $applicant?->applicationForm;
         $interview_details = $applicant?->interview;
@@ -277,7 +292,7 @@ class InterviewController extends Controller
             ]);
         }
 
-        return view('user-admin.selected.interview-details', compact('applicant', 'applicant_details', 'interview_details'));
+        return view('user-admin.applications.accepted-applications.show', compact('applicant', 'applicant_details', 'interview_details'));
     }
 
     /**

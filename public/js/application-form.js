@@ -52,7 +52,11 @@ class ApplicationForm {
                 this.saveFormData();
             });
             field.addEventListener('change', () => this.saveFormData());
-            field.addEventListener('input', () => this.saveFormData());
+            field.addEventListener('input', () => {
+                this.saveFormData();
+                // Update permanent address if same as current is checked
+                this.updatePermanentAddressIfNeeded(field);
+            });
         });
 
         // Save form data before page unload
@@ -63,6 +67,20 @@ class ApplicationForm {
         // Check if form was submitted successfully (no errors)
         if (window.location.search.includes('success=1') || document.querySelector('.alert-success')) {
             this.clearFormData();
+        }
+
+        // Check if form has already been submitted
+        if (localStorage.getItem('applicationFormSubmitted') === 'true') {
+            if (window.showAlert) {
+                window.showAlert('error', 'You have already submitted an application form. Please check your application status in the dashboard.');
+            } else {
+                alert('You have already submitted an application form. Please check your application status in the dashboard.');
+            }
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                window.location.href = '/admission';
+            }, 2000);
+            return;
         }
     }
 
@@ -118,15 +136,15 @@ class ApplicationForm {
 
         // Show/hide buttons based on current tab
         if (prevBtn) {
-            prevBtn.style.display = tabIndex === 0 ? 'none' : 'block';
+            prevBtn.style.display = tabIndex === 0 ? 'none' : 'flex';
         }
 
         if (nextBtn) {
-            nextBtn.style.display = tabIndex === this.tabs.length - 1 ? 'none' : 'block';
+            nextBtn.style.display = tabIndex === this.tabs.length - 1 ? 'none' : 'flex';
         }
 
         if (submitBtn) {
-            submitBtn.style.display = tabIndex === this.tabs.length - 1 ? 'block' : 'none';
+            submitBtn.style.display = tabIndex === this.tabs.length - 1 ? 'flex' : 'none';
         }
 
         // Update next button text
@@ -202,6 +220,11 @@ class ApplicationForm {
         const value = field.value.trim();
         let isValid = true;
         let errorMessage = '';
+
+        // Skip validation for disabled or readonly fields (when same as current is checked)
+        if (field.disabled || field.readOnly) {
+            return true;
+        }
 
         // Required field validation
         if (field.hasAttribute('required') && !value) {
@@ -294,7 +317,7 @@ class ApplicationForm {
         const currentAddressRequiredFields = ['cur_house_no', 'cur_barangay', 'cur_city', 'cur_province', 'cur_country', 'cur_zip_code'];
         currentAddressRequiredFields.forEach(fieldName => {
             const field = document.querySelector(`[name="${fieldName}"]`);
-            if (field && field.hasAttribute('required') && !field.value.trim()) {
+            if (field && field.hasAttribute('required') && !field.disabled && !field.readOnly && !field.value.trim()) {
                 this.showFieldError(field, false, 'This field is required');
                 isValid = false;
             }
@@ -306,7 +329,7 @@ class ApplicationForm {
             const permAddressRequiredFields = ['perm_house_no', 'perm_barangay', 'perm_city', 'perm_province', 'perm_country', 'perm_zip_code'];
             permAddressRequiredFields.forEach(fieldName => {
                 const field = document.querySelector(`[name="${fieldName}"]`);
-                if (field && field.hasAttribute('required') && !field.value.trim()) {
+                if (field && field.hasAttribute('required') && !field.disabled && !field.readOnly && !field.value.trim()) {
                     this.showFieldError(field, false, 'This field is required');
                     isValid = false;
                 }
@@ -393,13 +416,42 @@ class ApplicationForm {
             
             if (permInput && currentInput) {
                 if (checked) {
+                    // Copy current address values to permanent address
                     permInput.value = currentInput.value;
-                    permInput.disabled = true;
+                    // Make field readonly instead of disabled so it still gets submitted
+                    permInput.readOnly = true;
+                    permInput.style.backgroundColor = '#f3f4f6'; // Visual indication
+                    // Remove required attribute since it's auto-filled
+                    permInput.removeAttribute('required');
                 } else {
-                    permInput.disabled = false;
+                    // Restore normal state
+                    permInput.readOnly = false;
+                    permInput.style.backgroundColor = '';
+                    // Restore required attribute when enabled
+                    if (permField !== 'perm_street') { // street is not required
+                        permInput.setAttribute('required', 'required');
+                    }
                 }
             }
         });
+    }
+
+    updatePermanentAddressIfNeeded(field) {
+        // Check if this is a current address field and same as current is checked
+        const sameAsCurrent = document.getElementById('sameAsCurrent')?.checked;
+        if (!sameAsCurrent) return;
+
+        const currentFields = ['cur_house_no', 'cur_street', 'cur_barangay', 'cur_city', 'cur_province', 'cur_country', 'cur_zip_code'];
+        const permFields = ['perm_house_no', 'perm_street', 'perm_barangay', 'perm_city', 'perm_province', 'perm_country', 'perm_zip_code'];
+        
+        const currentFieldIndex = currentFields.indexOf(field.name);
+        if (currentFieldIndex !== -1) {
+            const permField = permFields[currentFieldIndex];
+            const permInput = document.querySelector(`[name="${permField}"]`);
+            if (permInput && permInput.readOnly) {
+                permInput.value = field.value;
+            }
+        }
     }
 
     toggleSpecialNeeds(hasSpecialNeeds) {
@@ -532,6 +584,7 @@ class ApplicationForm {
             }
         }
         
+        
         // Handle special needs: if has_special_needs is "0", don't include special_needs array
         if (data.has_special_needs === '0') {
             delete data['special_needs'];
@@ -656,6 +709,7 @@ class ApplicationForm {
 
     clearFormData() {
         localStorage.removeItem('applicationFormData');
+        localStorage.removeItem('applicationFormSubmitted');
     }
 
     clearForm() {
@@ -680,17 +734,35 @@ class ApplicationForm {
             this.toggleSameAsCurrent(false);
             this.toggleSpecialNeeds(false);
             
-            alert('Form has been cleared successfully.');
+            if (window.showAlert) {
+                window.showAlert('success', 'Form has been cleared successfully.');
+            } else {
+                alert('Form has been cleared successfully.');
+            }
         }
     }
 
     async submitForm() {
+        // Check if form has already been submitted (additional client-side protection)
+        if (localStorage.getItem('applicationFormSubmitted') === 'true') {
+            if (window.showAlert) {
+                window.showAlert('error', 'You have already submitted an application form. Please check your application status in the dashboard.');
+            } else {
+                alert('You have already submitted an application form. Please check your application status in the dashboard.');
+            }
+            return;
+        }
+
         // Validate review tab (checkboxes)
         const certificationChecked = document.getElementById('certification')?.checked;
         const privacyChecked = document.getElementById('privacy')?.checked;
 
         if (!certificationChecked || !privacyChecked) {
-            alert('Please check both certification boxes before submitting');
+            if (window.showAlert) {
+                window.showAlert('error', 'Please check both certification boxes before submitting');
+            } else {
+                alert('Please check both certification boxes before submitting');
+            }
             return;
         }
 
@@ -705,16 +777,105 @@ class ApplicationForm {
         }
 
         if (!allValid) {
-            alert('Please complete all required fields before submitting');
+            if (window.showAlert) {
+                window.showAlert('error', 'Please complete all required fields before submitting');
+            } else {
+                alert('Please complete all required fields before submitting');
+            }
             return;
         }
 
-        // Clear saved data before submitting
-        this.clearFormData();
+        // Show loader
+        if (window.showLoader) {
+            window.showLoader('Submitting application...');
+        }
 
-        // Submit the form
-        const form = document.getElementById('applicationForm');
-        form.submit();
+        try {
+            // Get form data
+            const form = document.getElementById('applicationForm');
+            const formData = new FormData(form);
+
+            // Submit via AJAX
+            const response = await fetch('/admission/application-form', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            // Hide loader
+            if (window.hideLoader) {
+                window.hideLoader();
+            }
+
+            if (data.success) {
+                // Show success message
+                if (window.showAlert) {
+                    window.showAlert('success', data.message || 'Application submitted successfully!');
+                } else {
+                    alert(data.message || 'Application submitted successfully!');
+                }
+
+                // Mark form as submitted to prevent resubmission
+                localStorage.setItem('applicationFormSubmitted', 'true');
+                
+                // Clear form data
+                this.clearFormData();
+                
+                // Reset form
+                form.reset();
+                
+                // Reset tab states
+                this.currentTab = 0;
+                this.completedTabs.clear();
+                this.showTab(0);
+                this.updateTabStates();
+                
+                // Clear any validation errors
+                this.clearErrors();
+                
+                // Reset special states
+                this.toggleSameAsCurrent(false);
+                this.toggleSpecialNeeds(false);
+
+                // Show redirecting message and redirect to dashboard after a delay
+                setTimeout(() => {
+                    if (window.showLoader) {
+                        window.showLoader('Redirecting to dashboard...');
+                    }
+                    setTimeout(() => {
+                        window.location.href = '/admission';
+                    }, 1000);
+                }, 1500);
+
+            } else {
+                // Show error message
+                if (window.showAlert) {
+                    window.showAlert('error', data.message || 'Failed to submit application. Please try again.');
+                } else {
+                    alert(data.message || 'Failed to submit application. Please try again.');
+                }
+            }
+
+        } catch (error) {
+            // Hide loader
+            if (window.hideLoader) {
+                window.hideLoader();
+            }
+
+            console.error('Submission error:', error);
+            
+            // Show error message
+            if (window.showAlert) {
+                window.showAlert('error', 'An error occurred while submitting your application. Please try again.');
+            } else {
+                alert('An error occurred while submitting your application. Please try again.');
+            }
+        }
     }
 }
 

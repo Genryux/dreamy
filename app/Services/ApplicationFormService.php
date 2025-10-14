@@ -7,10 +7,17 @@ use App\Models\Applicant;
 use App\Models\Applicants;
 use App\Models\ApplicationForm;
 use App\Models\EnrollmentPeriod;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ApplicationFormService
 {
+
+    public function __construct(
+        protected AcademicTermService $academicTermService,
+        protected EnrollmentPeriodService $enrollmentPeriodService
+    ) {}
 
     public function getApplicationFormData(int $applicantId): array
     {
@@ -84,6 +91,95 @@ class ApplicationFormService
         return $this->saveApplication($data);
     }
 
+    public function createApplication(Applicants $applicant, array $form)
+    {
+
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+
+        if (!$activeTerm) {
+            throw new \InvalidArgumentException('No active academic term found. Please activate an academic term first.');
+        }
+
+        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+
+        if (!$enrollmentPeriod) {
+            throw new \InvalidArgumentException('No enrollment period found. Please setup an enrollment period first.');
+        }
+
+        return DB::transaction(function () use ($applicant, $activeTerm, $enrollmentPeriod, $form) {
+
+            //update the applicant
+            $applicant->update([
+                'track_id' => $form['primary_track'],
+                'program_id' => $form['secondary_track'],
+                'application_status' => 'Pending'
+            ]);
+
+            //create the application form
+            $applicant->applicationForm()->create([
+                'academic_terms_id'          => $activeTerm->id,
+                'enrollment_period_id'       => $enrollmentPeriod->id,
+
+                'preferred_sched'            => $form['preferred_sched'],
+                'is_returning'               => $form['is_returning'],
+                'lrn'                        => $form['lrn'],
+                'grade_level'                => $form['grade_level'],
+                'acad_term_applied'          => $activeTerm->year,
+                'semester_applied'           => $activeTerm->semester,
+                'admission_date'             => Carbon::now(),
+
+                'last_name'                  => $form['last_name'],
+                'first_name'                 => $form['first_name'],
+                'middle_name'                => $form['middle_name'],
+                'extension_name'             => $form['extension_name'],
+                'gender'                     => $form['gender'],
+                'birthdate'                  => $form['birthdate'],
+                'age'                        => $form['age'],
+                'place_of_birth'             => $form['place_of_birth'],
+                'mother_tongue'              => $form['mother_tongue'],
+                'belongs_to_ip'              => $form['belongs_to_ip'],
+                'is_4ps_beneficiary'         => $form['is_4ps_beneficiary'],
+                'contact_number'             => $form['contact_number'],
+
+                'cur_house_no'               => $form['cur_house_no'],
+                'cur_street'                 => $form['cur_street'],
+                'cur_barangay'               => $form['cur_barangay'],
+                'cur_city'                   => $form['cur_city'],
+                'cur_province'               => $form['cur_province'],
+                'cur_country'                => $form['cur_country'],
+                'cur_zip_code'               => $form['cur_zip_code'],
+
+                'perm_house_no'              => $form['perm_house_no'],
+                'perm_street'                => $form['perm_street'],
+                'perm_barangay'              => $form['perm_barangay'],
+                'perm_city'                  => $form['perm_city'],
+                'perm_province'              => $form['perm_province'],
+                'perm_country'               => $form['perm_country'],
+                'perm_zip_code'              => $form['perm_zip_code'],
+
+                'father_last_name'           => $form['father_last_name'],
+                'father_first_name'          => $form['father_first_name'],
+                'father_middle_name'         => $form['father_middle_name'],
+                'father_contact_number'      => $form['father_contact_number'],
+                'mother_last_name'           => $form['mother_last_name'],
+                'mother_first_name'          => $form['mother_first_name'],
+                'mother_middle_name'         => $form['mother_middle_name'],
+                'mother_contact_number'      => $form['mother_contact_number'],
+                'guardian_last_name'         => $form['guardian_last_name'],
+                'guardian_first_name'        => $form['guardian_first_name'],
+                'guardian_middle_name'       => $form['guardian_middle_name'],
+                'guardian_contact_number'    => $form['guardian_contact_number'],
+                'has_special_needs'          => $form['has_special_needs'],
+                'special_needs'              => $form['special_needs'] ?? null,
+
+                'last_grade_level_completed' => $form['last_grade_level_completed'],
+                'last_school_attended'       => $form['last_school_attended'],
+                'last_school_year_completed' => $form['last_school_year_completed'],
+                'school_id'
+            ]);
+        });
+    }
+
     /**
      * Validate the application form data.
      *
@@ -98,8 +194,8 @@ class ApplicationFormService
             'is_returning'               => 'required|boolean',
             'lrn'                        => 'nullable|digits:12|unique:application_forms,lrn',
             'grade_level'                => 'required|string',
-            'primary_track'              => 'required|string',
-            'secondary_track'            => 'nullable|string',
+            'primary_track'              => 'required|exists:tracks,id',
+            'secondary_track'            => 'nullable|exists:program,id',
             'last_name'                  => 'required|string',
             'first_name'                 => 'required|string',
             'middle_name'                => 'nullable|string',
@@ -166,7 +262,6 @@ class ApplicationFormService
         if (!$form->save()) {
             Log::error('Failed to save application form.', ['data' => $data]);
             throw new \Exception('Application form could not be saved.');
-            dd("alsddkadklasdjklasjkl");
         }
 
         return $form;

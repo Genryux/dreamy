@@ -594,13 +594,14 @@
                     <h2 class="text-[20px] font-bold text-gray-900">Students</h2>
                     <p class="text-[14px] text-gray-600 mt-1">Manage enrolled students in this section</p>
                 </div>
-                @role(['super_admin', 'registrar', 'head_teacher'])
+                @can('add student to a section')
                     <button id="add-student-modal-btn"
                         class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                         <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
                         Add Student
                     </button>
-                @endrole
+                @endcan
+
             </div>
 
             <!-- Search and Filters -->

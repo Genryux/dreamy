@@ -214,7 +214,7 @@
                     <p class="font-bold text-[24px]">
                         {{ $tracks->sum(function ($track) {
                             return $track->programs()->get()->sum(function ($program) {
-                                    return \App\Models\Student::where('program', $program->code)->count();
+                                    return \App\Models\Student::where('program_id', $program->id)->count();
                                 });
                         }) }}
                     </p>
@@ -306,8 +306,8 @@
                                         ->get()
                                         ->map(function ($program) {
                                             $totalStudents = \App\Models\Student::where(
-                                                'program',
-                                                $program->code,
+                                                'program_id',
+                                                $program->id,
                                             )->count();
                                             return [
                                                 'id' => $program->id,

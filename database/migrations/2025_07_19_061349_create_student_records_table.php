@@ -17,18 +17,16 @@ return new class extends Migration
             $table->foreignIdFor(Student::class)->constrained()->onDelete('cascade');
 
             // Personal Info
-            $table->string('first_name');
-            $table->string('last_name');
             $table->string('middle_name')->nullable();
             $table->string('extension_name')->nullable();
             $table->date('birthdate')->nullable();
             $table->string('gender')->nullable(); //
             $table->integer('age')->nullable();
             $table->string('place_of_birth')->nullable();
+            $table->string('mother_tongue')->nullable();
+            $table->string('contact_number')->nullable();
 
             // Contact Info
-            $table->string('email')->nullable();
-            $table->string('contact_number')->nullable();
             $table->text('current_address')->nullable();
             $table->text('permanent_address')->nullable();
 
@@ -51,17 +49,16 @@ return new class extends Migration
 
             // Academic Info
 
-            $table->string('grade_level')->nullable();
-            $table->string('program')->nullable();
-            $table->string('current_school')->nullable();
-            $table->string('previous_school')->nullable();
-            $table->string('school_contact_info')->nullable();
+            $table->string('last_school_attended')->nullable();
+            $table->string('last_grade_level_completed')->nullable();
+            $table->string('school_id')->nullable();
             $table->string('acad_term_applied')->nullable();
             $table->string('semester_applied')->nullable();
             $table->dateTime('admission_date')->nullable();
 
             // Additional Info
             $table->boolean('has_special_needs')->default(false)->nullable();
+            $table->json('special_needs')->nullable();
             $table->boolean('belongs_to_ip')->default(false)->nullable();
             $table->boolean('is_4ps_beneficiary')->default(false)->nullable();
             $table->timestamps();

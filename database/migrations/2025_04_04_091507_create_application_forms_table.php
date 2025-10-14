@@ -26,8 +26,6 @@ return new class extends Migration
             $table->boolean('is_returning')->nullable();
             $table->string('lrn')->nullable();
             $table->string('grade_level')->nullable();
-            $table->string('primary_track')->nullable();
-            $table->string('secondary_track')->nullable();
             $table->string('acad_term_applied')->nullable();
             $table->string('semester_applied')->nullable();
             $table->dateTime('admission_date')->nullable();

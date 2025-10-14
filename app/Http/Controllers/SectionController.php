@@ -168,7 +168,7 @@ class SectionController extends Controller
                 ->with(['user', 'record'])
                 ->offset($start)
                 ->limit($request->length)
-                ->get(['id', 'user_id', 'lrn', 'grade_level', 'program'])
+                ->get(['id', 'user_id', 'lrn', 'grade_level', 'program_id'])
                 ->map(function ($item, $key) use ($start) {
                     return [
                         'index' => $start + $key + 1,
@@ -273,7 +273,7 @@ class SectionController extends Controller
         $program = $section->program->code;
 
         $students = Student::where('grade_level', $year_level)
-            ->where('program', $program)
+            ->where('program_id', $section->program_id)
             ->where('section_id', null)
             ->with('user')
             ->get();
@@ -285,7 +285,7 @@ class SectionController extends Controller
             'program'
         ]);
 
-        return view('user-admin.section.show', compact('section', 'students'));
+        return view('user-admin.curriculum.section.show', compact('section', 'students'));
     }
 
     // Students who doesn't have a section yet (filtered by year level and program)
@@ -295,7 +295,7 @@ class SectionController extends Controller
         $program = $section->program->code;
 
         $students = Student::where('grade_level', $year_level)
-            ->where('program', $program)
+            ->where('program_id', $section->program_id)
             ->where('section_id', null)
             ->with('user')
             ->get();

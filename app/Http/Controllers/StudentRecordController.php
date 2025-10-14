@@ -188,7 +188,7 @@ class StudentRecordController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['error' => 'An unexpected error occurred. Please try again.'], 500);
+            return response()->json(['error' => "An unexpected error occurred. Please try again. $e"], 500);
         }
     }
 

@@ -598,7 +598,7 @@
                         <p class="text-[14px]">Unassigned Students</p>
                     </div>
                     <p class="font-bold text-[24px]">
-                        {{ \App\Models\Student::where('program', $program->code)->whereNull('section_id')->count() }}</p>
+                        {{ \App\Models\Student::where('program_id', $program->id)->whereNull('section_id')->count() }}</p>
                     <p class="text-[12px] truncate text-gray-300">Students without section assignment</p>
                 </div>
 

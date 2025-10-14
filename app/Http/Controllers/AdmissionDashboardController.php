@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Applicants;
 use App\Models\Teacher;
 use App\Services\DashboardDataService;
 use Illuminate\Http\Request;
@@ -56,7 +57,11 @@ class AdmissionDashboardController extends Controller
                 break;
 
             case 'Pending':
-                return view('user-applicant.dashboard', compact('applicant'));
+                return view('user-applicant.dashboard', [
+                    'applicant' => $applicant,
+                    'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                    'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+                ]);
                 break;
             case 'Accepted':
 
@@ -68,7 +73,20 @@ class AdmissionDashboardController extends Controller
                     $teacherLastName = 'Not Assigned';
                 }
 
-                return view('user-applicant.dashboard', compact('applicant', 'teacherLastName'));
+                return view('user-applicant.dashboard', [
+                    'applicant' => $applicant,
+                    'teacherLastName' => $teacherLastName,
+                    'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                    'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+                ]);
+                break;
+
+            case 'Rejected':
+                return view('user-applicant.dashboard', [
+                    'applicant' => $applicant,
+                    'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                    'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
+                ]);
                 break;
 
             case 'Pending-Documents':
@@ -76,21 +94,30 @@ class AdmissionDashboardController extends Controller
 
                 if ($interview_status === 'Exam-Failed') {
                     return view('user-applicant.dashboard', [
-                        'applicant' => $applicant
+                        'applicant' => $applicant,
+                        'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                        'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                     ]);
                 }
 
                 if ($interview_status === 'Exam-Passed') {
                     return view('user-applicant.dashboard', [
                         'applicant' => $applicant,
-                        'assignedDocuments' => $data['assignedDocuments'] ?? null
+                        'assignedDocuments' => $data['assignedDocuments'] ?? null,
+                        'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                        'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                     ]);
                 }
 
                 if ($interview_status === 'Exam-Completed') {
+                    $verifiedCount = Applicants::withStatus('Pending-Documents')->get()->sum(fn($a) => $a->assignedDocuments->where('status', 'Verified')->count());
+
                     return view('user-applicant.dashboard', [
                         'applicant' => $applicant,
-                        'assignedDocuments' => $data['assignedDocuments'] ?? null
+                        'assignedDocuments' => $data['assignedDocuments'] ?? null,
+                        'verifiedCount' => $verifiedCount,
+                        'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                        'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                     ]);
                 }
 
@@ -99,7 +126,9 @@ class AdmissionDashboardController extends Controller
 
             case 'Officially Enrolled':
                 return view('user-applicant.dashboard', [
-                    'applicant' => $applicant
+                    'applicant' => $applicant,
+                    'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
+                    'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                 ]);
                 break;
 

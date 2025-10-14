@@ -33,24 +33,13 @@ class InvoiceService
             throw new \InvalidArgumentException('No student found.');
         }
 
-        $program = Program::where('code', $student->program)->first();
-
-        if (!$program) {
-            $program = null; //program id field in school fee can be nullable
-        }
-
         // filter school fees according to the program and grade level
-        $school_fees = SchoolFee::where('grade_level', $student->grade_level);
-        
-        if ($program) {
-            $school_fees->where('program_id', $program->id);
-        }
-        
-        $school_fees = $school_fees->get();
+        $school_fees = SchoolFee::where('grade_level', $student->grade_level)
+            ->where('program_id', $student->program_id)->get();
 
         if ($school_fees->isEmpty()) {
             // fallback to school fees for the grade level only
-            $school_fees = SchoolFee::where('grade_level', $student->grade_level)->get();
+            $school_fees = SchoolFee::all();
         }
 
         return DB::transaction(function () use ($student, $activeTerm, $school_fees) {
