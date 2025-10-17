@@ -13,6 +13,19 @@ use Illuminate\Support\Str;
 class UserInvitationService
 {
     /**
+     * Allowed roles for user invitations
+     */
+    const ALLOWED_ROLES = ['teacher', 'registrar', 'head_teacher'];
+
+    /**
+     * Get allowed roles for invitations
+     */
+    public static function getAllowedRoles(): array
+    {
+        return self::ALLOWED_ROLES;
+    }
+
+    /**
      * Send invitation to a user with specified role
      */
     public function sendInvitation(array $userData, string $role, int $invitedBy): array
@@ -21,10 +34,10 @@ class UserInvitationService
             DB::beginTransaction();
 
             // Validate role
-            if (!in_array($role, ['teacher', 'registrar', 'head_teacher'])) {
+            if (!in_array($role, self::ALLOWED_ROLES)) {
                 return [
                     'success' => false,
-                    'error' => 'Invalid role specified'
+                    'error' => 'Invalid role specified. Only teacher, registrar, and head_teacher roles are allowed for invitations.'
                 ];
             }
 
@@ -47,7 +60,6 @@ class UserInvitationService
                     'middle_name' => $userData['middle_name'] ?? null,
                     'contact_number' => $userData['contact_number'] ?? null,
                     'program_id' => $userData['program_id'] ?? null,
-                    'years_of_experience' => $userData['years_of_experience'] ?? null,
                 ]) : null,
             ]);
 
@@ -294,7 +306,6 @@ class UserInvitationService
             'email_address' => $user->email,
             'contact_number' => $invitationData['contact_number'] ?? null,
             'program_id' => $invitationData['program_id'] ?? null,
-            'years_of_experience' => $invitationData['years_of_experience'] ?? null,
             'status' => 'active', // Teacher record created after successful registration
         ]);
     }

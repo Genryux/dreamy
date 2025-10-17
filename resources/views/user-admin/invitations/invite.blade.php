@@ -46,160 +46,226 @@
 @section('content')
     <x-alert />
 
-    <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
-        <form action="{{ route('admin.users.send-invitation') }}" method="POST" class="space-y-6">
-            @csrf
-
-            <!-- Role Selection -->
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fi fi-rr-user-tag mr-2"></i>
-                    User Role <span class="text-red-500">*</span>
-                </label>
-                <select name="role" id="role" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Select a role</option>
-                    @foreach($roles as $role)
-                        <option value="{{ $role->name }}" 
-                                {{ old('role') == $role->name ? 'selected' : '' }}
-                                data-is-teacher="{{ in_array($role->name, ['teacher', 'head_teacher']) ? 'true' : 'false' }}">
-                            {{ ucwords(str_replace('_', ' ', $role->name)) }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('role')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Personal Information -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-user mr-2"></i>
-                        First Name <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="first_name" id="first_name" required
-                        value="{{ old('first_name') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    @error('first_name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-user mr-2"></i>
-                        Last Name <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="last_name" id="last_name" required
-                        value="{{ old('last_name') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    @error('last_name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <div>
-                <label for="middle_name" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fi fi-rr-user mr-2"></i>
-                    Middle Name
-                </label>
-                <input type="text" name="middle_name" id="middle_name"
-                    value="{{ old('middle_name') }}"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                @error('middle_name')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Contact Information -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-envelope mr-2"></i>
-                        Email Address <span class="text-red-500">*</span>
-                    </label>
-                    <input type="email" name="email" id="email" required
-                        value="{{ old('email') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-phone-call mr-2"></i>
-                        Contact Number
-                    </label>
-                    <input type="text" name="contact_number" id="contact_number"
-                        value="{{ old('contact_number') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    @error('contact_number')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Teacher-specific fields (shown when teacher role is selected) -->
-            <div id="teacher-fields" class="space-y-6" style="display: none;">
-                <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">
-                        <i class="fi fi-rr-chalkboard-teacher mr-2"></i>
-                        Teacher Information
-                    </h3>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="flex flex-col gap-6">
+        <!-- Main Form Container -->
+        <div class="bg-white rounded-xl shadow-lg border border-[#1e1e1e]/10 overflow-hidden">
+            <!-- Form Header -->
+            <div class="bg-gradient-to-r from-[#199BCF] to-[#1A3165] px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fi fi-rr-envelope text-white text-lg"></i>
+                    </div>
                     <div>
-                        <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fi fi-rr-graduation-cap mr-2"></i>
-                            Program/Faculty <span class="text-red-500">*</span>
+                        <h2 class="text-lg font-bold text-white">User Invitation Form</h2>
+                        <p class="text-sm text-white/80">Fill in the details to send an invitation</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Content -->
+            <form action="{{ route('admin.users.send-invitation') }}" method="POST" class="p-6 space-y-8">
+                @csrf
+
+                <!-- Role Selection Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fi fi-rr-user-tag text-blue-600 text-sm"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Role Selection</h3>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-3">
+                            <i class="fi fi-rr-user-tag mr-2"></i>
+                            User Role <span class="text-red-500">*</span>
                         </label>
-                        <select name="program_id" id="program_id" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Select Program</option>
-                            @foreach(\App\Models\Program::all() as $program)
-                                <option value="{{ $program->id }}" {{ old('program_id') == $program->id ? 'selected' : '' }}>
-                                    {{ $program->name }} ({{ $program->code }})
+                        <select name="role" id="role" required
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                            <option value="">Select a role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->name }}" 
+                                        {{ old('role') == $role->name ? 'selected' : '' }}
+                                        data-is-teacher="{{ in_array($role->name, ['teacher', 'head_teacher']) ? 'true' : 'false' }}">
+                                    {{ ucwords(str_replace('_', ' ', $role->name)) }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('program_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="years_of_experience" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fi fi-rr-calendar mr-2"></i>
-                            Years of Experience
-                        </label>
-                        <input type="number" name="years_of_experience" id="years_of_experience" min="0"
-                            value="{{ old('years_of_experience') }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        @error('years_of_experience')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @error('role')
+                            <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                <i class="fi fi-rr-exclamation text-xs"></i>
+                                {{ $message }}
+                            </p>
                         @enderror
                     </div>
                 </div>
-            </div>
 
-            <!-- Submit Button -->
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="{{ route('admin.users.index') }}"
-                    class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
-                    Cancel
-                </a>
-                <button type="submit"
-                    class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
-                    <i class="fi fi-rr-envelope mr-2"></i>
-                    Send Invitation
-                </button>
-            </div>
-        </form>
+                <!-- Personal Information Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                            <i class="fi fi-rr-user text-emerald-600 text-sm"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Personal Information</h3>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-6 space-y-6">
+                        <!-- Name Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fi fi-rr-square-f mr-2"></i>
+                                    First Name <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="first_name" id="first_name" required
+                                    value="{{ old('first_name') }}"
+                                    placeholder="Enter first name"
+                                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                                @error('first_name')
+                                    <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                        <i class="fi fi-rr-exclamation text-xs"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fi fi-rr-square-l mr-2"></i>
+                                    Last Name <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="last_name" id="last_name" required
+                                    value="{{ old('last_name') }}"
+                                    placeholder="Enter last name"
+                                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                                @error('last_name')
+                                    <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                        <i class="fi fi-rr-exclamation text-xs"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="middle_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fi fi-rr-square-m mr-2"></i>
+                                Middle Name
+                            </label>
+                            <input type="text" name="middle_name" id="middle_name"
+                                value="{{ old('middle_name') }}"
+                                placeholder="Enter middle name"
+                                class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                            @error('middle_name')
+                                <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                    <i class="fi fi-rr-exclamation text-xs"></i>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fi fi-rr-phone-call text-purple-600 text-sm"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Contact Information</h3>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fi fi-rr-envelope mr-2"></i>
+                                    Email Address <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" name="email" id="email" required
+                                    value="{{ old('email') }}"
+                                    placeholder="Enter email address"
+                                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                                @error('email')
+                                    <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                        <i class="fi fi-rr-exclamation text-xs"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fi fi-rr-phone-flip mr-2"></i>
+                                    Contact Number
+                                </label>
+                                <input type="text" name="contact_number" id="contact_number"
+                                    value="{{ old('contact_number') }}"
+                                    placeholder="Enter contact number"
+                                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                                @error('contact_number')
+                                    <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                        <i class="fi fi-rr-exclamation text-xs"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teacher-specific fields (shown when teacher role is selected) -->
+                <div id="teacher-fields" class="space-y-4" style="display: none;">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fi fi-rr-chalkboard-teacher text-orange-600 text-sm"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Teacher Information</h3>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fi fi-rr-graduation-cap mr-2"></i>
+                                    Program/Faculty <span class="text-red-500">*</span>
+                                </label>
+                                <select name="program_id" id="program_id" required
+                                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-white self-start rounded-lg py-3 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                                    <option value="">Select Program</option>
+                                    @foreach(\App\Models\Program::all() as $program)
+                                        <option value="{{ $program->id }}" {{ old('program_id') == $program->id ? 'selected' : '' }}>
+                                            {{ $program->name }} ({{ $program->code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('program_id')
+                                    <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                        <i class="fi fi-rr-exclamation text-xs"></i>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+                    <a href="{{ route('admin.users.index') }}"
+                        class="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150">
+                        <i class="fi fi-rr-arrow-left text-sm"></i>
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="flex items-center gap-2 px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-[#199BCF] to-[#1A3165] hover:from-[#1A3165] hover:to-[#199BCF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#199BCF] transition duration-150 hover:shadow-lg hover:shadow-[#199BCF]/25">
+                        <i class="fi fi-rr-envelope text-sm"></i>
+                        Send Invitation
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>

@@ -8,6 +8,7 @@ use App\Models\InvoicePayment;
 use App\Services\PaymentPlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 
 class InvoicePaymentController extends Controller
 {
@@ -27,18 +28,92 @@ class InvoicePaymentController extends Controller
             'type' => 'nullable|string|max:50',
             'reference_no' => 'nullable|string|max:100',
             'payment_schedule_id' => 'nullable|integer|exists:payment_schedules,id',
+            'pin' => 'required|string|size:6',
+        ]);
+
+        // Verify PIN for payment authorization
+        $user = auth()->user();
+        if (!$user->pin || !$user->pin_enabled) {
+            return response()->json([
+                'success' => false,
+                'message' => 'PIN security is not enabled for your account.'
+            ], 403);
+        }
+
+        // Debug logging (remove in production)
+        \Log::info('Payment PIN verification attempt', [
+            'user_id' => $user->id,
+            'pin_enabled' => $user->pin_enabled,
+            'pin_length' => strlen($user->pin),
+            'input_pin_length' => strlen($validated['pin']),
+            'timestamp' => now()
+        ]);
+
+        if (!Hash::check($validated['pin'], $user->pin)) {
+            // Log failed PIN attempt for security
+            \Log::warning('Failed PIN verification attempt for payment recording', [
+                'user_id' => $user->id,
+                'invoice_id' => $invoice->id,
+                'amount' => $validated['amount'],
+                'ip' => $request->ip(),
+                'timestamp' => now()
+            ]);
+
+            // Check for rate limiting (max 5 attempts per minute)
+            $cacheKey = 'payment_pin_attempts_' . $user->id;
+            $attempts = \Cache::get($cacheKey, 0);
+            
+            if ($attempts >= 5) {
+                \Log::critical('Payment PIN verification rate limit exceeded', [
+                    'user_id' => $user->id,
+                    'ip' => $request->ip(),
+                    'timestamp' => now()
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Too many failed PIN attempts. Please try again in a few minutes.'
+                ], 429);
+            }
+            
+            // Increment attempt counter (expires in 1 minute)
+            \Cache::put($cacheKey, $attempts + 1, 60);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid PIN. Please try again.'
+            ], 401);
+        }
+
+        // Clear any failed attempts on successful verification
+        $cacheKey = 'payment_pin_attempts_' . $user->id;
+        \Cache::forget($cacheKey);
+
+        // Log successful PIN verification for audit
+        \Log::info('Payment recording authorized with PIN verification', [
+            'user_id' => $user->id,
+            'invoice_id' => $invoice->id,
+            'amount' => $validated['amount'],
+            'student_id' => $invoice->student_id,
+            'timestamp' => now()
         ]);
 
         // Additional validation for one-time payments
         if ($invoice->payment_mode === 'full') {
             // For one-time payments, if this is the first payment, it must be the full amount
             if ($invoice->paid_amount == 0 && $validated['amount'] < $invoice->total_amount) {
-                return redirect()->back()->with('error', 'For one-time payments, the first payment must be the full amount of ₱' . number_format($invoice->total_amount, 2));
+                return response()->json([
+                    'success' => false,
+                    'message' => 'For one-time payments, the first payment must be the full amount of ₱' . number_format($invoice->total_amount, 2)
+                ], 400);
             }
             
             // For subsequent payments, ensure we don't exceed the remaining balance
             if ($validated['amount'] > $invoice->balance) {
-                return redirect()->back()->with('error', 'Payment amount cannot exceed the remaining balance of ₱' . number_format($invoice->balance, 2));
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment amount cannot exceed the remaining balance of ₱' . number_format($invoice->balance, 2)
+                ], 400);
             }
         }
 
@@ -51,7 +126,10 @@ class InvoicePaymentController extends Controller
                     $remainingDue = round($schedule->amount_due - $schedule->amount_paid, 2);
                     $amount = round($validated['amount'], 2);
                     if ($amount !== $remainingDue) {
-                        return redirect()->back()->with('error', 'Payment must match the exact remaining amount for the selected schedule (₱' . number_format($remainingDue, 2) . ').');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Payment must match the exact remaining amount for the selected schedule (₱' . number_format($remainingDue, 2) . ').'
+                        ], 400);
                     }
                 }
             }
@@ -76,9 +154,22 @@ class InvoicePaymentController extends Controller
                 $this->paymentPlanService->recordPayment($invoice, $validated['amount'], $paymentData);
             }
 
-            return redirect()->back()->with('success', 'Payment recorded successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment recorded successfully.'
+            ]);
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', $th->getMessage());
+            \Log::error('Payment recording failed', [
+                'user_id' => auth()->id(),
+                'invoice_id' => $invoice->id,
+                'error' => $th->getMessage(),
+                'timestamp' => now()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
     }
 

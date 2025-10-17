@@ -163,9 +163,6 @@
                         @if(Auth::user()->teacher->specialization)
                             <p><span class="text-gray-500">Specialization:</span> {{ Auth::user()->teacher->specialization }}</p>
                         @endif
-                        @if(Auth::user()->teacher->years_of_experience)
-                            <p><span class="text-gray-500">Experience:</span> {{ Auth::user()->teacher->years_of_experience }} years</p>
-                        @endif
                     @endif --}}
                 </div>
             </div>

@@ -13,8 +13,10 @@ class Student extends Model
         'track_id',
         'program_id',
         'section_id',
+        'section',
         'lrn',
         'grade_level',
+        'academic_status',
         'enrollment_date',
         'status'
     ];

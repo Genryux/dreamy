@@ -164,12 +164,6 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="years_of_experience" class="text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
-                        <input type="number" name="years_of_experience" id="years_of_experience" value="{{ old('years_of_experience') }}" min="0"
-                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 @error('years_of_experience') border-red-500 @enderror">
-                        @error('years_of_experience')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
             </div>

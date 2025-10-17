@@ -45,19 +45,40 @@ class ApplicationFormController extends Controller
 
     public function getRecentApplications(Request $request)
     {
-        try {
-            $query = Applicants::with(['applicationForm', 'program'])
-                ->where('application_status', 'pending');
+        $activeTerm = AcademicTerms::where('is_active', true)->first();
 
-            // Filter by current academic term if feature is enabled
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
+        try {
+            $query = null;
+
+            if ($activeTerm) {
+                $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+
+                if ($activeEnrollmentPeriod) {
+                    $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
+                        ->where('application_status', 'Pending')
+                        ->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+                } else {
+                    // No active enrollment period - return empty results
+                    $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
+                        ->where('application_status', 'Pending')
+                        ->where('id', -1); // This will return no results
                 }
+            } else {
+                // No active academic term - return empty results
+                $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
+                    ->where('application_status', 'Pending')
+                    ->where('id', -1); // This will return no results
             }
+
+
+            // // Filter by current academic term if feature is enabled
+            // if (config('app.use_term_enrollments')) {
+            //     if ($activeTerm) {
+            //         $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
+            //             $q->where('academic_terms_id', $activeTerm->id);
+            //         });
+            //     }
+            // }
 
             // Get total count of pending applications
             $totalRecords = $query->count();
@@ -585,9 +606,11 @@ class ApplicationFormController extends Controller
             if ($data) {
                 return view('user-admin.dashboard', [
                     'applications' => $recentApplications = $data['recentApplications'] ?? collect(),
-                    'pendingApplicationsCount' => $pendingApplicationsCount = $data['pendingApplicationsCount'] ?? 0,
-                    'selectedApplicationsCount' => $selectedApplicationsCount = $data['selectedApplicationsCount'] ?? 0,
-                    'applicationCount' => $applicationCount = $data['applicationCount'] ?? 0,
+                    'pendingApplicationsCount' => $totalPendingApplications = $data['totalPendingApplications'] ?? 0,
+                    'selectedApplicationsCount' => $totalAcceptedApplications = $data['totalAcceptedApplications'] ?? 0,
+                    'pendingDocumentsApplicationsCount' => $totalPendingDocumentsApplications = $data['totalPendingDocumentsApplications'] ?? 0,
+                    'enrolledApplicationsCount' => $totalEnrolledApplications = $data['totalEnrolledApplications'] ?? 0,
+                    'applicationCount' => $totalApplications = $data['totalApplications'] ?? 0,
                     'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
                     'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null
                 ]);
@@ -660,15 +683,15 @@ class ApplicationFormController extends Controller
     public function create()
     {
         $user = $this->userService->fetchAuthenticatedUser();
-        
+
         // Check if user has already submitted an application form
         $applicant = Applicants::where('user_id', $user->id)->first();
-        
+
         if ($applicant && $applicant->applicationForm) {
             // User has already submitted an application form
             return redirect()->route('admission.dashboard')->with('error', 'You have already submitted an application form. Please check your application status in the dashboard.');
         }
-        
+
         $tracks = \App\Models\Track::where('status', 'active')->get();
         $programs = \App\Models\Program::where('status', 'active')->get();
 
@@ -742,11 +765,20 @@ class ApplicationFormController extends Controller
         ]);
 
         $applicant = Applicants::where('user_id', $user->id)->first();
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($this->academicTermService->fetchCurrentAcademicTerm()->id);
 
         try {
 
-            DB::transaction(function () use ($applicant, $validated, $user) {
-                $this->applicationFormService->createApplication($applicant, $validated);
+            DB::transaction(function () use ($applicant, $validated, $user, $activeEnrollmentPeriod) {
+
+                $form = $this->applicationFormService->createApplication($applicant, $validated);
+
+                // Get total applications count for the current academic term
+                $totalApplications = Applicants::where('application_status', 'Pending')
+                    ->where('enrollment_period_id', $activeEnrollmentPeriod->id)->count();
+
+                // Dispatch event for real-time dashboard updates
+                event(new RecentApplicationTableUpdated($form, $totalApplications));
 
                 // Send to admin roles (registrar, super_admin)
                 $admins = User::role(['registrar', 'super_admin'])->get();
@@ -984,7 +1016,7 @@ class ApplicationFormController extends Controller
         try {
             // Get base query with academic term filtering if enabled
             $baseQuery = Applicants::query();
-            
+
             if (config('app.use_term_enrollments')) {
                 $activeTerm = AcademicTerms::where('is_active', true)->first();
                 if ($activeTerm) {
@@ -996,7 +1028,7 @@ class ApplicationFormController extends Controller
 
             // Define the statuses to include in the total count
             $includedStatuses = ['Pending', 'Accepted', 'Pending-Documents', 'Rejected', 'Completed-Failed'];
-            
+
             // Get counts for each status
             $statistics = [
                 'total' => (clone $baseQuery)->whereIn('application_status', $includedStatuses)->count(),
@@ -1027,7 +1059,7 @@ class ApplicationFormController extends Controller
         try {
             // Get base query with academic term filtering if enabled
             $baseQuery = Applicants::query();
-            
+
             if (config('app.use_term_enrollments')) {
                 $activeTerm = AcademicTerms::where('is_active', true)->first();
                 if ($activeTerm) {
@@ -1039,10 +1071,10 @@ class ApplicationFormController extends Controller
 
             // Get total registrations (all applications regardless of status)
             $totalRegistrations = $baseQuery->count();
-            
+
             // Get successful applicants (accepted applications)
             $successfulApplicants = (clone $baseQuery)->where('application_status', 'Accepted')->count();
-            
+
             // Calculate acceptance rate
             $acceptanceRate = $totalRegistrations > 0 ? round(($successfulApplicants / $totalRegistrations) * 100) : 0;
 

@@ -101,10 +101,10 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('delete subject', 'Subject Management', 'Delete subjects');
 
         // User Management
-        $this->createPermissionWithCategory('view all users', 'User Management', 'View all system users');
-        $this->createPermissionWithCategory('create user', 'User Management', 'Create new users');
-        $this->createPermissionWithCategory('edit user', 'User Management', 'Edit user information');
-        $this->createPermissionWithCategory('delete user', 'User Management', 'Delete users');
+        $this->createPermissionWithCategory('view users', 'User Management', 'View all system users');
+        $this->createPermissionWithCategory('create users', 'User Management', 'Create new users');
+        $this->createPermissionWithCategory('update users', 'User Management', 'Edit user information');
+        $this->createPermissionWithCategory('delete users', 'User Management', 'Delete users');
 
         // Roles and Permission Management
         $this->createPermissionWithCategory('view roles', 'Roles and Permission Management', 'View all roles');
@@ -120,9 +120,17 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('edit system settings', 'System Settings Management', 'Edit system settings');
 
         // Dashboard viewing
-        $this->createPermissionWithCategory('view enrollment dashboard', 'Page Viewing', 'View enrollment dashboard');
-        $this->createPermissionWithCategory('view head teacher dashboard', 'Page Viewing', 'View head teacher dashboard');
-        $this->createPermissionWithCategory('view teachers dashboard', 'Page Viewing', 'View teachers dashboard');
+        $this->createPermissionWithCategory('view enrollment dashboard page', 'Page Viewing', 'View enrollment dashboard');
+        $this->createPermissionWithCategory('view head teacher dashboard page', 'Page Viewing', 'View head teacher dashboard');
+        $this->createPermissionWithCategory('view teachers dashboard page', 'Page Viewing', 'View teachers dashboard');
+        $this->createPermissionWithCategory('view enrolled students page', 'Page Viewing', 'View enrolled students dashboard');
+        $this->createPermissionWithCategory('view school fees page', 'Page Viewing', 'View school fees page');
+        $this->createPermissionWithCategory('view documents page', 'Page Viewing', 'View documents page');
+        $this->createPermissionWithCategory('view applications page', 'Page Viewing', 'View applications page');
+        $this->createPermissionWithCategory('view curriculum page', 'Page Viewing', 'View curriculum page');
+        $this->createPermissionWithCategory('view user management page', 'Page Viewing', 'View user management page');
+
+
 
         // Site Management
         // Note: Contents are yet to be completed as per user's list

@@ -1676,7 +1676,7 @@
                         const currentTermElement = document.querySelector('[data-current-term]');
                         const termName = currentTermElement ? currentTermElement.getAttribute(
                                 'data-current-term') :
-                            '{{ $currentAcadTerm->getFullNameAttribute() ?? 'Academic Year' }}';
+                            '{{  $currentAcadTerm?->getFullNameAttribute() ?? 'Academic Year' }}';
 
                         // Update the dashboard text to match the PHP template
                         if (dbText) {
@@ -1704,7 +1704,7 @@
                         const currentTermElement = document.querySelector('[data-current-term]');
                         const termName = currentTermElement ? currentTermElement.getAttribute(
                                 'data-current-term') :
-                            '{{ $currentAcadTerm->getFullNameAttribute() ?? 'Academic Year' }}';
+                            '{{ $currentAcadTerm?->getFullNameAttribute() ?? 'Academic Year' }}';
 
                         // Update the dashboard text to match the PHP template
                         if (dbText) {

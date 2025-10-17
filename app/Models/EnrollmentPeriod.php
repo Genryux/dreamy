@@ -18,4 +18,8 @@ class EnrollmentPeriod extends Model
     public function academicTerms() {
         return $this->belongsTo(AcademicTerms::class);
     }
+
+    public function applicants() {
+        return $this->hasMany(Applicants::class);
+    }
 }

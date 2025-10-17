@@ -149,6 +149,240 @@
             </x-slot>
         </x-modal>
     @endif
+
+    <x-modal modal_id="create-user-modal" modal_name="Create User" close_btn_id="create-user-modal-close-btn"
+        modal_container_id="modal-container-create-user">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-user-plus flex justify-center items-center'></i>
+        </x-slot>
+
+        <form id="create-user-form" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <!-- Personal Information -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="create_first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-user mr-2"></i>
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="first_name" id="create_first_name" required
+                            placeholder="Enter first name"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="create_last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-user mr-2"></i>
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="last_name" id="create_last_name" required
+                            placeholder="Enter last name"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="create_middle_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-user mr-2"></i>
+                        Middle Name
+                    </label>
+                    <input type="text" name="middle_name" id="create_middle_name"
+                        placeholder="Enter middle name (optional)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="create_email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-envelope mr-2"></i>
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" name="email" id="create_email" required
+                        placeholder="Enter email address"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="create_contact_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-phone-call mr-2"></i>
+                        Contact Number
+                    </label>
+                    <input type="text" name="contact_number" id="create_contact_number"
+                        placeholder="Enter contact number (optional)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="create_role" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-shield-check mr-2"></i>
+                        Role <span class="text-red-500">*</span>
+                    </label>
+                    <select name="role" id="create_role" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select a role</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="registrar">Registrar</option>
+                        <option value="head_teacher">Head Teacher</option>
+                    </select>
+                </div>
+
+                <div id="create_program_field" class="hidden">
+                    <label for="create_program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-graduation-cap mr-2"></i>
+                        Program <span class="text-red-500">*</span>
+                    </label>
+                    <select name="program_id" id="create_program_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select a program</option>
+                        <!-- Programs will be loaded dynamically -->
+                    </select>
+                </div>
+
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="create-user-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-200">
+                Cancel
+            </button>
+            <button type="submit" form="create-user-form" id="create-user-submit-btn"
+                class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                <i class="fi fi-rr-user-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                Create User
+            </button>
+        </x-slot>
+    </x-modal>
+    <x-modal modal_id="edit-user-modal" modal_name="Edit User" close_btn_id="edit-user-modal-close-btn"
+        modal_container_id="modal-container-edit-user">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-edit flex justify-center items-center'></i>
+        </x-slot>
+
+        <form id="edit-user-form" class="p-6">
+            @csrf
+            <input type="hidden" name="user_id" id="edit_user_id">
+            <div class="space-y-4">
+                <!-- Personal Information -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-user mr-2"></i>
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="first_name" id="edit_first_name" required
+                            placeholder="Enter first name"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="edit_last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-user mr-2"></i>
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="last_name" id="edit_last_name" required
+                            placeholder="Enter last name"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="edit_middle_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-user mr-2"></i>
+                        Middle Name
+                    </label>
+                    <input type="text" name="middle_name" id="edit_middle_name"
+                        placeholder="Enter middle name (optional)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-envelope mr-2"></i>
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" name="email" id="edit_email" required
+                        placeholder="Enter email address"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="edit_contact_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-phone-call mr-2"></i>
+                        Contact Number
+                    </label>
+                    <input type="text" name="contact_number" id="edit_contact_number"
+                        placeholder="Enter contact number (optional)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="edit_role" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-shield-check mr-2"></i>
+                        Role <span class="text-red-500">*</span>
+                    </label>
+                    <select name="role" id="edit_role" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select a role</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="registrar">Registrar</option>
+                        <option value="head_teacher">Head Teacher</option>
+                    </select>
+                </div>
+
+                <div id="edit_program_field" class="hidden">
+                    <label for="edit_program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-graduation-cap mr-2"></i>
+                        Program <span class="text-red-500">*</span>
+                    </label>
+                    <select name="program_id" id="edit_program_id"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select a program</option>
+                        <!-- Programs will be loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="edit-user-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-200">
+                Cancel
+            </button>
+            <button type="submit" form="edit-user-form" id="edit-user-submit-btn"
+                class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                <i class="fi fi-rr-disk opacity-70 flex justify-center items-center text-[18px]"></i>
+                Update User
+            </button>
+        </x-slot>
+    </x-modal>
+    <x-modal modal_id="delete-user-modal" modal_name="Delete User Confirmation" close_btn_id="delete-user-modal-close-btn"
+        modal_container_id="modal-container-delete-user">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-trash flex justify-center items-center text-red-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Deletion</h3>
+                    <p class="text-gray-600">Are you sure you want to delete this user? This action cannot be undone and will permanently remove the user account.</p>
+                </div>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="delete-user-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-200">
+                Cancel
+            </button>
+            <form id="delete-user-form" class="inline">
+                @csrf
+                <button type="submit" id="delete-user-submit-btn"
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                    Delete User
+            </button>
+            </form>
+        </x-slot>
+    </x-modal>
 @endsection
 
 @section('header')
@@ -156,13 +390,6 @@
         <div>
             <h1 class="text-[24px] font-black text-gray-900">User Management</h1>
             <p class="text-[14px] text-gray-600 mt-1">Manage all users, invitations, and account statuses</p>
-        </div>
-        <div class="flex flex-row justify-center items-center h-full gap-3">
-            <a href="{{ route('admin.users.invite') }}"
-                class="bg-green-600 px-4 py-2 rounded-lg text-[14px] font-semibold flex justify-center items-center gap-2 text-white hover:bg-green-700 transition duration-150">
-                <i class="fi fi-rr-envelope flex justify-center items-center"></i>
-                Invite User
-            </a>
         </div>
     </div>
 @endsection
@@ -305,14 +532,18 @@
         <div class="flex flex-row justify-center items-start gap-4">
             <div
                 class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-                <div class="flex flex-row justify-between items-center w-full">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
                         All Users
                     </span>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Manage all users
+                    </span>
                 </div>
-                <div class="flex flex-row justify-between items-center w-full">
 
-                    <div class="w-full flex flex-row justify-between items-center gap-4">
+                <div class="flex flex-row justify-between items-center w-full h-full py-2">
+
+                    <div class="flex flex-row justify-between w-3/4 items-center gap-4">
 
                         <label for="myCustomSearch"
                             class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
@@ -373,7 +604,11 @@
 
                         </div>
                     </div>
-
+                    <button id="create-user-modal-btn"
+                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                        New User
+                    </button>
                 </div>
 
                 <!-- Table Layout Container -->
@@ -666,6 +901,14 @@
         // ========================================
 
         function initializeUsersTab() {
+            // Initialize user modals
+            initModal('create-user-modal', 'create-user-modal-btn', 'create-user-modal-close-btn',
+                'create-user-cancel-btn', 'modal-container-create-user');
+            initModal('edit-user-modal', 'edit-user-modal-btn', 'edit-user-modal-close-btn',
+                'edit-user-cancel-btn', 'modal-container-edit-user');
+            initModal('delete-user-modal', 'delete-user-modal-btn', 'delete-user-modal-close-btn',
+                'delete-user-cancel-btn', 'modal-container-delete-user');
+
             usersTable = initCustomDataTable(
                 'users-table',
                 '/admin/users/data',
@@ -735,6 +978,21 @@
                                         Cancel
                                     </button>
                                 `;
+                            } else if (row.status === 'Registered' || row.status === 'Active') {
+                                actions += `
+                                    <button type="button" id="open-edit-user-modal-btn-${data}"
+                                        data-user-id="${data}"
+                                        class="edit-user-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 mr-2">
+                                        <i class="fi fi-rr-edit text-[16px]"></i>
+                                        Edit
+                                    </button>
+                                    <button type="button" id="open-delete-user-modal-btn-${data}"
+                                        data-user-id="${data}"
+                                        class="delete-user-btn group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold px-3 py-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                        <i class="fi fi-rr-trash text-[16px]"></i>
+                                        Delete
+                                    </button>
+                                `;
                             } else {
                                 actions += `
                                     <span class="text-sm text-gray-500">No actions</span>
@@ -757,6 +1015,16 @@
                 'myCustomSearch',
                 [] // columnDefs parameter
             );
+
+            // Initialize edit and delete modals dynamically
+            initializeEditUserModals();
+            initializeDeleteUserModals();
+
+            // Reinitialize modals after table draw
+            usersTable.on('draw', function() {
+                initializeEditUserModals();
+                initializeDeleteUserModals();
+            });
 
             const customSearch1 = document.getElementById("myCustomSearch");
 
@@ -841,27 +1109,46 @@
                             <!-- Action Buttons -->
                             <div class="pt-2 border-t border-gray-100">
                                 ${user.status === 'Invited' ? `
-                                                                    <div class="flex gap-2">
-                                                                        <button onclick="resendInvitation(${user.id})" 
-                                                                            class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
-                                                                            <i class="fi fi-rr-envelope text-sm"></i>
-                                                                            Resend
-                                                                        </button>
-                                                                        <button onclick="cancelInvitation(${user.id})" 
-                                                                            class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                                                            <i class="fi fi-rr-cross text-sm"></i>
-                                                                            Cancel
-                                                                        </button>
-                                                </div>
-                                                                ` : `
-                                                                    <div class="text-center text-sm text-gray-500 py-2">
-                                                                        No actions available
+                                                                                        <div class="flex gap-2">
+                                                                                            <button onclick="resendInvitation(${user.id})" 
+                                                                                                class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
+                                                                                                <i class="fi fi-rr-envelope text-sm"></i>
+                                                                                                Resend
+                                                                                            </button>
+                                                                                            <button onclick="cancelInvitation(${user.id})" 
+                                                                                                class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                                                                <i class="fi fi-rr-cross text-sm"></i>
+                                                                                                Cancel
+                                                                                            </button>
                                                                     </div>
-                                                                `}
+                                ` : (user.status === 'Registered' || user.status === 'Active') ? `
+                                    <div class="flex gap-2">
+                                        <button type="button" id="open-edit-user-modal-btn-${user.id}"
+                                            data-user-id="${user.id}"
+                                            class="edit-user-btn flex-1 flex justify-center items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-150">
+                                            <i class="fi fi-rr-edit text-sm"></i>
+                                            Edit
+                                        </button>
+                                        <button type="button" id="open-delete-user-modal-btn-${user.id}"
+                                            data-user-id="${user.id}"
+                                            class="delete-user-btn flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                            <i class="fi fi-rr-trash text-sm"></i>
+                                            Delete
+                                        </button>
+                                    </div>
+                                                                                    ` : `
+                                                                                        <div class="text-center text-sm text-gray-500 py-2">
+                                                                                            No actions available
+                                                                                        </div>
+                                                                                    `}
                             </div>
                         </div>
                     </div>
                 `).join('');
+
+                // Initialize modals for card layout
+                initializeEditUserModals();
+                initializeDeleteUserModals();
 
                 // Render pagination
                 if (totalPages > 1) {
@@ -1042,6 +1329,217 @@
             }
 
             dropDown('dropdown_btn', 'dropdown_selection');
+
+            // Load programs for create and edit forms
+            loadPrograms();
+
+            // Handle role change to show/hide program field
+            document.getElementById('create_role').addEventListener('change', function() {
+                const programField = document.getElementById('create_program_field');
+                const programSelect = document.getElementById('create_program_id');
+                
+                if (this.value === 'teacher' || this.value === 'head_teacher') {
+                    programField.classList.remove('hidden');
+                    programSelect.required = true;
+                } else {
+                    programField.classList.add('hidden');
+                    programSelect.required = false;
+                    programSelect.value = '';
+                }
+            });
+
+            document.getElementById('edit_role').addEventListener('change', function() {
+                const programField = document.getElementById('edit_program_field');
+                const programSelect = document.getElementById('edit_program_id');
+                
+                if (this.value === 'teacher' || this.value === 'head_teacher') {
+                    programField.classList.remove('hidden');
+                    programSelect.required = true;
+                } else {
+                    programField.classList.add('hidden');
+                    programSelect.required = false;
+                    programSelect.value = '';
+                }
+            });
+
+            // Create User Form Submission
+            document.getElementById('create-user-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let form = e.target;
+                let formData = new FormData(form);
+
+                // Show loader
+                showLoader("Creating user...");
+
+                fetch('/admin/users', {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Accept": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+
+                        if (data.success) {
+                            // Reset form
+                            form.reset();
+                            document.getElementById('create_program_field').classList.add('hidden');
+
+                            // Close modal
+                            closeModal('create-user-modal', 'modal-container-create-user');
+
+                            // Show success alert
+                            showAlert('success', 'User created successfully!');
+
+                            // Refresh table
+                            if (typeof usersTable !== 'undefined') {
+                                usersTable.draw();
+                            }
+
+                            // Refresh card layout if currently in card view
+                            if (window.currentLayout === 'cards') {
+                                fetchUsersForCards(1);
+                            }
+
+                            // Refresh analytics
+                            loadAnalytics();
+                        } else if (data.error) {
+                            closeModal('create-user-modal', 'modal-container-create-user');
+                            showAlert('error', data.error);
+                        } else if (data.message) {
+                            closeModal('create-user-modal', 'modal-container-create-user');
+                            showAlert('error', data.message);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        console.error('Error:', err);
+                        closeModal('create-user-modal', 'modal-container-create-user');
+                        showAlert('error', 'Something went wrong while creating the user');
+                    });
+            });
+
+            // Edit User Form Submission
+            document.getElementById('edit-user-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let form = e.target;
+                let formData = new FormData(form);
+                const userId = formData.get('user_id');
+
+                if (!userId) {
+                    showAlert('error', 'User ID not found');
+                    return;
+                }
+
+                // Add the user ID to the form data
+                formData.append('_method', 'PUT');
+
+                // Show loader
+                showLoader("Updating user...");
+
+                fetch(`/admin/users/${userId}`, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Accept": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+
+                        if (data.success) {
+                            // Reset form
+                            form.reset();
+
+                            // Close modal
+                            closeModal('edit-user-modal', 'modal-container-edit-user');
+
+                            // Show success alert
+                            showAlert('success', 'User updated successfully!');
+
+                            // Refresh table
+                            if (typeof usersTable !== 'undefined') {
+                                console.log('Refreshing users table after update...');
+                                usersTable.draw();
+                            } else {
+                                console.error('usersTable is not defined');
+                            }
+
+                            // Refresh card layout if currently in card view
+                            if (window.currentLayout === 'cards') {
+                                fetchUsersForCards(1);
+                            }
+
+                            // Refresh analytics
+                            loadAnalytics();
+                        } else if (data.error) {
+                            closeModal('edit-user-modal', 'modal-container-edit-user');
+                            showAlert('error', data.error);
+                        } else if (data.message) {
+                            closeModal('edit-user-modal', 'modal-container-edit-user');
+                            showAlert('error', data.message);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        console.error('Error:', err);
+                        closeModal('edit-user-modal', 'modal-container-edit-user');
+                        showAlert('error', 'Something went wrong while updating the user');
+                    });
+            });
+
+            // Delete User Form Submission
+            const deleteUserForm = document.getElementById('delete-user-form');
+            if (deleteUserForm) {
+                deleteUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const userId = formData.get('user_id');
+
+                    showLoader();
+                    fetch(`/admin/users/${userId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success === true) {
+                                showAlert('success', data.message);
+                                console.log('Refreshing users table after delete...');
+                                usersTable.draw(); // Refresh the table
+                                
+                                // Refresh card layout if currently in card view
+                                if (window.currentLayout === 'cards') {
+                                    fetchUsersForCards(1);
+                                }
+                                
+                                loadAnalytics(); // Refresh analytics
+
+                                // Close modal
+                                document.getElementById('delete-user-modal-close-btn').click();
+                            } else {
+                                showAlert('error', data.error || data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while deleting the user');
+                        });
+                });
+            }
         }
 
         // User management functions
@@ -1098,6 +1596,175 @@
                         console.error('Error:', error);
                         showAlert('error', 'An error occurred while cancelling the invitation');
                     });
+            }
+        }
+
+        // ========================================
+        // USER MODAL INITIALIZATION FUNCTIONS
+        // ========================================
+
+        // Initialize edit user modals dynamically
+        function initializeEditUserModals() {
+            document.querySelectorAll('.edit-user-btn').forEach((button) => {
+                let userId = button.getAttribute('data-user-id');
+                let buttonId = `open-edit-user-modal-btn-${userId}`;
+
+                // Initialize modal for this specific button
+                initModal('edit-user-modal', buttonId, 'edit-user-modal-close-btn',
+                    'edit-user-cancel-btn', 'modal-container-edit-user');
+
+                button.addEventListener('click', () => {
+                    // Clear any existing hidden inputs first
+                    let form = document.getElementById('edit-user-form');
+                    let existingInputs = form.querySelectorAll('input[name="user_id"]');
+                    existingInputs.forEach(input => input.remove());
+
+                    // Add user ID as hidden input
+                    let userIdInput = document.createElement('input');
+                    userIdInput.type = 'hidden';
+                    userIdInput.value = userId;
+                    userIdInput.name = "user_id";
+                    userIdInput.id = "edit_user_id";
+                    form.appendChild(userIdInput);
+
+                    // Fetch user data and populate the form
+                    showLoader();
+                    fetch(`/admin/users/${userId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success && data.user) {
+                                const user = data.user;
+
+                                // Populate form fields
+                                document.getElementById('edit_first_name').value = user.first_name || '';
+                                document.getElementById('edit_last_name').value = user.last_name || '';
+                                document.getElementById('edit_middle_name').value = user.middle_name || '';
+                                document.getElementById('edit_email').value = user.email || '';
+                                document.getElementById('edit_contact_number').value = user.contact_number || '';
+                                document.getElementById('edit_role').value = user.role || '';
+                                
+
+                                // Handle program field visibility and value
+                                const programField = document.getElementById('edit_program_field');
+                                const programSelect = document.getElementById('edit_program_id');
+                                
+                                if (user.role === 'teacher' || user.role === 'head_teacher') {
+                                    programField.classList.remove('hidden');
+                                    programSelect.required = true;
+                                    programSelect.value = user.program_id || '';
+                                } else {
+                                    programField.classList.add('hidden');
+                                    programSelect.required = false;
+                                    programSelect.value = '';
+                                }
+
+                                console.log('Edit modal opened for user ID:', userId);
+                                
+                                // Open the modal after data is loaded
+                                const modal = document.getElementById('edit-user-modal');
+                                const modalContainer = document.getElementById('modal-container-edit-user');
+                                if (modal && modalContainer) {
+                                    modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                                    modal.classList.add('opacity-100', 'scale-100');
+                                    modalContainer.classList.remove('opacity-0', 'pointer-events-none');
+                                    modalContainer.classList.add('opacity-100');
+                                }
+                            } else {
+                                showAlert('error', 'Error loading user: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while loading the user');
+                        });
+                });
+            });
+        }
+
+        // Initialize delete user modals dynamically
+        function initializeDeleteUserModals() {
+            document.querySelectorAll('.delete-user-btn').forEach((button) => {
+                let userId = button.getAttribute('data-user-id');
+                let buttonId = `open-delete-user-modal-btn-${userId}`;
+
+                // Initialize modal for this specific button
+                initModal('delete-user-modal', buttonId, 'delete-user-modal-close-btn',
+                    'delete-user-cancel-btn', 'modal-container-delete-user');
+
+                button.addEventListener('click', () => {
+                    // Clear any existing hidden inputs first
+                    let form = document.getElementById('delete-user-form');
+                    let existingInputs = form.querySelectorAll('input[name="user_id"]');
+                    existingInputs.forEach(input => input.remove());
+
+                    // Set the form action dynamically
+                    form.action = `/admin/users/${userId}`;
+
+                    // Add user ID as hidden input
+                    let userIdInput = document.createElement('input');
+                    userIdInput.type = 'hidden';
+                    userIdInput.name = 'user_id';
+                    userIdInput.value = userId;
+                    form.appendChild(userIdInput);
+
+                    console.log('Delete modal opened for user ID:', userId);
+                    
+                    // Open the modal after form is set up
+                    const modal = document.getElementById('delete-user-modal');
+                    const modalContainer = document.getElementById('modal-container-delete-user');
+                    if (modal && modalContainer) {
+                        modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                        modal.classList.add('opacity-100', 'scale-100');
+                        modalContainer.classList.remove('opacity-0', 'pointer-events-none');
+                        modalContainer.classList.add('opacity-100');
+                    }
+                });
+            });
+        }
+
+        // Load programs for dropdowns
+        function loadPrograms() {
+            fetch('/admin/programs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.programs) {
+                        const createProgramSelect = document.getElementById('create_program_id');
+                        const editProgramSelect = document.getElementById('edit_program_id');
+                        
+                        // Clear existing options except the first one
+                        createProgramSelect.innerHTML = '<option value="">Select a program</option>';
+                        editProgramSelect.innerHTML = '<option value="">Select a program</option>';
+                        
+                        data.programs.forEach(program => {
+                            const createOption = document.createElement('option');
+                            createOption.value = program.id;
+                            createOption.textContent = program.name;
+                            createProgramSelect.appendChild(createOption);
+                            
+                            const editOption = document.createElement('option');
+                            editOption.value = program.id;
+                            editOption.textContent = program.name;
+                            editProgramSelect.appendChild(editOption);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading programs:', error);
+                });
+        }
+
+        // Close modal function
+        function closeModal(modalId, modalContainerId) {
+            let modal = document.querySelector(`#${modalId}`)
+            let body = document.querySelector(`#${modalContainerId}`);
+
+            if (modal && body) {
+                modal.classList.remove('opacity-100', 'scale-100');
+                modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                body.classList.remove('opacity-100');
+                body.classList.add('opacity-0', 'pointer-events-none');
             }
         }
 

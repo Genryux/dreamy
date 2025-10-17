@@ -12,6 +12,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoiceItemController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\SchoolFeeController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SessionController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\SchoolSettingController;
 use App\Http\Controllers\WebsiteResourceController;
 use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherManagementController;
 use App\Http\Controllers\UserInvitationController;
 use App\Http\Controllers\TrackController;
@@ -52,6 +54,18 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegistrationController::class, 'store']);
 });
 
+// Email Verification Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->name('verification.send');
+});
+
+// Email Verification Status Pages (Public)
+Route::get('/email/verify/success', [EmailVerificationController::class, 'success'])->name('verification.success');
+Route::get('/email/verify/failed', [EmailVerificationController::class, 'failed'])->name('verification.failed');
+Route::get('/email/verify/already-verified', [EmailVerificationController::class, 'alreadyVerified'])->name('verification.already-verified');
+
 // User Registration from Invitation (Public)
 Route::get('/user/register/{token}', [UserInvitationController::class, 'showRegistration'])->name('user.register');
 Route::post('/user/register/{token}', [UserInvitationController::class, 'storeRegistration'])->name('user.register.store');
@@ -71,10 +85,36 @@ Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMain
 | Routes that require user authentication
 */
 
+// PIN Security Routes (must be outside pin.security middleware to avoid loops)
 Route::middleware('auth')->group(function () {
+    Route::get('/pin/setup', [SessionController::class, 'showPinSetup'])->name('auth.pin.setup');
+    Route::post('/pin/setup', [SessionController::class, 'setupPin'])->name('auth.pin.setup.store');
+    Route::get('/pin/verify', [SessionController::class, 'showPinVerification'])->name('auth.pin.verify');
+    Route::post('/pin/verify', [SessionController::class, 'verifyPin'])->name('auth.pin.verify.store');
+});
+
+Route::middleware(['auth', 'pin.security'])->group(function () {
 
     // Logout
     Route::delete('/logout', [SessionController::class, 'destroy'])->name('logout');
+
+    // Test route to verify PIN security is working
+    Route::get('/test-pin-security', function () {
+        return response()->json([
+            'message' => 'PIN security is working!',
+            'user' => auth()->user()->email,
+            'pin_verified' => session('pin_verified', false),
+            'timestamp' => now()
+        ]);
+    })->name('test.pin.security');
+
+    // Profile Settings
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/pin/setup', [ProfileController::class, 'setupPin'])->name('profile.pin.setup');
+    Route::put('/profile/pin', [ProfileController::class, 'updatePin'])->name('profile.pin.update');
+    Route::post('/profile/pin/enable', [ProfileController::class, 'enablePin'])->name('profile.pin.enable');
+    Route::delete('/profile/pin', [ProfileController::class, 'disablePin'])->name('profile.pin.disable');
 
     // Student Dashboard
     Route::get('/student', function () {
@@ -82,18 +122,18 @@ Route::middleware('auth')->group(function () {
     })->name('student');
 
     // Applicant Dashboard and Status
-    Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard');
+    Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard')->middleware('verified');
     Route::get('/admission/status', function () {
         $applicant = Applicants::where('user_id', Auth::user()->id)->first();
         $application_status = $applicant->application_status ?? '';
         return view('user-applicant.status', ['status' => $application_status]);
-    })->name('status');
+    })->name('status')->middleware('verified');
 
     // Document Submission
     Route::post('/submit-document', [DocumentsSubmissionController::class, 'store'])
-        ->middleware(['permission:submit document'])->name('documents.store');
+        ->middleware(['permission:submit document', 'verified'])->name('documents.store');
     Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update'])
-        ->middleware(['permission:manage submitted documents']);
+        ->middleware(['permission:manage submitted documents', 'verified']);
 
     // Applicant Updates
     Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
@@ -106,7 +146,7 @@ Route::middleware('auth')->group(function () {
 | Routes accessible only to super_admin and registrar roles
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
 
     // Admin Dashboard
     Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
@@ -143,7 +183,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/getAcceptedApplications', [ApplicationFormController::class, 'getAcceptedApplications'])->name('get.accepted-applications');
     Route::get('/getPendingDocumentsApplications', [ApplicationFormController::class, 'getPendingDocumentsApplications'])->name('get.pending-documents-applications');
     Route::get('/getRejectedApplications', [ApplicationFormController::class, 'getRejectedApplications'])->name('get.rejected-applications');
-    
+
     // Application statistics API
     Route::get('/api/application-statistics', [ApplicationFormController::class, 'getApplicationStatistics'])->name('api.application-statistics');
     Route::get('/api/application-summary', [ApplicationFormController::class, 'getApplicationSummary'])->name('api.application-summary');
@@ -161,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Academic Terms
     Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
+    Route::put('/academic-terms/{id}', [AcademicTermController::class, 'update'])->name('academic-terms.update');
 
     // Enrollment Period
     Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->name('enrollment-period.post');
@@ -179,21 +220,32 @@ Route::middleware(['auth'])->group(function () {
     // Student Management
     Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
     Route::get('/users', [StudentsController::class, 'getUsers']);
-    Route::get('/enrollment-stats', [StudentsController::class, 'getEnrollmentStats']);
+    Route::get('/application-analytics', [StudentsController::class, 'getApplicationAnalytics']);
     Route::get('/enrollment-analytics', [StudentsController::class, 'getEnrollmentAnalytics']);
+    Route::get('/enrollment-stats', [StudentsController::class, 'getEnrollmentStats']);
     Route::post('/getStudent', [StudentsController::class, 'getStudent']);
-    Route::post('/students/import', [StudentRecordController::class, 'import']);
+    Route::post('/students/import', [StudentRecordController::class, 'import'])->middleware(['permission:import student']);
     Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
     Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
     Route::post('/students/{id}', [StudentRecordController::class, 'store'])
         ->middleware(['permission:enroll student']);
     Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
     Route::post('/removeStudentFromSection/{section}', [StudentsController::class, 'removeStudentFromSection'])->middleware(['permission:remove assigned subject to a section', 'throttle:10,1']);
+    Route::patch('/evaluate-student/{id}', [StudentsController::class, 'evaluateStudent']);
+    Route::patch('/promote-student/{id}', [StudentsController::class, 'promoteStudent']);
+    Route::patch('/withdraw-student/{id}', [StudentsController::class, 'withdrawStudent']);
+
+
 
     // Student Records
-    Route::get('/student/{studentRecord}', [StudentRecordController::class, 'show']);
+    Route::get('/student/{student}', [StudentRecordController::class, 'show']);
     Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');
     Route::get('/student-record/{studentRecord}/coe.pdf', [StudentRecordController::class, 'coePdf'])->name('students.coe.pdf');
+    Route::put('/students/{student}/personal-info', [StudentRecordController::class, 'updatePersonalInfo'])->name('students.personal.info');
+    Route::put('/students/{student}/academic-info', [StudentRecordController::class, 'updateAcademicInfo'])->name('students.academic.info');
+    Route::put('/students/{student}/address-info', [StudentRecordController::class, 'updateAddressInfo'])->name('students.address.info');
+    Route::put('/students/{student}/emergency-info', [StudentRecordController::class, 'updateEmergencyInfo'])->name('students.emergency.info');
+
 
     // Teacher Management
     Route::get('/admin/teachers', [TeacherManagementController::class, 'index'])->name('admin.teachers.index');
@@ -208,15 +260,20 @@ Route::middleware(['auth'])->group(function () {
 
     // User Management
     Route::get('/admin/users', [UserInvitationController::class, 'index'])->name('admin.users.index');
-    Route::get('/admin/users/invite', [UserInvitationController::class, 'invite'])->name('admin.users.invite');
-    Route::post('/admin/users/send-invitation', [UserInvitationController::class, 'sendInvitation'])->name('admin.users.send-invitation');
     Route::get('/admin/users/data', [UserInvitationController::class, 'getAllUsers'])->name('admin.users.data');
     Route::get('/admin/users/analytics', [UserInvitationController::class, 'getAnalytics'])->name('admin.users.analytics');
-    Route::post('/admin/users/{user}/resend-invitation', [UserInvitationController::class, 'resendInvitation'])->name('admin.users.resend-invitation');
-    Route::delete('/admin/users/{user}/cancel-invitation', [UserInvitationController::class, 'cancelInvitation'])->name('admin.users.cancel-invitation');
 
-    // User Management Tabs - Roles and Permissions
+    // User Management Tabs - Roles and Permissions (must be before generic user routes)
     Route::get('/admin/users/roles', [UserInvitationController::class, 'roles'])->name('admin.users.roles')->middleware('permission:view roles');
+
+    // User CRUD operations (must be before the specific user routes)
+    Route::post('/admin/users', [UserInvitationController::class, 'store'])->name('admin.users.store')->middleware('permission:create users');
+    Route::get('/admin/users/{user}', [UserInvitationController::class, 'show'])->name('admin.users.show')->middleware('permission:view users');
+    Route::put('/admin/users/{user}', [UserInvitationController::class, 'update'])->name('admin.users.update')->middleware('permission:update users');
+    Route::delete('/admin/users/{user}', [UserInvitationController::class, 'destroy'])->name('admin.users.destroy')->middleware('permission:delete users');
+
+    // Get programs for user forms
+    Route::get('/admin/programs', [UserInvitationController::class, 'getPrograms'])->name('admin.programs');
 
     // Role Management Routes
     Route::get('/admin/roles/data', [UserInvitationController::class, 'getRolesData'])->name('admin.roles.data');
@@ -293,7 +350,7 @@ Route::middleware(['auth'])->group(function () {
 | Routes accessible only to head_teacher role
 */
 
-Route::middleware(['auth', 'role:head_teacher'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     Route::get('/head-teacher/dashboard', function () {
         return view('user-head-teacher.dashboard');
     })->name('head-teacher.dashboard');
@@ -306,7 +363,7 @@ Route::middleware(['auth', 'role:head_teacher'])->group(function () {
 | Routes accessible only to teacher role
 */
 
-Route::middleware(['auth', 'role:teacher'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     Route::get('/teacher/dashboard', [TeacherManagementController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/teacher/sections', [TeacherManagementController::class, 'getTeacherSections'])->name('teacher.sections');
     Route::get('/teacher/section/{section}', [TeacherManagementController::class, 'showSection'])->name('teacher.section.show');
@@ -319,7 +376,7 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
 | Routes for managing sections (accessible to admin and head_teacher)
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     Route::get('/sections', [SectionController::class, 'index'])->middleware(['permission:view sections'])->name('sections.index');
     Route::post('/section', [SectionController::class, 'store'])->middleware(['permission:create section'])->name('sections.store');
     Route::get('/section/{section}', [SectionController::class, 'show'])->middleware(['permission:view section'])->name('sections.show');
@@ -340,7 +397,7 @@ Route::middleware(['auth'])->group(function () {
 | Routes for managing programs (accessible to admin)
 */
 
-Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
     Route::post('/programs/{tracks}', [ProgramController::class, 'store'])
         ->middleware(['permission:create strand', 'throttle:30,1']) // 30 requests per minute
@@ -350,7 +407,9 @@ Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(fu
     Route::delete('/program/{program}', [ProgramController::class, 'destroy'])->middleware(['permission:delete strand'])->name('program.destroy');
     Route::get('/program/{program}/sections', [ProgramController::class, 'show'])->middleware(['permission:view sections'])->name('program.sections');
     Route::get('/program/{program}/subjects', [ProgramController::class, 'show'])->middleware(['permission:view subjects'])->name('program.subjects');
+    Route::get('/program/{program}/faculty', [ProgramController::class, 'show'])->middleware(['permission:view subjects'])->name('program.faculty');
     Route::get('/getPrograms', [ProgramController::class, 'getPrograms']);
+    Route::get('/getTeacchers', [ProgramController::class, 'getTeachers']);
 });
 
 /*
@@ -360,7 +419,7 @@ Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(fu
 | Routes for managing tracks (accessible to admin)
 */
 
-Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     Route::get('/tracks', [TrackController::class, 'index'])->name('tracks.index')->middleware(['permission:view track']);
     Route::post('/tracks', [TrackController::class, 'store'])
         ->middleware(['permission:create track', 'throttle:30,1']) // 30 requests per minute
@@ -378,7 +437,7 @@ Route::middleware(['auth', 'role:super_admin|registrar|head_teacher'])->group(fu
 | Routes for managing subjects (accessible to admin and head_teacher)
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     Route::get('/subjects', [SubjectController::class, 'index'])->middleware(['permission:view subjects'])->name('subjects.index');
     Route::post('/subjects', [SubjectController::class, 'store'])
         ->middleware(['permission:create subject', 'throttle:30,1']) // 30 requests per minute
@@ -401,7 +460,7 @@ Route::middleware(['auth'])->group(function () {
 | Routes for AJAX requests and API endpoints
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'pin.security'])->group(function () {
     // Section-related AJAX routes
     Route::get('/getSections/{program}', [SectionController::class, 'getSections']);
     Route::get('/getStudents/{section}', [SectionController::class, 'getStudents']);

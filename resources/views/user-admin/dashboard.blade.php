@@ -2,170 +2,328 @@
 
 @section('modal')
     {{-- academic term modal --}}
-    <x-modal modal_id="acad-term-modal" modal_name="Add new academic term" close_btn_id="at-close-btn"
+    <x-modal modal_id="acad-term-modal" modal_name="Add New Academic Term" close_btn_id="at-close-btn"
         modal_container_id="modal-container-1">
-        <form action="/academic-terms" method="POST" id="academic-term-form" class="pt-2 pb-4 px-4 space-y-2">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-calendar-day flex justify-center items-center'></i>
+        </x-slot>
+
+        <form action="/academic-terms" method="POST" id="academic-term-form" class="p-6">
             @csrf
-            <div class="flex flex-row space-x-2">
-                <div class="flex-1 space-y-1">
-                    <label for="year" class="text-[14px] font-bold opacity-90">Period</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                        <input type="text" name="year" id="year" placeholder="XXXX-XXXX"
-                            class="appearance-none     
-                        [&::-webkit-outer-spin-button]:appearance-none
-                        [&::-webkit-inner-spin-button]:appearance-none
-                        [-moz-appearance:textfield] bg-transparent outline-none font-medium text-[14px] w-full">
+            <div class="space-y-4">
+                <!-- Period and Semester Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="year" class="text-sm font-medium text-gray-700 mb-2">Academic Year</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                            </div>
+                            <input type="text" name="year" id="year" placeholder="2024-2025"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="semester" class="text-sm font-medium text-gray-700 mb-2">Semester</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-clock-five text-gray-400"></i>
+                            </div>
+                            <select name="semester" id="semester"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                                <option value="">Select Semester</option>
+                                <option value="1st Semester">1st Semester</option>
+                                <option value="2nd Semester">2nd Semester</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="flex-1 space-y-1">
-                    <label for="semester" class="text-[14px] font-bold opacity-90">Semester</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
-                        <select name="semester" id="semester" class="w-full bg-transparent text-[14px]">
-                            <option></option>
-                            <option value="1st Semester" class="text-[14px]">1st Semester</option>
-                            <option value="2nd Semester" class="text-[14px]">2nd Semester</option>
+
+                <!-- Start and End Date Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="start_date" class="text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-check text-gray-400"></i>
+                            </div>
+                            <input type="date" name="start_date" id="start_date"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="end_date" class="text-sm font-medium text-gray-700 mb-2">End Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
+                            </div>
+                            <input type="date" name="end_date" id="end_date"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Status -->
+                <div class="flex flex-col">
+                    <label for="is_active" class="text-sm font-medium text-gray-700 mb-2">Set as Active Term?</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fi fi-rr-settings text-gray-400"></i>
+                        </div>
+                        <select name="is_active" id="is_active"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                            required>
+                            <option value="">Select Status</option>
+                            <option value="1">Yes - Set as Active</option>
+                            <option value="0">No - Keep Inactive</option>
                         </select>
                     </div>
-                </div>
-            </div>
-
-            <div class="flex flex-row space-x-2">
-                <div class="flex-1 space-y-1">
-                    <label for="start_date" class="text-[14px] font-bold">Start Date</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-calendar-check flex items-center opacity-60"></i>
-                        <input type="date" name="start_date" id="start_date" placeholder="XXXX-XXXX"
-                            class="bg-transparent outline-none font-medium text-[14px] w-full text-[#0f111c]/80">
-                    </div>
-                </div>
-                <div class="flex-1 space-y-1">
-                    <label for="end_date" class="text-[14px] font-bold">End Date</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-calendar-xmark flex items-center opacity-60"></i>
-                        <input type="date" name="end_date" id="end_date" placeholder="XXXX-XXXX"
-                            class="bg-transparent outline-none font-medium text-[14px] w-full text-[#0f111c]/80">
-                    </div>
-                </div>
-            </div>
-            <div class="flex-1 space-y-1">
-                <label for="is_active" class="text-[14px] font-bold">Set as Active?</label>
-                <div
-                    class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                    <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                    <select name="is_active" id="is_active" class="w-full bg-transparent text-[14px]">
-                        <option selected disabled class="text-[14px]">Set status</option>
-                        <option value="1" class="text-[14px]">Yes</option>
-                        <option value="0" class="text-[14px]">No</option>
-                    </select>
                 </div>
             </div>
         </form>
 
         <x-slot name="modal_buttons">
             <button id="cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-            <button form="academic-term-form"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="submit" form="academic-term-form"
+                class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                Create Term
+            </button>
         </x-slot>
     </x-modal>
-    {{-- enrollment period modal --}}
-    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn"
-        modal_container_id="modal-container-2">
-        <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="pt-2 pb-4 px-4 space-y-2">
+
+    {{-- Edit academic term modal --}}
+    <x-modal modal_id="edit-acad-term-modal" modal_name="Edit Academic Term" close_btn_id="edit-at-close-btn"
+        modal_container_id="modal-container-4">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-edit flex justify-center items-center'></i>
+        </x-slot>
+
+        <form id="edit-academic-term-form" method="POST" class="p-6">
             @csrf
-            <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
-            <div class="flex flex-row space-x-2">
-                <div class="flex-1 space-y-1">
-                    <label for="name" class="text-[14px] font-bold opacity-90">Name</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-calendar-day flex items-center opacity-60"></i>
-                        <input type="text" name="name" id="name"
-                            placeholder="(Early registration, Regular, etc.)"
-                            class="appearance-none     
-                        [&::-webkit-outer-spin-button]:appearance-none
-                        [&::-webkit-inner-spin-button]:appearance-none
-                        [-moz-appearance:textfield] bg-transparent outline-none font-medium text-[14px] w-full">
+            @method('PUT')
+            <div class="space-y-4">
+                <!-- Period and Semester Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="edit_year" class="text-sm font-medium text-gray-700 mb-2">Academic Year</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                            </div>
+                            <input type="text" name="year" id="edit_year" placeholder="2024-2025"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="edit_semester" class="text-sm font-medium text-gray-700 mb-2">Semester</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-clock-five text-gray-400"></i>
+                            </div>
+                            <select name="semester" id="edit_semester"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                                <option value="">Select Semester</option>
+                                <option value="1st Semester">1st Semester</option>
+                                <option value="2nd Semester">2nd Semester</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="flex-1 space-y-1">
-                    <label for="max_applicants" class="text-[14px] font-bold opacity-90">Max Applicant</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-clock-five flex items-center opacity-60"></i>
-                        <select name="max_applicants" id="max_applicants"
-                            class="w-full bg-transparent text-[14px] opacity-80">
-                            <option disabled selected class="text-[14px] opacity-60">Set maximum number of applicant
-                            </option>
-                            <option value="20" class="text-[14px]">20 Applicants</option>
-                            <option value="40" class="text-[14px]">40 Applicants</option>
-                            <option value="60" class="text-[14px]">60 Applicants</option>
-                            <option value="80" class="text-[14px]">80 Applicants</option>
-                            <option value="100" class="text-[14px]">100 Applicants</option>
-                            <option value="150" class="text-[14px]">150 Applicants</option>
-                            <option value="200" class="text-[14px]">200 Applicants</option>
+
+                <!-- Start and End Date Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="edit_start_date" class="text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-check text-gray-400"></i>
+                            </div>
+                            <input type="date" name="start_date" id="edit_start_date"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="edit_end_date" class="text-sm font-medium text-gray-700 mb-2">End Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
+                            </div>
+                            <input type="date" name="end_date" id="edit_end_date"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Status -->
+                <div class="flex flex-col">
+                    <label for="edit_is_active" class="text-sm font-medium text-gray-700 mb-2">Set as Active Term?</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fi fi-rr-settings text-gray-400"></i>
+                        </div>
+                        <select name="is_active" id="edit_is_active"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                            required>
+                            <option value="">Select Status</option>
+                            <option value="1">Yes - Set as Active</option>
+                            <option value="0">No - Keep Inactive</option>
                         </select>
                     </div>
                 </div>
             </div>
+        </form>
 
-            <div class="flex flex-row space-x-2">
-                <div class="flex-1 space-y-1">
-                    <label for="start_date" class="text-[14px] font-bold">Application Start Date</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-calendar-check flex items-center opacity-60"></i>
-                        <input type="date" name="application_start_date" id="start_date" placeholder="XXXX-XXXX"
-                            class="bg-transparent outline-none font-medium text-[14px] w-full text-[#0f111c]/80">
+        <x-slot name="modal_buttons">
+            <button id="edit-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="submit" form="edit-academic-term-form"
+                class="self-center flex flex-row justify-center items-center bg-green-500 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-green-600 hover:scale-95 transition duration-200 shadow-green-500/20 hover:shadow-green-600/20 shadow-lg truncate">
+                Update Term
+            </button>
+        </x-slot>
+    </x-modal>
+
+    {{-- enrollment period modal --}}
+    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn"
+        modal_container_id="modal-container-2">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-user-add flex justify-center items-center'></i>
+        </x-slot>
+
+        <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="p-6">
+            @csrf
+            <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
+            <div class="space-y-4">
+                <!-- Name and Max Applicants Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="name" class="text-sm font-medium text-gray-700 mb-2">Period Name</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                            </div>
+                            <input type="text" name="name" id="name"
+                                placeholder="Early Registration, Regular, etc."
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="max_applicants" class="text-sm font-medium text-gray-700 mb-2">Max Applicants</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-users text-gray-400"></i>
+                            </div>
+                            <input type="number" name="max_applicants" id="max_applicants"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
                     </div>
                 </div>
-                <div class="flex-1 space-y-1">
-                    <label for="end_date" class="text-[14px] font-bold">Application End Date</label>
-                    <div
-                        class="flex items-center px-2 py-2 rounded-md bg-[#E3ECFF] focus-within:ring-2 focus-within:ring-[#199BCF]/40 space-x-2">
-                        <i class="fi fi-rs-calendar-xmark flex items-center opacity-60"></i>
-                        <input type="date" name="application_end_date" id="end_date" placeholder="XXXX-XXXX"
-                            class="bg-transparent outline-none font-medium text-[14px] w-full text-[#0f111c]/80">
+
+                <!-- Start and End Date Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="start_date" class="text-sm font-medium text-gray-700 mb-2">Application Start
+                            Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-check text-gray-400"></i>
+                            </div>
+                            <input type="date" name="application_start_date" id="start_date"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="end_date" class="text-sm font-medium text-gray-700 mb-2">Application End Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
+                            </div>
+                            <input type="date" name="application_end_date" id="end_date"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </form>
 
         <x-slot name="modal_buttons">
             <button id="ep-cancel-btn"
-                class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-            <button form="enrollment-period-form"
-                class="bg-[#199BCF] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="submit" form="enrollment-period-form"
+                class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                Create Period
+            </button>
         </x-slot>
     </x-modal>
     @if ($activeEnrollmentPeriod)
-        <x-modal modal_id="end-enrollment-modal" modal_name="End enrollment period confirmation"
+        <x-modal modal_id="end-enrollment-modal" modal_name="End Enrollment Period"
             close_btn_id="end-enrollment-close-btn" modal_container_id="modal-container-3">
+            <x-slot name="modal_icon">
+                <i class='fi fi-rr-exclamation flex justify-center items-center text-red-500'></i>
+            </x-slot>
+
             <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="end-enrollment-form"
-                class="pt-2 pb-4 px-4 space-y-2">
+                class="p-6">
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="status" id="ep-status" value="Closed">
-                <p class="text-[16px] font-semibold">Are you sure you want to end the enrollment period?</p>
-                <p class="text-[14px] font-medium opacity-80">Please ensure that all applications have been reviewed and
-                    there are no pending or unprocessed submissions before proceeding.</p>
-                <p class="text-[14px] font-medium opacity-80">This action may prevent further access or updates to ongoing
-                    applications.</p>
+
+                <div class="space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm End Enrollment Period</h3>
+                        <p class="text-gray-600 mb-4">Are you sure you want to end the current enrollment period?</p>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fi fi-rr-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-yellow-800">Important Notice</h4>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li>Ensure all applications have been reviewed</li>
+                                        <li>No pending or unprocessed submissions remain</li>
+                                        <li>This action will prevent further applications</li>
+                                        <li>Ongoing applications may be affected</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
 
             <x-slot name="modal_buttons">
                 <button id="end-enrollment-cancel-btn"
-                    class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">Cancel</button>
-                <button form="end-enrollment-form" id="end-enrollment-period-confirmation"
+                    class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                    Cancel
+                </button>
+                <button type="submit" form="end-enrollment-form" id="end-enrollment-period-confirmation"
                     data-id="{{ $activeEnrollmentPeriod->id }}"
-                    class="bg-[#F97316] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">Confirm</button>
+                    class="self-center flex flex-row justify-center items-center bg-red-500 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-red-600 hover:scale-95 transition duration-200 shadow-red-500/20 hover:shadow-red-600/20 shadow-lg truncate">
+                    End Period
+                </button>
             </x-slot>
         </x-modal>
     @endif
@@ -222,7 +380,7 @@
             <x-slot name="card_icon">
                 <i class="fi fi-ss-pending flex flex-row items-center text-[16px] text-[#FBBC04]"></i>
             </x-slot>
-            {{ $pending_applications }}
+            {{ $pendingApplicationsCount ?? '0' }}
         </x-total-stat-card>
         <x-total-stat-card
             card_title="Rejected Application"
@@ -241,30 +399,37 @@
 
         <div class="flex flex-row items-center justify-between space-x-2 p-6">
             <div class="flex flex-row items-center space-x-1">
+                @if(@isset($currentAcadTerm->id))
+                <button id="edit-acad-term-btn"
+                    class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 cursor-pointer"
+                    data-term-id="{{ $currentAcadTerm->id }}"
+                    data-year="{{ $currentAcadTerm->year }}"
+                    data-semester="{{ $currentAcadTerm->semester }}"
+                    data-start-date="{{ $currentAcadTerm->start_date }}"
+                    data-end-date="{{ $currentAcadTerm->end_date }}"
+                    data-is-active="{{ $currentAcadTerm->is_active }}"
+                    title="Click to edit academic term">
+
+                    @if ($currentAcadTerm->year === null)
+                        <span class="font-bold text-[18px] ">No active academic year yet.</span>
+                    @else
+                        <span class="font-bold text-[18px] ">Academic Year {{ $currentAcadTerm->year }}</span>
+                        <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
+                    @endif
+                </button>
+                @else
                 <button
                     class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150">
 
-                    @if (@isset($currentAcadTerm->year))
-                        @if ($currentAcadTerm->year === null)
-                            <span class="font-bold text-[18px] ">No active academic year yet.</span>
-                        @else
-                            <span class="font-bold text-[18px] ">Academic Year {{ $currentAcadTerm->year }}</span>
-                            <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
-                        @endif
-                    @else
-                        <span class="font-bold text-[18px] ">No academic year found, please create first.</span>
-                    @endif
-
-
-
+                    <span class="font-bold text-[18px] ">No academic year found, please create first.</span>
                 </button>
+                @endif
             </div>
             <div>
                 <button id="acad-term-btn"
-                    class="flex flex-row justify-center items-center gap-1 py-2 px-3 bg-blue-100 text-blue-500 rounded-xl font-bold hover:bg-blue-500 hover:text-white hover:ring hover:ring-blue-200 transition duration-200">
-                    <i class="fi fi-rs-plus-small flex justify-center items-center text-[20px]"></i>Add
-                    new term</button>
-
+                    class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                    <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
+                    Add new term</button>
             </div>
         </div>
     </x-header-container>
@@ -275,7 +440,7 @@
     <div class="flex flex-row space-x-4">
         <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 shadow-sm border border-[#1e1e1e]/10">
             <div class="flex flex-row items-center justify-between pb-3 border-b border-[#1e1e1e]/10">
-                <span class="font-semibold text-[18px] opacity-90">Active Enrollment Period</span>
+                <span class="font-bold text-[16px] text-gray-800">Active Enrollment Period</span>
                 @if ($activeEnrollmentPeriod)
                     @if ($activeEnrollmentPeriod->status == 'Ongoing')
                         <span id="status-span"
@@ -296,9 +461,9 @@
             @if ($activeEnrollmentPeriod)
                 <div class="flex flex-row py-4 justify-between items-center">
                     <div class="flex flex-col">
-                        <span class="font-semibold text-[16px] opacity-90">{{ $activeEnrollmentPeriod->name }}</span>
+                        <span class="font-semibold text-[14px] text-gray-700">{{ $activeEnrollmentPeriod->name }}</span>
                         <span
-                            class="font-medium text-[14px] opacity-60">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
+                            class="font-medium text-[12px] text-gray-500">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
                     </div>
                     <div>
                         @if ($activeEnrollmentPeriod)
@@ -357,10 +522,12 @@
 
                     <div class="flex flex-col justify-center items-center space-y-3">
                         <img src="{{ asset('images/empty-box.png') }}" alt="empty-box" class="size-[120px]">
-                        <span class="opacity-60">There is currently no active enrollment period</span>
+                        <span class="text-gray-500 text-[14px]">There is currently no active enrollment period</span>
                         @if ($currentAcadTerm)
                             <button id="enrollment-period-btn"
-                                class="border border-[#1A73E8] px-3 py-1 text-[#1A73E8] font-bold text-[14px] rounded-md">
+                                class="flex flex-row justify-center items-center bg-[#199BCF]/10 border border-[#199BCF]/20  text-[#199BCF] hover:text-white px-3 py-2.5 font-bold text-[14px] rounded-xl gap-2 hover:bg-[#199BCF] hover:border-[#199BCF] shadow-[#199BCF]/40 hover:shadow-xl transition duration-200">
+                                <i
+                                    class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
                                 Add Enrollment Period
                             </button>
                         @endif
@@ -375,7 +542,7 @@
                 <span id="ep-time"
                     data-end="{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->toIso8601String() }}"
                     data-status="{{ $activeEnrollmentPeriod->status }}"
-                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[14px] md:text-[15px]">Time
+                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[14px] text-gray-600 md:text-[15px]">Time
                     Remaining:
                     <span id="ep-time-value" class="opacity-100 font-bold">
                         @php
@@ -399,9 +566,9 @@
         @endif
     </div>
     {{-- Application overview --}}
-    <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 space-y-4 shadow-sm border border-[#1e1e1e]/10">
+    <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 space-y-6 shadow-sm border border-[#1e1e1e]/10">
         <div class="flex flex-row items-center justify-between">
-            <span class="font-semibold text-[18px] opacity-90">Application Overview</span>
+            <span class="font-bold text-[16px] text-gray-800">Application Overview</span>
         </div>
 
         @php
@@ -417,7 +584,7 @@
                     <span id="total-application"
                         class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
                             class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
-                    <span class="font-medium opacity-60">Total Applications</span>
+                    <span class="font-medium text-gray-600">Total Applications</span>
                 </div>
                 <div class="space-y-2">
                     <div class="w-full">
@@ -425,54 +592,43 @@
                             <div class="bg-blue-500 h-2" style="width: {{ $percent }}%"></div>
                         </div>
                     </div>
-                    <div class="text-[13px] md:text-[14px] text-center">{{ $percent }}% of max applications</div>
+                    <div class="text-[13px] md:text-[12px] text-gray-500 text-center">{{ $percent }}% of max
+                        applications</div>
                 </div>
             </div>
 
             {{-- Stat tiles --}}
             <div class="md:col-span-2 grid grid-cols-2 gap-3">
                 <div
-                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#FBBC04]/20">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#FFF4E5] border border-[#FBBC04]/60 text-[#FBBC04] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
-                            {{ $pending_applications ?? '0' }}</div>
-                        <p class="font-semibold text-[15px] md:text-[16px]">Pending</p>
-                    </div>
-                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
+                    class="flex flex-col justify-center items-center bg-yellow-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-yellow-200">
+                    <p class="font-semibold text-[14px] text-yellow-600">Pending</p>
+                    <p class="font-bold text-[28px] text-yellow-600">
+                        {{ $pendingApplicationsCount ?? '0' }}
+                    </p>
                 </div>
 
                 <div
-                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#34A853]/20">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#E6F4EA] border border-[#34A853]/60 text-[#34A853] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
-                            {{ $selected_applications ?? '0' }}</div>
-                        <p class="font-semibold text-[15px] md:text-[16px]">Selected</p>
-                    </div>
-                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
+                    class="flex flex-col justify-center items-center bg-green-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-green-200">
+                    <p class="font-semibold text-[14px] text-green-600">Accepted</p>
+                    <p class="font-bold text-[28px] text-green-600">
+                        {{ $selectedApplicationsCount ?? '0' }}
+                    </p>
                 </div>
 
                 <div
-                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#9C27B0]/20">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#F3E5F5] border border-[#9C27B0]/60 text-[#9C27B0] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
-                            0</div>
-                        <p class="font-semibold text-[15px] md:text-[16px]">Pending Docs</p>
-                    </div>
-                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
+                    class="flex flex-col justify-center items-center bg-orange-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-orange-200">
+                    <p class="font-semibold text-[14px] text-orange-500">Pending-Document</p>
+                    <p class="font-bold text-[28px] text-orange-500">
+                        {{ $pendingDocumentsApplicationsCount ?? '0' }}
+                    </p>
                 </div>
 
                 <div
-                    class="flex flex-col bg-white/70 backdrop-blur-sm gap-2 px-4 py-4 rounded-xl border border-[#1A73E8]/20">
-                    <div class="flex flex-row items-center gap-3">
-                        <div
-                            class="bg-[#E7F0FD] border border-[#1A73E8]/60 text-[#1A73E8] rounded-full text-[18px] font-bold size-10 flex items-center justify-center px-3 py-1">
-                            0</div>
-                        <p class="font-semibold text-[15px] md:text-[16px]">Enrolled</p>
-                    </div>
-                    <span class="self-start text-[13px] md:text-[14px] opacity-60"><a href="">View All</a></span>
+                    class="flex flex-col justify-center items-center bg-blue-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-blue-200">
+                    <p class="font-semibold text-[14px] text-blue-500">Enrolled</p>
+                    <p class="font-bold text-[28px] text-blue-500">
+                        {{ $enrolledApplicationsCount ?? '0' }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -504,11 +660,52 @@
     @endif
 
 
-    <div class="flex flex-row justify-center items-start gap-4">
+    <div class="flex flex-col justify-center items-start gap-4">
 
-        <div class="flex flex-col w-[70%] h-auto bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+        <div class="flex flex-row w-full h-auto gap-4">
+            <!-- Program Analytics Section -->
+            <div class="flex flex-col w-[70%] h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+                <div class="flex flex-row justify-between items-center">
+                    <h3 class="text-[16px] font-semibold text-gray-800">Enrollment Breakdown</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[12px] text-gray-500">Last updated:</span>
+                        <span id="analytics-last-updated" class="text-[12px] font-medium text-gray-600">Loading...</span>
+                    </div>
+                </div>
 
-            <span class="text-[16px] md:text-[18px] font-semibold opacity-90">Recent Applications</span>
+                <!-- Analytics Cards Container -->
+                <div id="program-analytics-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Cards will be dynamically generated here -->
+                    <div class="flex items-center justify-center p-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#199BCF]"></div>
+                        <span class="ml-2 text-gray-600">Loading analytics...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-[30%] h-full space-y-4">
+                <div
+                    class="flex-1 flex flex-col bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-sm p-6 gap-4">
+                    <span class="font-bold text-white text-[16px]">Quick Actions</span>
+                    <div class="flex flex-col justify-center items-center  gap-2 text-center">
+                        <x-nav-link href="/documents"
+                            class="w-full bg-[#33ACD6] py-2.5 text-[16px] px-4 rounded-xl font-medium text-white hover:bg-[#199BCF] hover:shadow-md transition duration-150">
+                            Setup Required Documents
+                        </x-nav-link>
+                        <x-nav-link href="/school-fees"
+                            class="w-full bg-[#33ACD6] py-2.5 text-[16px] px-4 rounded-xl font-medium text-white hover:bg-[#199BCF] hover:shadow-md transition duration-150">
+                            Setup School Fees
+                        </x-nav-link>
+                        <x-nav-link href="/tracks"
+                            class="w-full bg-[#33ACD6] py-2.5 text-[16px] px-4 rounded-xl font-medium text-white hover:bg-[#199BCF] hover:shadow-md transition duration-150">
+                            Setup Curriculum
+                        </x-nav-link>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="flex flex-col w-full h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+            <span class="text-[16px] text-gray-800 font-bold">Recent Applications</span>
 
 
             <div class="flex flex-col items-center flex-grow space-y-2">
@@ -520,19 +717,19 @@
                                 <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 truncate">
                                     <span class="mr-2 font-medium opacity-70">Applicant Id</span>
                                 </th>
-                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Full Name</span>
                                 </th>
-                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Program</span>
                                 </th>
-                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Grade Level</span>
                                 </th>
-                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Submitted at</span>
                                 </th>
-                                <th class="w-1/7 text-center bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
                                     <span class="mr-2 font-medium opacity-70">Actions</span>
                                 </th>
                             </tr>
@@ -544,51 +741,7 @@
                 </div>
             </div>
         </div>
-        <div class="w-[30%] h-full space-y-4">
-            <div class="flex-1 flex flex-col bg-[#f8f8f8] rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
-                <span class="font-semibold text-[18px]">Quick Actions</span>
-                <div class="flex flex-col justify-center items-center  gap-2 text-center">
-                    <x-nav-link href="/pending-documents"
-                        class="w-full bg-blue-500 py-2 px-4 rounded-xl font-medium text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 hover:shadow-md transition duration-150">
-                        Create Document
-                    </x-nav-link>
-                    <x-nav-link
-                        class="w-full bg-blue-500 py-2 px-4 rounded-xl font-medium text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 hover:shadow-md transition duration-150">
-                        Create Document
-                    </x-nav-link>
-                    <x-nav-link
-                        class="w-full bg-blue-500 py-2 px-4 rounded-xl font-medium text-white hover:ring hover:ring-blue-200 hover:bg-blue-400 hover:shadow-md transition duration-150">
-                        Create Document
-                    </x-nav-link>
-                </div>
-            </div>
-            <div
-                class="flex-1 flex flex-col bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-md p-6 gap-4 text-white">
-                <span class="font-semibold text-[18px]">Today's Summary</span>
-                <div class="flex flex-col gap-2">
-                    <div class="flex flex-row justify-between items-center">
-                        <span class="opacity-70">New Applications</span>
-                        <span class="font-bold">20</span>
-                    </div>
-                    <div class="flex flex-row justify-between items-center">
-                        <span class="opacity-70">Interviews Completed</span>
-                        <span class="font-bold">20</span>
-                    </div>
-                    <div class="flex flex-row justify-between items-center">
-                        <span class="opacity-70">Documents Verified</span>
-                        <span class="font-bold">20</span>
-                    </div>
-                    <div class="flex flex-row justify-between items-center">
-                        <span class="opacity-70">Enrollments Finalized</span>
-                        <span class="font-bold">20</span>
-                    </div>
 
-
-
-
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 
@@ -607,7 +760,8 @@
         let toggle = document.querySelector('#toggleEnrollmentPeriod');
 
         document.addEventListener("DOMContentLoaded", function() {
-
+            // Load program analytics
+            loadProgramAnalytics();
 
             let recentApplicationTable = initCustomDataTable(
                 'myTable',
@@ -636,10 +790,11 @@
                         data: 'id',
                         render: function(data, type, row) {
                             return `
-                                <a href='pending-application/form-details/${data}' id="open-edit-modal-btn-${data}"
+                                <a href='/applications/pending/form-details/${data}' id="open-edit-modal-btn-${data}"
                                     data-school-fee-id="${data}"
-                                    class="edit-school-fee-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold p-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                    class="edit-school-fee-btn group relative inline-flex items-center gap-1 bg-blue-100 text-blue-500 font-semibold px-3 py-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
                                     <i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i>
+                                    View
                                 </a>
                             `;
                         },
@@ -682,10 +837,44 @@
 
 
             initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn', 'modal-container-1');
+            initModal('edit-acad-term-modal', 'edit-acad-term-btn', 'edit-at-close-btn', 'edit-cancel-btn', 'modal-container-4');
             initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn',
                 'modal-container-2');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn', 'modal-container-3');
+
+            // Edit Academic Term Modal Functionality
+            const editAcadTermBtn = document.getElementById('edit-acad-term-btn');
+            if (editAcadTermBtn) {
+                editAcadTermBtn.addEventListener('click', function() {
+                    const termId = this.getAttribute('data-term-id');
+                    const year = this.getAttribute('data-year');
+                    const semester = this.getAttribute('data-semester');
+                    const startDate = this.getAttribute('data-start-date');
+                    const endDate = this.getAttribute('data-end-date');
+                    const isActive = this.getAttribute('data-is-active');
+
+                    // Populate the edit form
+                    document.getElementById('edit_year').value = year;
+                    document.getElementById('edit_semester').value = semester;
+                    document.getElementById('edit_start_date').value = startDate;
+                    document.getElementById('edit_end_date').value = endDate;
+                    document.getElementById('edit_is_active').value = isActive;
+
+                    // Update form action URL
+                    const editForm = document.getElementById('edit-academic-term-form');
+                    editForm.action = `/academic-terms/${termId}`;
+                });
+            }
+
+            // Handle edit form submission - let it submit normally
+            const editAcadTermForm = document.getElementById('edit-academic-term-form');
+            if (editAcadTermForm) {
+                editAcadTermForm.addEventListener('submit', function(e) {
+                    // Let the form submit normally - no preventDefault needed
+                    // The form action will be set when the edit button is clicked
+                });
+            }
 
             console.log(window.Echo);
 
@@ -697,42 +886,46 @@
 
                 window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (
                     event) => {
-                        console.log('New application received:', event);
-                        console.log('Total applications:', event.total_applications);
-                        console.log('Application data:', event.application);
+                    console.log('New application received:', event);
+                    console.log('Total applications:', event.total_applications);
+                    console.log('Application data:', event.application);
 
-                        // Update total applications counter
-                        if (totalApplications) {
-                            totalApplications.innerHTML = event.total_applications;
-                        }
+                    // Update total applications counter
+                    if (totalApplications) {
+                        totalApplications.innerHTML = event.total_applications;
+                    }
 
-                        // Reload the table to show new data
-                        recentApplicationTable.ajax.reload(function() {
-                            console.log('Table reloaded with new application data');
+                    // Reload the table to show new data
+                    recentApplicationTable.ajax.reload(function() {
+                        console.log('Table reloaded with new application data');
 
-                            // Highlight the first row (newest application) after reload
-                            setTimeout(() => {
-                                let firstRow = document.querySelector(
-                                    '#myTable tbody tr:first-child');
-                                if (firstRow) {
-                                    firstRow.classList.add(
-                                        'duration-300',
-                                        'ease-in-out',
-                                        'bg-[#FBBC04]/30'
-                                    );
+                        // Highlight the first row (newest application) after reload
+                        setTimeout(() => {
+                            let firstRow = document.querySelector(
+                                '#myTable tbody tr:first-child');
+                            if (firstRow) {
+                                firstRow.classList.add(
+                                    'duration-300',
+                                    'ease-in-out',
+                                    'bg-[#FBBC04]/30'
+                                );
 
-                                    // Remove highlight after 4000ms
-                                    setTimeout(() => {
-                                        firstRow.classList.remove('bg-[#FBBC04]/30');
-                                    }, 4000);
-                                }
-                            }, 500); // Small delay to ensure DOM is updated
-                        }, false); // false = don't reset paging
-                    });
+                                // Remove highlight after 4000ms
+                                setTimeout(() => {
+                                    firstRow.classList.remove('bg-[#FBBC04]/30');
+                                }, 4000);
+                            }
+                        }, 500); // Small delay to ensure DOM is updated
+                    }, false); // false = don't reset paging
+
+                    // Reload program analytics to reflect new application
+                    console.log('Refreshing program analytics...');
+                    loadProgramAnalytics();
+                });
             } else {
                 console.log(
                     'User does not have super_admin or admin role, skipping recent applications channel subscription'
-                    );
+                );
             }
 
             // if (endEnrollmentBtn) {
@@ -848,14 +1041,151 @@
             // Update countdown opacity and status dynamically on status events
             window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                 event) => {
-                    if (!epTimeSpan) return;
-                    epTimeSpan.setAttribute('data-status', event.enrollmentPeriod.status);
-                });
+                if (!epTimeSpan) return;
+                epTimeSpan.setAttribute('data-status', event.enrollmentPeriod.status);
+            });
 
 
 
 
 
         });
+
+        // Function to load program analytics
+        async function loadProgramAnalytics() {
+            try {
+                const response = await fetch('/application-analytics');
+                const result = await response.json();
+
+                if (result.success) {
+                    displayProgramAnalytics(result.data.programs);
+                    updateLastUpdatedTime();
+                } else {
+                    // Handle specific cases for better UX
+                    if (result.message && result.message.includes('No active academic term')) {
+                        displayNoActiveTermState();
+                    } else if (result.message && result.message.includes('No active enrollment period')) {
+                        displayNoActiveEnrollmentPeriodState();
+                    } else {
+                        console.error('Failed to load analytics:', result.error || result.message);
+                        displayAnalyticsError(result.error || result.message || 'Failed to load analytics');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                displayAnalyticsError('Network error occurred');
+            }
+        }
+
+        // Function to display program analytics cards
+        function displayProgramAnalytics(programs) {
+            const container = document.getElementById('program-analytics-container');
+
+            if (!programs || programs.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full flex items-center justify-center p-8 text-gray-500">
+                        <div class="text-center">
+                            <i class="fi fi-rr-document text-4xl mb-2"></i>
+                            <p class="font-medium text-gray-700">No Applications Yet</p>
+                            <p class="text-sm text-gray-500 mt-1">Applications will appear here once students start applying during the enrollment period</p>
+                        </div>
+                    </div>
+                `;
+                updateLastUpdatedTime();
+                return;
+            }
+
+            // Generate cards for each program
+            const cardsHTML = programs.map(program => {
+                // Use real grade level data from the API
+                const grade11Count = program.grade_11 || 0;
+                const grade12Count = program.grade_12 || 0;
+
+                return `
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="bg-white rounded-md px-3 py-1 border border-gray-200">
+                                <span class="text-sm font-bold text-gray-800">${program.code}</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-gray-700 bg-gray-200 rounded-lg px-3 py-1">
+                                    ${program.count}
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">Total</div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Grade 11:</span>
+                                <span class="text-sm font-medium text-gray-800">${grade11Count}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Grade 12:</span>
+                                <span class="text-sm font-medium text-gray-800">${grade12Count}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = cardsHTML;
+        }
+
+        // Function to display no active term state
+        function displayNoActiveTermState() {
+            const container = document.getElementById('program-analytics-container');
+            container.innerHTML = `
+                <div class="col-span-full flex items-center justify-center p-8 text-gray-500">
+                    <div class="text-center">
+                        <i class="fi fi-rr-calendar text-4xl mb-2"></i>
+                        <p class="font-medium text-gray-700">No Active Academic Term</p>
+                        <p class="text-sm text-gray-500 mt-1">Please set up an active academic term to view enrollment analytics</p>
+                    </div>
+                </div>
+            `;
+            // Update last updated time to show current time
+            updateLastUpdatedTime();
+        }
+
+        // Function to display no active enrollment period state
+        function displayNoActiveEnrollmentPeriodState() {
+            const container = document.getElementById('program-analytics-container');
+            container.innerHTML = `
+                <div class="col-span-full flex items-center justify-center p-8 text-gray-500">
+                    <div class="text-center">
+                        <i class="fi fi-rr-clock text-4xl mb-2"></i>
+                        <p class="font-medium text-gray-700">No Active Enrollment Period</p>
+                        <p class="text-sm text-gray-500 mt-1">Please set up an active enrollment period to view application analytics</p>
+                    </div>
+                </div>
+            `;
+            // Update last updated time to show current time
+            updateLastUpdatedTime();
+        }
+
+        // Function to display error state
+        function displayAnalyticsError(errorMessage) {
+            const container = document.getElementById('program-analytics-container');
+            container.innerHTML = `
+                <div class="col-span-full flex items-center justify-center p-8 text-red-500">
+                    <div class="text-center">
+                        <i class="fi fi-rr-exclamation text-4xl mb-2"></i>
+                        <p>Error loading analytics</p>
+                        <p class="text-sm text-gray-500 mt-1">${errorMessage}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to update last updated time
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            document.getElementById('analytics-last-updated').textContent = timeString;
+        }
     </script>
 @endpush

@@ -56,7 +56,8 @@ class StudentRecord extends Model
         'has_special_needs',
         'special_needs',
         'belongs_to_ip',
-        'is_4ps_beneficiary'
+        'is_4ps_beneficiary',
+        'academic_status'
     ];
 
     public function getFullName()

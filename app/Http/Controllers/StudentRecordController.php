@@ -10,6 +10,7 @@ use App\Models\DocumentSubmissions;
 use App\Models\Invoice;
 use App\Models\StudentRecord;
 use App\Models\Student;
+use App\Services\AcademicTermService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +22,6 @@ use Maatwebsite\Excel\Imports\HeadingRowExtractor;
 use Maatwebsite\Excel\Validators\ValidationException as ValidatorsValidationException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SchoolSetting;
-use App\Services\AcademicTermService;
 use App\Services\StudentService;
 use Carbon\Carbon;
 use App\Services\InvoiceService;
@@ -51,7 +51,20 @@ class StudentRecordController extends Controller
 
     public function exportExcel()
     {
-        return Excel::download(new StudentsExport, 'students.xlsx');
+        // Check if there's an active academic term
+        $academicTermService = app(AcademicTermService::class);
+        $currentTerm = $academicTermService->fetchCurrentAcademicTerm();
+
+        if (!$currentTerm) {
+            return redirect()->back()->with('error', 'No active academic term found. Please activate an academic term before exporting students.');
+        }
+
+        try {
+            $filename = 'officially_enrolled_students_' . $currentTerm->year . '_' . $currentTerm->semester . '.xlsx';
+            return Excel::download(new StudentsExport, $filename);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Something went wrong while exporting');
+        }
     }
 
     public function import(Request $request)
@@ -59,6 +72,14 @@ class StudentRecordController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
+
+        // Check if there's an active academic term
+        $academicTermService = app(AcademicTermService::class);
+        $currentTerm = $academicTermService->fetchCurrentAcademicTerm();
+
+        if (!$currentTerm) {
+            return response()->json(['error' => 'No active academic term found. Please activate an academic term before importing students.']);
+        }
 
         try {
             // Read just the heading row (array per sheet)
@@ -124,8 +145,6 @@ class StudentRecordController extends Controller
         }
     }
 
-
-
     /**
      * Store a newly created resource in storage.
      */
@@ -152,7 +171,7 @@ class StudentRecordController extends Controller
 
             try {
                 $invoice = $this->invoiceService->assignInvoiceAfterPromotion($student->id);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Student enrollment has been completed successfully, and the relevant school fees have been set.',
@@ -173,14 +192,13 @@ class StudentRecordController extends Controller
                     'student_id' => $student->id,
                     'error' => $e->getMessage()
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
                     'student_id' => $student->id
                 ]);
             }
-
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 422); // Unprocessable Entity
         } catch (\Exception $e) {
@@ -195,22 +213,8 @@ class StudentRecordController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StudentRecord $studentRecord)
+    public function show(Student $student)
     {
-
-        // $email = $studentRecord->student;
-
-        // $student = $studentRecord->students;
-
-        // $record = $student->record;
-
-        $student = $studentRecord->student->load('user');
-
-        // // $student = Student::find(95);
-
-        // // $s = StudentRecord::find(95);
-
-        // dd($students);
 
         $assignedDocuments = $student->assignedDocuments()
             ->with(['documents', 'submissions'])
@@ -232,7 +236,7 @@ class StudentRecordController extends Controller
         });
 
         // dd($record, $studentRecordId)
-        return view('user-admin.enrolled-students.show', compact('studentRecord', 'assignedDocuments'));
+        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments'));
     }
 
     /**
@@ -277,11 +281,186 @@ class StudentRecordController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, StudentRecord $studentRecord)
+    public function updatePersonalInfo(Request $request, Student $student) 
     {
-        //
+        try {
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'extension_name' => 'nullable|string|max:255',
+                'birthdate' => 'required|date',
+                'place_of_birth' => 'nullable|string|max:255',
+            ]);
+
+            DB::transaction(function () use ($validated, $student) {
+                // Update user information
+                $student->user->update([
+                    'first_name' => $validated['first_name'],
+                    'last_name' => $validated['last_name'],
+                ]);
+
+                // Update student record information
+                $student->record->update([
+                    'middle_name' => $validated['middle_name'],
+                    'extension_name' => $validated['extension_name'],
+                    'birthdate' => $validated['birthdate'],
+                    'place_of_birth' => $validated['place_of_birth'],
+                ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Personal information updated successfully'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to update personal information', [
+                'student_id' => $student->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating personal information'
+            ], 500);
+        }
     }
 
+    public function updateAcademicInfo(Request $request, Student $student) 
+    {
+        try {
+            $validated = $request->validate([
+                'lrn' => 'required|string|max:255',
+                'grade_level' => 'required|string|in:Grade 11,Grade 12',
+                'program_id' => 'required|exists:programs,id',
+                'section' => 'nullable|string|max:255',
+                'acad_term_applied' => 'nullable|string|max:255',
+                'semester_applied' => 'nullable|string|in:1st Semester,2nd Semester',
+            ]);
+
+            DB::transaction(function () use ($validated, $student) {
+                // Update student information
+                $student->update([
+                    'lrn' => $validated['lrn'],
+                    'grade_level' => $validated['grade_level'],
+                    'program_id' => $validated['program_id'],
+                    'section' => $validated['section'],
+                ]);
+
+                // Update student record information
+                $student->record->update([
+                    'acad_term_applied' => $validated['acad_term_applied'],
+                    'semester_applied' => $validated['semester_applied'],
+                ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Academic information updated successfully'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to update academic information', [
+                'student_id' => $student->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating academic information'
+            ], 500);
+        }
+    }
+
+    public function updateAddressInfo(Request $request, Student $student) 
+    {
+        try {
+            $validated = $request->validate([
+                'house_no' => 'nullable|string|max:255',
+                'street' => 'nullable|string|max:255',
+                'barangay' => 'required|string|max:255',
+                'city' => 'required|string|max:255',
+                'country' => 'nullable|string|max:255',
+                'zip_code' => 'nullable|string|max:255',
+            ]);
+
+            $student->record->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Address information updated successfully'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to update address information', [
+                'student_id' => $student->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating address information'
+            ], 500);
+        }
+    }
+
+    public function updateEmergencyInfo(Request $request, Student $student) 
+    {
+        try {
+            $validated = $request->validate([
+                'contact_number' => 'required|string|max:255',
+                'guardian_name' => 'required|string|max:255',
+                'guardian_contact_number' => 'required|string|max:255',
+            ]);
+
+            $student->record->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Emergency contact information updated successfully'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to update emergency contact information', [
+                'student_id' => $student->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating emergency contact information'
+            ], 500);
+        }
+    }
     /**
      * Remove the specified resource from storage.
      */

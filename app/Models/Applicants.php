@@ -14,6 +14,7 @@ class Applicants extends Model
     protected $fillable = [
         'user_id',
         'applicant_id',
+        'enrollment_period_id',
         'track_id',
         'program_id',
         'first_name',
@@ -68,7 +69,7 @@ class Applicants extends Model
         return $this->hasOne(Interview::class);
     }
 
-    public function enrollmentPeriods()
+    public function enrollmentPeriod()
     {
         return $this->belongsTo(EnrollmentPeriod::class);
     }

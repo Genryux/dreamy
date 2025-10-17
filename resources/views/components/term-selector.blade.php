@@ -12,7 +12,7 @@ $selectedTermId = request()->get('term_id', $currentTerm?->id);
     <select 
         id="term-selector" 
         name="term_id" 
-        class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="rounded-lg bg-white border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
         onchange="handleTermChange(this.value)"
     >
         @foreach($allTerms as $term)

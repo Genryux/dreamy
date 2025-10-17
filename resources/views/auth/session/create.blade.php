@@ -4,7 +4,10 @@
     <div class="relative w-screen h-screen ">
 
         <div class="absolute top-10 left-20 hidden md:flex flex-row justify-center items-center" data-aos="fade-left" data-aos-duration="1000">
-            <a href="/" class="hover:-translate-x-4 transition duration-200 flex flex-row justify-center items-center"><i class="fi fi-rr-angle-left text-gray-300 text-[32px] flex flex-row justify-center items-center"></i>Back to Homepage</a>
+            <a href="/" class="hover:-translate-x-4 text-white transition duration-200 flex flex-row justify-center items-center">
+                <i class="fi fi-rr-angle-left text-gray-300 text-[32px] flex flex-row justify-center items-center"></i>
+                Back to Homepage
+            </a>
         </div>
 
 
@@ -23,6 +26,15 @@
                     <div class="flex flex-col justify-center items-start gap-4">
 
                         <h1 class="font-bold text-[28px]" data-aos="fade-up" data-aos-duration="800">Log In</h1>
+
+                        @if (session('success'))
+                            <div class="w-full bg-green-50 border border-green-200 rounded-lg p-3 mb-4"  data-aos="fade-up" data-aos-duration="800">
+                                <div class="flex items-center">
+                                    <i class="fi fi-rr-check-circle flex justify-center items-center text-green-500 mr-2"></i>
+                                    <p class="text-green-800 text-sm font-medium">{{ session('success') }}</p>
+                                </div>
+                            </div>
+                        @endif
 
                         <p class="text-gray-400 font-medium text-[14px]" data-aos="fade-up" data-aos-duration="800">Don't have an account yet?
                             @if (Route::has('register'))

@@ -133,6 +133,55 @@
         </x-slot>
 
     </x-modal>
+
+    {{-- PIN Verification Modal for Payment Recording --}}
+    <x-modal modal_id="pin-verification-modal" modal_name="Security Verification" close_btn_id="pin-verification-modal-close-btn"
+        modal_container_id="modal-container-3">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-lock flex justify-center items-center text-blue-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Enter Security PIN</h3>
+                    <p class="text-gray-600">Please enter your 6-digit security PIN to record this payment.</p>
+                </div>
+                
+                <form id="pin-verification-form" class="w-full">
+                    @csrf
+                    <div class="flex flex-col items-center space-y-4">
+                        <div class="relative">
+                            <input type="password" 
+                                   id="payment_pin" 
+                                   name="pin" 
+                                   maxlength="6" 
+                                   pattern="[0-9]{6}"
+                                   class="w-32 text-center text-2xl font-mono tracking-widest border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                   placeholder="••••••"
+                                   autocomplete="off"
+                                   inputmode="numeric"
+                                   required>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center">
+                            Enter your 6-digit security PIN to authorize this payment
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="pin-verification-modal-cancel-btn"
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="submit" form="pin-verification-form" id="pin-verification-submit-btn"
+                class="bg-blue-600 text-[14px] px-3 py-2 rounded-md text-white font-bold hover:ring hover:ring-blue-200 hover:bg-blue-500 transition duration-150 shadow-sm">
+                Verify & Record Payment
+            </button>
+        </x-slot>
+    </x-modal>
 @endsection
 
 @section('content')
@@ -372,6 +421,11 @@
                 'record-payment-modal-cancel-btn',
                 'modal-container-1');
 
+            // Initialize PIN Verification modal
+            initModal('pin-verification-modal', null, 'pin-verification-modal-close-btn',
+                'pin-verification-modal-cancel-btn',
+                'modal-container-3');
+
             let schoolfeeTable = initCustomDataTable(
                 'invoice-items',
                 `/getInvoiceItems/${invoiceId}`,
@@ -571,6 +625,93 @@
             // Also initialize on page load (in case there's initial data)
             initializeDeleteInvoiceItemModals();
 
+            // Store payment form data for later submission
+            let pendingPaymentData = null;
+
+            // Override the payment form submission to require PIN verification
+            const paymentForm = document.getElementById('record-payment-modal-form');
+            if (paymentForm) {
+                paymentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Store the form data
+                    const formData = new FormData(this);
+                    pendingPaymentData = {
+                        amount: formData.get('amount'),
+                        payment_date: formData.get('payment_date'),
+                        method: formData.get('method'),
+                        type: formData.get('type'),
+                        reference_no: formData.get('reference_no'),
+                        payment_schedule_id: formData.get('payment_schedule_id')
+                    };
+
+                    // Close payment modal and open PIN verification
+                    closeModal('record-payment-modal', 'modal-container-1');
+                    
+                    // Open PIN verification modal
+                    const pinModal = document.querySelector('#pin-verification-modal');
+                    const pinContainer = document.querySelector('#modal-container-3');
+                    if (pinModal && pinContainer) {
+                        pinModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                        pinModal.classList.add('opacity-100', 'scale-100');
+                        pinContainer.classList.remove('opacity-0', 'pointer-events-none');
+                        pinContainer.classList.add('opacity-100');
+                    }
+
+                    // Focus on PIN input and add enhanced input handling
+                    setTimeout(() => {
+                        const pinInput = document.getElementById('payment_pin');
+                        pinInput.focus();
+                        
+                        // Only allow numeric input
+                        pinInput.addEventListener('input', function(e) {
+                            // Remove any non-numeric characters
+                            this.value = this.value.replace(/[^0-9]/g, '');
+                            
+                            // Auto-submit when 6 digits are entered
+                            if (this.value.length === 6) {
+                                setTimeout(() => {
+                                    document.getElementById('pin-verification-submit-btn').click();
+                                }, 100);
+                            }
+                        });
+                        
+                        // Prevent non-numeric key presses
+                        pinInput.addEventListener('keypress', function(e) {
+                            if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                                e.preventDefault();
+                            }
+                        });
+                    }, 300);
+                });
+            }
+
+            // Handle PIN verification form submission
+            const pinVerificationForm = document.getElementById('pin-verification-form');
+            if (pinVerificationForm) {
+                pinVerificationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (!pendingPaymentData) {
+                        showAlert('error', 'No payment data found. Please try again.');
+                        return;
+                    }
+
+                    const pin = document.getElementById('payment_pin').value;
+                    
+                    if (!pin || pin.length !== 6) {
+                        showAlert('error', 'Please enter a valid 6-digit PIN.');
+                        return;
+                    }
+
+                    // Add PIN to payment data
+                    pendingPaymentData.pin = pin;
+
+                    // Submit payment with PIN verification
+                    submitPaymentWithPin(pendingPaymentData);
+                });
+            }
+
             // Delete invoice item form submission
             const deleteInvoiceItemForm = document.getElementById('delete-invoice-item-form');
             if (deleteInvoiceItemForm) {
@@ -682,6 +823,69 @@
                 alertContainer.classList.toggle('scale-95');
                 alertContainer.classList.toggle('pointer-events-none');
                 alertContainer.classList.toggle('translate-y-5');
+            }
+
+            // Function to submit payment with PIN verification
+            function submitPaymentWithPin(paymentData) {
+                showLoader();
+
+                // Create FormData for the payment submission
+                const formData = new FormData();
+                formData.append('amount', paymentData.amount);
+                formData.append('payment_date', paymentData.payment_date);
+                formData.append('method', paymentData.method || '');
+                formData.append('type', paymentData.type || '');
+                formData.append('reference_no', paymentData.reference_no || '');
+                formData.append('payment_schedule_id', paymentData.payment_schedule_id || '');
+                formData.append('pin', paymentData.pin);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                fetch(`/invoice/${invoiceId}/payments`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.json().then(error => {
+                            throw new Error(error.message || 'Payment failed');
+                        });
+                    }
+                })
+                .then(data => {
+                    hideLoader();
+                    
+                    if (data.success) {
+                        // Close PIN verification modal
+                        closeModal('pin-verification-modal', 'modal-container-3');
+                        
+                        // Show success message
+                        showAlert('success', data.message || 'Payment recorded successfully.');
+                        
+                        // Clear PIN input
+                        document.getElementById('payment_pin').value = '';
+                        
+                        // Reset pending payment data
+                        pendingPaymentData = null;
+                        
+                        // Reload page to show updated payment information
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showAlert('error', data.message || 'Payment failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    hideLoader();
+                    console.error('Payment error:', error);
+                    showAlert('error', error.message || 'An error occurred while recording the payment.');
+                });
             }
 
         });

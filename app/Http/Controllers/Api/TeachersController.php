@@ -36,7 +36,6 @@ class TeachersController extends Controller
             'contact_number' => 'nullable|string|max:20',
             'email_address' => 'nullable|email|max:255',
             'specialization' => 'nullable|string|max:255',
-            'years_of_experience' => 'nullable|integer|min:0',
             'status' => 'nullable|string|max:50'
         ]);
 
@@ -73,7 +72,6 @@ class TeachersController extends Controller
             'contact_number' => 'nullable|string|max:20',
             'email_address' => 'nullable|email|max:255',
             'specialization' => 'nullable|string|max:255',
-            'years_of_experience' => 'nullable|integer|min:0',
             'status' => 'nullable|string|max:50'
         ]);
 

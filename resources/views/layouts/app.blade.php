@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <x-head></x-head>
 
-<body class="relative font-sans antialiased dark:bg-black dark:text-white/50">
+<body class="relative font-sans antialiased bg-[#1A3165]">
     {{-- 
         @if (Route::has('login'))
             
@@ -37,7 +37,7 @@
 
     <main class="flex flex-col justify-center items-center h-full w-full relative overflow-hidden">
         {{-- heading --}}
-        @unless (Request::is('portal/login') || Request::is('portal/register'))
+        @unless (Request::is('portal/login') || Request::is('portal/register') || Request::is('email/verify*'))
             <div class="fixed top-0 flex flex-row justify-between items-center w-full px-[120px] py-4 z-10">
                 <div>
                     <img src="{{ asset('images/Dreamy_logo.png') }}" class="size-[120px]" alt="">

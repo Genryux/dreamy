@@ -22,9 +22,10 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithSkipDuplicates;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Validators\Failure;
 
-class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithBatchInserts, WithSkipDuplicates, WithValidation
+class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithBatchInserts, WithSkipDuplicates, WithValidation, WithMapping
 {
     /**
      * @param array $row
@@ -45,6 +46,22 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         return 6;
     }
 
+    /**
+     * Map the data to ensure proper data types before validation
+     */
+    public function map($row): array
+    {
+        return [
+            'lrn' => $row['lrn'], // Keep as numeric
+            'first_name' => (string) $row['first_name'],
+            'last_name' => (string) $row['last_name'],
+            'grade_level' => (string) $row['grade_level'],
+            'program' => (string) $row['program'],
+            'contact_number' => (string) $row['contact_number'],
+            'email_address' => (string) $row['email_address'],
+        ];
+    }
+
     // validate required columns per row
     public function rules(): array
     {
@@ -53,7 +70,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
             '*.last_name'      => 'required|string',
             '*.first_name'     => 'required|string',
             '*.grade_level'    => 'required|string',
-            '*.program'        => 'required|string',
+            '*.program'        => 'nullable|string',
             '*.contact_number' => 'nullable|string',
             '*.email_address'  => 'nullable|email',
         ];
@@ -73,7 +90,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         $required_docs = Documents::all();
 
         // find program_id with program code
-        $program = Program::where('code', $row['program'])->first();
+        $program = Program::where('code', (string) $row['program'])->first();
 
         if (!$program) {
             $program = null;
@@ -88,9 +105,9 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         $user = User::firstOrCreate(
             ['email' => $row['email_address']],
             [
-                'first_name' => $row['first_name'],
-                'last_name' => $row['last_name'],
-                'email' => $row['email_address'],
+                'first_name' => (string) $row['first_name'],
+                'last_name' => (string) $row['last_name'],
+                'email' => (string) $row['email_address'],
                 'password' => $this->defaultPassword,
             ]
         );
@@ -104,7 +121,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
             [
                 'track_id'       => $track->id ?? null,
                 'program_id'     => $program->id ?? null,
-                'grade_level'    => $row['grade_level'],
+                'grade_level'    => (string) $row['grade_level'],
                 'section_id'     => null,
                 'enrollment_date' => null,
                 'status'         => 'Officially Enrolled'
@@ -121,7 +138,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
                 'place_of_birth'   => null,
                 'mother_tongue'    => null,
 
-                'contact_number'   => $row['contact_number'],
+                'contact_number'   => (string) $row['contact_number'],
                 'current_address'  => null,
                 'permanent_address' => null,
 

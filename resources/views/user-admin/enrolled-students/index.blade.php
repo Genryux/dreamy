@@ -21,10 +21,10 @@
         <form enctype="multipart/form-data" id="import-form" class="p-6">
             @csrf
             <label for="fileInput" id="fileInputLabel"
-                class="flex flex-col items-center justify-center w-full border-2 border-[#1A73E8]/60 border-dashed rounded-lg bg-[#E7F0FD] hover:bg-blue-100 cursor-pointer cursor-not-allowed select-none transition duration-150">
+                class="flex flex-col items-center justify-center w-full border-2 border-[#199BCF]/60 border-dashed rounded-lg bg-[#E7F0FD] hover:bg-blue-100 cursor-pointer cursor-not-allowed select-none transition duration-150">
 
                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg class="w-8 h-8 mb-4 text-[#1A73E8]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    <svg class="w-8 h-8 mb-4 text-[#199BCF]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                         fill="none" viewBox="0 0 20 16">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
@@ -34,11 +34,11 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400">Supported Formats: .xlsx, .xls, .csv</p>
                 </div>
                 <span
-                    class="bg-blue-500 px-4 py-2 rounded-lg text-white mb-4 hover:bg-blue-600 transition duration-200">Choose
+                    class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate mb-2">Choose
                     Files</span>
 
                 <input type="file" id="fileInput" name="file" class="hidden" accept=".xlsx,.xls,.csv" required>
-                <span id="fileName" class="text-gray-500 italic">No file chosen</span>
+                <span id="fileName" class="text-gray-500 italic my-2">No file chosen</span>
             </label>
         </form>
 
@@ -51,12 +51,12 @@
 
         <x-slot name="modal_buttons">
             <button id="cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="import-form" name="action" value="verify"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Import
             </button>
         </x-slot>
@@ -96,7 +96,8 @@
                 {{-- chart --}}
                 <div class="relative w-[180px] h-[180px] self-center">
                     <canvas id="total_chart" width="180" height="180" class="absolute inset-0"></canvas>
-                    <div id="total_chart_empty" class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
+                    <div id="total_chart_empty"
+                        class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
                         <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-3">
                             <i class="fi fi-rr-chart-simple text-gray-400 text-xl"></i>
                         </div>
@@ -123,11 +124,13 @@
                     <div class="flex flex-col" id="total-counts">
                         <div class="text-right mb-1">
                             <div id="enrolled-count" class="font-bold text-sm" style="color: #10B981">-</div>
-                            <div id="enrolled-percentage" class="font-medium text-xs" style="color: #10B981; opacity: 0.7">-</div>
+                            <div id="enrolled-percentage" class="font-medium text-xs" style="color: #10B981; opacity: 0.7">-
+                            </div>
                         </div>
                         <div class="text-right mb-1">
                             <div id="pending-count" class="font-bold text-sm" style="color: #F59E0B">-</div>
-                            <div id="pending-percentage" class="font-medium text-xs" style="color: #F59E0B; opacity: 0.7">-</div>
+                            <div id="pending-percentage" class="font-medium text-xs" style="color: #F59E0B; opacity: 0.7">-
+                            </div>
                         </div>
                         <div class="text-right">
                             <div id="total-count" class="font-bold text-sm" style="color: #6B7280">-</div>
@@ -155,7 +158,8 @@
                 {{-- chart --}}
                 <div class="relative w-[180px] h-[180px] self-center">
                     <canvas id="grade_level_chart" width="180" height="180" class="absolute inset-0"></canvas>
-                    <div id="grade_level_chart_empty" class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
+                    <div id="grade_level_chart_empty"
+                        class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
                         <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-3">
                             <i class="fi fi-rr-graduation-cap text-gray-400 text-xl"></i>
                         </div>
@@ -192,7 +196,8 @@
                 {{-- chart --}}
                 <div class="relative w-[180px] h-[180px] self-center">
                     <canvas id="program_chart" width="180" height="180" class="absolute inset-0"></canvas>
-                    <div id="program_chart_empty" class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
+                    <div id="program_chart_empty"
+                        class="absolute inset-0 flex flex-col justify-center items-center text-center opacity-0 pointer-events-none">
                         <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-3">
                             <i class="fi fi-rr-book-bookmark text-gray-400 text-xl"></i>
                         </div>
@@ -235,20 +240,23 @@
                             <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
                         </button>
                     </label>
-                    
+
                     <!-- Status Filter Buttons -->
                     <div class="flex flex-row justify-start items-center gap-2">
-                        <button id="status-all" class="status-filter-btn px-3 py-2 bg-[#199BCF] text-white rounded-lg hover:bg-[#33ACD6] transition duration-150 text-[14px] font-medium">
+                        <button id="status-all"
+                            class="status-filter-btn px-3 py-2 bg-[#199BCF] text-white rounded-lg hover:bg-[#33ACD6] transition duration-150 text-[14px] font-medium">
                             All Students
                         </button>
-                        <button id="status-enrolled" class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
+                        <button id="status-enrolled"
+                            class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
                             Enrolled
                         </button>
-                        <button id="status-pending" class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
+                        <button id="status-pending"
+                            class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
                             Pending
                         </button>
                     </div>
-                    
+
                     <div class="flex flex-row justify-end items-center w-auto gap-2">
                         <div
                             class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
@@ -270,8 +278,9 @@
                             <select name="" id="program_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
                                 <option value="" selected disabled>Program</option>
-                                @foreach($programs as $program)
-                                    <option value="{{ $program->id }}" data-id="{{ $program->id }}">{{ $program->code }}</option>
+                                @foreach ($programs as $program)
+                                    <option value="{{ $program->id }}" data-id="{{ $program->id }}">{{ $program->code }}
+                                    </option>
                                 @endforeach
                             </select>
                             <i id="clear-program-filter-btn"
@@ -316,10 +325,6 @@
                             class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
                             <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
                         </x-nav-link>
-                        <button
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                        </button>
                     </div>
 
                 </div>
@@ -397,44 +402,45 @@
         let selectedPageLength = '';
         let selectedStatusFilter = ''; // All students by default
 
+
         // Function to load enrollment statistics
         function loadEnrollmentStats() {
             const urlParams = new URLSearchParams(window.location.search);
             const termId = urlParams.get('term_id');
-            
+
             let url = '/enrollment-stats';
             if (termId) {
                 url += `?term_id=${termId}`;
             }
-            
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const enrolled = data.enrolled || 0;
                     const pending = data.pending || 0;
                     const total = data.total || 0;
-                    
+
                     // Update counts with null checks
                     const enrolledCountEl = document.getElementById('enrolled-count');
                     const pendingCountEl = document.getElementById('pending-count');
                     const totalCountEl = document.getElementById('total-count');
-                    
+
                     if (enrolledCountEl) enrolledCountEl.textContent = enrolled;
                     if (pendingCountEl) pendingCountEl.textContent = pending;
                     if (totalCountEl) totalCountEl.textContent = total;
-                    
+
                     // Update percentages with null checks
                     const enrolledPercentageEl = document.getElementById('enrolled-percentage');
                     const pendingPercentageEl = document.getElementById('pending-percentage');
-                    
+
                     if (enrolledPercentageEl || pendingPercentageEl) {
                         const enrolledPercentage = total > 0 ? ((enrolled / total) * 100).toFixed(1) : 0;
                         const pendingPercentage = total > 0 ? ((pending / total) * 100).toFixed(1) : 0;
-                        
+
                         if (enrolledPercentageEl) enrolledPercentageEl.textContent = `${enrolledPercentage}%`;
                         if (pendingPercentageEl) pendingPercentageEl.textContent = `${pendingPercentage}%`;
                     }
-                    
+
                     // Update the chart and legend
                     updateEnrollmentChart(enrolled, pending);
                 })
@@ -447,12 +453,12 @@
         function loadEnrollmentAnalytics() {
             const urlParams = new URLSearchParams(window.location.search);
             const termId = urlParams.get('term_id');
-            
+
             let url = '/enrollment-analytics';
             if (termId) {
                 url += `?term_id=${termId}`;
             }
-            
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -460,7 +466,15 @@
                         updateProgramChart(data.data.programs);
                         updateGradeLevelChart(data.data.grade_levels);
                     } else {
-                        console.error('Error loading analytics:', data.message);
+                        // Handle no academic term gracefully - show empty states
+                        if (data.message && data.message.includes('No academic term found')) {
+                            // Show empty states for all charts when no academic term is found
+                            updateProgramChart([]);
+                            updateGradeLevelChart([]);
+                        } else {
+                            // Only log actual errors, not expected states
+                            console.error('Error loading analytics:', data.message);
+                        }
                     }
                 })
                 .catch(error => {
@@ -472,7 +486,7 @@
         function updateEnrollmentChart(enrolled, pending) {
             const total = enrolled + pending;
             const emptyState = document.getElementById('total_chart_empty');
-            
+
             if (typeof window.totalChart !== 'undefined' && window.totalChart) {
                 if (total === 0) {
                     // Show empty state
@@ -490,7 +504,7 @@
                     window.totalChart.data.datasets[0].data = [enrolled, pending];
                 }
                 window.totalChart.update('active'); // Use 'active' animation for smooth transitions
-                
+
                 // Update the total legend
                 updateTotalLegend(enrolled, pending, total);
             }
@@ -500,7 +514,7 @@
         function updateTotalLegend(enrolled, pending, total) {
             const labelsDiv = document.getElementById('total-labels');
             const countsDiv = document.getElementById('total-counts');
-            
+
             if (labelsDiv && countsDiv) {
                 if (total === 0) {
                     // Show empty state
@@ -522,10 +536,10 @@
                             <span class="font-medium text-gray-700 text-sm">Total</span>
                         </div>
                     `;
-                    
+
                     const enrolledPercentage = total > 0 ? ((enrolled / total) * 100).toFixed(1) : 0;
                     const pendingPercentage = total > 0 ? ((pending / total) * 100).toFixed(1) : 0;
-                    
+
                     countsDiv.innerHTML = `
                         <div class="text-right mb-1">
                             <div class="font-bold text-sm" style="color: #10B981">${enrolled}</div>
@@ -546,7 +560,7 @@
         // Function to update program chart with dynamic data
         function updateProgramChart(programData) {
             const emptyState = document.getElementById('program_chart_empty');
-            
+
             if (typeof window.programChart !== 'undefined' && window.programChart) {
                 if (!programData || programData.length === 0 || programData.every(item => item.count === 0)) {
                     // Show empty state
@@ -563,19 +577,19 @@
                         emptyState.classList.add('opacity-0', 'pointer-events-none');
                         emptyState.classList.remove('opacity-100');
                     }
-                    
+
                     const labels = programData.map(item => item.code);
                     const data = programData.map(item => item.count);
-                    
+
                     // Generate colors dynamically
                     const colors = generateColors(programData.length);
-                    
+
                     window.programChart.data.labels = labels;
                     window.programChart.data.datasets[0].data = data;
                     window.programChart.data.datasets[0].backgroundColor = colors;
                 }
                 window.programChart.update('active');
-                
+
                 // Update the program legend
                 updateProgramLegend(programData);
             }
@@ -584,7 +598,7 @@
         // Function to update grade level chart with dynamic data
         function updateGradeLevelChart(gradeData) {
             const emptyState = document.getElementById('grade_level_chart_empty');
-            
+
             if (typeof window.gradeLevelChart !== 'undefined' && window.gradeLevelChart) {
                 if (!gradeData || gradeData.length === 0 || gradeData.every(item => item.count === 0)) {
                     // Show empty state
@@ -601,19 +615,19 @@
                         emptyState.classList.add('opacity-0', 'pointer-events-none');
                         emptyState.classList.remove('opacity-100');
                     }
-                    
+
                     const labels = gradeData.map(item => item.grade_level);
                     const data = gradeData.map(item => item.count);
-                    
+
                     // Generate colors dynamically
                     const colors = generateColors(gradeData.length);
-                    
+
                     window.gradeLevelChart.data.labels = labels;
                     window.gradeLevelChart.data.datasets[0].data = data;
                     window.gradeLevelChart.data.datasets[0].backgroundColor = colors;
                 }
                 window.gradeLevelChart.update('active');
-                
+
                 // Update the grade level legend
                 updateGradeLevelLegend(gradeData);
             }
@@ -632,14 +646,14 @@
                 '#84CC16', // Lime
                 '#F97316', // Orange
                 '#EC4899', // Pink
-                '#6B7280'  // Gray
+                '#6B7280' // Gray
             ];
             const colors = [];
-            
+
             for (let i = 0; i < count; i++) {
                 colors.push(baseColors[i % baseColors.length]);
             }
-            
+
             return colors;
         }
 
@@ -647,34 +661,34 @@
         function updateProgramLegend(programData) {
             const labelsDiv = document.getElementById('program-labels');
             const countsDiv = document.getElementById('program-counts');
-            
+
             if (labelsDiv && countsDiv && programData && programData.length > 0) {
                 const total = programData.reduce((sum, item) => sum + (item.count || 0), 0);
                 const colors = generateColors(programData.length);
-                
+
                 // Use compact layout for programs (many items)
                 if (programData.length > 3) {
                     labelsDiv.innerHTML = `
                         <div class="grid grid-cols-2 gap-1">
                             ${programData.map((item, index) => `
-                                <div class="flex items-center gap-1">
-                                    <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
-                                    <span class="font-medium text-gray-700 text-xs">${item.code || 'Unknown'}</span>
-                                </div>
-                            `).join('')}
+                                            <div class="flex items-center gap-1">
+                                                <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
+                                                <span class="font-medium text-gray-700 text-xs">${item.code || 'Unknown'}</span>
+                                            </div>
+                                        `).join('')}
                         </div>
                     `;
-                    
+
                     countsDiv.innerHTML = `
                         <div class="grid grid-cols-2 gap-1">
                             ${programData.map((item, index) => {
                                 const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
                                 return `
-                                    <div class="text-right">
-                                        <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
-                                        <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
-                                    </div>
-                                `;
+                                                <div class="text-right">
+                                                    <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
+                                                    <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                                                </div>
+                                            `;
                             }).join('')}
                         </div>
                     `;
@@ -689,7 +703,7 @@
                             </div>
                         `;
                     }).join('');
-                    
+
                     countsDiv.innerHTML = programData.map((item, index) => {
                         const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
                         return `
@@ -700,7 +714,7 @@
                         `;
                     }).join('');
                 }
-                
+
             } else if (labelsDiv && countsDiv) {
                 // Show empty state
                 labelsDiv.innerHTML = '<span class="font-regular text-gray-400 text-sm">No data</span>';
@@ -712,34 +726,34 @@
         function updateGradeLevelLegend(gradeData) {
             const labelsDiv = document.getElementById('grade-level-labels');
             const countsDiv = document.getElementById('grade-level-counts');
-            
+
             if (labelsDiv && countsDiv && gradeData && gradeData.length > 0) {
                 const total = gradeData.reduce((sum, item) => sum + (item.count || 0), 0);
                 const colors = generateColors(gradeData.length);
-                
+
                 // Use compact layout for grade levels (many items)
                 if (gradeData.length > 4) {
                     labelsDiv.innerHTML = `
                         <div class="grid grid-cols-2 gap-1">
                             ${gradeData.map((item, index) => `
-                                <div class="flex items-center gap-1">
-                                    <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
-                                    <span class="font-medium text-gray-700 text-xs">${item.grade_level || 'Unknown'}</span>
-                                </div>
-                            `).join('')}
+                                            <div class="flex items-center gap-1">
+                                                <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
+                                                <span class="font-medium text-gray-700 text-xs">${item.grade_level || 'Unknown'}</span>
+                                            </div>
+                                        `).join('')}
                         </div>
                     `;
-                    
+
                     countsDiv.innerHTML = `
                         <div class="grid grid-cols-2 gap-1">
                             ${gradeData.map((item, index) => {
                                 const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
                                 return `
-                                    <div class="text-right">
-                                        <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
-                                        <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
-                                    </div>
-                                `;
+                                                <div class="text-right">
+                                                    <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
+                                                    <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                                                </div>
+                                            `;
                             }).join('')}
                         </div>
                     `;
@@ -754,7 +768,7 @@
                             </div>
                         `;
                     }).join('');
-                    
+
                     countsDiv.innerHTML = gradeData.map((item, index) => {
                         const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
                         return `
@@ -765,7 +779,7 @@
                         `;
                     }).join('');
                 }
-                
+
             } else if (labelsDiv && countsDiv) {
                 // Show empty state
                 labelsDiv.innerHTML = '<span class="font-regular text-gray-400 text-sm">No data</span>';
@@ -779,17 +793,17 @@
             const totalEmptyState = document.getElementById('total_chart_empty');
             const gradeLevelEmptyState = document.getElementById('grade_level_chart_empty');
             const programEmptyState = document.getElementById('program_chart_empty');
-            
+
             if (totalEmptyState) {
                 totalEmptyState.classList.add('opacity-100');
                 totalEmptyState.classList.remove('opacity-0', 'pointer-events-none');
             }
-            
+
             if (gradeLevelEmptyState) {
                 gradeLevelEmptyState.classList.add('opacity-100');
                 gradeLevelEmptyState.classList.remove('opacity-0', 'pointer-events-none');
             }
-            
+
             if (programEmptyState) {
                 programEmptyState.classList.add('opacity-100');
                 programEmptyState.classList.remove('opacity-0', 'pointer-events-none');
@@ -797,6 +811,20 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+
+
+            @if ($errors->any())
+                showAlert('error', '{{ $errors->first() }}');
+            @endif
+
+            @if (session('error'))
+                showAlert('error', '{{ session('error') }}');
+            @endif
+
+            @if (session('success'))
+                showAlert('success', '{{ session('success') }}');
+            @endif
+
 
             initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
                 'modal-container-1');
@@ -813,7 +841,7 @@
 
             // Initialize empty states
             initializeEmptyStates();
-            
+
             // Load initial enrollment statistics
             loadEnrollmentStats();
 
@@ -829,14 +857,14 @@
                         d.grade_filter = selectedGrade;
                         d.program_filter = selectedProgram;
                         d.pageLength = selectedPageLength;
-                        
+
                         // Pass term_id from URL parameter
                         const urlParams = new URLSearchParams(window.location.search);
                         const termId = urlParams.get('term_id');
                         if (termId) {
                             d.term_id = termId;
                         }
-                        
+
                         // Pass status filter
                         if (selectedStatusFilter) {
                             d.status_filter = selectedStatusFilter;
@@ -917,9 +945,14 @@
                         data: 'status',
                         render: function(data, type, row) {
                             if (row.status_raw === 'enrolled') {
-                                return `<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">${data}</span>`;
+                                return `<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                    ${data}</span>`;
+                            } else if(row.status_raw === 'pending_confirmation') {
+                                return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                    ${data}</span>`;
                             } else {
-                                return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">${data}</span>`;
+                                return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                    ${data}</span>`;
                             }
                         },
                         orderable: false
@@ -975,7 +1008,7 @@
                     );
 
                 });
-                
+
                 // Refresh stats and charts after table renders for real-time feel
                 loadEnrollmentStats();
                 loadEnrollmentAnalytics();
@@ -997,14 +1030,16 @@
                 button.addEventListener('click', function() {
                     // Remove active class from all buttons
                     document.querySelectorAll('.status-filter-btn').forEach(btn => {
-                        btn.classList.remove('bg-[#199BCF]', 'text-white', 'hover:bg-[#33ACD6]');
-                        btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                        btn.classList.remove('bg-[#199BCF]', 'text-white',
+                            'hover:bg-[#33ACD6]');
+                        btn.classList.add('bg-gray-200', 'text-gray-700',
+                            'hover:bg-gray-300');
                     });
-                    
+
                     // Add active class to clicked button
                     this.classList.remove('bg-gray-200', 'text-gray-700');
                     this.classList.add('bg-[#199BCF]', 'text-white', 'hover:bg-[#33ACD6]');
-                    
+
                     // Set filter value
                     if (this.id === 'status-all') {
                         selectedStatusFilter = '';
@@ -1013,7 +1048,7 @@
                     } else if (this.id === 'status-pending') {
                         selectedStatusFilter = 'pending_confirmation';
                     }
-                    
+
                     // Reload table
                     table1.ajax.reload();
                 });
@@ -1049,7 +1084,7 @@
                     clearProgramFilterBtn.classList.add(...clearProgramFilterAdd);
                     programSelection.classList.remove(...programSelectionRem);
                     programSelection.classList.add(...programSelectionAdd);
-                    
+
                     // Update the program container styling
                     let programContainer = clearProgramFilterBtn.closest('.flex');
                     programContainer.classList.remove(...programContainerRem);
@@ -1098,13 +1133,15 @@
                 clearProgramFilterBtn.addEventListener('click', () => {
                     // Reset program filter UI
                     let programContainer = clearProgramFilterBtn.closest('.flex');
-                    
-                    programContainer.classList.remove('bg-gray-200', 'border-gray-300', 'hover:bg-gray-300');
+
+                    programContainer.classList.remove('bg-gray-200', 'border-gray-300',
+                        'hover:bg-gray-300');
                     programContainer.classList.add('bg-gray-100');
-                    
-                    clearProgramFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer', 'text-gray-600');
+
+                    clearProgramFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer',
+                        'text-gray-600');
                     clearProgramFilterBtn.classList.add('fi-rr-caret-down', 'text-gray-500');
-                    
+
                     programSelection.classList.remove('text-gray-600');
                     programSelection.classList.add('text-gray-700');
 
@@ -1120,10 +1157,11 @@
                     // Reset grade filter UI with neutral colors
                     gradeContainer.classList.remove('bg-gray-200', 'border-gray-300', 'hover:bg-gray-300');
                     gradeContainer.classList.add('bg-gray-100');
-                    
-                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer', 'text-gray-600');
+
+                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer',
+                        'text-gray-600');
                     clearGradeFilterBtn.classList.add('fi-rr-caret-down', 'text-gray-500');
-                    
+
                     gradeSelection.classList.remove('text-gray-600');
                     gradeSelection.classList.add('text-gray-700');
 
@@ -1179,7 +1217,7 @@
 
                             showAlert('success', data.success);
                             table1.draw();
-                            
+
                             // Refresh stats and charts after successful import for real-time feel
                             setTimeout(() => {
                                 loadEnrollmentStats();
@@ -1316,7 +1354,9 @@
                     datasets: [{
                         label: 'Students',
                         data: [0, 0], // Will be updated by loadEnrollmentStats()
-                        backgroundColor: ['#10B981', '#F59E0B'], // Green for enrolled, yellow for pending
+                        backgroundColor: ['#10B981',
+                            '#F59E0B'
+                        ], // Green for enrolled, yellow for pending
                         borderWidth: 3,
                         borderColor: '#ffffff',
                         hoverBorderWidth: 4,
@@ -1344,7 +1384,8 @@
                                     const label = context.label || '';
                                     const value = context.parsed;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) :
+                                        0;
                                     return `${label}: ${value} students (${percentage}%)`;
                                 }
                             }

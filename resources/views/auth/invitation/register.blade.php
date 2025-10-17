@@ -18,14 +18,14 @@
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
 </head>
-<body class="font-sans antialiased bg-gray-50">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-50">
+<body class="font-sans antialiased">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-[#1A3165]">
         <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
             <!-- Header -->
             <div class="text-center mb-6">
                 <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                     @if($role === 'teacher')
-                        <i class="fi fi-rr-chalkboard-teacher text-2xl text-blue-600"></i>
+                        <i class="fi fi-rr-chalkboard-user flex justify-center items-center text-2xl text-blue-600"></i>
                     @elseif($role === 'head_teacher')
                         <i class="fi fi-rr-user-tie text-2xl text-blue-600"></i>
                     @else
@@ -62,7 +62,7 @@
                         Password
                     </label>
                     <input id="password" type="password" name="password" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                     @error('password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -75,7 +75,7 @@
                         Confirm Password
                     </label>
                     <input id="password_confirmation" type="password" name="password_confirmation" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                 </div>
 
                 <!-- Terms and Conditions -->
@@ -97,8 +97,7 @@
                 <!-- Submit Button -->
                 <div class="pt-4">
                     <button type="submit"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
-                        <i class="fi fi-rr-check mr-2"></i>
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-xl text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
                         Complete Registration
                     </button>
                 </div>

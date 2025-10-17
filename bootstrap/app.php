@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'student.only' => \App\Http\Middleware\StudentOnlyMiddleware::class,
+            'pin.security' => \App\Http\Middleware\CheckPinSecurity::class,
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
 
             // ✅ Register Spatie middleware
             'role'               => RoleMiddleware::class,

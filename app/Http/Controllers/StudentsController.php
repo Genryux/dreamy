@@ -405,10 +405,10 @@ class StudentsController extends Controller
                     'program' => $student->program->code ?? '-',
                     'contact' => $student->record?->contact_number ?? '-',
                     'email' => $student->user->email ?? '-',
-                    'status' => $enrollment->status === 'enrolled' ? 'Enrolled' : 'Pending Confirmation',
+                    'status' => $enrollment->status,
                     'status_raw' => $enrollment->status,
                     'confirmed_at' => $enrollment->confirmed_at ? $enrollment->confirmed_at->format('M j, Y') : null,
-                    'id' => $student->record?->id ?? $student->id,
+                    'id' => $student->id,
                 ];
             });
 
@@ -421,9 +421,9 @@ class StudentsController extends Controller
     }
 
     /**
-     * Get enrollment analytics data for charts
+     * Get application analytics data for dashboard
      */
-    public function getEnrollmentAnalytics(Request $request)
+    public function getApplicationAnalytics(Request $request)
     {
         try {
             // Get selected term from URL parameter or default to active term
@@ -435,15 +435,27 @@ class StudentsController extends Controller
             if (!$selectedTerm) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No active academic term found'
+                    'message' => 'No academic term found'
                 ]);
             }
 
-            // Get program analytics
-            $programAnalytics = $this->getProgramAnalytics($selectedTerm->id);
-            
-            // Get grade level analytics
-            $gradeLevelAnalytics = $this->getGradeLevelAnalytics($selectedTerm->id);
+            // Get active enrollment period for the selected term
+            $activeEnrollmentPeriod = \App\Services\EnrollmentPeriodService::class;
+            $enrollmentPeriodService = app($activeEnrollmentPeriod);
+            $enrollmentPeriod = $enrollmentPeriodService->getActiveEnrollmentPeriod($selectedTerm->id);
+
+            if (!$enrollmentPeriod) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No active enrollment period found for the selected academic term'
+                ]);
+            }
+
+            // Get program analytics for applications in the active enrollment period
+            $programAnalytics = $this->getProgramAnalytics($enrollmentPeriod->id);
+
+            // Get grade level analytics for applications in the active enrollment period
+            $gradeLevelAnalytics = $this->getGradeLevelAnalytics($enrollmentPeriod->id);
 
             return response()->json([
                 'success' => true,
@@ -452,7 +464,47 @@ class StudentsController extends Controller
                     'grade_levels' => $gradeLevelAnalytics
                 ]
             ]);
+        } catch (\Throwable $th) {
+            \Log::error('Application analytics error: ' . $th->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $th->getMessage()
+            ]);
+        }
+    }
 
+    /**
+     * Get enrollment analytics data for charts
+     */
+    public function getEnrollmentAnalytics(Request $request)
+    {
+        try {
+            // Get selected term from URL parameter or default to active term (same logic as getEnrollmentStats)
+            $termId = $request->get('term_id');
+            $selectedTerm = $termId
+                ? AcademicTerms::find($termId)
+                : AcademicTerms::where('is_active', true)->first();
+
+            if (!$selectedTerm) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No academic term found'
+                ]);
+            }
+
+            // Get program analytics for enrolled students in the selected academic term
+            $programAnalytics = $this->getEnrolledProgramAnalytics($selectedTerm->id);
+
+            // Get grade level analytics for enrolled students in the selected academic term
+            $gradeLevelAnalytics = $this->getEnrolledGradeLevelAnalytics($selectedTerm->id);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'programs' => $programAnalytics,
+                    'grade_levels' => $gradeLevelAnalytics
+                ]
+            ]);
         } catch (\Throwable $th) {
             \Log::error('Enrollment analytics error: ' . $th->getMessage());
             return response()->json([
@@ -463,68 +515,128 @@ class StudentsController extends Controller
     }
 
     /**
-     * Get program-wise enrollment analytics
+     * Get program analytics for enrolled students
      */
-    private function getProgramAnalytics($termId)
+    private function getEnrolledProgramAnalytics($academicTermId)
     {
-        if (config('app.use_term_enrollments')) {
-            // Use new enrollment system
-            $programData = StudentEnrollment::where('academic_term_id', $termId)
-                ->where('student_enrollments.status', 'enrolled')
-                ->join('students', 'student_enrollments.student_id', '=', 'students.id')
-                ->join('programs', 'students.program_id', '=', 'programs.id')
-                ->select('programs.code as program_code', 'programs.name as program_name')
-                ->selectRaw('COUNT(*) as student_count')
-                ->groupBy('programs.id', 'programs.code', 'programs.name')
-                ->orderBy('student_count', 'desc')
-                ->get();
-        } else {
-            // Use legacy system
-            $programData = Student::join('programs', 'students.program_id', '=', 'programs.id')
-                ->select('programs.code as program_code', 'programs.name as program_name')
-                ->selectRaw('COUNT(*) as student_count')
-                ->groupBy('programs.id', 'programs.code', 'programs.name')
-                ->orderBy('student_count', 'desc')
-                ->get();
-        }
+        // Count enrolled students by program for the current academic term
+        $programData = \App\Models\StudentEnrollment::join('students', 'student_enrollments.student_id', '=', 'students.id')
+            ->join('programs', 'students.program_id', '=', 'programs.id')
+            ->where('student_enrollments.academic_term_id', $academicTermId)
+            ->select('programs.id as program_id', 'programs.code as program_code', 'programs.name as program_name')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('programs.id', 'programs.code', 'programs.name')
+            ->orderBy('count', 'desc')
+            ->get();
 
         return $programData->map(function ($item) {
             return [
+                'id' => $item->program_id,
                 'code' => $item->program_code,
                 'name' => $item->program_name,
-                'count' => $item->student_count
+                'count' => $item->count
             ];
         });
     }
 
     /**
-     * Get grade level-wise enrollment analytics
+     * Get grade level analytics for enrolled students
      */
-    private function getGradeLevelAnalytics($termId)
+    private function getEnrolledGradeLevelAnalytics($academicTermId)
     {
-        if (config('app.use_term_enrollments')) {
-            // Use new enrollment system
-            $gradeData = StudentEnrollment::where('academic_term_id', $termId)
-                ->where('student_enrollments.status', 'enrolled')
-                ->join('students', 'student_enrollments.student_id', '=', 'students.id')
-                ->select('students.grade_level')
-                ->selectRaw('COUNT(*) as student_count')
-                ->groupBy('students.grade_level')
-                ->orderBy('students.grade_level')
-                ->get();
-        } else {
-            // Use legacy system
-            $gradeData = Student::select('grade_level')
-                ->selectRaw('COUNT(*) as student_count')
-                ->groupBy('grade_level')
-                ->orderBy('grade_level')
-                ->get();
-        }
+        // Count enrolled students by grade level for the current academic term
+        $gradeData = \App\Models\StudentEnrollment::join('students', 'student_enrollments.student_id', '=', 'students.id')
+            ->where('student_enrollments.academic_term_id', $academicTermId)
+            ->select('students.grade_level')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('students.grade_level')
+            ->orderBy('students.grade_level')
+            ->get();
 
         return $gradeData->map(function ($item) {
             return [
                 'grade_level' => $item->grade_level,
-                'count' => $item->student_count
+                'count' => $item->count
+            ];
+        });
+    }
+
+    /**
+     * Get program-wise applicant analytics with grade level breakdown
+     */
+    private function getProgramAnalytics($enrollmentPeriodId)
+    {
+        // Count applicants by program filtered by enrollment period
+        $programData = Applicants::join('programs', 'applicants.program_id', '=', 'programs.id')
+            ->where('applicants.enrollment_period_id', $enrollmentPeriodId)
+            ->select('programs.id as program_id', 'programs.code as program_code', 'programs.name as program_name')
+            ->selectRaw('COUNT(*) as applicant_count')
+            ->groupBy('programs.id', 'programs.code', 'programs.name')
+            ->orderBy('applicant_count', 'desc')
+            ->get();
+
+        return $programData->map(function ($item) use ($enrollmentPeriodId) {
+            // Get grade level breakdown for each program
+            $gradeBreakdown = $this->getProgramGradeBreakdown($item->program_id, $enrollmentPeriodId);
+
+            return [
+                'id' => $item->program_id,
+                'code' => $item->program_code,
+                'name' => $item->program_name,
+                'count' => $item->applicant_count,
+                'grade_11' => $gradeBreakdown['grade_11'],
+                'grade_12' => $gradeBreakdown['grade_12']
+            ];
+        });
+    }
+
+    /**
+     * Get grade level breakdown for a specific program (applicants)
+     */
+    private function getProgramGradeBreakdown($programId, $enrollmentPeriodId)
+    {
+        // Count applicants by grade level for the specific program and enrollment period
+        // Join with application_forms to get grade_level
+        $gradeData = Applicants::where('applicants.program_id', $programId)
+            ->where('applicants.enrollment_period_id', $enrollmentPeriodId)
+            ->join('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
+            ->select('application_forms.grade_level')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('application_forms.grade_level')
+            ->get();
+
+        $breakdown = ['grade_11' => 0, 'grade_12' => 0];
+
+        foreach ($gradeData as $grade) {
+            if ($grade->grade_level === 'Grade 11') {
+                $breakdown['grade_11'] = $grade->count;
+            } elseif ($grade->grade_level === 'Grade 12') {
+                $breakdown['grade_12'] = $grade->count;
+            }
+        }
+
+        return $breakdown;
+    }
+
+    /**
+     * Get grade level-wise applicant analytics
+     */
+    private function getGradeLevelAnalytics($enrollmentPeriodId)
+    {
+        // Count applicants by grade level filtered by enrollment period
+        // Join with application_forms to get grade_level
+        $gradeData = Applicants::where('applicants.enrollment_period_id', $enrollmentPeriodId)
+            ->join('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
+            ->select('application_forms.grade_level')
+            ->selectRaw('COUNT(*) as applicant_count')
+            ->groupBy('application_forms.grade_level')
+            ->orderBy('application_forms.grade_level')
+            ->get();
+
+        return $gradeData->map(function ($item) {
+            return [
+                'grade_level' => $item->grade_level,
+                'count' => $item->applicant_count
             ];
         });
     }
@@ -532,7 +644,7 @@ class StudentsController extends Controller
     /**
      * Promote applicant to become an officially enrolled student
      */
-    public function promoteApplicant(Request $request, Applicants $applicants)
+    public function promoteApplicant(Request $request)
     {
 
         $request->validate([
@@ -545,5 +657,91 @@ class StudentsController extends Controller
         };
 
         return redirect()->back();
+    }
+
+    public function evaluateStudent(Request $request)
+    {
+        $validated = $request->validate([
+            'result' => 'required|in:Passed,Failed,Incomplete'
+        ]);
+
+        $student = Student::find($request->id);
+
+        try {
+            // Update the student record's academic status
+            $student->update([
+                'academic_status' => $validated['result']
+            ]);
+
+            return redirect()->back()->with('success', 'Successfully evaluated student');
+        } catch (\Throwable $th) {
+            return redirect()->back()->withErrors(['error' => "Failed to evaluate student: {$th->getMessage()}"]);
+        }
+    }
+
+    public function promoteStudent(Request $request)
+    {
+        $validated = $request->validate([
+            'action' => 'required|in:promote-to-next-year,mark-as-graduate'
+        ]);
+
+        $student = Student::find($request->id);
+
+        try {
+
+            if ($validated['action'] === 'promote-to-next-year') {
+                if ($student->academic_status === 'Failed') {
+                    return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
+                }
+
+                $student->update([
+                    'grade_level' => 'Grade 12'
+                ]);
+                return redirect()->back()->with('success', 'Successfully promoted student');
+            } else if ($validated['action'] === 'mark-as-graduate') {
+
+                if ($student->academic_status === 'Failed') {
+                    return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
+                }
+
+                DB::transaction(function () use ($student) {
+                    $student->update([
+                        'status' => 'Graduated'
+                    ]);
+
+                    $student->enrollments()->update([
+                        'status' => 'Graduated'
+                    ]);
+                });
+
+                return redirect()->back()->with('success', 'Successfully mark student as graduated');
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->withErrors(['error' => "Failed to promote student: {$th->getMessage()}"]);
+        }
+    }
+
+    public function withdrawStudent(Request $request)
+    {
+
+        $student = Student::find($request->id);
+
+        try {
+
+            DB::transaction(function () use ($student) {
+                $student->update([
+                    'status' => 'Dropped'
+                ]);
+
+                $student->enrollments()->update([
+                    'status' => 'Dropped'
+                ]);
+            });
+
+            return redirect()->back()->with('success', 'Successfully dropped the student');
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->withErrors(['error' => "Failed to drop student: {$th->getMessage()}"]);
+        }
     }
 }

@@ -11,7 +11,24 @@ class SchoolSettingController extends Controller
     {
         $setting = SchoolSetting::query()->first();
         if (! $setting) {
-            $setting = new SchoolSetting();
+            // Create a new setting with default values
+            $setting = new SchoolSetting([
+                'name' => 'Dreamy School Philippines',
+                'short_name' => null,
+                'address_line1' => null,
+                'address_line2' => null,
+                'city' => null,
+                'province' => null,
+                'country' => null,
+                'zip' => null,
+                'phone' => null,
+                'email' => null,
+                'website' => null,
+                'down_payment' => null,
+                'due_day_of_month' => 10, // Default to 10th of the month
+                'use_last_day_if_shorter' => true,
+                'logo_path' => null,
+            ]);
         }
 
         return view('user-admin.settings.school', compact('setting'));

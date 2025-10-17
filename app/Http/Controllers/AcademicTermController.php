@@ -93,9 +93,45 @@ class AcademicTermController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AcademicTerms $academicTerms)
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $academicTerm = AcademicTerms::findOrFail($id);
+
+            // Check if another term with same year and semester exists (excluding current term)
+            $existingTerm = AcademicTerms::where('year', $request->year)
+                ->where('semester', $request->semester)
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($existingTerm) {
+                return redirect()->back()->with('error', 'Academic term with this year and semester already exists.');
+            }
+
+            // If setting as active, deactivate other terms
+            if ($request->is_active == '1') {
+                AcademicTerms::where('is_active', true)
+                    ->where('id', '!=', $id)
+                    ->update(['is_active' => false]);
+            }
+
+            $validated = $request->validate([
+                'year' => 'required|string|max:255',
+                'semester' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after:start_date',
+                'is_active' => 'required|in:0,1'
+            ]);
+
+            $academicTerm->update($validated);
+
+            return redirect()->back()->with('success', 'Academic term updated successfully.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error updating academic term: ' . $e->getMessage());
+        }
     }
 
     /**

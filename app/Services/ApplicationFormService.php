@@ -15,7 +15,7 @@ class ApplicationFormService
 {
 
     public function __construct(
-        protected AcademicTermService $academicTermService,
+        protected AcademicTermService $academic_term_service,
         protected EnrollmentPeriodService $enrollmentPeriodService
     ) {}
 
@@ -46,17 +46,24 @@ class ApplicationFormService
 
     public function fetchApplicationById(int $applicantId)
     {
+        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
         return Applicants::find($applicantId);
     }
 
     public function fetchApplicationWithAnyStatus(array $status)
     {
-        return Applicants::withAnyStatus($status);
+        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
+        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+
+        return Applicants::withAnyStatus($status)->where('enrollment_period_id', $enrollmentPeriod->id);
     }
 
     public function fetchApplicationWithStatus(string $status)
     {
-        return Applicants::withStatus($status);
+        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
+        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+
+        return Applicants::withStatus($status)->where('enrollment_period_id', $enrollmentPeriod->id);
     }
 
     public function fetchRecentPendingApplications(int $limit = 10)
@@ -94,7 +101,7 @@ class ApplicationFormService
     public function createApplication(Applicants $applicant, array $form)
     {
 
-        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
 
         if (!$activeTerm) {
             throw new \InvalidArgumentException('No active academic term found. Please activate an academic term first.');
@@ -112,6 +119,7 @@ class ApplicationFormService
             $applicant->update([
                 'track_id' => $form['primary_track'],
                 'program_id' => $form['secondary_track'],
+                'enrollment_period_id' => $enrollmentPeriod->id,
                 'application_status' => 'Pending'
             ]);
 
@@ -175,8 +183,10 @@ class ApplicationFormService
                 'last_grade_level_completed' => $form['last_grade_level_completed'],
                 'last_school_attended'       => $form['last_school_attended'],
                 'last_school_year_completed' => $form['last_school_year_completed'],
-                'school_id'
+                'school_id'                  => $form['school_id']
             ]);
+
+            return $applicant;
         });
     }
 

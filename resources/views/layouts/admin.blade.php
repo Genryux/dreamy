@@ -18,7 +18,8 @@
                 <div class="max-h-[570px] overflow-y-scroll overflow-x-hidden flex flex-col justify-center items-start">
                     <div class="flex flex-col flex-1 space-y-2 w-full">
                         <x-divider color='#f8f8f8' opacity="0.10"></x-divider>
-                        @role(['super_admin', 'registrar'])
+
+                        @can('view enrollment dashboard page')
                             <x-nav-link href="/admin" :active="request()->is('admin')">
 
                                 <span class="flex flex-row items-center space-x-4">
@@ -27,8 +28,9 @@
                                 </span>
 
                             </x-nav-link>
-                        @endrole
-                        @can('view applications')
+                        @endcan
+
+                        @can('view applications page')
                             <x-nav-link href="/applications/pending" :active="request()->is('applications*')">
 
                                 <span class="flex flex-row items-center space-x-4">
@@ -41,7 +43,7 @@
                         @endcan
 
                         {{-- For head teacher --}}
-                        @role('head_teacher')
+                        @can('view head teacher dashboard page')
                             <x-nav-link href="/head-teacher/dashboard" :active="request()->is('head-teacher/dashboard')">
 
                                 <span class="flex flex-row items-center space-x-4">
@@ -50,9 +52,10 @@
                                 </span>
 
                             </x-nav-link>
-                        @endrole
+                        @endcan
+
                         {{-- For teachers --}}
-                        @role('teacher')
+                        @can('view teachers dashboard page')
                             <x-nav-link href="/teacher/dashboard" :active="request()->is('teacher/dashboard')">
 
                                 <span class="flex flex-row items-center space-x-4">
@@ -61,7 +64,7 @@
                                 </span>
 
                             </x-nav-link>
-                        @endrole
+                        @endcan
 
                         <span class='flex items-center mt-4'>
                             <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
@@ -71,36 +74,42 @@
                     <div
                         class="flex flex-col space-y-2 flex-1 mt-2 max-h-[400px] w-full overflow-x-hidden overflow-y-scroll">
 
-                        <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
+                        @can('view enrolled students page')
+                            <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
 
-                            <span class="flex flex-row items-center space-x-4">
-                                <i
-                                    class="fi fi-rr-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
+                                <span class="flex flex-row items-center space-x-4">
+                                    <i
+                                        class="fi fi-rr-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
 
-                                <p class="font-semibold text-[16px] nav-text truncate">Enrolled Students</p>
-                            </span>
+                                    <p class="font-semibold text-[16px] nav-text truncate">Enrolled Students</p>
+                                </span>
 
-                        </x-nav-link>
-                        <x-nav-link href="/admin" :active="request()->is('documents')">
+                            </x-nav-link>
+                        @endcan
 
-                            <span class="flex flex-row justify-between items-center space-x-4 w-full">
-                                <div class="flex flex-row justify-between items-center space-x-4">
-                                    <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
-                                </div>
+                        @can('view documents page')
+                            <x-nav-link href="/documents" :active="request()->is('documents')">
 
-                                @php
-                                    $hasDocuments = \App\Models\Documents::count();
-                                @endphp
-                                @if ($hasDocuments <= 0)
-                                    <div class="h-[8px] w-[8px] bg-red-500  rounded-full" title="No required documents set">
+                                <span class="flex flex-row justify-between items-center space-x-4 w-full">
+                                    <div class="flex flex-row justify-between items-center space-x-4">
+                                        <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
                                     </div>
-                                @endif
-                            </span>
+
+                                    @php
+                                        $hasDocuments = \App\Models\Documents::count();
+                                    @endphp
+                                    @if ($hasDocuments <= 0)
+                                        <div class="h-[8px] w-[8px] bg-red-500  rounded-full" title="No required documents set">
+                                        </div>
+                                    @endif
+                                </span>
 
 
-                        </x-nav-link>
-                        @can('view track')
+                            </x-nav-link>
+                        @endcan
+
+                        @can('view curriculum page')
                             <x-nav-link href="/tracks" :active="str_starts_with(request()->path(), 'tracks') ||
                                 str_starts_with(request()->path(), 'section') ||
                                 str_starts_with(request()->path(), 'program')">
@@ -112,7 +121,7 @@
 
                             </x-nav-link>
                         @endcan
-                        @can('view school fees')
+                        @can('view school fees page')
                             <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
 
                                 <span class="relative flex flex-row justify-between items-center space-x-4 w-full">
@@ -145,19 +154,31 @@
                             </span>
 
                         </x-nav-link>
-                        <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
 
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-user text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">User Management</p>
-                            </span>
+                        @can('view user management page')
+                            <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
 
-                        </x-nav-link>
+                                <span class="flex flex-row items-center space-x-4">
+                                    <i class="fi fi-rr-user text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">User Management</p>
+                                </span>
+
+                            </x-nav-link>
+                        @endcan
+
                         <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
 
                             <span class="flex flex-row items-center space-x-4">
                                 <i class="fi fi-rr-newspaper text-[20px] flex-shrink-0"></i>
                                 <p class="font-semibold text-[16px] nav-text truncate">News</p>
+                            </span>
+
+                        </x-nav-link>
+                        <x-nav-link href="/admin/settings/school" :active="request()->is('admin/settings/school')">
+
+                            <span class="flex flex-row items-center space-x-4">
+                                <i class="fi fi-rr-settings text-[20px] flex-shrink-0"></i>
+                                <p class="font-semibold text-[16px] nav-text truncate">School Settings</p>
                             </span>
 
                         </x-nav-link>
@@ -184,7 +205,7 @@
                         <i class="fi fi-rs-menu-burger text-[20px]"></i>
                     </button>
 
-                    <span class="flex flex-row space-x-4">
+                    <div class="flex flex-row items-center space-x-3">
                         {{-- Notification Bell --}}
                         <div class="relative">
                             <button id="notification-bell"
@@ -222,7 +243,68 @@
                             </div>
                         </div>
 
-                        <i class="fi fi-rs-user text-[20px]"></i>
+                        {{-- User Avatar --}}
+                        <div class="relative">
+                            <button id="user-button"
+                                class="relative flex justify-center items-center p-1 hover:bg-gray-100 rounded-full transition-all duration-150">
+                                <div class="w-9 h-9 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center shadow-sm">
+                                    <span class="text-white text-sm font-semibold">
+                                        {{ strtoupper(substr($applicant->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($applicant->last_name ?? 'N', 0, 1)) }}
+                                    </span>
+                                </div>
+                            </button>
+
+                            {{-- User Dropdown --}}
+                            <div id="user-dropdown"
+                                class="absolute right-0 top-12 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                                <div class="py-2">
+                                    {{-- User Profile --}}
+                                    <a href="#"
+                                        class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                                        <div
+                                            class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center mr-3 shadow-sm">
+                                            <span class="text-white text-xs font-semibold">
+                                                {{ strtoupper(substr($applicant->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($applicant->last_name ?? 'N', 0, 1)) }}
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">
+                                                {{ $applicant->first_name ?? 'User' }} {{ $applicant->last_name ?? 'Name' }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 truncate">View Profile</p>
+                                        </div>
+                                    </a>
+
+                                    {{-- Settings --}}
+                                    <a href="{{ route('profile.edit') }}"
+                                        class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                                        <div
+                                            class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                            <i
+                                                class="fi fi-rs-settings flex justify-center items-center text-gray-600 text-sm"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900">Settings</p>
+                                        </div>
+                                    </a>
+
+                                    {{-- Logout --}}
+                                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="w-full flex items-center px-4 py-3 hover:bg-red-50 hover:text-red-700 transition-colors text-left">
+                                            <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fi fi-rr-power flex justify-center items-center text-gray-600 text-sm"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-gray-900">Log Out</p>
+                                            </div>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </span>
                 </header>
             @endunless
@@ -277,6 +359,12 @@
             const notificationBadge = document.getElementById('notification-badge');
             const notificationList = document.getElementById('notification-list');
             const markAllReadBtn = document.getElementById('mark-all-read');
+
+            // User dropdown functionality
+            const userButton = document.getElementById('user-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            let isUserDropdownOpen = false;
+
 
             console.log('Simple Laravel notification system loaded - v2.0');
             let isDropdownOpen = false;
@@ -504,7 +592,56 @@
                 console.log('User roles:', window.Laravel?.user?.roles);
             }
 
+            // User dropdown functionality
+            if (userButton && userDropdown) {
+                // Toggle user dropdown
+                userButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    isUserDropdownOpen = !isUserDropdownOpen;
+                    userDropdown.classList.toggle('hidden');
+
+                    // Close notification dropdown if open
+                    if (isDropdownOpen) {
+                        notificationDropdown.classList.add('hidden');
+                        isDropdownOpen = false;
+                    }
+                });
+
+                // Close user dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                        userDropdown.classList.add('hidden');
+                        isUserDropdownOpen = false;
+                    }
+                });
+
+                // Handle dropdown item clicks
+                const dropdownItems = userDropdown.querySelectorAll('a');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        const text = this.querySelector('p').textContent.trim();
+
+                        if (text === 'Log Out') {
+                            // Let the form handle logout
+                            return; // Don't prevent default for logout form
+                        } else if (text.includes('Settings')) {
+                            // Let the link navigate normally
+                            return; // Don't prevent default for settings link
+                        } else if (text.includes('View Profile')) {
+                            // Let the link navigate normally
+                            return; // Don't prevent default for profile link
+                        }
+
+                        // For other items, prevent default and close dropdown
+                        e.preventDefault();
+                        userDropdown.classList.add('hidden');
+                        isUserDropdownOpen = false;
+                    });
+                });
+            }
+
         });
+
     </script>
 
     @stack('scripts')

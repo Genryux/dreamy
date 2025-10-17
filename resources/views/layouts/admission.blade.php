@@ -88,15 +88,21 @@
                         </a>
 
                         {{-- Logout --}}
-                        <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-                            <div
-                                class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                                <i class="fi fi-rr-power flex justify-center items-center text-gray-600 text-sm"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900">Log Out</p>
-                            </div>
-                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="w-full flex items-center px-4 py-3 hover:bg-red-50 hover:text-red-700 transition-colors text-left">
+                                <div
+                                    class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                    <i
+                                        class="fi fi-rr-power flex justify-center items-center text-gray-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900">Log Out</p>
+                                </div>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -325,7 +331,7 @@
                 // Simple real-time listener for applicants
                 const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
                 const userRole = window.Laravel?.user?.role ||
-                'applicant'; // Default to applicant for admission portal
+                    'applicant'; // Default to applicant for admission portal
 
                 // Listen to applicants channel
                 if (userRole === 'applicant' || userRoles.some(role => ['applicant'].includes(role))) {
@@ -398,16 +404,17 @@
                 const dropdownItems = userDropdown.querySelectorAll('a');
                 dropdownItems.forEach(item => {
                     item.addEventListener('click', function(e) {
-                        e.preventDefault();
                         const text = this.querySelector('p').textContent.trim();
 
                         if (text === 'Log Out') {
-                            // Handle logout - you can customize this
-                            if (confirm('Are you sure you want to log out?')) {
-                                // Add your logout logic here
-                                window.location.href = '/logout';
-                            }
-                        } else if (text.includes('Settings')) {
+                            // Let the form handle logout - don't prevent default
+                            return;
+                        }
+                        
+                        // Prevent default for other items
+                        e.preventDefault();
+                        
+                        if (text.includes('Settings')) {
                             // Handle settings - you can customize this
                             console.log('Settings clicked');
                             // window.location.href = '/settings';
@@ -424,6 +431,10 @@
                 });
             }
 
+            function confirmLogout() {
+                return confirm(
+                    'Are you sure you want to log out? You will need to sign in again to access your account.');
+            }
         });
     </script>
 </body>

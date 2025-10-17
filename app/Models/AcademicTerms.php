@@ -15,6 +15,9 @@ class AcademicTerms extends Model
     ];
 
     public function getFullNameAttribute() {
+        if (!$this->year || !$this->semester) {
+            return 'No Academic Term';
+        }
         return "{$this->year} - {$this->semester}";
     }
 

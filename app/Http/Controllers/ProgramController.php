@@ -6,6 +6,7 @@ use App\Models\Program;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Models\Track;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
@@ -102,6 +103,7 @@ class ProgramController extends Controller
     public function show(Program $program)
     {
 
+
         $programs = Program::all();
 
         $totalStudents = $program->totalStudents($program->id);
@@ -111,6 +113,9 @@ class ProgramController extends Controller
 
             return view('user-admin.curriculum.program.show', compact('programs', 'program', 'totalStudents', 'activeSections'));
         } else if (FacadesRoute::is('program.subjects')) {
+
+            return view('user-admin.curriculum.program.show', compact('program', 'programs', 'totalStudents', 'activeSections'));
+        } else if (FacadesRoute::is('program.faculty')) {
 
             return view('user-admin.curriculum.program.show', compact('program', 'programs', 'totalStudents', 'activeSections'));
         }
@@ -125,7 +130,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-    
+
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:programs,code,' . $program->id,
             'name' => 'required|string|max:255',
@@ -146,31 +151,31 @@ class ProgramController extends Controller
         try {
             // Check for dependencies before deletion
             $dependencies = [];
-            
+
             // Check for students
             $studentCount = \App\Models\Student::where('program_id', $program->id)->count();
             if ($studentCount > 0) {
                 $dependencies[] = "{$studentCount} student(s)";
             }
-            
+
             // Check for sections
             $sectionCount = $program->sections()->count();
             if ($sectionCount > 0) {
                 $dependencies[] = "{$sectionCount} section(s)";
             }
-            
+
             // Check for subjects
             $subjectCount = $program->subjects()->count();
             if ($subjectCount > 0) {
                 $dependencies[] = "{$subjectCount} subject(s)";
             }
-            
+
             // Check for teachers
             $teacherCount = $program->teachers()->count();
             if ($teacherCount > 0) {
                 $dependencies[] = "{$teacherCount} teacher(s)";
             }
-            
+
             // If there are dependencies, return error
             if (!empty($dependencies)) {
                 $dependencyList = implode(', ', $dependencies);
@@ -180,15 +185,14 @@ class ProgramController extends Controller
                     'dependencies' => $dependencies
                 ], 422);
             }
-            
+
             // Safe to delete
             $program->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Program deleted successfully'
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -196,5 +200,41 @@ class ProgramController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getTeachers(Request $request)
+    {
+        $query = Teacher::query();
+
+        $total = $query->count();
+        $filtered = $total;
+
+        // Secure pagination with bounds
+        $start = max(0, (int) $request->input('start', 0));
+        $length = (int) $request->input('length', 10);
+        $length = max(10, min($length, 100)); // Clamp to [10, 100] records per page
+
+        $data = $query
+            ->with(['sectionSubjects'])
+            ->offset($start)
+            ->limit($length)
+            ->get(['id', 'first_name', 'last_name', 'created_at',])
+            ->map(function ($item, $key) use ($start) {
+                return [
+                    'index' => $start + $key + 1,
+                    'code' => $item->code,
+                    'name' => $item->name,
+                    'subjects' => $item->getTotalSubjects(),
+                    'sections' => $item->getTotalSections(),
+                    'id' => $item->id
+                ];
+            });
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
     }
 }

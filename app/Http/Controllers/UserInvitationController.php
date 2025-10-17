@@ -23,7 +23,10 @@ class UserInvitationController extends Controller
      */
     public function invite()
     {
-        $roles = \Spatie\Permission\Models\Role::orderBy('name')->get();
+        // Only allow specific roles for invitations: teacher, registrar, head_teacher
+        $roles = \Spatie\Permission\Models\Role::whereIn('name', UserInvitationService::getAllowedRoles())
+            ->orderBy('name')
+            ->get();
         return view('user-admin.invitations.invite', compact('roles'));
     }
 
@@ -37,10 +40,9 @@ class UserInvitationController extends Controller
             'last_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:teacher,registrar,head_teacher',
+            'role' => 'required|in:' . implode(',', UserInvitationService::getAllowedRoles()),
             'contact_number' => 'nullable|string|max:20',
             'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
-            'years_of_experience' => 'nullable|integer|min:0',
         ]);
 
         $result = $this->invitationService->sendInvitation($validated, $validated['role'], 1);
@@ -89,6 +91,294 @@ class UserInvitationController extends Controller
 
         return redirect()->back()
             ->with('success', $result['message']);
+    }
+
+    /**
+     * Store a newly created user
+     */
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'contact_number' => 'nullable|string|max:20',
+                'role' => 'required|in:teacher,registrar,head_teacher',
+                'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
+            ]);
+
+            // Create user account
+            $user = User::create([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'middle_name' => $validated['middle_name'],
+                'email' => $validated['email'],
+                'password' => bcrypt('temporary_password'), // Will be changed on first login
+                'status' => 'Active',
+                'invitation_data' => json_encode([
+                    'contact_number' => $validated['contact_number'],
+                ]),
+            ]);
+
+            // Assign role
+            $user->assignRole($validated['role']);
+
+            // Create teacher record if role is teacher or head_teacher
+            if (in_array($validated['role'], ['teacher', 'head_teacher'])) {
+                \App\Models\Teacher::create([
+                    'user_id' => $user->id,
+                    'program_id' => $validated['program_id'],
+                    'contact_number' => $validated['contact_number'],
+                ]);
+            }
+
+            // Audit logging
+            \Log::info('User created', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $validated['role'],
+                'created_by' => auth()->user()->id,
+                'created_by_email' => auth()->user()->email,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully',
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'email' => $user->email,
+                    'role' => $validated['role']
+                ]
+            ], 201);
+        } catch (\Throwable $th) {
+            \Log::error('User creation failed', [
+                'error' => $th->getMessage(),
+                'user_id' => auth()->user()->id,
+                'ip_address' => $request->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to create user: ' . $th->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Display the specified user
+     */
+    public function show(User $user)
+    {
+        try {
+            $userData = [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'middle_name' => $user->middle_name,
+                'email' => $user->email,
+                'role' => $user->roles->first()?->name,
+                'status' => $user->status,
+            ];
+
+            // Get additional data based on role
+            if ($user->teacher) {
+                $userData['program_id'] = $user->teacher->program_id;
+                $userData['contact_number'] = $user->teacher->contact_number;
+            } else {
+                // Get from invitation_data for other roles
+                $invitationData = json_decode($user->invitation_data, true);
+                $userData['contact_number'] = $invitationData['contact_number'] ?? '';
+            }
+
+            return response()->json([
+                'success' => true,
+                'user' => $userData
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error('User show failed', [
+                'error' => $th->getMessage(),
+                'user_id' => $user->id,
+                'requested_by' => auth()->user()->id,
+                'ip_address' => request()->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load user: ' . $th->getMessage()
+            ], 404);
+        }
+    }
+
+    /**
+     * Update the specified user
+     */
+    public function update(Request $request, User $user)
+    {
+        try {
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'contact_number' => 'nullable|string|max:20',
+                'role' => 'required|in:teacher,registrar,head_teacher',
+                'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
+            ]);
+
+            // Update user basic info
+            $user->update([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'middle_name' => $validated['middle_name'],
+                'email' => $validated['email'],
+                'invitation_data' => json_encode([
+                    'contact_number' => $validated['contact_number'],
+                ]),
+            ]);
+
+            // Update role
+            $user->syncRoles([$validated['role']]);
+
+            // Update teacher record if role is teacher or head_teacher
+            if (in_array($validated['role'], ['teacher', 'head_teacher'])) {
+                if ($user->teacher) {
+                    $user->teacher->update([
+                        'program_id' => $validated['program_id'],
+                        'contact_number' => $validated['contact_number'],
+                    ]);
+                } else {
+                    \App\Models\Teacher::create([
+                        'user_id' => $user->id,
+                        'program_id' => $validated['program_id'],
+                        'contact_number' => $validated['contact_number'],
+                    ]);
+                }
+            } else {
+                // Remove teacher record if role changed
+                if ($user->teacher) {
+                    $user->teacher->delete();
+                }
+            }
+
+            // Audit logging
+            \Log::info('User updated', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $validated['role'],
+                'updated_by' => auth()->user()->id,
+                'updated_by_email' => auth()->user()->email,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully',
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'email' => $user->email,
+                    'role' => $validated['role']
+                ]
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error('User update failed', [
+                'error' => $th->getMessage(),
+                'user_id' => $user->id,
+                'updated_by' => auth()->user()->id,
+                'ip_address' => $request->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to update user: ' . $th->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Remove the specified user
+     */
+    public function destroy(User $user)
+    {
+        try {
+            // Check if user has any related data that would prevent deletion
+            if ($user->student || $user->applicant) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Cannot delete user with associated student or applicant records'
+                ], 422);
+            }
+
+            $userEmail = $user->email;
+            $userRole = $user->roles->first()?->name;
+
+            // Delete related records
+            if ($user->teacher) {
+                $user->teacher->delete();
+            }
+
+            // Delete user
+            $user->delete();
+
+            // Audit logging
+            \Log::info('User deleted', [
+                'deleted_user_email' => $userEmail,
+                'deleted_user_role' => $userRole,
+                'deleted_by' => auth()->user()->id,
+                'deleted_by_email' => auth()->user()->email,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error('User deletion failed', [
+                'error' => $th->getMessage(),
+                'user_id' => $user->id,
+                'deleted_by' => auth()->user()->id,
+                'ip_address' => request()->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to delete user: ' . $th->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Get programs for dropdowns
+     */
+    public function getPrograms()
+    {
+        try {
+            $programs = \App\Models\Program::select('id', 'name')->get();
+            
+            return response()->json([
+                'success' => true,
+                'programs' => $programs
+            ]);
+        } catch (\Throwable $th) {
+            \Log::error('Get programs failed', [
+                'error' => $th->getMessage(),
+                'requested_by' => auth()->user()->id,
+                'ip_address' => request()->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load programs: ' . $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -182,6 +472,23 @@ class UserInvitationController extends Controller
     public function roles()
     {
         return view('user-admin.users.index');
+    }
+
+    /**
+     * Get redirect route based on user role after registration
+     */
+    private function getRedirectRouteForRole(string $role): string
+    {
+        switch ($role) {
+            case 'teacher':
+                return 'teacher.dashboard';
+            case 'head_teacher':
+                return 'head-teacher.dashboard';
+            case 'registrar':
+                return 'registrar.dashboard';
+            default:
+                return 'dashboard';
+        }
     }
 
 

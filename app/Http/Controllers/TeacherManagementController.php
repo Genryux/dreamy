@@ -46,7 +46,6 @@ class TeacherManagementController extends Controller
             'password' => ['required', Password::min(8)->max(60)->letters()->numbers(), 'confirmed'],
             'contact_number' => 'nullable|string|max:20',
             'specialization' => 'nullable|string|max:255',
-            'years_of_experience' => 'nullable|integer|min:0',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -74,7 +73,6 @@ class TeacherManagementController extends Controller
                 'email_address' => $validated['email'],
                 'contact_number' => $validated['contact_number'],
                 'specialization' => $validated['specialization'],
-                'years_of_experience' => $validated['years_of_experience'],
                 'status' => $validated['status'],
             ]);
 
@@ -121,7 +119,6 @@ class TeacherManagementController extends Controller
             'email' => 'required|email|unique:users,email,' . $teacher->user_id,
             'contact_number' => 'nullable|string|max:20',
             'specialization' => 'nullable|string|max:255',
-            'years_of_experience' => 'nullable|integer|min:0',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -143,7 +140,6 @@ class TeacherManagementController extends Controller
                 'email_address' => $validated['email'],
                 'contact_number' => $validated['contact_number'],
                 'specialization' => $validated['specialization'],
-                'years_of_experience' => $validated['years_of_experience'],
                 'status' => $validated['status'],
             ]);
 
@@ -416,7 +412,6 @@ class TeacherManagementController extends Controller
                         'email' => $teacher->user ? $teacher->user->email : $teacher->email_address,
                         'specialization' => $teacher->specialization ?? 'Not specified',
                         'status' => $teacher->status,
-                        'years_experience' => $teacher->years_of_experience ?? 0,
                         'id' => $teacher->id
                     ];
                 });

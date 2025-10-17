@@ -369,7 +369,7 @@
                     <div class="section-content">
                         <div><strong>Student ID:</strong> {{ $student->lrn ?? 'N/A' }}</div>
                         <div><strong>Name:</strong> <span class="student-name">{{ $student->user->first_name ?? '' }} {{ $student->user->last_name ?? '' }}</span></div>
-                        <div><strong>Program:</strong> {{ $student->program ?? 'N/A' }}</div>
+                        <div><strong>Program:</strong> {{ $student->program->code ?? 'N/A' }}</div>
                     </div>
                 </td>
                 <td>

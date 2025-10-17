@@ -62,7 +62,7 @@ class DashboardController extends Controller
                     'name' => $user->student->getFullNameAttribute(),
                     'lrn' => $user->student->lrn,
                     'grade_level' => $user->student->grade_level,
-                    'program' => $user->student->program,
+                    'program' => $user->student->program?->name ?? 'N/A',
                     'age' => $studentRecord?->age,
                     'gender' => $studentRecord?->gender,
                     'contact_number' => $studentRecord?->contact_number,

@@ -41,6 +41,7 @@ class RegistrationController extends Controller
             $user->assignRole('applicant');
 
             Applicants::create([
+                'enrollment_period_id' => null,
                 'user_id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
@@ -51,6 +52,18 @@ class RegistrationController extends Controller
             return $user;
         });
 
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
+
+        // Log registration for security
+        \Log::info('New user registration (email verification required)', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'ip' => $request->ip(),
+            'timestamp' => now()
+        ]);
+
+        // Temporarily log in the user so they can access the verification notice page
         Auth::login($user);
 
         // Send notifications after transaction is committed
@@ -72,20 +85,8 @@ class RegistrationController extends Controller
                 url('/admin/users')
             ));
 
-        // Check roles and redirect accordingly
-        if ($user->hasRole('teacher')) {
-            return redirect()->route('admin');
-        } elseif ($user->hasRole('applicant')) {
-            return redirect()->route('admission.dashboard');
-        } elseif ($user->hasRole('student')) {
-            return redirect()->route('student');
-        } elseif ($user->hasRole('registrar')) {
-            return redirect()->route('admin'); // Assuming registrar uses admin dashboard
-        }
-
-
-
-
-        return redirect('/');
+        // Redirect to email verification notice instead of auto-login
+        return redirect()->route('verification.notice')
+            ->with('message', 'Registration successful! Please check your email and click the verification link to activate your account.');
     }
 }

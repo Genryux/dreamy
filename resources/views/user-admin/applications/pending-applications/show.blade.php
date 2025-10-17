@@ -611,7 +611,7 @@
 
                             // Reload page to show updated data
                             setTimeout(() => {
-                                window.location.reload();
+                                window.location.href="/applications/accepted";
                             }, 1000);
 
                         } else {
@@ -662,7 +662,7 @@
 
                             // Reload page to show updated data
                             setTimeout(() => {
-                                window.location.reload();
+                                window.location.href="/applications/pending";
                             }, 1000);
 
                         } else {
@@ -712,7 +712,7 @@
 
                             // Reload page to show updated data
                             setTimeout(() => {
-                                window.location.reload();
+                                window.location.href="/applications/accepted";
                             }, 1000);
 
                         } else {

@@ -22,10 +22,10 @@ class DashboardDataService
         if (!$currentAcadTerm) {
 
             return [
-                'recentApplications' => null,
-                'pendingApplicationsCount' => null,
-                'selectedApplicationsCount' => null,
-                'applicationCount' => null,
+                'totalApplications' => null,
+                'totalPendingApplications' => null,
+                'totalAcceptedApplications' => null,
+                'totalPendingDocumentApplications' => null,
                 'currentAcadTerm' => null,
                 'activeEnrollmentPeriod' => null
             ];
@@ -37,26 +37,30 @@ class DashboardDataService
 
             return [
                 'currentAcadTerm' => $currentAcadTerm,
-                'recentApplications' => null,
-                'pendingApplicationsCount' => null,
-                'selectedApplicationsCount' => null,
-                'applicationCount' => null,
+                'totalApplications' => null,
+                'totalPendingApplications' => null,
+                'totalAcceptedApplications' => null,
+                'totalPendingDocumentApplications' => null,
                 'activeEnrollmentPeriod' => null
             ];
         }
 
-        $pendingApplicationsCount = $this->applicationFormService->fetchApplicationWithStatus('Pending')->count();
-        $selectedApplicationsCount = $this->applicationFormService->fetchApplicationWithStatus('Selected')->count();
-        $applicationCount = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Selected', 'Pending Documents'])->count();
+        $totalPendingApplications = $this->applicationFormService->fetchApplicationWithStatus('Pending')->count();
+        $totalAcceptedApplications = $this->applicationFormService->fetchApplicationWithStatus('Accepted')->count();
+        $totalPendingDocumentsApplications = $this->applicationFormService->fetchApplicationWithStatus('Pending-Documents')->count();
+        $totalEnrolledApplications = $this->applicationFormService->fetchApplicationWithStatus('Officially Enrolled')->count();
+        $totalApplications = $this->applicationFormService->fetchApplicationWithAnyStatus(['Pending', 'Accepted', 'Pending Documents'])->count();
         $recentApplications = $this->applicationFormService->fetchRecentPendingApplications(10);
 
         return [
             'recentApplications' => $recentApplications,
-            'pendingApplicationsCount' => $pendingApplicationsCount,
-            'selectedApplicationsCount' => $selectedApplicationsCount,
-            'applicationCount' => $applicationCount,
+            'totalPendingApplications' => $totalPendingApplications,
+            'totalAcceptedApplications' => $totalAcceptedApplications,
+            'totalApplications' => $totalApplications,
             'currentAcadTerm' => $currentAcadTerm,
-            'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
+            'totalEnrolledApplications' => $totalEnrolledApplications,
+            'totalPendingDocumentsApplications' => $totalPendingDocumentsApplications
         ];
     }
 

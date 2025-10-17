@@ -100,8 +100,6 @@
                     <p class="font-medium">{{ $teacher->specialization ?? 'Not specified' }}</p>
                 </div>
                 <div>
-                    <span class="text-sm text-gray-500">Years of Experience</span>
-                    <p class="font-medium">{{ $teacher->years_of_experience ?? 0 }} years</p>
                 </div>
                 <div>
                     <span class="text-sm text-gray-500">Status</span>

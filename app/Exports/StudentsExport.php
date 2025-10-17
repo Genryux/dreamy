@@ -3,33 +3,56 @@
 namespace App\Exports;
 
 use App\Models\Student;
+use App\Models\StudentEnrollment;
 use App\Services\AcademicTermService;
 use App\Services\DashboardDataService;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents
+class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents, WithColumnFormatting
 {
     /**
-     * Exported data
+     * Exported data - Get enrolled students for current academic term
      */
     public function collection()
     {
-        return Student::select(
-            'lrn',
-            'first_name',
-            'last_name',
-            'grade_level',
-            'program',
-            'contact_number',
-            'email_address'
-        )->get();
+        // Get current academic term
+        $academicTermService = app(AcademicTermService::class);
+        $currentTerm = $academicTermService->fetchCurrentAcademicTerm();
+        
+        if (!$currentTerm) {
+            // If no active term, return empty collection
+            return collect([]);
+        }
+        
+        // Get enrolled students for the current academic term
+        return StudentEnrollment::with([
+            'student.record', 
+            'student.user', 
+            'student.program',
+            'program'
+        ])
+        ->where('academic_term_id', $currentTerm->id)
+        ->where('status', 'enrolled')
+        ->get()
+        ->map(function ($enrollment) {
+            return [
+                'lrn' => $enrollment->student->lrn ?? '', // Keep as numeric for import validation
+                'first_name' => (string) ($enrollment->student->user->first_name ?? ''),
+                'last_name' => (string) ($enrollment->student->user->last_name ?? ''),
+                'grade_level' => (string) ($enrollment->student->grade_level ?? ''),
+                'program_code' => (string) ($enrollment->program->code ?? $enrollment->student->program->code ?? ''),
+                'contact_number' => (string) ($enrollment->student->record->contact_number ?? ''),
+                'email_address' => (string) ($enrollment->student->user->email ?? ''),
+            ];
+        });
     }
 
     /**
@@ -54,6 +77,22 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
     public function startCell(): string
     {
         return 'A6';
+    }
+
+    /**
+     * Format columns to ensure proper data types
+     */
+    public function columnFormats(): array
+    {
+        return [
+            'A' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER, // LRN (numeric)
+            'B' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT, // First Name
+            'C' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT, // Last Name
+            'D' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT, // Grade Level
+            'E' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT, // Program
+            'F' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT, // Contact Number
+            'G' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT, // Email Address
+        ];
     }
 
     /**

@@ -650,7 +650,13 @@
                 </a>
             </li>
 
-
+            <li class="me-2">
+                <a href="{{ route('program.faculty', $program->id) }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg 
+              {{ Route::is('program.subjects') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Faculty
+                </a>
+            </li>
 
         </ul>
     </div>
@@ -801,6 +807,143 @@
                 <div class="flex flex-col my-2 justify-center items-center w-full">
                     <span class="font-semibold text-[18px]">
                         Subjects
+                    </span>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Course subjects and curriculum for this program
+                    </span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full h-full py-2">
+
+                    <div class="flex flex-row justify-between w-3/4 items-center gap-4">
+
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border-2 border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[70%] outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 focus-within:shadow-lg transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by name, category, year level, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected disabled>Category</option>
+                                    <option value="" data-id="Core">Core</option>
+                                    <option value="" data-id="Applied">Applied</option>
+                                    <option value="" data-id="Specialized">Specialized</option>
+
+                                </select>
+                                <i id="clear-program-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                            <div id="grade_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="grade_selection" id="grade_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Year Level</option>
+                                    <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                    <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+                            <div id="semester_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="semester_selection" id="semester_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Semester</option>
+                                    <option value="" data-sem="1st Semester">1st Semester</option>
+                                    <option value="" data-sem="2nd Semester">2nd Semester</option>
+                                </select>
+                                <i id="clear-semester-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <button id="add-student-modal-btn"
+                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                        New Subject
+                    </button>
+
+
+                </div>
+
+                <div class="w-full">
+                    <table id="subjects" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+
+                                <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Subject Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[45%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Category</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Year Level</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Semester</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+
+                                <th class="w-[12%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+    @if (Route::is('program.faculty'))
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
+                    <span class="font-semibold text-[18px]">
+                        Faculty
                     </span>
                     <span class="font-medium text-gray-400 text-[14px]">
                         Course subjects and curriculum for this program

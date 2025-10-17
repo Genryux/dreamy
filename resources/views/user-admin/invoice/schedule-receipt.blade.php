@@ -386,7 +386,7 @@
                     <div class="section-content">
                         <div class="student-name">{{ $student->user->first_name ?? '' }} {{ $student->user->last_name ?? '' }}</div>
                         <div>Student ID: {{ $student->lrn ?? 'N/A' }}</div>
-                        <div>{{ $student->program ?? 'N/A' }}</div>
+                        <div>{{ $student->program->code ?? 'N/A' }}</div>
                         <div>Academic Term: {{ $academicTerm?->getFullNameAttribute() ?? 'N/A' }}</div>
                     </div>
                 </td>

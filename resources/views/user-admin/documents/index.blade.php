@@ -20,7 +20,7 @@
                     <input type="text" name="doc-type" id="doc-type" required
                         placeholder="e.g., Birth Certificate, Transcript of Records"
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
-                </div>
+                    </div>
 
                 <div class="w-full">
                     <label for="file-size" class="block text-sm font-medium text-gray-700 mb-2">
@@ -53,9 +53,9 @@
                             <input type="checkbox" name="file-type-option[]" value="png" id="PNG"
                                 class="w-4 h-4 text-[#199BCF] border-[#199BCF]/30 rounded focus:ring-[#199BCF]/20">
                             <label for="PNG" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer">PNG</label>
-                        </div>
                     </div>
                 </div>
+            </div>
 
                 <div class="w-full">
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
@@ -65,7 +65,7 @@
                     <textarea name="description" id="description" rows="4" placeholder="Enter document description or instructions..."
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px] resize-none"></textarea>
                 </div>
-            </div>
+                </div>
         </form>
 
         <x-slot name="modal_buttons">
@@ -133,9 +133,9 @@
                             <input type="checkbox" name="file-type-option[]" value="png" id="edit_PNG"
                                 class="w-4 h-4 text-[#199BCF] border-[#199BCF]/30 rounded focus:ring-[#199BCF]/20">
                             <label for="edit_PNG" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer">PNG</label>
-                        </div>
-                    </div>
+            </div>
                 </div>
+            </div>
 
                 <div class="w-full">
                     <label for="edit_description" class="block text-sm font-medium text-gray-700 mb-2">
@@ -424,14 +424,14 @@
             let estimatedSize = document.getElementById("estimated");
 
             if (sizeInput && estimatedSize) {
-                sizeInput.addEventListener("input", function() {
-                    let size = parseInt(this.value);
-                    if (!isNaN(size)) {
-                        estimatedSize.textContent = (size / 1024).toFixed(2) + " MB";
-                    } else {
-                        estimatedSize.textContent = "Invalid size";
-                    }
-                });
+            sizeInput.addEventListener("input", function() {
+                let size = parseInt(this.value);
+                if (!isNaN(size)) {
+                    estimatedSize.textContent = (size / 1024).toFixed(2) + " MB";
+                } else {
+                    estimatedSize.textContent = "Invalid size";
+                }
+            });
             }
 
             // File size estimation for edit modal
