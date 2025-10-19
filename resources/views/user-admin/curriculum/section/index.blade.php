@@ -7,23 +7,151 @@
         </p>
     </div>
 @endsection
+@section('modal')
+    <x-modal modal_id="create-section-modal" modal_name="Create Section" close_btn_id="create-section-modal-close-btn"
+        modal_container_id="modal-container-1">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
 
+        </x-slot>
+
+        <div class="max-h-[70vh] overflow-y-auto">
+            <form id="create-section-form" class="p-6">
+                @csrf
+                <div class="space-y-6">
+                    <!-- Program Selection -->
+                    <div>
+                        <label for="program_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-graduation-cap mr-2"></i>
+                            Program <span class="text-red-500">*</span>
+                        </label>
+                        <select name="program_id" id="program_id" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                            <option value="">Select Program</option>
+                            @foreach ($programs as $program)
+                                <option value="{{ $program->id }}" {{ $program->id == $program->id ? 'selected' : '' }}>
+                                    {{ $program->name }} ({{ $program->code }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Year Level -->
+                    <div>
+                        <label for="year_level" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-calendar mr-2"></i>
+                            Year Level <span class="text-red-500">*</span>
+                        </label>
+                        <select name="year_level" id="year_level" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                            <option value="">Select Year Level</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                        </select>
+                    </div>
+
+                    <!-- Section Code -->
+                    <div>
+                        <label for="section_code" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-users-class mr-2"></i>
+                            Section Code <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="section_code" id="section_code" placeholder="e.g., 11-HUMSS-A" required
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                    </div>
+
+                    <!-- Room -->
+                    <div>
+                        <label for="room" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-home mr-2"></i>
+                            Room Assignment
+                        </label>
+                        <input type="text" name="room" id="room" placeholder="e.g., Room 101, Lab 2"
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                    </div>
+
+                    <!-- Adviser Selection -->
+                    <div>
+                        <label for="adviser_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-user-tie mr-2"></i>
+                            Assign Adviser
+                        </label>
+                        <select name="adviser_id" id="adviser_id"
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
+                            <option value="">Select Adviser</option>
+                            @foreach (\App\Models\Teacher::with(['user', 'program'])->where('status', 'active')->get() as $teacher)
+                                <option value="{{ $teacher->id }}" data-program-id="{{ $teacher->program_id }}"
+                                    {{ $teacher->program_id == $program->id ? '' : 'style="display:none"' }}>
+                                    {{ $teacher->getFullNameAttribute() }}
+                                    @if ($teacher->program)
+                                        - {{ $teacher->program->name }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Only teachers from the selected program will be shown</p>
+                    </div>
+
+                    <!-- Auto Assign Subjects -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="auto_assign" id="auto_assign"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="auto_assign" class="ml-2 block text-sm text-gray-700">
+                            <i class="fi fi-rr-magic-wand mr-1"></i>
+                            Auto-Assign Subjects (Current Term)
+                        </label>
+                    </div>
+                </div>
+
+                <div id="subjects-container"
+                    class="mt-6 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50 hidden">
+                </div> <!-- subjects will be inserted here -->
+
+            </form>
+        </div>
+
+        <x-slot name="modal_info">
+
+        </x-slot>
+
+        <x-slot name="modal_buttons">
+            <button id="create-section-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="create-section-form" name="action" value="create-section"
+                class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                Continue
+            </button>
+        </x-slot>
+
+    </x-modal>
+@endsection
 @section('content')
     <x-alert />
 
     <div class="flex flex-row justify-center items-start gap-4">
         <div
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-            <div class="flex flex-row justify-between items-center w-full">
+            <div class="flex flex-col my-2 justify-center items-center w-full">
+                <span class="font-semibold text-[18px]">
+                    Sections
+                </span>
+                <span class="font-medium text-gray-400 text-[14px]">
+                    Student's invoice list across different academic terms
+                </span>
+            </div>
+            <div class="flex flex-row justify-between items-center w-full h-full py-2">
 
-                <div class="w-full flex flex-row justify-between items-center gap-4">
+                <div class="flex flex-row justify-between w-3/4 items-center gap-4">
 
                     <label for="myCustomSearch"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
                         <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                         <input type="search" name="" id="myCustomSearch"
                             class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
-                            placeholder="Search by lrn, name, grade level, etc.">
+                            placeholder="Search by name, program, grade level, etc.">
                         <button id="clear-btn"
                             class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
                             <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
@@ -31,7 +159,7 @@
                     </label>
                     <div class="flex flex-row justify-start items-center w-full gap-2">
                         <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
                             <select name="pageLength" id="page-length-selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                 <option selected disabled>Entries</option>
@@ -46,12 +174,13 @@
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
                         </div>
                         <div
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
                             <select name="" id="program_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
                                 <option value="" selected disabled>Program</option>
-                                <option value="" data-id="HUMSS">HUMSS</option>
-                                <option value="" data-id="ABM">ABM</option>
+                                @foreach ($programs as $program)
+                                    <option value="" data-id="{{ $program->code }}">{{ $program->code }}</option>
+                                @endforeach
                             </select>
                             <i id="clear-program-filter-btn"
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
@@ -59,11 +188,15 @@
 
 
                         <div id="grade_selection_container"
-                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
 
                             <select name="grade_selection" id="grade_selection"
                                 class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                 <option value="" disabled selected>Grade</option>
+                                <option value="" data-putanginamo="Grade 7">Grade 7</option>
+                                <option value="" data-putanginamo="Grade 8">Grade 8</option>
+                                <option value="" data-putanginamo="Grade 9">Grade 9</option>
+                                <option value="" data-putanginamo="Grade 10">Grade 10</option>
                                 <option value="" data-putanginamo="Grade 11">Grade 11</option>
                                 <option value="" data-putanginamo="Grade 12">Grade 12</option>
                             </select>
@@ -76,32 +209,13 @@
                     </div>
                 </div>
 
-
-                <div id="dropdown_btn"
-                    class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                    <div
-                        class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                        <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
-                    </div>
-
-                    <div id="dropdown_selection"
-                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                        <button id="import-modal-btn"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
-                        </button>
-                        <x-nav-link href="/students/export/excel"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                        </x-nav-link>
-                        <button
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export As .pdf
-                        </button>
-                    </div>
-
-                </div>
+                @can('create section')
+                    <button id="create-section-modal-btn"
+                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                        New Section
+                    </button>
+                @endcan
             </div>
 
             <div class="w-full">
@@ -113,6 +227,10 @@
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
@@ -161,6 +279,9 @@
             showLoader,
             hideLoader
         } from "/js/loader.js";
+        import {
+            initCustomDataTable
+        } from "/js/initTable.js";
 
         let table1;
         let selectedGrade = '';
@@ -169,7 +290,10 @@
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
+            let assignCheckbox = document.getElementById('auto_assign');
+
+            initModal('create-section-modal', 'create-section-modal-btn', 'create-section-modal-close-btn',
+                'create-section-cancel-btn',
                 'modal-container-1');
 
             // const fileInput = document.getElementById('fileInput');
@@ -180,151 +304,286 @@
             // });
 
             //Overriding default search input
-            const customSearch1 = document.getElementById("myCustomSearch");
-
-            table1 = new DataTable('#sections', {
-                paging: true,
-                searching: true,
-                autoWidth: false,
-                serverSide: true,
-                processing: true,
-                ajax: {
-                    url: '/getSections',
-                    data: function(d) {
-
-                        d.grade_filter = selectedGrade;
-                        d.program_filter = selectedProgram;
-                        d.pageLength = selectedPageLength;
-                    }
-                },
-                order: [
-                    [6, 'desc']
-                ],
-                columnDefs: [{
-                        width: '3.5%',
-                        targets: 0,
-                        className: 'text-center'
-                    }, // Index column
-                    {
-                        width: '16.08%',
-                        targets: 1
-                    }, // LRN
-                    {
-                        width: '16.08%',
-                        targets: 2
-                    }, // Full Name
-                    {
-                        width: '16.08%',
-                        targets: 3
-                    }, // Grade Level
-                    {
-                        width: '16.08%',
-                        targets: 4
-                    }, // Program
-                    {
-                        width: '16.08%',
-                        targets: 5
-                    }, // Contact
-                    {
-                        width: '16.08%',
-                        targets: 6
-                    }, // Email
-
-                ],
-                layout: {
-                    topStart: null,
-                    topEnd: null,
-                    bottomStart: 'info',
-                    bottomEnd: 'paging',
-                },
-                columns: [{
+            let sectionsTable = initCustomDataTable(
+                'sections',
+                `/getAllSections`,
+                [{
                         data: 'index'
                     },
                     {
-                        data: 'name'
+                        data: 'name',
+                        render: DataTable.render.text()
                     },
                     {
-                        data: 'adviser'
+                        data: 'program_code',
+                        render: DataTable.render.text()
                     },
                     {
-                        data: 'year_level'
+                        data: 'adviser',
+                        render: DataTable.render.text()
                     },
                     {
-                        data: 'room'
+                        data: 'year_level',
+                        render: DataTable.render.text()
                     },
                     {
-                        data: 'total_enrolled_students'
+                        data: 'room',
+                        render: DataTable.render.text()
                     },
                     {
-                        data: 'id', // pass ID for rendering the link
+                        data: 'total_enrolled_students',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'id',
                         render: function(data, type, row) {
                             return `
-                            <div class='flex flex-row justify-center items-center opacity-100'>
-
-                                <a href="/section/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
-
-                                    <span class="relative w-4 h-4">
-                                        <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-                                        <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-                                    </span>
-
+                            <a href='/section/${data}' class='flex flex-row justify-center items-center gap-2'>
+                                <button type="button" id="open-edit-modal-btn-${data}"
+                                    data-section-id="${data}"
+                                    class="edit-section-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                    <i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i>
                                     View
-                                </a>
-
-                            </div>
-                            
-                            `;
+                                </button>
+                            </a>`;
                         },
                         orderable: false,
                         searchable: false
                     }
                 ],
-            });
+                [
+                    [0, 'desc']
+                ],
+                'myCustomSearch',
+                [{
+                        width: '5%',
+                        targets: 0,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '16%',
+                        targets: 1
+                    },
+                    {
+                        width: '12%',
+                        targets: 2
+                    },
+                    {
+                        width: '18%',
+                        targets: 3
+                    },
+                    {
+                        width: '12%',
+                        targets: 4
+                    },
+                    {
+                        width: '12%',
+                        targets: 5
+                    },
+                    {
+                        width: '13%',
+                        targets: 6,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '10%',
+                        targets: 7,
+                        className: 'text-center'
+                    }
+                ]
+            );
 
-            customSearch1.addEventListener("input", function() {
-                table1.search(this.value).draw();
-            });
+            clearSearch('clear-btn', 'myCustomSearch', sectionsTable)
 
-            table1.on('draw', function() {
-                let rows = document.querySelectorAll('#sections tbody tr');
+            if (assignCheckbox) {
+                assignCheckbox.checked = false;
 
-                rows.forEach(function(row) {
-                    // Add hover style to the row
-                    row.classList.add(
-                        'hover:bg-gray-200',
-                        'transition',
-                        'duration-150'
-                    );
+                // Function to load subjects for auto-assign
+                function loadAutoAssignSubjects() {
+                    if (!assignCheckbox.checked) return;
 
-                    // Style all cells in the row
-                    let cells = row.querySelectorAll('td');
-                    cells.forEach(function(cell) {
-                        cell.classList.add(
-                            'px-4', // Horizontal padding
-                            'py-1', // Vertical padding
-                            'text-start', // Align text left
-                            'font-regular',
-                            'text-[14px]',
-                            'opacity-80',
-                            'truncate',
-                            'border-t',
-                            'border-[#1e1e1e]/10',
-                            'font-semibold'
-                        );
-                    });
-                });
-            });
+                    const programId = document.getElementById('program_id').value;
+                    const yearLevel = document.getElementById('year_level').value;
+                    const container = document.getElementById('subjects-container');
 
+                    if (!programId || !yearLevel) {
+                        showAlert('error', "Please select a program and year level first.");
+                        assignCheckbox.checked = false;
+                        container.classList.add('hidden');
+                        container.innerHTML = "";
+                        return;
+                    }
 
-            table1.on("init", function() {
-                const defaultSearch = document.querySelector("#dt-search-0");
-                if (defaultSearch) {
-                    defaultSearch.remove();
+                    // Show container and add loading state
+                    container.classList.remove('hidden');
+                    container.innerHTML =
+                        '<div class="flex items-center justify-center py-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div><span class="ml-2 text-sm text-gray-600">Loading subjects...</span></div>';
+
+                    fetch(`/subjects/auto-assign?program_id=${programId}&year_level=${yearLevel}`, {
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.subjects && data.subjects.length > 0) {
+                                container.innerHTML = '<div class="space-y-2">';
+
+                                // Group subjects by category
+                                const coreSubjects = data.subjects.filter(subj => subj.category ===
+                                    'core');
+                                const appliedSubjects = data.subjects.filter(subj => subj
+                                    .category === 'applied');
+                                const specializedSubjects = data.subjects.filter(subj => subj
+                                    .category === 'specialized');
+
+                                // Add core subjects section
+                                if (coreSubjects.length > 0) {
+                                    const coreHeader = document.createElement('div');
+                                    coreHeader.className =
+                                        'text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2 mt-4 first:mt-0';
+                                    coreHeader.textContent = 'Core Subjects';
+                                    container.appendChild(coreHeader);
+
+                                    coreSubjects.forEach(subj => {
+                                        const div = document.createElement('div');
+                                        div.className =
+                                            'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
+                                        div.innerHTML = `
+                                             <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                             <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
+                                         `;
+                                        container.appendChild(div);
+                                    });
+                                }
+
+                                // Add applied subjects section
+                                if (appliedSubjects.length > 0) {
+                                    const appliedHeader = document.createElement('div');
+                                    appliedHeader.className =
+                                        'text-xs font-semibold text-green-600 uppercase tracking-wide mb-2 mt-4';
+                                    appliedHeader.textContent = 'Applied Subjects';
+                                    container.appendChild(appliedHeader);
+
+                                    appliedSubjects.forEach(subj => {
+                                        const div = document.createElement('div');
+                                        div.className =
+                                            'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
+                                        div.innerHTML = `
+                                             <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                             <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
+                                         `;
+                                        container.appendChild(div);
+                                    });
+                                }
+
+                                // Add specialized subjects section
+                                if (specializedSubjects.length > 0) {
+                                    const specializedHeader = document.createElement('div');
+                                    specializedHeader.className =
+                                        'text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2 mt-4';
+                                    specializedHeader.textContent = 'Specialized Subjects';
+                                    container.appendChild(specializedHeader);
+
+                                    specializedSubjects.forEach(subj => {
+                                        const div = document.createElement('div');
+                                        div.className =
+                                            'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
+                                        div.innerHTML = `
+                                             <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                             <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
+                                         `;
+                                        container.appendChild(div);
+                                    });
+                                }
+
+                                container.innerHTML += '</div>';
+                            } else {
+                                container.innerHTML =
+                                    '<div class="text-center py-4 text-gray-500"><p class="text-sm">No subjects found for this selection.</p></div>';
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error fetching subjects:", err);
+                            container.innerHTML =
+                                '<div class="text-center py-4 text-red-500"><p class="text-sm">Failed to load subjects.</p></div>';
+                        });
                 }
 
-            });
+                assignCheckbox.addEventListener('change', function(e) {
+                    const isChecked = e.target.checked;
+                    const container = document.getElementById('subjects-container');
 
-            clearSearch('clear-btn', 'myCustomSearch', table1)
+                    if (isChecked) {
+                        loadAutoAssignSubjects();
+                    } else {
+                        // Hide container when unchecked
+                        container.classList.add('hidden');
+                        container.innerHTML = "";
+                    }
+                });
+
+                // Add event listeners to program and year level dropdowns for auto-refresh
+                const programSelect = document.getElementById('program_id');
+                const yearLevelSelect = document.getElementById('year_level');
+
+                if (programSelect) {
+                    programSelect.addEventListener('change', function() {
+                        // Auto-refresh subjects if auto-assign is checked
+                        if (assignCheckbox.checked) {
+                            loadAutoAssignSubjects();
+                        }
+                    });
+                }
+
+                if (yearLevelSelect) {
+                    yearLevelSelect.addEventListener('change', function() {
+                        // Auto-refresh subjects if auto-assign is checked
+                        if (assignCheckbox.checked) {
+                            loadAutoAssignSubjects();
+                        }
+                    });
+                }
+            }
+
+            document.getElementById('create-section-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let form = e.target;
+                let formData = new FormData(form);
+
+                showLoader();
+
+                fetch(`/section`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+                        if (data.success) {
+                            showAlert('success', data.message);
+                            closeModal('create-section-modal',
+                                'modal-container-1');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showAlert('error', data.message || 'Unknown error');
+                            closeModal('create-section-modal',
+                                'modal-container-1');
+                        }
+                    })
+                    .catch(error => {
+                        hideLoader();
+                        console.error('Error:', error);
+                        showAlert('error', 'An error occurred while deleting the school fee');
+                    });
+            });
 
             let programSelection = document.querySelector('#program_selection');
             let gradeSelection = document.querySelector('#grade_selection');
@@ -332,6 +591,7 @@
 
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
             let gradeContainer = document.querySelector('#grade_selection_container');
+            let clearProgramFilterBtn = document.querySelector('#clear-program-filter-btn');
 
             programSelection.addEventListener('change', (e) => {
 
@@ -339,7 +599,24 @@
                 let id = selectedOption.getAttribute('data-id');
 
                 selectedProgram = id;
-                table1.draw();
+                window.selectedProgram = id; // Set global variable for DataTable
+                sectionsTable.draw();
+
+                // Add visual feedback for selected program
+                if (id) {
+                    let programContainer = programSelection.closest('.flex');
+                    programContainer.classList.remove('bg-gray-100', 'border-[#1e1e1e]/10');
+                    programContainer.classList.add('bg-gray-200', 'border-gray-400');
+                    programSelection.classList.remove('text-gray-700');
+                    programSelection.classList.add('text-gray-900');
+
+                    // Change clear button icon
+                    clearProgramFilterBtn.classList.remove('fi-rr-caret-down', 'text-gray-500');
+                    clearProgramFilterBtn.classList.add('fi-bs-cross-small', 'cursor-pointer',
+                        'text-gray-700');
+
+                    handleClearProgramFilter();
+                }
 
                 //console.log(id);
             })
@@ -348,7 +625,8 @@
 
                 let selectedPageLength = parseInt(e.target.value, 10);
 
-                table1.page.len(selectedPageLength).draw();
+                window.selectedPageLength = selectedPageLength; // Set global variable for DataTable
+                sectionsTable.page.len(selectedPageLength).draw();
 
                 //console.log(id);
             })
@@ -359,16 +637,15 @@
                 let email = selectedOption.getAttribute('data-putanginamo');
 
                 selectedGrade = email;
-                table1.draw();
+                window.selectedGrade = email; // Set global variable for DataTable
+                sectionsTable.draw();
 
                 let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-700'];
                 let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                let gradeSelectionAdd = ['text-[#1A3165]'];
+                let gradeSelectionAdd = ['text-gray-900'];
                 let gradeContainerRem = ['bg-gray-100'];
-                let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
-                    'hover:bg-[#1A73E8]/25'
-                ];
+                let gradeContainerAdd = ['bg-gray-200', 'border-gray-400', 'hover:bg-gray-300'];
 
                 clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
                 clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
@@ -385,24 +662,42 @@
 
                 clearGradeFilterBtn.addEventListener('click', () => {
 
-                    gradeContainer.classList.remove('bg-[#1A73E8]/15')
-                    gradeContainer.classList.remove('border-blue-300')
-                    gradeContainer.classList.remove('hover:bg-blue-300')
+                    gradeContainer.classList.remove('bg-gray-200', 'border-gray-400', 'hover:bg-gray-300')
                     clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
 
                     clearGradeFilterBtn.classList.add('fi-rr-caret-down');
-                    gradeContainer.classList.add('bg-gray-100')
-                    gradeSelection.classList.remove('text-[#1A3165]')
+                    gradeContainer.classList.add('bg-gray-100', 'border-[#1e1e1e]/10')
+                    gradeSelection.classList.remove('text-gray-900')
                     gradeSelection.classList.add('text-gray-700')
-                    clearGradeFilterBtn.classList.remove('text-[#1A3165]')
+                    clearGradeFilterBtn.classList.remove('text-gray-700')
                     clearGradeFilterBtn.classList.add('text-gray-500')
 
 
                     gradeSelection.selectedIndex = 0
                     selectedGrade = '';
-                    table1.draw();
+                    window.selectedGrade = ''; // Clear global variable for DataTable
+                    sectionsTable.draw();
                 })
 
+            }
+
+            function handleClearProgramFilter() {
+                clearProgramFilterBtn.addEventListener('click', () => {
+                    let programContainer = programSelection.closest('.flex');
+
+                    programContainer.classList.remove('bg-gray-200', 'border-gray-400');
+                    programContainer.classList.add('bg-gray-100', 'border-[#1e1e1e]/10');
+                    programSelection.classList.remove('text-gray-900');
+                    programSelection.classList.add('text-gray-700');
+                    clearProgramFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer',
+                        'text-gray-700');
+                    clearProgramFilterBtn.classList.add('fi-rr-caret-down', 'text-gray-500');
+
+                    programSelection.selectedIndex = 0;
+                    selectedProgram = '';
+                    window.selectedProgram = ''; // Clear global variable for DataTable
+                    sectionsTable.draw();
+                });
             }
 
             window.onload = function() {
@@ -411,114 +706,6 @@
                 pageLengthSelection.selectedIndex = 0
             }
 
-            let dropDownBtn = document.querySelector('#dropdown_btn');
-            let dropdownselection = document.querySelector('#dropdown_selection');
-
-            dropDownBtn.addEventListener('click', () => {
-                dropdownselection.classList.toggle('opacity-0');
-                dropdownselection.classList.toggle('scale-95');
-                dropdownselection.classList.toggle('pointer-events-none');
-                dropdownselection.classList.toggle('translate-y-1');
-            })
-
-
-            document.getElementById('import-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                closeModal();
-
-                let form = e.target;
-                let formData = new FormData(form);
-
-                // Show loader
-                showLoader("Importing...");
-
-                fetch("/students/import", {
-                        method: "POST",
-                        body: formData,
-                        headers: {
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        hideLoader();
-
-                        console.log(data)
-
-                        if (data.success) {
-
-                            showAlert('success', data.success);
-                            table1.draw();
-
-                        } else if (data.error) {
-
-                            showAlert('error', data.error);
-                        }
-                    })
-                    .catch(err => {
-                        hideLoader();
-                        showAlert('error', 'Something went wrong');
-                    });
-            });
-
-
-            const totalChartCtx = document.getElementById('total_chart').getContext('2d');
-            const gradeLevelChartCtx = document.getElementById('grade_level_chart').getContext('2d');
-            const programChartCtx = document.getElementById('program_chart').getContext('2d');
-
-            const gradeLevelChart = new Chart(gradeLevelChartCtx, {
-                type: 'pie', // change to 'pie' for pie chart
-                data: {
-
-                    datasets: [{
-                        label: 'Students',
-                        data: [19, 3],
-                        backgroundColor: ['#199BCF', '#1A3165'],
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    maintainAspectRatio: false
-                    // makes it a donut; remove for a pie chart
-                }
-            });
-
-            const programChart = new Chart(programChartCtx, {
-                type: 'pie', // change to 'pie' for pie chart
-                data: {
-
-                    datasets: [{
-                        label: 'Students',
-                        data: [20, 265],
-                        backgroundColor: ['#199BCF', '#1A3165'],
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    maintainAspectRatio: false,
-                    cutout: '70%'
-                    // makes it a donut; remove for a pie chart
-                }
-            });
-
-            const totalChart = new Chart(totalChartCtx, {
-                type: 'pie', // change to 'pie' for pie chart
-                data: {
-
-                    datasets: [{
-                        label: 'Students',
-                        data: [20, 265],
-                        backgroundColor: ['#199BCF', '#1A3165'],
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    maintainAspectRatio: false,
-                    cutout: '70%'
-                    // makes it a donut; remove for a pie chart
-                }
-            });
 
             function closeModal() {
 

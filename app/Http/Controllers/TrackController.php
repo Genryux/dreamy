@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Track;
+use App\Services\AcademicTermService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
@@ -14,15 +15,55 @@ class TrackController extends Controller
      */
     public function index()
     {
-        $tracks = Track::orderBy('name')->get();
+        $tracks = Track::with(['programs.sections', 'programs.subjects', 'programs.teachers'])->orderBy('name')->get();
 
-        return view('user-admin.curriculum.tracks.index', compact('tracks'));
-        
-        return response()->json([
-            'success' => true,
-            'data' => $tracks->count(),
-            'message' => 'Tracks retrieved successfully'
-        ]);
+        // Get current academic term data
+        $academicTermService = app(AcademicTermService::class);
+        $academicTermData = $academicTermService->getCurrentAcademicTermData();
+
+        // Calculate comprehensive statistics
+        $totalPrograms = $tracks->sum(function ($track) {
+            return $track->programs()->count();
+        });
+
+        $totalSections = $tracks->sum(function ($track) {
+            return $track->programs->sum(function ($program) {
+                return $program->sections()->count();
+            });
+        });
+
+        $totalSubjects = $tracks->sum(function ($track) {
+            return $track->programs->sum(function ($program) {
+                return $program->subjects()->count();
+            });
+        });
+
+        $totalTeachers = $tracks->sum(function ($track) {
+            return $track->programs->sum(function ($program) {
+                return $program->teachers()->count();
+            });
+        });
+
+        $totalStudents = $tracks->sum(function ($track) {
+            return $track->programs->sum(function ($program) {
+                return \App\Models\Student::where('program_id', $program->id)->count();
+            });
+        });
+
+        $activeTracks = $tracks->where('status', 'active')->count();
+        $inactiveTracks = $tracks->where('status', 'inactive')->count();
+
+        return view('user-admin.curriculum.tracks.index', compact(
+            'tracks',
+            'academicTermData',
+            'totalPrograms',
+            'totalSections',
+            'totalSubjects',
+            'totalTeachers',
+            'totalStudents',
+            'activeTracks',
+            'inactiveTracks'
+        ));
     }
 
     /**

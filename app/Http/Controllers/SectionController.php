@@ -92,6 +92,110 @@ class SectionController extends Controller
             'data' => $data,
         ]);
     }
+
+    public function getAllSections(Request $request)
+    {
+        // Start with all sections, not filtered by program
+        $query = Section::with(['teacher.user', 'program', 'enrollments']);
+
+        // Search filter
+        if ($search = $request->input('search.value')) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('year_level', 'like', "%{$search}%")
+                  ->orWhere('room', 'like', "%{$search}%")
+                  ->orWhereHas('teacher.user', function($teacherQuery) use ($search) {
+                      $teacherQuery->where('first_name', 'like', "%{$search}%")
+                                   ->orWhere('last_name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('program', function($programQuery) use ($search) {
+                      $programQuery->where('name', 'like', "%{$search}%")
+                                   ->orWhere('code', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Program filter
+        if ($programFilter = $request->input('program_filter')) {
+            $query->whereHas('program', function($q) use ($programFilter) {
+                $q->where('code', $programFilter);
+            });
+        }
+
+        // Grade/Year level filter
+        if ($gradeFilter = $request->input('grade_filter')) {
+            $query->where('year_level', $gradeFilter);
+        }
+
+        // Sorting
+        $columns = ['id', 'name', 'program', 'teacher', 'year_level', 'room', 'total_enrolled_students'];
+        $orderColumnIndex = $request->input('order.0.column', 0);
+        $orderDir = $request->input('order.0.dir', 'asc');
+        $sortColumn = $columns[$orderColumnIndex] ?? 'id';
+
+        // Handle special sorting for teacher and program columns
+        if ($sortColumn === 'teacher') {
+            $query->leftJoin('teachers', 'sections.teacher_id', '=', 'teachers.id')
+                  ->leftJoin('users', 'teachers.user_id', '=', 'users.id')
+                  ->orderBy('users.last_name', $orderDir)
+                  ->orderBy('users.first_name', $orderDir)
+                  ->select('sections.*');
+        } elseif ($sortColumn === 'program') {
+            $query->leftJoin('programs', 'sections.program_id', '=', 'programs.id')
+                  ->orderBy('programs.code', $orderDir)
+                  ->select('sections.*');
+        } else {
+            $query->orderBy($sortColumn, $orderDir);
+        }
+
+        $total = Section::count();
+        $filtered = $query->count();
+
+        $start = $request->input('start', 0);
+        $length = $request->input('length', 10);
+
+        $data = $query
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($section, $key) use ($start) {
+                $adviser = 'Not Assigned';
+                
+                // Debug: Check if teacher exists and what it contains
+                if ($section->teacher_id) {
+                    if ($section->teacher && $section->teacher->user) {
+                        $adviser = $section->teacher->user->last_name . ', ' . $section->teacher->user->first_name;
+                    } else if ($section->teacher) {
+                        // Teacher exists but no user relationship
+                        $adviser = $section->teacher->first_name . ' ' . $section->teacher->last_name;
+                    }
+                }
+
+                $programCode = 'Not Set';
+                if ($section->program) {
+                    $programCode = $section->program->code;
+                }
+
+                return [
+                    'index' => $start + $key + 1,
+                    'name' => $section->name,
+                    'program_code' => $programCode,
+                    'adviser' => $adviser,
+                    'year_level' => $section->year_level ?? 'Not Set',
+                    'room' => $section->room ?? 'Not Assigned',
+                    'total_enrolled_students' => $section->enrollments->count(),
+                    'id' => $section->id
+                ];
+            });
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
+    }
+
     // For Students Table
     public function getStudents(Section $section, Request $request)
     {
@@ -130,29 +234,29 @@ class SectionController extends Controller
             $columns = ['lrn', 'full_name', 'age', 'gender'];
             $orderColumnIndex = $request->input('order.0.column');
             $orderDir = $request->input('order.0.dir', 'asc');
-            
+
             if ($orderColumnIndex !== null && isset($columns[$orderColumnIndex])) {
                 $sortColumn = $columns[$orderColumnIndex];
-                
+
                 switch ($sortColumn) {
                     case 'lrn':
                         $query->orderBy('lrn', $orderDir);
                         break;
                     case 'full_name':
                         $query->leftJoin('users', 'students.user_id', '=', 'users.id')
-                              ->orderBy('users.last_name', $orderDir)
-                              ->orderBy('users.first_name', $orderDir)
-                              ->select('students.*');
+                            ->orderBy('users.last_name', $orderDir)
+                            ->orderBy('users.first_name', $orderDir)
+                            ->select('students.*');
                         break;
                     case 'age':
                         $query->leftJoin('student_records', 'students.id', '=', 'student_records.student_id')
-                              ->orderBy('student_records.age', $orderDir)
-                              ->select('students.*');
+                            ->orderBy('student_records.age', $orderDir)
+                            ->select('students.*');
                         break;
                     case 'gender':
                         $query->leftJoin('student_records', 'students.id', '=', 'student_records.student_id')
-                              ->orderBy('student_records.gender', $orderDir)
-                              ->select('students.*');
+                            ->orderBy('student_records.gender', $orderDir)
+                            ->select('students.*');
                         break;
                     default:
                         $query->orderBy('id', $orderDir);
@@ -201,8 +305,9 @@ class SectionController extends Controller
     public function index()
     {
         $sections = Section::all();
+        $programs = Program::all();
 
-        return view('user-admin.section.index', compact('sections'));
+        return view('user-admin.curriculum.section.index', compact('sections', 'programs'));
     }
 
     public function create()
@@ -278,14 +383,20 @@ class SectionController extends Controller
             ->with('user')
             ->get();
 
+        // Get teachers filtered by the section's program ID
+        $teachers = \App\Models\Teacher::where('status', 'active')
+            ->with('user')
+            ->get(['id', 'first_name', 'last_name', 'program_id']);
+
         // Load section subjects with their details
         $section->load([
             'sectionSubjects.subject',
-            'sectionSubjects.teacher',
+            'sectionSubjects.teacher.user',
+            'teacher.user',
             'program'
         ]);
 
-        return view('user-admin.curriculum.section.show', compact('section', 'students'));
+        return view('user-admin.curriculum.section.show', compact('section', 'students', 'teachers'));
     }
 
     // Students who doesn't have a section yet (filtered by year level and program)
@@ -309,7 +420,7 @@ class SectionController extends Controller
     {
         // Get the current active academic term to determine the semester
         $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-        
+
         if (!$activeTerm) {
             return response()->json([
                 'subjects' => [],
@@ -332,20 +443,11 @@ class SectionController extends Controller
         ]);
     }
 
-    public function getTeachers()
-    {
-        $teachers = \App\Models\Teacher::where('status', 'active')
-            ->get(['id', 'first_name', 'last_name']);
-
-        return response()->json([
-            'teachers' => $teachers
-        ]);
-    }
 
     public function getSectionSubject($sectionSubjectId)
     {
         try {
-            $sectionSubject = \App\Models\SectionSubject::with(['subject', 'teacher'])
+            $sectionSubject = \App\Models\SectionSubject::with(['subject', 'teacher.user'])
                 ->find($sectionSubjectId);
 
             if (!$sectionSubject) {
@@ -358,7 +460,7 @@ class SectionController extends Controller
                 'subject_id' => $sectionSubject->subject_id,
                 'subject_name' => $sectionSubject->subject->name,
                 'teacher_id' => $sectionSubject->teacher_id,
-                'teacher_name' => $sectionSubject->teacher ? $sectionSubject->teacher->first_name . ' ' . $sectionSubject->teacher->last_name : null,
+                'teacher_name' => $sectionSubject->teacher ? $sectionSubject->teacher->getFullNameAttribute() : null,
                 'room' => $sectionSubject->room,
                 'days_of_week' => $sectionSubject->days_of_week,
                 'start_time' => $sectionSubject->start_time,
@@ -510,7 +612,7 @@ class SectionController extends Controller
         try {
             DB::transaction(function () use ($validated, $section) {
                 $sectionSubject = \App\Models\SectionSubject::find($validated['section_subject_id']);
-                
+
                 if (!$sectionSubject || $sectionSubject->section_id !== $section->id) {
                     throw new \Exception('Section subject not found or does not belong to this section');
                 }
@@ -553,21 +655,24 @@ class SectionController extends Controller
         try {
 
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'nullable|string|max:255',
                 'room' => 'nullable|string|max:50',
                 'teacher_id' => 'nullable|exists:teachers,id',
             ]);
 
             $section->update($validated);
+            
+            // Reload the section with teacher relationship
+            $section->load('teacher.user');
 
             $newSectionName = $section->name;
             $newRoom = $section->room;
-            $newTeacher = $section->teacher ? $section->teacher->name : 'Not assigned';
+            $newTeacher = $section->teacher ? $section->teacher->getFullNameAttribute() : 'Not assigned';
 
             return response()->json([
                 'success' => 'Section successfully updated',
                 'newData' => [
-                    'newSectionName' => $newSectionName, 
+                    'newSectionName' => $newSectionName,
                     'newRoom' => $newRoom,
                     'newTeacher' => $newTeacher
                 ]
@@ -587,12 +692,12 @@ class SectionController extends Controller
             DB::transaction(function () use ($section) {
                 // Get all students in this section
                 $students = $section->students;
-                
+
                 // Remove all students from this section
                 foreach ($students as $student) {
                     // Update Student model (for admin panel compatibility)
                     $student->update(['section_id' => null]);
-                    
+
                     // Update StudentEnrollment model (for mobile app API)
                     $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
                     if ($activeTerm) {
@@ -601,25 +706,25 @@ class SectionController extends Controller
                             ->update(['section_id' => null]);
                     }
                 }
-                
+
                 // Get all section subjects
                 $sectionSubjects = $section->sectionSubjects;
-                
+
                 // Remove all student enrollments for each subject
                 foreach ($sectionSubjects as $sectionSubject) {
                     \App\Models\StudentSubject::where('section_subject_id', $sectionSubject->id)->delete();
                 }
-                
+
                 // Delete all section subjects
                 $section->sectionSubjects()->delete();
-                
+
                 // Finally, delete the section itself
                 $section->delete();
             });
 
             // Determine redirect URL based on referrer or program
             $redirectUrl = '/tracks'; // Default fallback (replaced /programs)
-            
+
             if ($request->has('redirect_to')) {
                 $redirectUrl = $request->input('redirect_to');
             } elseif ($request->header('referer')) {

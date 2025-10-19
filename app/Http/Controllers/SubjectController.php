@@ -128,8 +128,90 @@ class SubjectController extends Controller
 
     public function index()
     {
-        $subjects = Subject::all();
-        return response()->json($subjects);
+        $programs = \App\Models\Program::where('status', 'active')->get();
+        return view('user-admin.curriculum.subject.index', compact('programs'));
+    }
+
+    public function getAllSubjects(Request $request)
+    {
+        $query = Subject::with(['program']);
+
+        // Search filter
+        if ($search = $request->input('search.value')) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('grade_level', 'like', "%{$search}%")
+                  ->orWhere('semester', 'like', "%{$search}%")
+                  ->orWhereHas('program', function($programQuery) use ($search) {
+                      $programQuery->where('name', 'like', "%{$search}%")
+                                   ->orWhere('code', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Program filter
+        if ($programFilter = $request->input('program_filter')) {
+            $query->whereHas('program', function($q) use ($programFilter) {
+                $q->where('code', $programFilter);
+            });
+        }
+
+        // Grade filter
+        if ($gradeFilter = $request->input('grade_filter')) {
+            $query->where('grade_level', $gradeFilter);
+        }
+
+        // Category filter
+        if ($categoryFilter = $request->input('category_filter')) {
+            $query->where('category', $categoryFilter);
+        }
+
+        // Sorting
+        $columns = ['id', 'name', 'category', 'grade_level', 'semester', 'program'];
+        $orderColumnIndex = $request->input('order.0.column');
+        $orderDir = $request->input('order.0.dir', 'asc');
+
+        if ($orderColumnIndex >= 1 && $orderColumnIndex <= 5) {
+            $sortColumn = $columns[$orderColumnIndex] ?? 'id';
+            if ($sortColumn === 'program') {
+                $query->leftJoin('programs', 'subjects.program_id', '=', 'programs.id')
+                      ->orderBy('programs.code', $orderDir);
+            } else {
+                $query->orderBy($sortColumn, $orderDir);
+            }
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $total = $query->count();
+        $filtered = $total;
+
+        $start = $request->input('start', 0);
+        $length = $request->input('length', 10);
+
+        $data = $query
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($subject, $key) use ($start) {
+                return [
+                    'index' => $start + $key + 1,
+                    'name' => $subject->name,
+                    'category' => ucfirst($subject->category),
+                    'grade_level' => $subject->grade_level,
+                    'semester' => $subject->semester,
+                    'program' => $subject->program ? $subject->program->code : 'Not Set',
+                    'id' => $subject->id
+                ];
+            });
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
     }
 
     public function create()
@@ -193,25 +275,34 @@ class SubjectController extends Controller
         }
     }
 
-    public function show(Subject $subject)
+    public function show($id)
     {
         try {
+            $subject = Subject::findOrFail($id);
+            
             return response()->json([
                 'success' => true,
-                'subject' => $subject
+                'subject' => [
+                    'id' => $subject->id,
+                    'name' => $subject->name,
+                    'program_id' => $subject->program_id,
+                    'grade_level' => $subject->grade_level,
+                    'category' => $subject->category,
+                    'semester' => $subject->semester,
+                ]
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Subject retrieval failed', [
-                'error' => $e->getMessage(),
-                'subject_id' => $subject->id ?? null,
-                'user_id' => auth()->user()->id ?? null
+        } catch (\Throwable $th) {
+            \Log::error('Subject show failed', [
+                'error' => $th->getMessage(),
+                'subject_id' => $id,
+                'user_id' => auth()->user()->id,
+                'ip_address' => request()->ip()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve subject',
-                'error' => $e->getMessage()
-            ], 500);
+                'error' => 'Subject not found'
+            ], 404);
         }
     }
 
@@ -220,7 +311,7 @@ class SubjectController extends Controller
         return response()->json(['message' => 'Show form to edit subject', 'subject' => $subject]);
     }
 
-    public function update(Request $request, Subject $subject)
+    public function update(Request $request, $id)
     {
         try {
             $validated = $request->validate([
@@ -231,10 +322,8 @@ class SubjectController extends Controller
                 'semester' => 'required|string|in:1st Semester,2nd Semester',
             ]);
 
+            $subject = Subject::findOrFail($id);
             $subject->update($validated);
-
-            // Calculate total subjects for the program
-            $totalSubjects = Subject::where('program_id', $subject->program_id)->count();
 
             // Audit logging for subject update
             \Log::info('Subject updated', [
@@ -250,8 +339,7 @@ class SubjectController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Subject updated successfully',
-                'data' => $subject->fresh(),
-                'totalSubjects' => $totalSubjects
+                'data' => $subject->fresh()
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -263,7 +351,7 @@ class SubjectController extends Controller
         } catch (\Exception $e) {
             \Log::error('Subject update failed', [
                 'error' => $e->getMessage(),
-                'subject_id' => $subject->id,
+                'subject_id' => $id,
                 'request_data' => $request->all(),
                 'user_id' => auth()->user()->id ?? null
             ]);
@@ -276,9 +364,11 @@ class SubjectController extends Controller
         }
     }
 
-    public function destroy(Subject $subject)
+    public function destroy($id)
     {
         try {
+            $subject = Subject::findOrFail($id);
+            
             // Check for dependencies before deletion
             $dependencies = [];
 
@@ -293,8 +383,8 @@ class SubjectController extends Controller
                 $dependencyList = implode(', ', $dependencies);
                 return response()->json([
                     'success' => false,
-                    'message' => "Cannot delete subject. It is still referenced by: {$dependencyList}. Please remove these references first.",
-                    'dependencies' => $dependencies
+                    'has_section_subjects' => true,
+                    'error' => "Cannot delete subject '{$subject->name}' because it is currently being used in {$sectionSubjectCount} section subject(s). Please remove it from all sections first before deleting."
                 ], 422);
             }
 
@@ -309,25 +399,18 @@ class SubjectController extends Controller
                 'user_agent' => request()->userAgent()
             ]);
 
-            // Store program_id before deletion for count calculation
-            $programId = $subject->program_id;
-
             // Safe to delete
             $subject->delete();
 
-            // Calculate total subjects for the program after deletion
-            $totalSubjects = Subject::where('program_id', $programId)->count();
-
             return response()->json([
                 'success' => true,
-                'message' => 'Subject deleted successfully',
-                'totalSubjects' => $totalSubjects
+                'message' => 'Subject deleted successfully'
             ]);
 
         } catch (\Exception $e) {
             \Log::error('Subject deletion failed', [
                 'error' => $e->getMessage(),
-                'subject_id' => $subject->id,
+                'subject_id' => $id,
                 'user_id' => auth()->user()->id ?? null
             ]);
 

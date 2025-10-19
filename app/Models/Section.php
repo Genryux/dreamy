@@ -56,7 +56,7 @@ class Section extends Model
      */
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class)->withDefault();
+        return $this->belongsTo(Teacher::class);
     }
 
     // Subjects offered in this section

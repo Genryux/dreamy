@@ -54,7 +54,7 @@
                 <div class="flex flex-row gap-4">
                     <div class="flex-1 flex flex-col">
                         <label for="name" class="text-sm font-medium text-gray-700 mb-2">Section Name</label>
-                        <input type="text" name="name" id="name" placeholder="{{ $section->name }}"
+                        <input type="text" name="name" id="name" value="{{ $section->name }}" placeholder="{{ $section->name }}"
                             class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                     </div>
                     <div class="flex-1 flex flex-col">
@@ -70,7 +70,11 @@
                     <select name="teacher_id" id="teacher_id"
                         class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 text-[14px]">
                         <option value="" selected>Select a teacher</option>
-                        <!-- Options will be populated dynamically -->
+                        @foreach($teachers as $teacher)
+                            <option value="{{ $teacher->id }}" {{ $section->teacher_id == $teacher->id ? 'selected' : '' }}>
+                                {{ $teacher->first_name }} {{ $teacher->last_name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -164,7 +168,11 @@
                         <select name="teacher_id" id="teacher_id"
                             class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                             <option value="" selected>Select a teacher</option>
-                            <!-- Options will be populated dynamically -->
+                            @foreach($teachers as $teacher)
+                                <option value="{{ $teacher->id }}">
+                                    {{ $teacher->first_name }} {{ $teacher->last_name }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -221,24 +229,36 @@
                     </div>
 
                     <!-- Schedule Conflict Warning -->
-                    <div id="schedule-conflict-warning" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fi fi-sr-exclamation-triangle text-red-500 mr-2"></i>
-                            <span class="text-sm text-red-700 font-medium">Schedule Conflict Detected!</span>
+                    <div id="schedule-conflict-warning" class="hidden bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-lg shadow-sm">
+                        <div class="p-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-rr-exclamation-triangle text-red-500 text-lg"></i>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <h3 class="text-sm font-semibold text-red-800 mb-2">Schedule Conflict Detected</h3>
+                                    <div id="conflict-details" class="text-sm text-red-700 space-y-1"></div>
+                                </div>
+                            </div>
                         </div>
-                        <p id="conflict-details" class="text-xs text-red-600 mt-1"></p>
                     </div>
 
                     <!-- Schedule Suggestions -->
-                    <div id="schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <i class="fi fi-sr-lightbulb text-blue-500 mr-2"></i>
-                            <span class="text-sm text-blue-700 font-medium">Available Time Slots</span>
-                        </div>
-                        <p class="text-xs text-blue-600 mb-2">Click on any suggestion to auto-fill the form:</p>
-                        <div id="suggestions-list"
-                            class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-1 text-xs">
-                            <!-- Suggestions will be populated here -->
+                    <div id="schedule-suggestions" class="hidden bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-lg shadow-sm">
+                        <div class="p-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-sr-lightbulb text-blue-500 text-lg"></i>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <h3 class="text-sm font-semibold text-blue-800 mb-2">Available Time Slots</h3>
+                                    <p class="text-xs text-blue-600 mb-3">Click on any suggestion to auto-fill the form:</p>
+                                    <div id="suggestions-list"
+                                        class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-2 text-xs">
+                                        <!-- Suggestions will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,7 +295,7 @@
                     <div class="flex flex-col">
                         <label for="edit-subject_name" class="text-sm font-medium text-gray-700 mb-2">Subject</label>
                         <input type="text" name="subject_name" id="edit-subject_name" readonly
-                            class="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                            class="w-full border-2 border-gray-300 bg-gray-50 rounded-lg px-3 py-2 outline-none text-gray-700 cursor-not-allowed text-[14px]"
                             placeholder="Subject name will appear here">
                     </div>
 
@@ -283,9 +303,13 @@
                     <div class="flex flex-col">
                         <label for="edit-teacher_id" class="text-sm font-medium text-gray-700 mb-2">Teacher</label>
                         <select name="teacher_id" id="edit-teacher_id"
-                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                             <option value="" selected>Select a teacher (optional)</option>
-                            <!-- Options will be populated dynamically -->
+                            @foreach($teachers as $teacher)
+                                <option value="{{ $teacher->id }}">
+                                    {{ $teacher->first_name }} {{ $teacher->last_name }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -293,7 +317,7 @@
                     <div class="flex flex-col">
                         <label for="edit-room" class="text-sm font-medium text-gray-700 mb-2">Room</label>
                         <input type="text" name="room" id="edit-room" placeholder="Enter room number"
-                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                     </div>
 
                     <!-- Days of Week -->
@@ -338,35 +362,46 @@
                         <div class="flex flex-col">
                             <label for="edit-start_time" class="text-sm font-medium text-gray-700 mb-2">Start Time</label>
                             <input type="time" name="start_time" id="edit-start_time"
-                                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                                class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                         </div>
                         <div class="flex flex-col">
                             <label for="edit-end_time" class="text-sm font-medium text-gray-700 mb-2">End Time</label>
                             <input type="time" name="end_time" id="edit-end_time"
-                                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                                class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[14px] text-[14px]">
                         </div>
                     </div>
 
                     <!-- Schedule Conflict Warning -->
-                    <div id="edit-schedule-conflict-warning"
-                        class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fi fi-sr-exclamation-triangle text-red-500 mr-2"></i>
-                            <span class="text-sm text-red-700 font-medium">Schedule Conflict Detected!</span>
+                    <div id="edit-schedule-conflict-warning" class="hidden bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-lg shadow-sm">
+                        <div class="p-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-rr-exclamation-triangle text-red-500 text-lg"></i>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <h3 class="text-sm font-semibold text-red-800 mb-2">Schedule Conflict Detected</h3>
+                                    <div id="edit-conflict-details" class="text-sm text-red-700 space-y-1"></div>
+                                </div>
+                            </div>
                         </div>
-                        <p id="edit-conflict-details" class="text-xs text-red-600 mt-1"></p>
                     </div>
 
                     <!-- Schedule Suggestions -->
-                    <div id="edit-schedule-suggestions" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <i class="fi fi-sr-lightbulb text-blue-500 mr-2"></i>
-                            <span class="text-sm text-blue-700 font-medium">Available Time Slots</span>
-                        </div>
-                        <p class="text-xs text-blue-600 mb-2">Click on any suggestion to auto-fill the form:</p>
-                        <div id="edit-suggestions-list"
-                            class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-1 text-xs">
-                            <!-- Suggestions will be populated here -->
+                    <div id="edit-schedule-suggestions" class="hidden bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-lg shadow-sm">
+                        <div class="p-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-sr-lightbulb text-blue-500 text-lg"></i>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <h3 class="text-sm font-semibold text-blue-800 mb-2">Available Time Slots</h3>
+                                    <p class="text-xs text-blue-600 mb-3">Click on any suggestion to auto-fill the form:</p>
+                                    <div id="edit-suggestions-list"
+                                        class="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 grid grid-cols-2 gap-2 text-xs">
+                                        <!-- Suggestions will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -572,7 +607,16 @@
                         <i class="fi fi-sr-user flex justify-center items-center"></i>
                         <p class="text-[14px]">Adviser</p>
                     </div>
-                    <p class="font-bold text-[20px]" id="section_teacher">{{ $section->teacher->name ?? 'Not assigned' }}
+                    <p class="font-bold text-[20px]" id="section_teacher">
+                        @if($section->teacher_id && $section->teacher)
+                            @if($section->teacher->user)
+                                {{ $section->teacher->user->last_name }}, {{ $section->teacher->user->first_name }}
+                            @else
+                                {{ $section->teacher->first_name }} {{ $section->teacher->last_name }}
+                            @endif
+                        @else
+                            Not assigned
+                        @endif
                     </p>
                     <p class="text-[12px] text-white/50">Section Teacher</p>
                 </div>
@@ -701,88 +745,128 @@
             </div>
 
             <!-- Subjects Grid -->
-            <div class="space-y-4">
+            <div class="space-y-3">
                 @forelse($section->sectionSubjects as $sectionSubject)
-                    <div
-                        class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-4 hover:shadow-md transition duration-200">
-                        <div class="flex flex-row justify-between items-start mb-3">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-bold text-[#1A3165]">{{ $sectionSubject->subject->name }}</h3>
-                                <p class="text-sm text-gray-600">{{ $sectionSubject->subject->category ?? 'General' }}</p>
+                    <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-gray-300 transition-all duration-300">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start gap-3 mb-2">
+                                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fi fi-sr-book text-gray-600 text-lg"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-lg font-semibold text-gray-900 line-clamp-2 leading-tight">{{ $sectionSubject->subject->name }}</h3>
+                                        <p class="text-sm text-gray-500 mt-1">{{ $sectionSubject->subject->category ?? 'General Subject' }}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex flex-col items-end">
-                                <span
-                                    class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{{ $sectionSubject->subject->year_level ?? $section->year_level }}</span>
+                            <div class="flex items-center gap-2 flex-shrink-0 ml-3">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full whitespace-nowrap">
+                                    {{ $sectionSubject->subject->year_level ?? $section->year_level }}
+                                </span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-3">
-                            <div class="flex flex-row items-center gap-2">
-                                <i class="fi fi-sr-user text-[#1A3165] text-sm"></i>
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-gray-500">Teacher</span>
-                                    <span
-                                        class="text-sm font-medium">{{ $sectionSubject->teacher->name ?? 'Not assigned' }}</span>
+                        <!-- Details Grid -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center">
+                                    <i class="fi fi-sr-user text-gray-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Instructor</p>
+                                    <p class="text-sm font-semibold text-gray-900">
+                                        {{ $sectionSubject->teacher ? $sectionSubject->teacher->getFullNameAttribute() : 'Not assigned' }}
+                                    </p>
                                 </div>
                             </div>
 
-                            <div class="flex flex-row items-center gap-2">
-                                <i class="fi fi-sr-home text-[#1A3165] text-sm"></i>
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-gray-500">Room</span>
-                                    <span class="text-sm font-medium">{{ $sectionSubject->room ?? 'Not assigned' }}</span>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center">
+                                    <i class="fi fi-sr-home text-gray-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Room</p>
+                                    <p class="text-sm font-semibold text-gray-900">{{ $sectionSubject->room ?? 'Not assigned' }}</p>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Schedule -->
                         @if ($sectionSubject->days_of_week || $sectionSubject->start_time)
-                            <div class="flex flex-row items-center gap-2 mb-3">
-                                <i class="fi fi-sr-clock text-[#1A3165] text-sm"></i>
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-gray-500">Schedule</span>
-                                    <span class="text-sm font-medium">
+                            <div class="flex items-start gap-3 mb-4">
+                                <div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fi fi-sr-clock text-gray-500 text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Schedule</p>
+                                    <div class="flex flex-wrap gap-2">
                                         @if ($sectionSubject->days_of_week)
-                                            {{ implode(', ', $sectionSubject->days_of_week) }}
+                                            @foreach($sectionSubject->days_of_week as $day)
+                                                <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md whitespace-nowrap">
+                                                    {{ $day }}
+                                                </span>
+                                            @endforeach
                                         @endif
                                         @if ($sectionSubject->start_time && $sectionSubject->end_time)
-                                            • {{ $sectionSubject->start_time }} - {{ $sectionSubject->end_time }}
+                                            <span class="px-2 py-1 bg-gray-50 text-gray-700 text-xs font-medium rounded-md whitespace-nowrap">
+                                                {{ $sectionSubject->start_time }} - {{ $sectionSubject->end_time }}
+                                            </span>
                                         @endif
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         @endif
 
-                        <div class="flex flex-row justify-between items-center pt-2 border-t border-blue-200">
-                            <div class="flex flex-row items-center gap-2">
-                                <i class="fi fi-sr-users text-[#1A3165] text-sm"></i>
-                                <span class="text-sm text-gray-600">{{ $sectionSubject->students()->count() }}
-                                    enrolled</span>
+                        <!-- Footer -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-gray-50 rounded-lg flex items-center justify-center">
+                                    <i class="fi fi-sr-users text-gray-500 text-xs"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">{{ $sectionSubject->students()->count() }} students enrolled</span>
                             </div>
-                            <div class="flex flex-row gap-2">
-                                <button data-section-subject-id="{{ $sectionSubject->id }}"
-                                    id="edit-subject-modal-btn-{{ $sectionSubject->id }}"
-                                    class="edit-btns px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150">
-                                    <i class="fi fi-rr-edit text-xs mr-1"></i>Edit
-                                </button>
-                                <button data-section-subject-id="{{ $sectionSubject->id }}"
-                                    id="open-delete-subject-modal-btn-{{ $sectionSubject->id }}"
-                                    class="delete-subject-btn px-3 py-1 text-xs font-medium text-red-600 bg-red-100 rounded hover:bg-red-200 transition duration-150">
-                                    <i class="fi fi-rr-trash text-xs mr-1"></i>Remove
-                                </button>
-                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-100">
+                            <button data-section-subject-id="{{ $sectionSubject->id }}"
+                                id="edit-subject-modal-btn-{{ $sectionSubject->id }}"
+                                class="edit-btns px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition duration-150 border border-blue-200 hover:border-blue-300">
+                                <i class="fi fi-rr-edit text-xs mr-1"></i>Edit
+                            </button>
+                            <button data-section-subject-id="{{ $sectionSubject->id }}"
+                                id="open-delete-subject-modal-btn-{{ $sectionSubject->id }}"
+                                class="delete-subject-btn px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition duration-150 border border-red-200 hover:border-red-300">
+                                <i class="fi fi-rr-trash text-xs mr-1"></i>Remove
+                            </button>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-12 text-gray-500">
-                        <i class="fi fi-sr-book text-4xl mb-4"></i>
-                        <p class="text-lg font-medium">No subjects assigned</p>
-                        <p class="text-sm">Add subjects to this section to get started</p>
+                    <div class="text-center py-16">
+                        <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fi fi-sr-book text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No subjects assigned</h3>
+                        <p class="text-sm text-gray-500">Add subjects to this section to get started</p>
                     </div>
                 @endforelse
             </div>
         </div>
     </div>
 @endsection
+
+@push('styles')
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+@endpush
 
 @push('scripts')
     <script type="module">
@@ -1005,46 +1089,18 @@
             // Dropdown functionality for main dropdown
             dropDown('dropdown_btn', 'dropdown_selection');
 
-            // Add event listener for edit section modal button to load teachers
+            // Add event listener for edit section modal button
             const editSectionBtn = document.getElementById('edit-section-modal-btn');
             if (editSectionBtn) {
                 editSectionBtn.addEventListener('click', function() {
-                    loadTeachersForEditSection();
                     populateEditSectionForm();
                 });
             }
 
-            // Function to load teachers for edit section form
-            async function loadTeachersForEditSection() {
-                try {
-                    const response = await fetch('/getTeachers');
-                    const data = await response.json();
-
-                    const teacherSelect = document.getElementById('teacher_id');
-                    teacherSelect.innerHTML = '<option value="" selected>Select a teacher (optional)</option>';
-
-                    if (data.teachers && data.teachers.length > 0) {
-                        data.teachers.forEach(teacher => {
-                            const option = document.createElement('option');
-                            option.value = teacher.id;
-                            option.textContent = `${teacher.first_name} ${teacher.last_name}`;
-                            teacherSelect.appendChild(option);
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error loading teachers for edit section:', error);
-                }
-            }
-
             // Function to populate edit section form with current data
             function populateEditSectionForm() {
-                // Set current teacher if exists
-                const currentTeacherId = @json($section->teacher_id);
-                if (currentTeacherId) {
-                    setTimeout(() => {
-                        document.getElementById('teacher_id').value = currentTeacherId;
-                    }, 100);
-                }
+                // Teacher selection is now handled by the blade template
+                // No additional JavaScript needed for teacher population
             }
 
             // Form submissions
@@ -1243,21 +1299,7 @@
                         subjectSelect.appendChild(option);
                     }
 
-                    // Load teachers
-                    const teachersResponse = await fetch('/getTeachers');
-                    const teachersData = await teachersResponse.json();
-
-                    const teacherSelect = document.getElementById('teacher_id');
-                    teacherSelect.innerHTML = '<option value="" selected>Select a teacher (optional)</option>';
-
-                    if (teachersData.teachers && teachersData.teachers.length > 0) {
-                        teachersData.teachers.forEach(teacher => {
-                            const option = document.createElement('option');
-                            option.value = teacher.id;
-                            option.textContent = `${teacher.first_name} ${teacher.last_name}`;
-                            teacherSelect.appendChild(option);
-                        });
-                    }
+                    // Teachers are now loaded from the blade template
                 } catch (error) {
                     console.error('Error loading subjects and teachers:', error);
                 }
@@ -1295,7 +1337,12 @@
 
                     if (result.has_conflicts) {
                         warningDiv.classList.remove('hidden');
-                        detailsDiv.innerHTML = result.conflicts.map(conflict => conflict.message).join('<br>');
+                        detailsDiv.innerHTML = result.conflicts.map(conflict => 
+                            `<div class="flex items-start space-x-3 mb-2">
+                                <span class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1.5"></span>
+                                <span class="text-sm text-red-700 leading-relaxed">${conflict.message}</span>
+                            </div>`
+                        ).join('');
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
@@ -1311,7 +1358,7 @@
                                     const suggestionBtn = document.createElement('button');
                                     suggestionBtn.type = 'button';
                                     suggestionBtn.className =
-                                        'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                        'px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-medium transition duration-200 shadow-sm hover:shadow-md border border-blue-200 hover:border-blue-300';
                                     suggestionBtn.textContent = suggestion.display;
                                     suggestionBtn.onclick = () => applySuggestion(suggestion);
                                     suggestionsList.appendChild(suggestionBtn);
@@ -1438,8 +1485,12 @@
                         const suggestionsList = document.getElementById('suggestions-list');
 
                         warningDiv.classList.remove('hidden');
-                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => conflict
-                            .message).join('<br>');
+                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => 
+                            `<div class="flex items-start space-x-3 mb-2">
+                                <span class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1.5"></span>
+                                <span class="text-sm text-red-700 leading-relaxed">${conflict.message}</span>
+                            </div>`
+                        ).join('');
 
                         // Show suggestions container if there are suggestions OR no available days
                         if ((conflictResult.suggestions && conflictResult.suggestions.length > 0) || (
@@ -1454,7 +1505,7 @@
                                     const suggestionBtn = document.createElement('button');
                                     suggestionBtn.type = 'button';
                                     suggestionBtn.className =
-                                        'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                        'px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-medium transition duration-200 shadow-sm hover:shadow-md border border-blue-200 hover:border-blue-300';
                                     suggestionBtn.textContent = suggestion.display;
                                     suggestionBtn.onclick = () => applySuggestion(suggestion);
                                     suggestionsList.appendChild(suggestionBtn);
@@ -1547,8 +1598,7 @@
             // Function to populate edit form with existing data
             async function populateEditForm(sectionSubjectId) {
                 try {
-                    // Load teachers for the edit form
-                    await loadTeachersForEdit();
+                    // Teachers are now loaded from the blade template
 
                     // Get the section subject data from the server
                     const response = await fetch(`/getSectionSubject/${sectionSubjectId}`);
@@ -1592,25 +1642,7 @@
             }
 
 
-            // Function to load teachers for edit form
-            async function loadTeachersForEdit() {
-                try {
-                    const response = await fetch('/getTeachers');
-                    const data = await response.json();
-
-                    const teacherSelect = document.getElementById('edit-teacher_id');
-                    teacherSelect.innerHTML = '<option value="" selected>Select a teacher (optional)</option>';
-
-                    data.teachers.forEach(teacher => {
-                        const option = document.createElement('option');
-                        option.value = teacher.id;
-                        option.textContent = `${teacher.first_name} ${teacher.last_name}`;
-                        teacherSelect.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('Error loading teachers for edit:', error);
-                }
-            }
+            // Teachers are now loaded from the blade template
 
             // Function to check schedule conflicts for edit form
             async function checkEditScheduleConflict() {
@@ -1659,7 +1691,12 @@
 
                     if (result.has_conflicts) {
                         warningDiv.classList.remove('hidden');
-                        detailsDiv.innerHTML = result.conflicts.map(conflict => conflict.message).join('<br>');
+                        detailsDiv.innerHTML = result.conflicts.map(conflict => 
+                            `<div class="flex items-start space-x-3 mb-2">
+                                <span class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1.5"></span>
+                                <span class="text-sm text-red-700 leading-relaxed">${conflict.message}</span>
+                            </div>`
+                        ).join('');
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
@@ -1674,7 +1711,7 @@
                                     const suggestionBtn = document.createElement('button');
                                     suggestionBtn.type = 'button';
                                     suggestionBtn.className =
-                                        'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                        'px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-medium transition duration-200 shadow-sm hover:shadow-md border border-blue-200 hover:border-blue-300';
                                     suggestionBtn.textContent = suggestion.display;
                                     suggestionBtn.onclick = () => applyEditSuggestion(suggestion);
                                     suggestionsList.appendChild(suggestionBtn);
@@ -1819,8 +1856,12 @@
                         const suggestionsList = document.getElementById('edit-suggestions-list');
 
                         warningDiv.classList.remove('hidden');
-                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => conflict
-                            .message).join('<br>');
+                        detailsDiv.innerHTML = conflictResult.conflicts.map(conflict => 
+                            `<div class="flex items-start space-x-3 mb-2">
+                                <span class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1.5"></span>
+                                <span class="text-sm text-red-700 leading-relaxed">${conflict.message}</span>
+                            </div>`
+                        ).join('');
 
                         if ((conflictResult.suggestions && conflictResult.suggestions.length > 0) || (
                                 conflictResult.no_available_days && conflictResult.no_available_days
@@ -1833,7 +1874,7 @@
                                     const suggestionBtn = document.createElement('button');
                                     suggestionBtn.type = 'button';
                                     suggestionBtn.className =
-                                        'px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded text-xs transition duration-150';
+                                        'px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-medium transition duration-200 shadow-sm hover:shadow-md border border-blue-200 hover:border-blue-300';
                                     suggestionBtn.textContent = suggestion.display;
                                     suggestionBtn.onclick = () => applyEditSuggestion(
                                         suggestion);

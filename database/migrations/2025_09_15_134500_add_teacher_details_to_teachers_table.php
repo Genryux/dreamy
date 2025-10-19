@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('email_address')->nullable();
             $table->string('contact_number')->nullable();
+            $table->string('specialization')->nullable();
             $table->string('status')->default('active');
         });
     }

@@ -1,25 +1,8 @@
 @extends('layouts.admin')
 
-@section('breadcrumbs')
-    <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
-        <ol class="flex items-center gap-1 text-sm text-gray-700">
-            <li class="rtl:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </li>
-            <li>
-                <span class="block text-gray-900">Teacher Dashboard</span>
-            </li>
-        </ol>
-    </nav>
-@endsection
-
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">My Sections</h1>
+        <h1 class="text-[20px] font-black">Dashboard</h1>
         <p class="text-[14px] text-gray-900/60">View and manage sections you're teaching and advising.
         </p>
     </div>
@@ -28,12 +11,12 @@
 @section('stat')
     <div class="flex justify-center items-center">
         <div
-            class="flex flex-col justify-center items-center flex-grow px-6 pb-8 pt-2 bg-gradient-to-br from-blue-500 to-[#1A3165] rounded-xl shadow-xl border border-[#1e1e1e]/10 gap-2 text-white">
+            class="flex flex-col justify-center items-center flex-grow px-10 pb-10 pt-2 bg-gradient-to-br from-[#199BCF] to-[#1A3165] rounded-xl shadow-[#199BCF]/30 shadow-xl gap-2 text-white">
 
             <div class="flex flex-row items-center justify-between w-full gap-4 py-2 rounded-lg ">
 
                 <div class="flex flex-col items-start justify-end gap-2 pt-4">
-                    <h1 class="text-[40px] font-black" id="teacher_name">{{ $teacher->getFullNameAttribute() }}</h1>
+                    <h1 class="text-[40px] font-black" id="teacher_name">Dashboard Overview</h1>
                     <p class="text-[16px] text-white/60">{{ $teacher->program->name ?? 'Teacher' }}
                     </p>
                 </div>
@@ -50,7 +33,7 @@
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-150">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2">
-                        <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
+                        <i class="fi fi-rr-users flex justify-center items-center"></i>
                         <p class="text-[14px]">Total Students</p>
                     </div>
                     <p class="font-bold text-[24px]">{{ $totalStudents }}</p>
@@ -79,13 +62,46 @@
 
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
-                    <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
-                        <i class="fi fi-rr-employee-man-alt flex justify-center items-center"></i>
-                        <p class="text-[14px] truncate">Employee ID</p>
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-book flex justify-center items-center"></i>
+                        <p class="text-[14px]">Total Subjects</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $teacher->employee_id }}</p>
-                    <p class="text-[12px] truncate text-gray-300">Your employee ID</p>
+                    <p class="font-bold text-[24px]">{{ $teacher->sectionSubjects()->count() }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Subjects you're teaching</p>
                 </div>
+            </div>
+
+            <div class="flex flex-row justify-center items-center w-full gap-4 mt-4">
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
+                        <p class="text-[14px]">Program</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $teacher->program->code ?? 'Not Set' }}</p>
+                    <p class="text-[12px] truncate text-gray-300">{{ $teacher->program->name ?? 'No program assigned' }}</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-calendar flex justify-center items-center"></i>
+                        <p class="text-[14px]">Academic Year</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $academicTermData['year'] ?? 'No Active Term' }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Current academic year</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-clock flex justify-center items-center"></i>
+                        <p class="text-[14px]">Semester</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $academicTermData['semester'] ?? 'No Active Term' }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Current semester</p>
+                </div>
+
             </div>
 
         </div>
@@ -98,38 +114,20 @@
     <div class="flex flex-row justify-center items-start gap-4">
         <div
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
-            <div class="flex flex-row justify-between items-center w-full">
+            <div class="flex flex-col my-2 justify-center items-center w-full">
                 <span class="font-semibold text-[18px]">
-                    My Sections
+                    Sections
                 </span>
-                <div id="dropdown_btn"
-                    class="relative space-y-10 flex flex-col justify-start items-center gap-4 cursor-pointer">
-
-                    <div
-                        class="group relative inline-flex items-center gap-2 bg-gray-100 border border-[#1e1e1e]/10 text-gray-700 font-semibold py-2 px-3 rounded-lg shadow-sm hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150">
-                        <i class="fi fi-br-menu-dots flex justify-center items-center"></i>
-                    </div>
-
-                    <div id="dropdown_selection"
-                        class="absolute top-0 right-0 z-10 bg-[#f8f8f8] flex-col justify-center items-center gap-1 rounded-lg shadow-md border border-[#1e1e1e]/15 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out translate-y-1">
-                        <button id="export-modal-btn"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export Sections
-                        </button>
-                        <button
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-pdf text-[16px]"></i>Export Report
-                        </button>
-                    </div>
-
-                </div>
+                <span class="font-medium text-gray-400 text-[14px]">
+                    Sections you're teaching and advising
+                </span>
             </div>
             <div class="flex flex-row justify-between items-center w-full">
 
                 <div class="w-full flex flex-row justify-between items-center gap-4">
 
                     <label for="myCustomSearch"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                        class="flex flex-row justify-start items-center border-2 border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-full outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 focus-within:shadow-lg transition duration-150 shadow-sm">
                         <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                         <input type="search" name="" id="myCustomSearch"
                             class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
@@ -154,6 +152,21 @@
                             </select>
                             <i id="clear-gender-filter-btn"
                                 class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                        </div>
+
+                        <div id="program_selection_container"
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                            <select name="program_selection" id="program_selection"
+                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                <option value="" disabled selected>Program</option>
+                                @foreach($programs as $program)
+                                    <option value="{{ $program->code }}" data-program="{{ $program->code }}">{{ $program->code }}</option>
+                                @endforeach
+                            </select>
+                            <i id="clear-program-filter-btn"
+                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
                         </div>
 
                         <div id="grade_selection_container"
@@ -259,6 +272,7 @@
 
         let teacherSectionsTable;
         window.selectedGrade = '';
+        window.selectedProgram = '';
         window.selectedPageLength = 10;
         window.currentLayout = 'cards'; // 'table' or 'cards'
         window.currentPage = 1;
@@ -336,6 +350,7 @@
                 ],
                 'myCustomSearch', {
                     grade_filter: selectedGrade,
+                    program_filter: selectedProgram,
                     pageLength: selectedPageLength
                 }
             )
@@ -380,12 +395,12 @@
 
                 // Render cards
                 cardsGrid.innerHTML = data.map(section => `
-                    <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-6">
+                    <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 hover:border-[#199BCF]/60 hover:bg-blue-50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-6">
                         <div class="flex flex-col space-y-4">
                             <!-- Header -->
                             <div class="flex flex-row justify-between items-start">
                                 <div class="flex flex-col">
-                                    <h3 class="text-lg font-bold text-[#1A3165]">${section.name}</h3>
+                                    <h3 class="text-lg font-bold text-gray-800 ">${section.name}</h3>
                                     <p class="text-sm text-gray-600">${section.program}</p>
                                 </div>
                                 <div class="flex flex-col items-end">
@@ -402,7 +417,9 @@
                             <!-- Details -->
                             <div class="space-y-3">
                                 <div class="flex flex-row items-center gap-3">
-                                    <i class="fi fi-sr-graduation-cap text-[#1A3165] text-sm"></i>
+                                    <div class="flex justify-center items-center bg-gray-200 rounded-full w-8 h-8 p-1 flex-shrink-0">
+                                        <i class="fi fi-sr-graduation-cap text-gray-700 text-sm"></i>
+                                    </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Year Level</span>
                                         <span class="text-sm font-medium">${section.year_level}</span>
@@ -410,7 +427,9 @@
                                 </div>
                                 
                                 <div class="flex flex-row items-center gap-3">
-                                    <i class="fi fi-sr-home text-[#1A3165] text-sm"></i>
+                                    <div class="flex justify-center items-center bg-gray-200 rounded-full w-8 h-8 p-1 flex-shrink-0">
+                                        <i class="fi fi-sr-home text-gray-700 text-sm"></i>
+                                    </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Room</span>
                                         <span class="text-sm font-medium">${section.room}</span>
@@ -418,7 +437,9 @@
                                 </div>
                                 
                                 <div class="flex flex-row items-center gap-3">
-                                    <i class="fi fi-sr-users text-[#1A3165] text-sm"></i>
+                                    <div class="flex justify-center items-center bg-gray-200 rounded-full w-8 h-8 p-1 flex-shrink-0">
+                                        <i class="fi fi-sr-users text-gray-700 text-sm"></i>
+                                    </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Total Students</span>
                                         <span class="text-sm font-medium">${section.total_students}</span>
@@ -429,7 +450,7 @@
                             <!-- Action Button -->
                             <div class="pt-2 border-t border-gray-100">
                                 <a href="/teacher/section/${section.id}" 
-                                   class="w-full flex justify-center items-center gap-2 bg-[#1A3165] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0f1f3a] transition-colors duration-150">
+                                   class="w-full flex justify-center items-center gap-2 bg-[#199BCF] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#C8A165] transition-colors duration-200">
                                     <i class="fi fi-rs-eye text-sm"></i>
                                     View Details
                                 </a>
@@ -485,8 +506,8 @@
             async function fetchSectionsForCards(page = 1) {
                 try {
                     const response = await fetch(
-                        `/teacher/sections?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&search[value]=${document.getElementById('myCustomSearch').value}`
-                        );
+                        `/teacher/sections?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`
+                    );
                     const data = await response.json();
 
                     window.sectionsData = data.data;
@@ -532,10 +553,13 @@
             });
 
             let gradeSelection = document.querySelector('#grade_selection');
+            let programSelection = document.querySelector('#program_selection');
             let pageLengthSelection = document.querySelector('#page-length-selection');
 
             let clearGradeFilterBtn = document.querySelector('#clear-grade-filter-btn');
+            let clearProgramFilterBtn = document.querySelector('#clear-program-filter-btn');
             let gradeContainer = document.querySelector('#grade_selection_container');
+            let programContainer = document.querySelector('#program_selection_container');
 
             pageLengthSelection.addEventListener('change', (e) => {
                 let selectedPageLength = parseInt(e.target.value, 10);
@@ -548,11 +572,12 @@
                 }
             })
 
-            gradeSelection.addEventListener('change', (e) => {
+            // Program selection handler
+            programSelection.addEventListener('change', (e) => {
                 let selectedOption = e.target.selectedOptions[0];
-                let grade = selectedOption.getAttribute('data-grade');
+                let program = selectedOption.getAttribute('data-program');
 
-                selectedGrade = grade;
+                window.selectedProgram = program;
                 teacherSectionsTable.draw();
 
                 // If in card layout, refresh cards
@@ -560,14 +585,43 @@
                     fetchSectionsForCards(1);
                 }
 
+                // Update visual state with neutral colors
+                let clearProgramFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
+                let clearProgramFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-900'];
+                let programSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
+                let programSelectionAdd = ['text-gray-900'];
+                let programContainerRem = ['bg-gray-100'];
+                let programContainerAdd = ['bg-gray-200', 'border-gray-400', 'hover:bg-gray-300'];
+
+                clearProgramFilterBtn.classList.remove(...clearProgramFilterRem);
+                clearProgramFilterBtn.classList.add(...clearProgramFilterAdd);
+                programSelection.classList.remove(...programSelectionRem);
+                programSelection.classList.add(...programSelectionAdd);
+                programContainer.classList.remove(...programContainerRem);
+                programContainer.classList.add(...programContainerAdd);
+
+                handleClearProgramFilter(selectedOption);
+            });
+
+            gradeSelection.addEventListener('change', (e) => {
+                let selectedOption = e.target.selectedOptions[0];
+                let grade = selectedOption.getAttribute('data-grade');
+
+                window.selectedGrade = grade;
+                teacherSectionsTable.draw();
+
+                // If in card layout, refresh cards
+                if (window.currentLayout === 'cards') {
+                    fetchSectionsForCards(1);
+                }
+
+                // Update visual state with neutral colors
                 let clearGradeFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
-                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-[#1A3165]'];
+                let clearGradeFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-900'];
                 let gradeSelectionRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
-                let gradeSelectionAdd = ['text-[#1A3165]'];
+                let gradeSelectionAdd = ['text-gray-900'];
                 let gradeContainerRem = ['bg-gray-100'];
-                let gradeContainerAdd = ['bg-[#1A73E8]/15', 'bg-[#1A73E8]/15', 'border-[#1A73E8]',
-                    'hover:bg-[#1A73E8]/25'
-                ];
+                let gradeContainerAdd = ['bg-gray-200', 'border-gray-400', 'hover:bg-gray-300'];
 
                 clearGradeFilterBtn.classList.remove(...clearGradeFilterRem);
                 clearGradeFilterBtn.classList.add(...clearGradeFilterAdd);
@@ -579,34 +633,56 @@
                 handleClearGradeFilter(selectedOption)
             })
 
-            function handleClearGradeFilter(selectedOption) {
-                clearGradeFilterBtn.addEventListener('click', () => {
-                    gradeContainer.classList.remove('bg-[#1A73E8]/15')
-                    gradeContainer.classList.remove('border-blue-300')
-                    gradeContainer.classList.remove('hover:bg-blue-300')
-                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
+            function handleClearProgramFilter(selectedOption) {
+                clearProgramFilterBtn.addEventListener('click', () => {
+                    programContainer.classList.remove('bg-gray-200', 'border-gray-400', 'hover:bg-gray-300');
+                    clearProgramFilterBtn.classList.remove('fi-bs-cross-small');
 
-                    clearGradeFilterBtn.classList.add('fi-rr-caret-down');
-                    gradeContainer.classList.add('bg-gray-100')
-                    gradeSelection.classList.remove('text-[#1A3165]')
-                    gradeSelection.classList.add('text-gray-700')
-                    clearGradeFilterBtn.classList.remove('text-[#1A3165]')
-                    clearGradeFilterBtn.classList.add('text-gray-500')
+                    clearProgramFilterBtn.classList.add('fi-rr-caret-down');
+                    programContainer.classList.add('bg-gray-100');
+                    programSelection.classList.remove('text-gray-900');
+                    programSelection.classList.add('text-gray-700');
+                    clearProgramFilterBtn.classList.remove('text-gray-900');
+                    clearProgramFilterBtn.classList.add('text-gray-500');
 
-                    gradeSelection.selectedIndex = 0
-                    selectedGrade = '';
+                    programSelection.selectedIndex = 0;
+                    window.selectedProgram = '';
                     teacherSectionsTable.draw();
 
                     // If in card layout, refresh cards
                     if (window.currentLayout === 'cards') {
                         fetchSectionsForCards(1);
                     }
-                })
+                });
+            }
+
+            function handleClearGradeFilter(selectedOption) {
+                clearGradeFilterBtn.addEventListener('click', () => {
+                    gradeContainer.classList.remove('bg-gray-200', 'border-gray-400', 'hover:bg-gray-300');
+                    clearGradeFilterBtn.classList.remove('fi-bs-cross-small');
+
+                    clearGradeFilterBtn.classList.add('fi-rr-caret-down');
+                    gradeContainer.classList.add('bg-gray-100');
+                    gradeSelection.classList.remove('text-gray-900');
+                    gradeSelection.classList.add('text-gray-700');
+                    clearGradeFilterBtn.classList.remove('text-gray-900');
+                    clearGradeFilterBtn.classList.add('text-gray-500');
+
+                    gradeSelection.selectedIndex = 0;
+                    window.selectedGrade = '';
+                    teacherSectionsTable.draw();
+
+                    // If in card layout, refresh cards
+                    if (window.currentLayout === 'cards') {
+                        fetchSectionsForCards(1);
+                    }
+                });
             }
 
             window.onload = function() {
-                gradeSelection.selectedIndex = 0
-                pageLengthSelection.selectedIndex = 0
+                gradeSelection.selectedIndex = 0;
+                programSelection.selectedIndex = 0;
+                pageLengthSelection.selectedIndex = 0;
 
                 // Initialize with cards layout (default)
                 fetchSectionsForCards(1);

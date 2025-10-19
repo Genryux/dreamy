@@ -1,15 +1,101 @@
 /* Sidebar toggle styles */
 #side-nav-bar.collapsed {
     overflow-x: hidden;
+    width: 75px !important;
+}
+
+/* Smooth transitions for all sidebar elements */
+#side-nav-bar {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#side-nav-bar img {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#side-nav-bar .nav-text {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#side-nav-bar .nav-link {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#content {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#main-content {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Adjust nav link padding when sidebar is collapsed for better centering */
+#side-nav-bar.collapsed .nav-link {
+    padding-left: 10px !important;
+}
+
+/* Center and resize the logo when sidebar is collapsed */
+#side-nav-bar.collapsed img {
+    margin: 0 auto !important;
+    display: block !important;
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: contain !important;
+}
+
+/* Override Tailwind classes for collapsed logo */
+#side-nav-bar.collapsed .h-22 img {
+    width: 60px !important;
+    height: 60px !important;
+    max-width: 60px !important;
+    max-height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
 }
 
 #side-nav-bar.collapsed i {
     margin: 0 auto;
 }
 
+
 #side-nav-bar.collapsed .nav-text {
     opacity: 0;
     display: none;
+}
+
+/* Navigation container height adjustment when sidebar is collapsed */
+#side-nav-bar.collapsed #nav-container {
+    max-height: none !important;
+    height: auto !important;
+    min-height: 500px !important;
+    justify-content: flex-start !important;
+}
+
+/* Target the actual navigation links container inside nav-container */
+#side-nav-bar.collapsed .h-\[700px\] {
+    max-height: none !important;
+    height: auto !important;
+    min-height: 500px !important;
+}
+
+/* Force all height restrictions to be removed when collapsed */
+#side-nav-bar.collapsed #nav-container,
+#side-nav-bar.collapsed #nav-container * {
+    max-height: none !important;
+    height: auto !important;
+}
+
+/* Ensure expanded state uses original heights */
+#side-nav-bar:not(.collapsed) #nav-container {
+    max-height: none !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+#side-nav-bar:not(.collapsed) #nav-container .h-\[700px\] {
+    max-height: none !important;
+    height: auto !important;
+    min-height: auto !important;
 }
 
 /* Mobile-specific styles */

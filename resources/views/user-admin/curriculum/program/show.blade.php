@@ -1035,7 +1035,7 @@
                 </div>
 
                 <div class="w-full">
-                    <table id="subjects" class="w-full table-fixed">
+                    <table id="faculty" class="w-full table-fixed">
                         <thead class="text-[14px]">
                             <tr>
                                 <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
@@ -1043,7 +1043,7 @@
                                 </th>
 
                                 <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Subject Name</span>
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Full Name</span>
                                     <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                                 </th>
 
@@ -1403,99 +1403,152 @@
                 if (assignCheckbox) {
                     assignCheckbox.checked = false;
 
+                    // Function to load subjects for auto-assign
+                    function loadAutoAssignSubjects() {
+                        if (!assignCheckbox.checked) return;
 
-                    assignCheckbox.addEventListener('change', function(e) {
-                        const isChecked = e.target.checked;
                         const programId = document.getElementById('program_id').value;
                         const yearLevel = document.getElementById('year_level').value;
                         const container = document.getElementById('subjects-container');
 
-                        if (isChecked) {
-                            if (!programId || !yearLevel) {
-                                showAlert('error', "Please select a program and year level first.");
-                                e.target.checked = false; // uncheck box
-                                return;
-                            }
+                        if (!programId || !yearLevel) {
+                            showAlert('error', "Please select a program and year level first.");
+                            assignCheckbox.checked = false;
+                            container.classList.add('hidden');
+                            container.innerHTML = "";
+                            return;
+                        }
 
-                            // Show container and add loading state
-                            container.classList.remove('hidden');
-                            container.innerHTML =
-                                '<div class="flex items-center justify-center py-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div><span class="ml-2 text-sm text-gray-600">Loading subjects...</span></div>';
+                        // Show container and add loading state
+                        container.classList.remove('hidden');
+                        container.innerHTML =
+                            '<div class="flex items-center justify-center py-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div><span class="ml-2 text-sm text-gray-600">Loading subjects...</span></div>';
 
-                            fetch(`/subjects/auto-assign?program_id=${programId}&year_level=${yearLevel}`, {
-                                    headers: {
-                                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        fetch(`/subjects/auto-assign?program_id=${programId}&year_level=${yearLevel}`, {
+                                headers: {
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.subjects && data.subjects.length > 0) {
+                                    container.innerHTML = '<div class="space-y-2">';
+
+                                    // Group subjects by category
+                                    const coreSubjects = data.subjects.filter(subj => subj.category ===
+                                        'core');
+                                    const appliedSubjects = data.subjects.filter(subj => subj
+                                        .category === 'applied');
+                                    const specializedSubjects = data.subjects.filter(subj => subj
+                                        .category === 'specialized');
+
+                                    // Add core subjects section
+                                    if (coreSubjects.length > 0) {
+                                        const coreHeader = document.createElement('div');
+                                        coreHeader.className =
+                                            'text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2 mt-4 first:mt-0';
+                                        coreHeader.textContent = 'Core Subjects';
+                                        container.appendChild(coreHeader);
+
+                                        coreSubjects.forEach(subj => {
+                                            const div = document.createElement('div');
+                                            div.className =
+                                                'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
+                                            div.innerHTML = `
+                                             <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                             <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
+                                         `;
+                                            container.appendChild(div);
+                                        });
                                     }
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.subjects && data.subjects.length > 0) {
-                                        container.innerHTML = '<div class="space-y-2">';
 
-                                        // Group subjects by category
-                                        const coreSubjects = data.subjects.filter(subj => subj
-                                            .category ===
-                                            'core');
-                                        const appliedSubjects = data.subjects.filter(subj => subj
-                                            .category === 'applied');
+                                    // Add applied subjects section
+                                    if (appliedSubjects.length > 0) {
+                                        const appliedHeader = document.createElement('div');
+                                        appliedHeader.className =
+                                            'text-xs font-semibold text-green-600 uppercase tracking-wide mb-2 mt-4';
+                                        appliedHeader.textContent = 'Applied Subjects';
+                                        container.appendChild(appliedHeader);
 
-                                        // Add core subjects section
-                                        if (coreSubjects.length > 0) {
-                                            const coreHeader = document.createElement('div');
-                                            coreHeader.className =
-                                                'text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2 mt-4 first:mt-0';
-                                            coreHeader.textContent = 'Core Subjects';
-                                            container.appendChild(coreHeader);
-
-                                            coreSubjects.forEach(subj => {
-                                                const div = document.createElement('div');
-                                                div.className =
-                                                    'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
-                                                div.innerHTML = `
-                                                 <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                                 <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
-                                             `;
-                                                container.appendChild(div);
-                                            });
-                                        }
-
-                                        // Add applied subjects section
-                                        if (appliedSubjects.length > 0) {
-                                            const appliedHeader = document.createElement('div');
-                                            appliedHeader.className =
-                                                'text-xs font-semibold text-green-600 uppercase tracking-wide mb-2 mt-4';
-                                            appliedHeader.textContent = 'Applied Subjects';
-                                            container.appendChild(appliedHeader);
-
-                                            appliedSubjects.forEach(subj => {
-                                                const div = document.createElement('div');
-                                                div.className =
-                                                    'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
-                                                div.innerHTML = `
-                                                 <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                                 <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
-                                             `;
-                                                container.appendChild(div);
-                                            });
-                                        }
-
-                                        container.innerHTML += '</div>';
-                                    } else {
-                                        container.innerHTML =
-                                            '<div class="text-center py-4 text-gray-500"><p class="text-sm">No subjects found for this selection.</p></div>';
+                                        appliedSubjects.forEach(subj => {
+                                            const div = document.createElement('div');
+                                            div.className =
+                                                'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
+                                            div.innerHTML = `
+                                             <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                             <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
+                                         `;
+                                            container.appendChild(div);
+                                        });
                                     }
-                                })
-                                .catch(err => {
-                                    console.error("Error fetching subjects:", err);
+
+                                    // Add specialized subjects section
+                                    if (specializedSubjects.length > 0) {
+                                        const specializedHeader = document.createElement('div');
+                                        specializedHeader.className =
+                                            'text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2 mt-4';
+                                        specializedHeader.textContent = 'Specialized Subjects';
+                                        container.appendChild(specializedHeader);
+
+                                        specializedSubjects.forEach(subj => {
+                                            const div = document.createElement('div');
+                                            div.className =
+                                                'flex items-center space-x-2 p-2 hover:bg-gray-100 rounded';
+                                            div.innerHTML = `
+                                             <input type="checkbox" name="subjects[]" value="${subj.id}" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                             <label class="text-sm text-gray-700 cursor-pointer">${subj.name}</label>
+                                         `;
+                                            container.appendChild(div);
+                                        });
+                                    }
+
+                                    container.innerHTML += '</div>';
+                                } else {
                                     container.innerHTML =
-                                        '<div class="text-center py-4 text-red-500"><p class="text-sm">Failed to load subjects.</p></div>';
-                                });
+                                        '<div class="text-center py-4 text-gray-500"><p class="text-sm">No subjects found for this selection.</p></div>';
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Error fetching subjects:", err);
+                                container.innerHTML =
+                                    '<div class="text-center py-4 text-red-500"><p class="text-sm">Failed to load subjects.</p></div>';
+                            });
+                    }
+
+                    assignCheckbox.addEventListener('change', function(e) {
+                        const isChecked = e.target.checked;
+                        const container = document.getElementById('subjects-container');
+
+                        if (isChecked) {
+                            loadAutoAssignSubjects();
                         } else {
                             // Hide container when unchecked
                             container.classList.add('hidden');
                             container.innerHTML = "";
                         }
                     });
+
+                    // Add event listeners to program and year level dropdowns for auto-refresh
+                    const programSelect = document.getElementById('program_id');
+                    const yearLevelSelect = document.getElementById('year_level');
+
+                    if (programSelect) {
+                        programSelect.addEventListener('change', function() {
+                            // Auto-refresh subjects if auto-assign is checked
+                            if (assignCheckbox.checked) {
+                                loadAutoAssignSubjects();
+                            }
+                        });
+                    }
+
+                    if (yearLevelSelect) {
+                        yearLevelSelect.addEventListener('change', function() {
+                            // Auto-refresh subjects if auto-assign is checked
+                            if (assignCheckbox.checked) {
+                                loadAutoAssignSubjects();
+                            }
+                        });
+                    }
                 }
 
 

@@ -102,18 +102,17 @@ class UserInvitationController extends Controller
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
                 'email' => 'required|email|unique:users,email',
                 'contact_number' => 'nullable|string|max:20',
                 'role' => 'required|in:teacher,registrar,head_teacher',
                 'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
+                'specialization' => 'nullable|string|max:255'
             ]);
 
             // Create user account
             $user = User::create([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'middle_name' => $validated['middle_name'],
                 'email' => $validated['email'],
                 'password' => bcrypt('temporary_password'), // Will be changed on first login
                 'status' => 'Active',
@@ -129,8 +128,11 @@ class UserInvitationController extends Controller
             if (in_array($validated['role'], ['teacher', 'head_teacher'])) {
                 \App\Models\Teacher::create([
                     'user_id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name'  => $user->last_name,
                     'program_id' => $validated['program_id'],
                     'contact_number' => $validated['contact_number'],
+                    'specialization' => $validated['specialization']
                 ]);
             }
 

@@ -11,182 +11,210 @@
         @yield('modal')
 
         @unless (Request::is('invoice/*'))
-            <x-side-nav-bar>
-                <x-slot name="logo">
-                    {{ asset('images/systemicon.png') }}
-                </x-slot>
-                <div class="max-h-[570px] overflow-y-scroll overflow-x-hidden flex flex-col justify-center items-start">
-                    <div class="flex flex-col flex-1 space-y-2 w-full">
-                        <x-divider color='#f8f8f8' opacity="0.10"></x-divider>
+            @unlessrole('applicant')
+                <x-side-nav-bar>
+                    <x-slot name="logo">
+                        {{ asset('images/dreamy_logo2.png') }}
+                    </x-slot>
+                    <div id="nav-container" class="h-[630px] overflow-y-scroll overflow-x-hidden flex flex-col justify-center items-start transition-all duration-300">
+                        <div class="flex flex-col space-y-2 w-full ">
+                            <x-divider color='#f8f8f8' opacity="0.10"></x-divider>
 
-                        @can('view enrollment dashboard page')
-                            <x-nav-link href="/admin" :active="request()->is('admin')">
+                            @can('view enrollment dashboard page')
+                                <x-nav-link href="/admin" :active="request()->is('admin')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            @can('view applications page')
+                                <x-nav-link href="/applications/pending" :active="request()->is('applications*')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i
+                                            class="fi fi-rs-memo-circle-check text-[20px] flex justify-center items-center flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Enrollment</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            {{-- For head teacher --}}
+                            @can('view head teacher dashboard page')
+                                <x-nav-link href="/head-teacher/dashboard" :active="request()->is('head-teacher/dashboard')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rs-home text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Home</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            {{-- For teachers --}}
+                            @can('view teachers dashboard page')
+                                <x-nav-link href="/teacher/dashboard" :active="request()->is('teacher/dashboard')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rs-home text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Home</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            <span class='flex items-center mt-4'>
+                                <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
+                            </span>
+                        </div>
+
+                        <div
+                            class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full overflow-x-hidden overflow-y-scroll">
+
+                            @can('view enrolled students page')
+                                <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i
+                                            class="fi fi-rr-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
+
+                                        <p class="font-semibold text-[16px] nav-text truncate">Students</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            @can('view documents page')
+                                <x-nav-link href="/documents" :active="request()->is('documents')">
+
+                                    <span class="flex flex-row justify-between items-center space-x-4 w-full">
+                                        <div class="flex flex-row justify-between items-center space-x-4">
+                                            <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
+                                            <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
+                                        </div>
+
+                                        @php
+                                            $hasDocuments = \App\Models\Documents::count();
+                                        @endphp
+                                        @if ($hasDocuments <= 0)
+                                            <div class="h-[8px] w-[8px] bg-red-500  rounded-full" title="No required documents set">
+                                            </div>
+                                        @endif
+                                    </span>
+
+
+                                </x-nav-link>
+                            @endcan
+
+                            @can('view curriculum page')
+                                <x-nav-link href="/tracks" :active="str_starts_with(request()->path(), 'tracks') ||
+                                    str_starts_with(request()->path(), 'sections.show') ||
+                                    str_starts_with(request()->path(), 'program')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-lesson text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Curriculum</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+                            @can('view enrolled students page')
+                                <x-nav-link href="/sections" :active="str_starts_with(request()->path(), 'sections') ||
+                                    str_starts_with(request()->path(), 'section')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-star flex justify-center items-center text-[20px] flex-shrink-0"></i>
+
+                                        <p class="font-semibold text-[16px] nav-text truncate">Sections</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+                            @can('view enrolled students page')
+                                <x-nav-link href="/subjects" :active="str_starts_with(request()->path(), 'subjects')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-books flex justify-center items-center text-[20px] flex-shrink-0"></i>
+
+                                        <p class="font-semibold text-[16px] nav-text truncate">Subjects</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+                            @can('view school fees page')
+                                <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
+
+                                    <span class="relative flex flex-row justify-between items-center space-x-4 w-full">
+                                        <div class="flex flex-row justify-between items-center space-x-4">
+                                            <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
+                                            <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
+                                        </div>
+                                        @php
+                                            $hasSchoolFees = \App\Models\SchoolFee::count() > 0;
+                                            $hasDownPayment = \App\Models\SchoolSetting::whereNotNull('down_payment')
+                                                ->where('down_payment', '>', 0)
+                                                ->exists();
+                                            $showWarning = !$hasSchoolFees || !$hasDownPayment;
+                                        @endphp
+                                        @if ($showWarning)
+                                            <div class="h-[8px] w-[8px] bg-red-500  rounded-full"
+                                                title="School fees or down payment not configured">
+                                            </div>
+                                        @endif
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            <x-nav-link href="/homepage" :active="request()->is('homepage')">
 
                                 <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">Enrollment Dashboard</p>
+                                    <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">Site Management</p>
                                 </span>
 
                             </x-nav-link>
-                        @endcan
 
-                        @can('view applications page')
-                            <x-nav-link href="/applications/pending" :active="request()->is('applications*')">
+                            @can('view user management page')
+                                <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-user text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">User Management</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
+                            <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
 
                                 <span class="flex flex-row items-center space-x-4">
-                                    <i
-                                        class="fi fi-rs-memo-circle-check text-[20px] flex justify-center items-center flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate"> Applications</p>
+                                    <i class="fi fi-rr-newspaper text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">News</p>
                                 </span>
 
                             </x-nav-link>
-                        @endcan
-
-                        {{-- For head teacher --}}
-                        @can('view head teacher dashboard page')
-                            <x-nav-link href="/head-teacher/dashboard" :active="request()->is('head-teacher/dashboard')">
+                            <x-nav-link href="/admin/settings/school" :active="request()->is('admin/settings/school')">
 
                                 <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">Home</p>
+                                    <i class="fi fi-rr-settings text-[20px] flex-shrink-0"></i>
+                                    <p class="font-semibold text-[16px] nav-text truncate">School Settings</p>
                                 </span>
 
                             </x-nav-link>
-                        @endcan
-
-                        {{-- For teachers --}}
-                        @can('view teachers dashboard page')
-                            <x-nav-link href="/teacher/dashboard" :active="request()->is('teacher/dashboard')">
-
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">Home</p>
-                                </span>
-
-                            </x-nav-link>
-                        @endcan
-
-                        <span class='flex items-center mt-4'>
-                            <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
-                        </span>
+                        </div>
                     </div>
 
-                    <div
-                        class="flex flex-col space-y-2 flex-1 mt-2 max-h-[400px] w-full overflow-x-hidden overflow-y-scroll">
+                    <x-slot name="role">
+                        {{ auth()->user()->getRoleNames()->first() }}
+                    </x-slot>
+                </x-side-nav-bar>
+            @endunlessrole
 
-                        @can('view enrolled students page')
-                            <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
-
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i
-                                        class="fi fi-rr-graduation-cap flex justify-center items-center text-[20px] flex-shrink-0"></i>
-
-                                    <p class="font-semibold text-[16px] nav-text truncate">Enrolled Students</p>
-                                </span>
-
-                            </x-nav-link>
-                        @endcan
-
-                        @can('view documents page')
-                            <x-nav-link href="/documents" :active="request()->is('documents')">
-
-                                <span class="flex flex-row justify-between items-center space-x-4 w-full">
-                                    <div class="flex flex-row justify-between items-center space-x-4">
-                                        <i class="fi fi-rr-document text-[20px] flex-shrink-0"></i>
-                                        <p class="font-semibold text-[16px] nav-text truncate">Documents</p>
-                                    </div>
-
-                                    @php
-                                        $hasDocuments = \App\Models\Documents::count();
-                                    @endphp
-                                    @if ($hasDocuments <= 0)
-                                        <div class="h-[8px] w-[8px] bg-red-500  rounded-full" title="No required documents set">
-                                        </div>
-                                    @endif
-                                </span>
-
-
-                            </x-nav-link>
-                        @endcan
-
-                        @can('view curriculum page')
-                            <x-nav-link href="/tracks" :active="str_starts_with(request()->path(), 'tracks') ||
-                                str_starts_with(request()->path(), 'section') ||
-                                str_starts_with(request()->path(), 'program')">
-
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rr-lesson text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">Curriculum</p>
-                                </span>
-
-                            </x-nav-link>
-                        @endcan
-                        @can('view school fees page')
-                            <x-nav-link href="/school-fees" :active="request()->is('school-fees')">
-
-                                <span class="relative flex flex-row justify-between items-center space-x-4 w-full">
-                                    <div class="flex flex-row justify-between items-center space-x-4">
-                                        <i class="fi fi-rr-coins text-[20px] flex-shrink-0"></i>
-                                        <p class="font-semibold text-[16px] nav-text truncate">School Fees</p>
-                                    </div>
-                                    @php
-                                        $hasSchoolFees = \App\Models\SchoolFee::count() > 0;
-                                        $hasDownPayment = \App\Models\SchoolSetting::whereNotNull('down_payment')
-                                            ->where('down_payment', '>', 0)
-                                            ->exists();
-                                        $showWarning = !$hasSchoolFees || !$hasDownPayment;
-                                    @endphp
-                                    @if ($showWarning)
-                                        <div class="h-[8px] w-[8px] bg-red-500  rounded-full"
-                                            title="School fees or down payment not configured">
-                                        </div>
-                                    @endif
-                                </span>
-
-                            </x-nav-link>
-                        @endcan
-
-                        <x-nav-link href="/homepage" :active="request()->is('homepage')">
-
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">Site Management</p>
-                            </span>
-
-                        </x-nav-link>
-
-                        @can('view user management page')
-                            <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
-
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rr-user text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">User Management</p>
-                                </span>
-
-                            </x-nav-link>
-                        @endcan
-
-                        <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
-
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-newspaper text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">News</p>
-                            </span>
-
-                        </x-nav-link>
-                        <x-nav-link href="/admin/settings/school" :active="request()->is('admin/settings/school')">
-
-                            <span class="flex flex-row items-center space-x-4">
-                                <i class="fi fi-rr-settings text-[20px] flex-shrink-0"></i>
-                                <p class="font-semibold text-[16px] nav-text truncate">School Settings</p>
-                            </span>
-
-                        </x-nav-link>
-                    </div>
-                </div>
-
-
-            </x-side-nav-bar>
         @endunless
 
         <!-- Main content area -->
@@ -194,62 +222,76 @@
             <!-- Top Navigation Bar -->
             @unless (Request::is('invoice/*'))
                 <header id="top-nav-bar"
-                    class="z-10 bg-[#f8f8f8] h-[60px] px-[10px] flex justify-between items-center gap-2 sticky top-0 shadow-sm border-b border-[#1e1e1e]/15">
+                    class="z-10 bg-transparent h-[60px] px-[10px] flex justify-between items-center gap-2 sticky top-0 border-b border-[#1e1e1e]/5 hover:shadow-sm transition duration-200">
+
+                    @unlessrole('applicant')
+                        <button id="sidebar-toggle-button"
+                            class="flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
+                            <i class="fi fi-rs-sidebar-flip text-[20px]"></i>
+                        </button>
+                    @endunlessrole
                     <!-- profile icon, notifications, etc. -->
-                    <button id="sidebar-toggle-button"
-                        class="flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
-                        <i class="fi fi-rs-sidebar-flip text-[20px]"></i>
+                    <button id="sidebar-toggle-button" class="">
+
                     </button>
+
+
                     <button id="mobile-menu-button"
                         class="md:hidden flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
                         <i class="fi fi-rs-menu-burger text-[20px]"></i>
                     </button>
 
-                    <div class="flex flex-row items-center space-x-3">
+                    <div class="flex flex-row items-center space-x-2">
                         {{-- Notification Bell --}}
-                        <div class="relative">
-                            <button id="notification-bell"
-                                class="relative p-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
-                                <i class="fi fi-rs-bell text-[20px]"></i>
-                                <span id="notification-badge"
-                                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                            </button>
+                        @unlessrole('applicant')
+                            <div class="relative">
+                                <button id="notification-bell"
+                                    class="relative flex justify-center items-center p-1 w-[46px] h-[46px] hover:bg-[#199BCF]/20 rounded-full transition-all duration-150">
+                                    <div
+                                        class="w-9 h-9 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center shadow-sm">
+                                        <i class="fi fi-rs-bell flex justify-center items-center text-[20px] text-white"></i>
+                                    </div>
+                                    <span id="notification-badge"
+                                        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
+                                </button>
 
-                            {{-- Notification Dropdown --}}
-                            <div id="notification-dropdown"
-                                class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
-                                <div class="p-4 border-b border-gray-200">
-                                    <div class="flex justify-between items-center">
-                                        <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
-                                        <button id="mark-all-read"
-                                            class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors hidden">
-                                            Mark all read
-                                        </button>
-                                    </div>
-                                </div>
-                                <div id="notification-list" class="max-h-64 overflow-y-auto">
-                                    <div class="p-4 text-center text-gray-500">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto">
+                                {{-- Notification Dropdown --}}
+                                <div id="notification-dropdown"
+                                    class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                                    <div class="p-4 border-b border-gray-200">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+                                            <button id="mark-all-read"
+                                                class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors hidden">
+                                                Mark all read
+                                            </button>
                                         </div>
-                                        <p class="mt-2">Loading notifications...</p>
                                     </div>
-                                </div>
-                                <div class="p-3 border-t border-gray-200 bg-gray-50">
-                                    <a href="#"
-                                        class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
-                                        View all notifications
-                                    </a>
+                                    <div id="notification-list" class="max-h-64 overflow-y-auto">
+                                        <div class="p-4 text-center text-gray-500">
+                                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto">
+                                            </div>
+                                            <p class="mt-2">Loading notifications...</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 border-t border-gray-200 bg-gray-50">
+                                        <a href="#"
+                                            class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
+                                            View all notifications
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endunlessrole
 
                         {{-- User Avatar --}}
                         <div class="relative">
                             <button id="user-button"
-                                class="relative flex justify-center items-center p-1 hover:bg-gray-100 rounded-full transition-all duration-150">
-                                <div class="w-9 h-9 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center shadow-sm">
+                                class="relative flex justify-center items-center p-1 hover:bg-[#199BCF]/20 rounded-full transition duration-200">
+                                <div
+                                    class="w-9 h-9 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center shadow-sm">
                                     <span class="text-white text-sm font-semibold">
-                                        {{ strtoupper(substr($applicant->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($applicant->last_name ?? 'N', 0, 1)) }}
+                                        {{ strtoupper(substr(auth()->user()->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? 'N', 0, 1)) }}
                                     </span>
                                 </div>
                             </button>
@@ -264,14 +306,15 @@
                                         <div
                                             class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center mr-3 shadow-sm">
                                             <span class="text-white text-xs font-semibold">
-                                                {{ strtoupper(substr($applicant->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($applicant->last_name ?? 'N', 0, 1)) }}
+                                                {{ strtoupper(substr(auth()->user()->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? 'N', 0, 1)) }}
                                             </span>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-medium text-gray-900 truncate">
-                                                {{ $applicant->first_name ?? 'User' }} {{ $applicant->last_name ?? 'Name' }}
+                                                {{ auth()->user()->first_name ?? 'User' }}
+                                                {{ auth()->user()->last_name ?? 'Name' }}
                                             </p>
-                                            <p class="text-xs text-gray-500 truncate">View Profile</p>
+                                            <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? '-' }}</p>
                                         </div>
                                     </a>
 
@@ -292,10 +335,12 @@
                                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
-                                                class="w-full flex items-center px-4 py-3 hover:bg-red-50 hover:text-red-700 transition-colors text-left">
-                                            <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                                                <i class="fi fi-rr-power flex justify-center items-center text-gray-600 text-sm"></i>
+                                        <button type="submit"
+                                            class="w-full flex items-center px-4 py-3 hover:bg-red-50 hover:text-red-700 transition-colors text-left">
+                                            <div
+                                                class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                                <i
+                                                    class="fi fi-rr-power flex justify-center items-center text-gray-600 text-sm"></i>
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <p class="text-sm font-medium text-gray-900">Log Out</p>
@@ -305,18 +350,19 @@
                                 </div>
                             </div>
                         </div>
-                    </span>
+                        </span>
                 </header>
             @endunless
 
             <!-- Main Content -->
             <main id="main-content"
-                class="flex-1 py-4 px-6 relative overflow-auto h-full flex flex-col text-[#0f111c] relative gap-y-4">
+                class="flex-1 py-4 px-10 relative overflow-auto h-full flex flex-col text-[#0f111c] relative gap-y-4">
 
                 @yield('breadcrumbs')
                 @yield('dashboard-acad-term')
                 @yield('header')
                 @yield('stat')
+                @yield('enrollment-summary')
 
                 {{-- <section class="bg-[#f8f8f8] flex flex-col rounded-xl border shadow-sm border-[#1e1e1e]/15"> --}}
 
@@ -326,6 +372,18 @@
                 {{-- </section> --}}
                 @yield('ongoing-interviews')
                 @yield('docs_submission_progress')
+
+                @php
+                    $academicTermService = app(\App\Services\AcademicTermService::class);
+                    $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
+                @endphp
+
+                @if(!$currentAcadTerm)
+                <div class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
+                    <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
+                    No active academic term, some features might not work properly
+                </div>
+                @endif
 
             </main>
         </div>
@@ -641,7 +699,6 @@
             }
 
         });
-
     </script>
 
     @stack('scripts')

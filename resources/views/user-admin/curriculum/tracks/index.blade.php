@@ -159,9 +159,7 @@
 
                 <div class="flex flex-col items-start justify-end gap-2 pt-4">
                     <h1 class="text-[40px] font-black" id="section_name">Curriculum Overview</h1>
-                    <p class="text-[16px]  text-white/60">Senior High School tracks and strands for the current academic
-                        year
-                    </p>
+                    <p class="text-[16px] text-white/60">{{ $academicTermData['year'] ?? 'No active term yet' }} • {{ $academicTermData['semester'] ?? 'No active semester yet' }}</p>
                 </div>
 
                 <div class="flex flex-col items-end justify-center">
@@ -180,18 +178,59 @@
                         <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
                         <p class="text-[14px]">Total Programs</p>
                     </div>
-                    <p class="font-bold text-[24px]">
-                        {{ $tracks->sum(function ($track) {return $track->programs()->count();}) }}</p>
+                    <p class="font-bold text-[24px]">{{ $totalPrograms }}</p>
                     <p class="text-[12px] truncate text-gray-300">Programs across all tracks</p>
                 </div>
 
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2">
-                        <i class="fi fi-rr-check-circle flex flex-row justify-center items-center"></i>
+                        <i class="fi fi-rr-school flex justify-center items-center"></i>
+                        <p class="text-[14px]">Total Sections</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $totalSections }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Sections across all programs</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-book flex justify-center items-center"></i>
+                        <p class="text-[14px]">Total Subjects</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $totalSubjects }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Subjects across all programs</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-user flex justify-center items-center"></i>
+                        <p class="text-[14px]">Total Students</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $totalStudents }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Students across all tracks</p>
+                </div>
+            </div>
+
+            <div class="flex flex-row justify-center items-center w-full gap-4 mt-4">
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-chalkboard-teacher flex justify-center items-center"></i>
+                        <p class="text-[14px]">Total Teachers</p>
+                    </div>
+                    <p class="font-bold text-[24px]">{{ $totalTeachers }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Teachers across all programs</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-check-circle flex justify-center items-center"></i>
                         <p class="text-[14px]">Active Tracks</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $tracks->where('status', 'active')->count() }}</p>
+                    <p class="font-bold text-[24px]">{{ $activeTracks }}</p>
                     <p class="text-[12px] truncate text-gray-300">Currently active tracks</p>
                 </div>
 
@@ -201,24 +240,18 @@
                         <i class="fi fi-rr-pause flex justify-center items-center"></i>
                         <p class="text-[14px]">Inactive Tracks</p>
                     </div>
-                    <p class="font-bold text-[24px]">{{ $tracks->where('status', 'inactive')->count() }}</p>
+                    <p class="font-bold text-[24px]">{{ $inactiveTracks }}</p>
                     <p class="text-[12px] truncate text-gray-300">Currently inactive tracks</p>
                 </div>
 
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
-                    <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
-                        <i class="fi fi-rr-user flex justify-center items-center"></i>
-                        <p class="text-[14px] truncate">Total Students</p>
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
+                        <i class="fi fi-rr-calendar flex justify-center items-center"></i>
+                        <p class="text-[14px]">Academic Year</p>
                     </div>
-                    <p class="font-bold text-[24px]">
-                        {{ $tracks->sum(function ($track) {
-                            return $track->programs()->get()->sum(function ($program) {
-                                    return \App\Models\Student::where('program_id', $program->id)->count();
-                                });
-                        }) }}
-                    </p>
-                    <p class="text-[12px] truncate text-gray-300">Students across all tracks</p>
+                    <p class="font-bold text-[24px]">{{ $academicTermData['year'] ?? 'No Active Term' }}</p>
+                    <p class="text-[12px] truncate text-gray-300">Current academic year</p>
                 </div>
             </div>
 

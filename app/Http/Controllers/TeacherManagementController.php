@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Teacher;
 use App\Models\User;
 use App\Models\Section;
+use App\Services\AcademicTermService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -235,6 +236,13 @@ class TeacherManagementController extends Controller
         $advisedSectionsCount = $advisedSections->count();
         $teachingSectionsCount = $teachingSections->count();
 
+        // Get current academic term data
+        $academicTermService = app(AcademicTermService::class);
+        $academicTermData = $academicTermService->getCurrentAcademicTermData();
+
+        // Get all programs for the filter
+        $programs = \App\Models\Program::where('status', 'active')->get();
+
         return view('user-teacher.dashboard', compact(
             'teacher', 
             'allSections', 
@@ -243,7 +251,9 @@ class TeacherManagementController extends Controller
             'totalSections',
             'totalStudents',
             'advisedSectionsCount',
-            'teachingSectionsCount'
+            'teachingSectionsCount',
+            'programs',
+            'academicTermData'
         ));
     }
 
@@ -292,6 +302,13 @@ class TeacherManagementController extends Controller
             // Grade filter
             if ($grade = $request->input('grade_filter')) {
                 $query->where('year_level', $grade);
+            }
+
+            // Program filter
+            if ($programFilter = $request->input('program_filter')) {
+                $query->whereHas('program', function($q) use ($programFilter) {
+                    $q->where('code', $programFilter);
+                });
             }
 
             $total = $query->count();
@@ -358,7 +375,7 @@ class TeacherManagementController extends Controller
         }
 
         // Load necessary relationships
-        $section->load(['program', 'teacher', 'sectionSubjects.subject', 'enrollments.student']);
+        $section->load(['program', 'teacher.user', 'sectionSubjects.subject', 'sectionSubjects.teacher.user', 'enrollments.student']);
         
         return view('user-teacher.section.show', compact('section', 'teacher', 'isAdviser'));
     }

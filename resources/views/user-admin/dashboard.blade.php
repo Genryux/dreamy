@@ -340,331 +340,190 @@
 
 @section('header')
     <x-header-container>
-        {{-- <div class="flex flex-row items-center space-x-2 px-[14px] py-[10px]">
-        <i class="fi fi-rs-chart-simple text-[20px]"></i>
-        <p class="text-[16px] md:text-[18px] font-bold">Dashboard</p>
-        </div>
-        <span class="flex items-center">  
-        <span class="h-px flex-1 bg-[#1e1e1e]/15 dark:bg-[#1e1e1e]/15"></span>
-    </span>
-      
-    <div class="flex flex-row space-x-2 px-[14px] py-[14px]">
-        <x-total-stat-card
-            card_title="Total Application"
-            color="#1A73E8"
-            class="border-[#1A73E8] bg-[#E7F0FD]"
-            text_color="#1A73E8"
-        >
-            <x-slot name="card_icon">
-                <i class="fi fi-ss-pending flex flex-row items-center text-[16px] text-[#1A73E8]"></i>
-            </x-slot>
-            {{ 0 }}
-        </x-total-stat-card>
-        <x-total-stat-card
-            card_title="Selected Application"
-            color="#34A853"
-            class="border-[#34A853] bg-[#E6F4EA]"
-            text_color="#34A853"
-        >
-            <x-slot name="card_icon">
-                <i class="fi fi-ss-check-circle flex flex-row items-center text-[16px] text-[#34A853]"></i>
-            </x-slot>
-            {{ 0 }}
-        </x-total-stat-card>
-        <x-total-stat-card
-            card_title="Pending Application"
-            color="#FBBC04"
-            class="border-[#FBBC04] bg-[#FFF4E5]"
-            text_color="#FBBC04"
-        >
-            <x-slot name="card_icon">
-                <i class="fi fi-ss-pending flex flex-row items-center text-[16px] text-[#FBBC04]"></i>
-            </x-slot>
-            {{ $pendingApplicationsCount ?? '0' }}
-        </x-total-stat-card>
-        <x-total-stat-card
-            card_title="Rejected Application"
-            color="#EA4335"
-            class="border-[#EA4335] bg-[#FCE8E6]"
-            text_color="#EA4335"
-        >
-            <x-slot name="card_icon">
-                <i class="fi fi-ss-cross-circle flex flex-row items-center text-[16px] text-[#EA4335]"></i>
-            </x-slot>
-            {{ 0 }}
-        </x-total-stat-card>
+        <div class="flex flex-row items-center justify-center gap-4 p-4">
+            <div class="flex-1 w-full flex flex-row items-center bg-blue-50 rounded-xl justify-between p-6">
+                <div class="flex flex-row items-center justify-center">
+                    @if (@isset($currentAcadTerm->id))
+                        <button id="edit-acad-term-btn"
+                            class="flex flex-col justify-center items-start text-gray-800 hover:text-blue-400 ease-in-out duration-150 cursor-pointer space-y-1"
+                            data-term-id="{{ $currentAcadTerm->id }}" data-year="{{ $currentAcadTerm->year }}"
+                            data-semester="{{ $currentAcadTerm->semester }}"
+                            data-start-date="{{ $currentAcadTerm->start_date }}"
+                            data-end-date="{{ $currentAcadTerm->end_date }}"
+                            data-is-active="{{ $currentAcadTerm->is_active }}" title="Click to edit academic term">
 
-
-    </div>            --}}
-
-        <div class="flex flex-row items-center justify-between space-x-2 p-6">
-            <div class="flex flex-row items-center space-x-1">
-                @if(@isset($currentAcadTerm->id))
-                <button id="edit-acad-term-btn"
-                    class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 cursor-pointer"
-                    data-term-id="{{ $currentAcadTerm->id }}"
-                    data-year="{{ $currentAcadTerm->year }}"
-                    data-semester="{{ $currentAcadTerm->semester }}"
-                    data-start-date="{{ $currentAcadTerm->start_date }}"
-                    data-end-date="{{ $currentAcadTerm->end_date }}"
-                    data-is-active="{{ $currentAcadTerm->is_active }}"
-                    title="Click to edit academic term">
-
-                    @if ($currentAcadTerm->year === null)
-                        <span class="font-bold text-[18px] ">No active academic year yet.</span>
+                            @if ($currentAcadTerm->year === null)
+                                <span class="font-bold text-[16px] ">No active academic year yet.</span>
+                            @else
+                                <span class="font-bold text-[16px] ">Academic Year {{ $currentAcadTerm->year }}</span>
+                                <span
+                                    class="text-[14px] font-semibold text-gray-700">{{ $currentAcadTerm->semester }}</span>
+                                <span
+                                    class="text-[12px] font-medium text-gray-500">{{ \Carbon\Carbon::parse($currentAcadTerm->start_date)->format('M. d, Y') . ' - ' . \Carbon\Carbon::parse($currentAcadTerm->end_date)->format('M. d, Y') }}</span>
+                            @endif
+                        </button>
                     @else
-                        <span class="font-bold text-[18px] ">Academic Year {{ $currentAcadTerm->year }}</span>
-                        <span class="text-[14px] font-medium opacity-80">{{ $currentAcadTerm->semester }}</span>
-                    @endif
-                </button>
-                @else
-                <button
-                    class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150">
+                        <button
+                            class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 py-7">
 
-                    <span class="font-bold text-[18px] ">No academic year found, please create first.</span>
-                </button>
-                @endif
+                            <span class="font-bold text-[14px] ">No academic term found.</span>
+                        </button>
+                    @endif
+                </div>
+                <div>
+                    <button id="acad-term-btn"
+                        class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                        <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
+                        Add new term</button>
+                </div>
             </div>
-            <div>
-                <button id="acad-term-btn"
-                    class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                    <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
-                    Add new term</button>
-            </div>
+            @if ($activeEnrollmentPeriod)
+                <div id="enrollment-cont"
+                    class="flex-1 w-full flex flex-row items-center {{ $activeEnrollmentPeriod->status == 'Ongoing' ? 'bg-green-50' : 'bg-red-50' }} bg-blue-50 rounded-xl justify-between p-6">
+                    <div class="flex flex-row items-center space-x-1">
+                        @if (@isset($currentAcadTerm->id))
+                            <div
+                                class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 cursor-pointer">
+                                <span class="font-bold text-[16px] text-gray-800">
+                                    {{ $activeEnrollmentPeriod->name }}
+                                </span>
+                                <span class="font-semibold text-[14px] text-gray-700">
+                                    {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('M. d') . ' - ' . \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('M. d') }}
+                                </span>
+                                @if ($activeEnrollmentPeriod->status == 'Ongoing')
+                                    <span id="status-span"
+                                        class="text-[12px] text-green-500 bg-green-100 px-2 py-1 rounded-full mt-1">Ongoing</span>
+                                @elseif ($activeEnrollmentPeriod->status == 'Paused')
+                                    <span id="status-span"
+                                        class="text-[12px] text-red-500 bg-red-100 px-2 py-1 rounded-full mt-1">Paused</span>
+                                @endif
+                            </div>
+                        @else
+                            <div class="flex flex-col">
+                                <button
+                                    class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150">
+
+                                    <span class="font-bold text-[18px] ">No academic year found, please create
+                                        first.</span>
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="flex flex-col gap-2 justify-center items-end">
+                        <span class="text-[14px] font-bold">
+                            {{-- toggle --}}
+                            <label for="toggleEnrollmentPeriod"
+                                class="relative inline-flex items-center cursor-pointer select-none">
+                                <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer"
+                                    @if ($activeEnrollmentPeriod->status == 'Ongoing') checked 
+                                    value="Paused"
+                                @elseif ($activeEnrollmentPeriod->status == 'Paused')
+                                    value="Ongoing" @endif>
+                                <div
+                                    class="w-12 h-6 bg-[#EA4335]/70 peer-checked:bg-[#34A853]/70 rounded-full transition-colors duration-200">
+                                </div>
+                                <span
+                                    class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-6"></span>
+                            </label>
+                        </span>
+                        <button id="end-enrollment-btn"
+                            class="self-center flex flex-row justify-center items-center bg-red-100 border border-red-200 py-2.5 px-3 rounded-xl text-[12px] font-semibold gap-2 text-red-500 hover:bg-red-100 hover:-translate-y-1 transition duration-200  truncate">
+                            <i class="fi fi-sr-cross-circle flex justify-center opacity-70 items-center text-[18px] "></i>
+                            End Period</button>
+                    </div>
+                </div>
+            @else
+                <div id="enrollment-cont"
+                    class="flex-1 w-full flex flex-row items-center bg-blue-50 rounded-xl justify-between p-6 py-10">
+                    <span class="text-gray-700 text-[14px]">There is currently no active enrollment period</span>
+                    <button id="enrollment-period-btn"
+                        class="flex flex-row justify-center items-center bg-[#199BCF]/10 border border-[#199BCF]/20  text-[#199BCF] hover:text-white px-3 py-2.5 font-bold text-[14px] rounded-xl gap-2 hover:bg-[#199BCF] hover:border-[#199BCF] shadow-[#199BCF]/40 hover:shadow-xl transition duration-200">
+                        <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
+                        Add Enrollment Period
+                    </button>
+
+                </div>
+            @endif
+
         </div>
+
     </x-header-container>
 @endsection
 
 @section('stat')
+    @if (!$enrollmentSummary)
 
-    <div class="flex flex-row space-x-4">
-        <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 shadow-sm border border-[#1e1e1e]/10">
-            <div class="flex flex-row items-center justify-between pb-3 border-b border-[#1e1e1e]/10">
-                <span class="font-bold text-[16px] text-gray-800">Active Enrollment Period</span>
-                @if ($activeEnrollmentPeriod)
-                    @if ($activeEnrollmentPeriod->status == 'Ongoing')
-                        <span id="status-span"
-                            class="text-[12px] md:text-[14px] font-bold text-[#34A853] bg-[#E6F4EA] px-2 py-1 rounded-full">Ongoing</span>
-                    @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                        <span id="status-span"
-                            class="text-[12px] md:text-[14px] font-bold text-[#EA4335] bg-[#FCE8E6] px-2 py-1 rounded-full">Paused</span>
-                    @endif
-                @endif
-            </div>
-
-            @if ($activeEnrollmentPeriod)
-                <div id="ep-details"
-                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }}">
-                @else
-                    <div id="ep-details">
-            @endif
-            @if ($activeEnrollmentPeriod)
-                <div class="flex flex-row py-4 justify-between items-center">
-                    <div class="flex flex-col">
-                        <span class="font-semibold text-[14px] text-gray-700">{{ $activeEnrollmentPeriod->name }}</span>
-                        <span
-                            class="font-medium text-[12px] text-gray-500">{{ $activeEnrollmentPeriod->academicTerms->full_name }}</span>
-                    </div>
-                    <div>
-                        @if ($activeEnrollmentPeriod)
-                            <span class="text-[14px] font-bold">
-                                {{-- toggle --}}
-                                <label for="toggleEnrollmentPeriod"
-                                    class="relative inline-flex items-center cursor-pointer select-none">
-                                    <input type="checkbox" id="toggleEnrollmentPeriod" class="sr-only peer"
-                                        @if ($activeEnrollmentPeriod->status == 'Ongoing') checked 
-                                    value="Paused"
-                                @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                                    value="Ongoing" @endif>
-                                    <div
-                                        class="w-12 h-6 bg-[#EA4335]/70 peer-checked:bg-[#34A853]/70 rounded-full transition-colors duration-200">
-                                    </div>
-                                    <span
-                                        class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-6"></span>
-                                </label>
-                            </span>
-                        @endif
-                    </div>
+        <div class="flex flex-row space-x-4 bg-white p-6 rounded-xl border border-[#1e1e1e]/10 shadow-sm">
+            {{-- Application overview --}}
+            <div class="bg-blue-50 flex-1 w-full rounded-xl p-6 space-y-2 shadow-sm  ">
+                <div class="flex flex-row items-center justify-between">
+                    <span class="font-semibold text-[16px] text-gray-800">Enrollment Overview</span>
                 </div>
-            @endif
-            @if ($activeEnrollmentPeriod)
-                <div class="flex flex-row gap-2 py-4">
-                    <div
-                        class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#34A853]/20 rounded-xl px-5 py-3">
-                        <div class="bg-[#E6F4EA] px-3 py-2 rounded-full">
-                            <i class="fi fi-sr-calendar-check text-[22px] text-[#34A853]"></i>
-                        </div>
-                        <div class="flex flex-col min-w-0">
-                            <span
-                                class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('F d') }}</span>
-                            <span class="text-[13px] md:text-[14px] opacity-60">Start Date</span>
-                        </div>
-                    </div>
 
-                    <div class="hidden md:flex items-center justify-center w-1/2">
-                        <i class="fi fi-rs-arrow-right text-[24px] opacity-40"></i>
-                    </div>
+                @php
+                    $maxApplicants = $activeEnrollmentPeriod->max_applicants ?? 0;
+                    $currentCount = $applicationCount ?? 0;
+                    $percent = $maxApplicants > 0 ? min(100, round(($currentCount / $maxApplicants) * 100)) : 0;
+                @endphp
 
-                    <div
-                        class="flex flex-row gap-3 items-center bg-white/70 backdrop-blur-sm border border-[#EA4335]/20 rounded-xl px-5 py-3">
-                        <div class="bg-[#FCE8E6] px-3 py-2 rounded-full">
-                            <i class="fi fi-sr-calendar-xmark text-[22px] text-[#EA4335]"></i>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {{-- KPI card --}}
+                    <div class="flex flex-col justify-between bg-[#E3ECFF]/40 rounded-xl p-4">
+                        <div class="flex flex-col items-center justify-center py-4">
+                            <span id="total-application"
+                                class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
+                                    class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
+                            <span class="font-medium text-[14px] text-gray-600">Total Applications</span>
                         </div>
-                        <div class="flex flex-col min-w-0">
-                            <span
-                                class="font-bold whitespace-nowrap">{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('F d') }}</span>
-                            <span class="text-[13px] md:text-[14px] opacity-60">End Date</span>
+                        <div class="space-y-2">
+                            <div class="w-full">
+                                <div class="bg-[#d9d9d9] h-2 rounded-full w-full overflow-hidden">
+                                    <div class="bg-blue-500 h-2" style="width: {{ $percent }}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-[13px] md:text-[12px] text-gray-500 text-center">{{ $percent }}% of max
+                                applications</div>
                         </div>
                     </div>
-                </div>
-            @elseif (!$activeEnrollmentPeriod)
-                <div class="flex flex-row justify-evenly py-2">
 
-                    <div class="flex flex-col justify-center items-center space-y-3">
-                        <img src="{{ asset('images/empty-box.png') }}" alt="empty-box" class="size-[120px]">
-                        <span class="text-gray-500 text-[14px]">There is currently no active enrollment period</span>
-                        @if ($currentAcadTerm)
-                            <button id="enrollment-period-btn"
-                                class="flex flex-row justify-center items-center bg-[#199BCF]/10 border border-[#199BCF]/20  text-[#199BCF] hover:text-white px-3 py-2.5 font-bold text-[14px] rounded-xl gap-2 hover:bg-[#199BCF] hover:border-[#199BCF] shadow-[#199BCF]/40 hover:shadow-xl transition duration-200">
-                                <i
-                                    class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
-                                Add Enrollment Period
-                            </button>
-                        @endif
+                    {{-- Stat tiles --}}
+                    <div class="md:col-span-2 grid grid-cols-2 gap-3">
+                        <div
+                            class="flex flex-col justify-center items-center bg-yellow-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-yellow-200">
+                            <p class="font-semibold text-[14px] text-yellow-600">Pending</p>
+                            <p class="font-bold text-[28px] text-yellow-600">
+                                {{ $pendingApplicationsCount ?? '0' }}
+                            </p>
+                        </div>
 
+                        <div
+                            class="flex flex-col justify-center items-center bg-green-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-green-200">
+                            <p class="font-semibold text-[14px] text-green-600">Accepted</p>
+                            <p class="font-bold text-[28px] text-green-600">
+                                {{ $selectedApplicationsCount ?? '0' }}
+                            </p>
+                        </div>
+
+                        <div
+                            class="flex flex-col justify-center items-center bg-orange-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-orange-200">
+                            <p class="font-semibold text-[14px] text-orange-500">Pending-Document</p>
+                            <p class="font-bold text-[28px] text-orange-500">
+                                {{ $pendingDocumentsApplicationsCount ?? '0' }}
+                            </p>
+                        </div>
+
+                        <div
+                            class="flex flex-col justify-center items-center bg-blue-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-blue-200">
+                            <p class="font-semibold text-[14px] text-blue-500">Enrolled</p>
+                            <p class="font-bold text-[28px] text-blue-500">
+                                {{ $enrolledApplicationsCount ?? '0' }}
+                            </p>
+                        </div>
                     </div>
-
-                </div>
-            @endif
-        </div>
-        @if ($activeEnrollmentPeriod)
-            <div class="flex flex-row items-center justify-between pt-3">
-                <span id="ep-time"
-                    data-end="{{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->toIso8601String() }}"
-                    data-status="{{ $activeEnrollmentPeriod->status }}"
-                    class="{{ $activeEnrollmentPeriod->status == 'Paused' ? 'opacity-30' : 'opacity-100' }} text-[14px] text-gray-600 md:text-[15px]">Time
-                    Remaining:
-                    <span id="ep-time-value" class="opacity-100 font-bold">
-                        @php
-                            $remainingDays = max(
-                                0,
-                                \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->diffInDays(
-                                    \Carbon\Carbon::now(),
-                                ),
-                            );
-                            echo $remainingDays . ' ' . Str::plural('Day', $remainingDays);
-                        @endphp
-                    </span>
-                </span>
-                <div>
-                    <button id="end-enrollment-btn"
-                        class="bg-red-100 text-red-500 px-3 py-1 rounded-xl text-[14px] font-semibold hover:bg-red-500 hover:text-white hover:ring hover:ring-red-200 ease-in-out duration-150">End
-                        Period
-                    </button>
                 </div>
             </div>
-        @endif
-    </div>
-    {{-- Application overview --}}
-    <div class="bg-[#f8f8f8] flex-1 rounded-xl p-6 space-y-6 shadow-sm border border-[#1e1e1e]/10">
-        <div class="flex flex-row items-center justify-between">
-            <span class="font-bold text-[16px] text-gray-800">Application Overview</span>
-        </div>
-
-        @php
-            $maxApplicants = $activeEnrollmentPeriod->max_applicants ?? 0;
-            $currentCount = $applicationCount ?? 0;
-            $percent = $maxApplicants > 0 ? min(100, round(($currentCount / $maxApplicants) * 100)) : 0;
-        @endphp
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {{-- KPI card --}}
-            <div class="flex flex-col justify-between bg-[#E3ECFF]/40 rounded-xl p-4">
-                <div class="flex flex-col items-center justify-center py-4">
-                    <span id="total-application"
-                        class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
-                            class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
-                    <span class="font-medium text-gray-600">Total Applications</span>
-                </div>
-                <div class="space-y-2">
-                    <div class="w-full">
-                        <div class="bg-[#d9d9d9] h-2 rounded-full w-full overflow-hidden">
-                            <div class="bg-blue-500 h-2" style="width: {{ $percent }}%"></div>
-                        </div>
-                    </div>
-                    <div class="text-[13px] md:text-[12px] text-gray-500 text-center">{{ $percent }}% of max
-                        applications</div>
-                </div>
-            </div>
-
-            {{-- Stat tiles --}}
-            <div class="md:col-span-2 grid grid-cols-2 gap-3">
-                <div
-                    class="flex flex-col justify-center items-center bg-yellow-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-yellow-200">
-                    <p class="font-semibold text-[14px] text-yellow-600">Pending</p>
-                    <p class="font-bold text-[28px] text-yellow-600">
-                        {{ $pendingApplicationsCount ?? '0' }}
-                    </p>
-                </div>
-
-                <div
-                    class="flex flex-col justify-center items-center bg-green-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-green-200">
-                    <p class="font-semibold text-[14px] text-green-600">Accepted</p>
-                    <p class="font-bold text-[28px] text-green-600">
-                        {{ $selectedApplicationsCount ?? '0' }}
-                    </p>
-                </div>
-
-                <div
-                    class="flex flex-col justify-center items-center bg-orange-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-orange-200">
-                    <p class="font-semibold text-[14px] text-orange-500">Pending-Document</p>
-                    <p class="font-bold text-[28px] text-orange-500">
-                        {{ $pendingDocumentsApplicationsCount ?? '0' }}
-                    </p>
-                </div>
-
-                <div
-                    class="flex flex-col justify-center items-center bg-blue-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-blue-200">
-                    <p class="font-semibold text-[14px] text-blue-500">Enrolled</p>
-                    <p class="font-bold text-[28px] text-blue-500">
-                        {{ $enrolledApplicationsCount ?? '0' }}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-@endsection
-
-@section('content')
-    @error('year')
-        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
-    @enderror
-    @error('semester')
-        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
-    @enderror
-    @error('start_date')
-        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
-    @enderror
-    @error('end_date')
-        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
-    @enderror
-    @error('is_active')
-        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
-    @enderror
-    @error('error')
-        <div class="text-red-500 text-[14px] font-bold">{{ $message }}</div>
-    @enderror
-    @if (session('error'))
-        <div class="text-red-500 text-[14px] font-bold">{{ session('error') }}</div>
-    @endif
-
-
-    <div class="flex flex-col justify-center items-start gap-4">
-
-        <div class="flex flex-row w-full h-auto gap-4">
             <!-- Program Analytics Section -->
-            <div class="flex flex-col w-[70%] h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+            <div class="flex-1 w-full flex flex-col h-auto bg-blue-50 rounded-xl  shadow-sm  p-6 gap-4">
                 <div class="flex flex-row justify-between items-center">
                     <h3 class="text-[16px] font-semibold text-gray-800">Enrollment Breakdown</h3>
                     <div class="flex items-center gap-2">
@@ -676,9 +535,217 @@
                 <!-- Analytics Cards Container -->
                 <div id="program-analytics-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Cards will be dynamically generated here -->
-                    <div class="flex items-center justify-center p-8">
+                    <div class="flex flex-col items-center justify-center p-8 w-full">
                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#199BCF]"></div>
                         <span class="ml-2 text-gray-600">Loading analytics...</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    @else
+        <div class="flex flex-col justify-center items-start gap-4 mb-4">
+            <div class="w-full bg-white rounded-xl border border-[#1e1e1e]/10 shadow-sm p-6">
+                <div class="flex flex-row items-center justify-between mb-4">
+                    <div class="flex flex-col">
+                        <h2 class="text-[20px] font-bold text-gray-800">Enrollment Summary</h2>
+                        <p class="text-[14px] text-gray-600">{{ $enrollmentSummary['enrollment_period']->name }} -
+                            {{ \Carbon\Carbon::parse($enrollmentSummary['enrollment_period']->application_start_date)->format('M d') }}
+                            to
+                            {{ \Carbon\Carbon::parse($enrollmentSummary['enrollment_period']->application_end_date)->format('M d, Y') }}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[12px] text-gray-500">Period Duration:</span>
+                        <span class="text-[12px] font-medium text-gray-600">{{ $enrollmentSummary['period_duration'] }}
+                            days</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <!-- Total Applications -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Applications</p>
+                                <p class="text-2xl font-bold text-gray-900">
+                                    {{ number_format($enrollmentSummary['total_applications']) }}</p>
+                            </div>
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fi fi-rr-document text-blue-600 text-sm"></i>
+                            </div>
+                        </div>
+                        @if ($enrollmentSummary['max_applicants'] > 0)
+                            <div class="mt-2">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full"
+                                        style="width: {{ min(100, $enrollmentSummary['capacity_utilization']) }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">{{ $enrollmentSummary['capacity_utilization'] }}% of
+                                    capacity</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Acceptance Rate -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Acceptance Rate</p>
+                                <p class="text-2xl font-bold text-green-600">{{ $enrollmentSummary['acceptance_rate'] }}%
+                                </p>
+                            </div>
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fi fi-rr-check-circle text-green-600 text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ number_format($enrollmentSummary['ever_accepted_applications']) }} ever accepted</p>
+                    </div>
+
+                    <!-- Enrollment Success Rate -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Enrollment Success</p>
+                                <p class="text-2xl font-bold text-purple-600">
+                                    {{ $enrollmentSummary['enrollment_success_rate'] }}%</p>
+                            </div>
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fi fi-rr-graduation-cap text-purple-600 text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ number_format($enrollmentSummary['officially_enrolled']) }} enrolled</p>
+                    </div>
+
+                    <!-- Overall Success Rate -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Overall Success</p>
+                                <p class="text-2xl font-bold text-indigo-600">
+                                    {{ $enrollmentSummary['overall_success_rate'] }}%</p>
+                            </div>
+                            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fi fi-rr-trophy text-indigo-600 text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Application to enrollment</p>
+                    </div>
+                </div>
+
+                <!-- Status Breakdown -->
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+                    <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                        <p class="text-xs font-medium text-yellow-700">Pending</p>
+                        <p class="text-lg font-bold text-yellow-800">
+                            {{ number_format($enrollmentSummary['pending_applications']) }}</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                        <p class="text-xs font-medium text-green-700">Currently Accepted</p>
+                        <p class="text-lg font-bold text-green-800">
+                            {{ number_format($enrollmentSummary['currently_accepted_applications']) }}</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3 border border-orange-200">
+                        <p class="text-xs font-medium text-orange-700">Pending Docs</p>
+                        <p class="text-lg font-bold text-orange-800">
+                            {{ number_format($enrollmentSummary['pending_documents']) }}</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                        <p class="text-xs font-medium text-blue-700">Enrolled</p>
+                        <p class="text-lg font-bold text-blue-800">
+                            {{ number_format($enrollmentSummary['officially_enrolled']) }}</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+                        <p class="text-xs font-medium text-red-700">Rejected</p>
+                        <p class="text-lg font-bold text-red-800">
+                            {{ number_format($enrollmentSummary['rejected_applications']) }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        <p class="text-xs font-medium text-gray-700">Failed</p>
+                        <p class="text-lg font-bold text-gray-800">
+                            {{ number_format($enrollmentSummary['completed_failed']) }}</p>
+                    </div>
+                </div>
+
+                <!-- Program Breakdown -->
+                @if ($enrollmentSummary['program_breakdown']->count() > 0)
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-800 mb-3">Program Breakdown</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            @foreach ($enrollmentSummary['program_breakdown'] as $program)
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span
+                                            class="text-sm font-medium text-gray-800">{{ $program['program_code'] }}</span>
+                                        <span class="text-xs text-gray-500">{{ $program['total_applications'] }}
+                                            total</span>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-green-600">Ever Accepted: {{ $program['ever_accepted'] }}</span>
+                                            <span class="text-blue-600">Enrolled: {{ $program['enrolled'] }}</span>
+                                        </div>
+                                        @if ($program['total_applications'] > 0)
+                                            <div class="w-full bg-gray-200 rounded-full h-1">
+                                                <div class="bg-blue-500 h-1 rounded-full"
+                                                    style="width: {{ round(($program['enrolled'] / $program['total_applications']) * 100) }}%">
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+    @endif
+@endsection
+
+
+@section('content')
+    <div class="flex flex-col justify-center items-start gap-4">
+
+        <div class="flex flex-row w-full h-auto gap-4">
+            <div class="flex flex-col w-[70%] h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
+                <span class="text-[16px] text-gray-800 font-bold">Recent Applications</span>
+
+
+                <div class="flex flex-col items-center flex-grow space-y-2">
+
+                    <div class="w-full">
+                        <table id="myTable" class="w-full table-fixed">
+                            <thead class="text-[14px]">
+                                <tr>
+                                    <th
+                                        class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 truncate">
+                                        <span class="mr-2 font-medium opacity-70">Applicant Id</span>
+                                    </th>
+                                    <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2 font-medium opacity-70">Full Name</span>
+                                    </th>
+                                    <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2 font-medium opacity-70">Program</span>
+                                    </th>
+                                    <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2 font-medium opacity-70">Grade Level</span>
+                                    </th>
+                                    <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2 font-medium opacity-70">Submitted at</span>
+                                    </th>
+                                    <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
+                                        <span class="mr-2 font-medium opacity-70">Actions</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated by DataTables AJAX -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -704,43 +771,7 @@
             </div>
 
         </div>
-        <div class="flex flex-col w-full h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
-            <span class="text-[16px] text-gray-800 font-bold">Recent Applications</span>
 
-
-            <div class="flex flex-col items-center flex-grow space-y-2">
-
-                <div class="w-full">
-                    <table id="myTable" class="w-full table-fixed">
-                        <thead class="text-[14px]">
-                            <tr>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2 truncate">
-                                    <span class="mr-2 font-medium opacity-70">Applicant Id</span>
-                                </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Full Name</span>
-                                </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Program</span>
-                                </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Grade Level</span>
-                                </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Submitted at</span>
-                                </th>
-                                <th class="w-1/7 text-start bg-[#E3ECFF] border-b border-[#1e1e1e]/15 px-4 py-2">
-                                    <span class="mr-2 font-medium opacity-70">Actions</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be populated by DataTables AJAX -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
     </div>
 @endsection
@@ -837,7 +868,8 @@
 
 
             initModal('acad-term-modal', 'acad-term-btn', 'at-close-btn', 'cancel-btn', 'modal-container-1');
-            initModal('edit-acad-term-modal', 'edit-acad-term-btn', 'edit-at-close-btn', 'edit-cancel-btn', 'modal-container-4');
+            initModal('edit-acad-term-modal', 'edit-acad-term-btn', 'edit-at-close-btn', 'edit-cancel-btn',
+                'modal-container-4');
             initModal('enrollment-period-modal', 'enrollment-period-btn', 'ep-close-btn', 'ep-cancel-btn',
                 'modal-container-2');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
@@ -971,22 +1003,26 @@
             window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                 event) => {
                 console.log(event.enrollmentPeriod.status);
-                let epDetails = document.querySelector('#ep-details');
-                let epTime = document.querySelector('#ep-time');
                 let statusSpan = document.querySelector('#status-span');
 
                 if (event.enrollmentPeriod.status == 'Paused') {
-                    epDetails.classList.add('opacity-30');
-                    epTime.classList.add('opacity-30');
                     statusSpan.innerHTML = event.enrollmentPeriod.status;
-                    statusSpan.classList.remove('text-[#34A853]');
-                    statusSpan.classList.add('text-[#EA4335]');
+                    statusSpan.classList.remove('text-green-500');
+                    statusSpan.classList.remove('bg-green-100');
+                    statusSpan.classList.add('text-red-500');
+                    statusSpan.classList.add('bg-red-100');
+                    document.querySelector('#enrollment-cont').classList.remove('bg-blue-50')
+                    document.querySelector('#enrollment-cont').classList.add('bg-red-50')
                 } else if (event.enrollmentPeriod.status == 'Ongoing') {
-                    epDetails.classList.remove('opacity-30');
-                    epTime.classList.remove('opacity-30');
                     statusSpan.innerHTML = event.enrollmentPeriod.status;
-                    statusSpan.classList.remove('text-[#EA4335]');
-                    statusSpan.classList.add('text-[#34A853]');
+                    statusSpan.classList.remove('text-red-500');
+                    statusSpan.classList.remove('bg-red-100');
+                    statusSpan.classList.add('text-green-500');
+                    statusSpan.classList.add('bg-green-100');
+                    document.querySelector('#enrollment-cont').classList.remove('bg-red-50')
+                    document.querySelector('#enrollment-cont').classList.add('bg-green-50')
+
+
                 }
 
 
@@ -1062,7 +1098,7 @@
                     updateLastUpdatedTime();
                 } else {
                     // Handle specific cases for better UX
-                    if (result.message && result.message.includes('No active academic term')) {
+                    if (result.message && (result.message.includes('No academic term found') || result.message.includes('No active academic term'))) {
                         displayNoActiveTermState();
                     } else if (result.message && result.message.includes('No active enrollment period')) {
                         displayNoActiveEnrollmentPeriodState();

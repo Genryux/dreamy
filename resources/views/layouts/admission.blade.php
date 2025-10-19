@@ -18,8 +18,11 @@
             {{-- Notification Bell --}}
             <div class="relative">
                 <button id="notification-bell"
-                    class="relative flex justify-center items-center p-2 bg-white/30 w-[45px] h-[45px] rounded-full transition-all duration-150 hover:bg-white/50">
-                    <i class="fi fi-rs-bell flex justify-center items-center text-[20px] text-white"></i>
+                    class="relative flex justify-center items-center p-1 w-[46px] h-[46px] bg-gray-100 hover:bg-gray-100 rounded-full transition-all duration-150">
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center shadow-sm">
+                        <i class="fi fi-rs-bell flex justify-center items-center text-[20px] text-white"></i>
+                    </div>
                     <span id="notification-badge"
                         class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                 </button>
@@ -54,8 +57,13 @@
 
             <div class="flex justify-center items-center relative">
                 <button id="user-button"
-                    class="relative flex justify-center items-center p-2 bg-white/30 w-[45px] h-[45px] rounded-full transition-all duration-150 hover:bg-white/50">
-                    <i class="fi fi-rr-user mt-1 text-[20px] text-white"></i>
+                    class="relative flex justify-center items-center p-1 w-[46px] h-[46px] bg-gray-100 hover:bg-gray-100 rounded-full transition-all duration-150">
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center shadow-sm">
+                        <span class="text-white text-sm font-semibold">
+                            {{ strtoupper(substr(auth()->user()->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? 'N', 0, 1)) }}
+                        </span>
+                    </div>
                 </button>
 
                 {{-- User Dropdown --}}
@@ -65,19 +73,22 @@
                         {{-- User Profile --}}
                         <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
                             <div
-                                class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                                <i class="fi fi-rs-user flex justify-center items-center text-gray-600 text-sm"></i>
+                                class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center mr-3">
+                                <span class="text-white text-sm font-semibold">
+                                    {{ strtoupper(substr($applicant->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($applicant->last_name ?? 'N', 0, 1)) }}
+                                </span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-900 truncate">
                                     {{ $applicant->first_name ?? 'User' }} {{ $applicant->last_name ?? 'Name' }}
                                 </p>
-                                <p class="text-xs text-gray-500 truncate">View Profile</p>
+                                <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? '-' }}</p>
                             </div>
                         </a>
 
                         {{-- Settings --}}
-                        <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('profile.edit') }}"
+                            class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
                             <div
                                 class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
                                 <i class="fi fi-rs-settings flex justify-center items-center text-gray-600 text-sm"></i>
@@ -410,19 +421,15 @@
                             // Let the form handle logout - don't prevent default
                             return;
                         }
-                        
+
+                        // Allow Settings and View Profile to navigate normally
+                        if (text.includes('Settings') || text.includes('View Profile')) {
+                            // Let the link handle navigation - don't prevent default
+                            return;
+                        }
+
                         // Prevent default for other items
                         e.preventDefault();
-                        
-                        if (text.includes('Settings')) {
-                            // Handle settings - you can customize this
-                            console.log('Settings clicked');
-                            // window.location.href = '/settings';
-                        } else if (text.includes('View Profile')) {
-                            // Handle profile view - you can customize this
-                            console.log('Profile clicked');
-                            // window.location.href = '/profile';
-                        }
 
                         // Close dropdown after action
                         userDropdown.classList.add('hidden');
@@ -431,10 +438,6 @@
                 });
             }
 
-            function confirmLogout() {
-                return confirm(
-                    'Are you sure you want to log out? You will need to sign in again to access your account.');
-            }
         });
     </script>
 </body>

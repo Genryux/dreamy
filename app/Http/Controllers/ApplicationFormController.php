@@ -604,6 +604,12 @@ class ApplicationFormController extends Controller
             $data = $this->dashboardDataService->getAdminDashboardData();
 
             if ($data) {
+                // Get enrollment summary if no active enrollment period
+                $enrollmentSummary = null;
+                if (!$data['activeEnrollmentPeriod']) {
+                    $enrollmentSummary = $this->dashboardDataService->getEnrollmentSummary();
+                }
+
                 return view('user-admin.dashboard', [
                     'applications' => $recentApplications = $data['recentApplications'] ?? collect(),
                     'pendingApplicationsCount' => $totalPendingApplications = $data['totalPendingApplications'] ?? 0,
@@ -612,7 +618,8 @@ class ApplicationFormController extends Controller
                     'enrolledApplicationsCount' => $totalEnrolledApplications = $data['totalEnrolledApplications'] ?? 0,
                     'applicationCount' => $totalApplications = $data['totalApplications'] ?? 0,
                     'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
-                    'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null
+                    'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null,
+                    'enrollmentSummary' => $enrollmentSummary
                 ]);
             }
 
@@ -682,6 +689,13 @@ class ApplicationFormController extends Controller
      */
     public function create()
     {
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+
+        if (!$activeTerm || !$enrollmentPeriod) {
+            return redirect()->back();
+        }
+
         $user = $this->userService->fetchAuthenticatedUser();
 
         // Check if user has already submitted an application form
@@ -1027,7 +1041,7 @@ class ApplicationFormController extends Controller
             }
 
             // Define the statuses to include in the total count
-            $includedStatuses = ['Pending', 'Accepted', 'Pending-Documents', 'Rejected', 'Completed-Failed'];
+            $includedStatuses = ['Pending', 'Accepted', 'Pending-Documents', 'Rejected', 'Completed-Failed', 'Officially Enrolled'];
 
             // Get counts for each status
             $statistics = [
@@ -1072,8 +1086,8 @@ class ApplicationFormController extends Controller
             // Get total registrations (all applications regardless of status)
             $totalRegistrations = $baseQuery->count();
 
-            // Get successful applicants (accepted applications)
-            $successfulApplicants = (clone $baseQuery)->where('application_status', 'Accepted')->count();
+            // Get successful applicants (ever accepted applications - including those who moved to next stages)
+            $successfulApplicants = (clone $baseQuery)->whereIn('application_status', ['Accepted', 'Pending-Documents', 'Officially Enrolled'])->count();
 
             // Calculate acceptance rate
             $acceptanceRate = $totalRegistrations > 0 ? round(($successfulApplicants / $totalRegistrations) * 100) : 0;

@@ -158,7 +158,7 @@
 
         <form id="create-user-form" class="p-6">
             @csrf
-            <div class="space-y-4">
+            <div class="space-y-4 overflow-y-scroll w-full">
                 <!-- Personal Information -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -180,24 +180,12 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
-
-                <div>
-                    <label for="create_middle_name" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-user mr-2"></i>
-                        Middle Name
-                    </label>
-                    <input type="text" name="middle_name" id="create_middle_name"
-                        placeholder="Enter middle name (optional)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
                 <div>
                     <label for="create_email" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fi fi-rr-envelope mr-2"></i>
                         Email Address <span class="text-red-500">*</span>
                     </label>
-                    <input type="email" name="email" id="create_email" required
-                        placeholder="Enter email address"
+                    <input type="email" name="email" id="create_email" required placeholder="Enter email address"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
@@ -235,6 +223,15 @@
                         <option value="">Select a program</option>
                         <!-- Programs will be loaded dynamically -->
                     </select>
+                    <div>
+                        <label for="specialization" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                            <i class="fi fi-rr-book mr-2"></i>
+                            Specialization
+                        </label>
+                        <input type="text" name="specialization" id="specialization"
+                            placeholder="Enter Specialization (Optional)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
 
             </div>
@@ -299,8 +296,7 @@
                         <i class="fi fi-rr-envelope mr-2"></i>
                         Email Address <span class="text-red-500">*</span>
                     </label>
-                    <input type="email" name="email" id="edit_email" required
-                        placeholder="Enter email address"
+                    <input type="email" name="email" id="edit_email" required placeholder="Enter email address"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
@@ -354,8 +350,8 @@
             </button>
         </x-slot>
     </x-modal>
-    <x-modal modal_id="delete-user-modal" modal_name="Delete User Confirmation" close_btn_id="delete-user-modal-close-btn"
-        modal_container_id="modal-container-delete-user">
+    <x-modal modal_id="delete-user-modal" modal_name="Delete User Confirmation"
+        close_btn_id="delete-user-modal-close-btn" modal_container_id="modal-container-delete-user">
         <x-slot name="modal_icon">
             <i class='fi fi-rr-trash flex justify-center items-center text-red-500'></i>
         </x-slot>
@@ -364,7 +360,8 @@
             <div class="flex flex-col items-center space-y-4">
                 <div class="text-center">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Deletion</h3>
-                    <p class="text-gray-600">Are you sure you want to delete this user? This action cannot be undone and will permanently remove the user account.</p>
+                    <p class="text-gray-600">Are you sure you want to delete this user? This action cannot be undone and
+                        will permanently remove the user account.</p>
                 </div>
             </div>
         </div>
@@ -379,7 +376,7 @@
                 <button type="submit" id="delete-user-submit-btn"
                     class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
                     Delete User
-            </button>
+                </button>
             </form>
         </x-slot>
     </x-modal>
@@ -1109,38 +1106,38 @@
                             <!-- Action Buttons -->
                             <div class="pt-2 border-t border-gray-100">
                                 ${user.status === 'Invited' ? `
-                                                                                        <div class="flex gap-2">
-                                                                                            <button onclick="resendInvitation(${user.id})" 
-                                                                                                class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
-                                                                                                <i class="fi fi-rr-envelope text-sm"></i>
-                                                                                                Resend
-                                                                                            </button>
-                                                                                            <button onclick="cancelInvitation(${user.id})" 
-                                                                                                class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                                                                                <i class="fi fi-rr-cross text-sm"></i>
-                                                                                                Cancel
-                                                                                            </button>
-                                                                    </div>
-                                ` : (user.status === 'Registered' || user.status === 'Active') ? `
-                                    <div class="flex gap-2">
-                                        <button type="button" id="open-edit-user-modal-btn-${user.id}"
-                                            data-user-id="${user.id}"
-                                            class="edit-user-btn flex-1 flex justify-center items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-150">
-                                            <i class="fi fi-rr-edit text-sm"></i>
-                                            Edit
-                                        </button>
-                                        <button type="button" id="open-delete-user-modal-btn-${user.id}"
-                                            data-user-id="${user.id}"
-                                            class="delete-user-btn flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                            <i class="fi fi-rr-trash text-sm"></i>
-                                            Delete
-                                        </button>
-                                    </div>
-                                                                                    ` : `
-                                                                                        <div class="text-center text-sm text-gray-500 py-2">
-                                                                                            No actions available
-                                                                                        </div>
-                                                                                    `}
+                                                                                            <div class="flex gap-2">
+                                                                                                <button onclick="resendInvitation(${user.id})" 
+                                                                                                    class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
+                                                                                                    <i class="fi fi-rr-envelope text-sm"></i>
+                                                                                                    Resend
+                                                                                                </button>
+                                                                                                <button onclick="cancelInvitation(${user.id})" 
+                                                                                                    class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                                                                    <i class="fi fi-rr-cross text-sm"></i>
+                                                                                                    Cancel
+                                                                                                </button>
+                                                                        </div>
+                                    ` : (user.status === 'Registered' || user.status === 'Active') ? `
+                                        <div class="flex gap-2">
+                                            <button type="button" id="open-edit-user-modal-btn-${user.id}"
+                                                data-user-id="${user.id}"
+                                                class="edit-user-btn flex-1 flex justify-center items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-150">
+                                                <i class="fi fi-rr-edit text-sm"></i>
+                                                Edit
+                                            </button>
+                                            <button type="button" id="open-delete-user-modal-btn-${user.id}"
+                                                data-user-id="${user.id}"
+                                                class="delete-user-btn flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                <i class="fi fi-rr-trash text-sm"></i>
+                                                Delete
+                                            </button>
+                                        </div>
+                                                                                        ` : `
+                                                                                            <div class="text-center text-sm text-gray-500 py-2">
+                                                                                                No actions available
+                                                                                            </div>
+                                                                                        `}
                             </div>
                         </div>
                     </div>
@@ -1337,7 +1334,7 @@
             document.getElementById('create_role').addEventListener('change', function() {
                 const programField = document.getElementById('create_program_field');
                 const programSelect = document.getElementById('create_program_id');
-                
+
                 if (this.value === 'teacher' || this.value === 'head_teacher') {
                     programField.classList.remove('hidden');
                     programSelect.required = true;
@@ -1351,7 +1348,7 @@
             document.getElementById('edit_role').addEventListener('change', function() {
                 const programField = document.getElementById('edit_program_field');
                 const programSelect = document.getElementById('edit_program_id');
-                
+
                 if (this.value === 'teacher' || this.value === 'head_teacher') {
                     programField.classList.remove('hidden');
                     programSelect.required = true;
@@ -1519,12 +1516,12 @@
                                 showAlert('success', data.message);
                                 console.log('Refreshing users table after delete...');
                                 usersTable.draw(); // Refresh the table
-                                
+
                                 // Refresh card layout if currently in card view
                                 if (window.currentLayout === 'cards') {
                                     fetchUsersForCards(1);
                                 }
-                                
+
                                 loadAnalytics(); // Refresh analytics
 
                                 // Close modal
@@ -1637,18 +1634,21 @@
                                 const user = data.user;
 
                                 // Populate form fields
-                                document.getElementById('edit_first_name').value = user.first_name || '';
+                                document.getElementById('edit_first_name').value = user.first_name ||
+                                '';
                                 document.getElementById('edit_last_name').value = user.last_name || '';
-                                document.getElementById('edit_middle_name').value = user.middle_name || '';
+                                document.getElementById('edit_middle_name').value = user.middle_name ||
+                                    '';
                                 document.getElementById('edit_email').value = user.email || '';
-                                document.getElementById('edit_contact_number').value = user.contact_number || '';
+                                document.getElementById('edit_contact_number').value = user
+                                    .contact_number || '';
                                 document.getElementById('edit_role').value = user.role || '';
-                                
+
 
                                 // Handle program field visibility and value
                                 const programField = document.getElementById('edit_program_field');
                                 const programSelect = document.getElementById('edit_program_id');
-                                
+
                                 if (user.role === 'teacher' || user.role === 'head_teacher') {
                                     programField.classList.remove('hidden');
                                     programSelect.required = true;
@@ -1660,12 +1660,14 @@
                                 }
 
                                 console.log('Edit modal opened for user ID:', userId);
-                                
+
                                 // Open the modal after data is loaded
                                 const modal = document.getElementById('edit-user-modal');
-                                const modalContainer = document.getElementById('modal-container-edit-user');
+                                const modalContainer = document.getElementById(
+                                    'modal-container-edit-user');
                                 if (modal && modalContainer) {
-                                    modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                                    modal.classList.remove('opacity-0', 'pointer-events-none',
+                                        'scale-95');
                                     modal.classList.add('opacity-100', 'scale-100');
                                     modalContainer.classList.remove('opacity-0', 'pointer-events-none');
                                     modalContainer.classList.add('opacity-100');
@@ -1710,7 +1712,7 @@
                     form.appendChild(userIdInput);
 
                     console.log('Delete modal opened for user ID:', userId);
-                    
+
                     // Open the modal after form is set up
                     const modal = document.getElementById('delete-user-modal');
                     const modalContainer = document.getElementById('modal-container-delete-user');
@@ -1732,17 +1734,17 @@
                     if (data.success && data.programs) {
                         const createProgramSelect = document.getElementById('create_program_id');
                         const editProgramSelect = document.getElementById('edit_program_id');
-                        
+
                         // Clear existing options except the first one
                         createProgramSelect.innerHTML = '<option value="">Select a program</option>';
                         editProgramSelect.innerHTML = '<option value="">Select a program</option>';
-                        
+
                         data.programs.forEach(program => {
                             const createOption = document.createElement('option');
                             createOption.value = program.id;
                             createOption.textContent = program.name;
                             createProgramSelect.appendChild(createOption);
-                            
+
                             const editOption = document.createElement('option');
                             editOption.value = program.id;
                             editOption.textContent = program.name;

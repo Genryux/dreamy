@@ -335,8 +335,15 @@ class StudentsController extends Controller
             : AcademicTerms::where('is_active', true)->first();
 
         if (!$selectedTerm) {
-            // Fallback to original method if no term found (avoid recursion)
-            return $this->getOriginalUsers($request);
+            // If no active term, get the most recent inactive term
+            $selectedTerm = AcademicTerms::orderBy('year', 'desc')
+                ->orderBy('semester', 'desc')
+                ->first();
+            
+            // If still no term found, fallback to original method
+            if (!$selectedTerm) {
+                return $this->getOriginalUsers($request);
+            }
         }
 
         // Query enrollments for the selected term
@@ -391,7 +398,7 @@ class StudentsController extends Controller
         $start = $request->input('start', 0);
 
         $data = $query
-            ->with(['student.user', 'student.record'])
+            ->with(['student.user', 'student.record', 'section'])
             ->offset($start)
             ->limit($request->length)
             ->get()
@@ -403,6 +410,7 @@ class StudentsController extends Controller
                     'full_name' => ($student->user->last_name ?? '-') . ', ' . ($student->user->first_name ?? ''),
                     'grade_level' => $student->grade_level ?? '-',
                     'program' => $student->program->code ?? '-',
+                    'section' => $enrollment->section->name ?? '-',
                     'contact' => $student->record?->contact_number ?? '-',
                     'email' => $student->user->email ?? '-',
                     'status' => $enrollment->status,
@@ -644,20 +652,20 @@ class StudentsController extends Controller
     /**
      * Promote applicant to become an officially enrolled student
      */
-    public function promoteApplicant(Request $request)
-    {
+    // public function promoteApplicant(Request $request)
+    // {
 
-        $request->validate([
-            'action' => 'required|string|in:enroll-student',
-        ]);
+    //     $request->validate([
+    //         'action' => 'required|string|in:enroll-student',
+    //     ]);
 
-        match ($request->action) {
-            'enroll-student' => $applicants->update(['application_status' => 'Officially Enrolled']),
-            default => abort(400, 'Invalid action'),
-        };
+    //     match ($request->action) {
+    //         'enroll-student' => $applicants->update(['application_status' => 'Officially Enrolled']),
+    //         default => abort(400, 'Invalid action'),
+    //     };
 
-        return redirect()->back();
-    }
+    //     return redirect()->back();
+    // }
 
     public function evaluateStudent(Request $request)
     {
