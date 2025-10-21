@@ -438,6 +438,12 @@
                 <td>Total Amount:</td>
                 <td>PHP {{ number_format($invoice->total_amount, 2) }}</td>
             </tr>
+            @if($invoice->payments->sum('total_discount') > 0)
+            <tr>
+                <td>Discount Applied:</td>
+                <td style="color: #dc2626;">-PHP {{ number_format($invoice->payments->sum('total_discount'), 2) }}</td>
+            </tr>
+            @endif
             <tr>
                 <td>Amount Paid:</td>
                 <td>PHP {{ number_format($invoice->paid_amount, 2) }}</td>

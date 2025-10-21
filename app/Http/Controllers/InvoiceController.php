@@ -299,7 +299,7 @@ class InvoiceController extends Controller
     // Display the specified invoice
     public function show($id)
     {
-        $invoice = Invoice::withTrashed()->with(['student', 'items.fee', 'payments', 'paymentPlan.schedules'])->findOrFail($id);
+        $invoice = Invoice::withTrashed()->with(['student', 'items.fee', 'payments.paymentSchedule', 'paymentPlan.schedules'])->findOrFail($id);
 
         $paymentPlanSummary = null;
         if ($invoice->has_payment_plan) {
@@ -307,9 +307,27 @@ class InvoiceController extends Controller
             $paymentPlanSummary = $paymentPlanService->getPaymentPlanSummary($invoice);
         }
 
+        // Get available discounts
+        $availableDiscounts = \App\Models\Discount::active()->get();
+
+        // Check if student is early enrollee
+        $isEarlyEnrollee = false;
+        $earlyDiscountPercentage = 0;
+        
+        if ($invoice->student && $invoice->student->enrollmentPeriod) {
+            $enrollmentPeriod = $invoice->student->enrollmentPeriod;
+            if ($enrollmentPeriod->isEarlyEnrollment()) {
+                $isEarlyEnrollee = true;
+                $earlyDiscountPercentage = $enrollmentPeriod->early_discount_percentage;
+            }
+        }
+
         return view('user-admin.invoice.show', [
             'invoice' => $invoice,
             'paymentPlanSummary' => $paymentPlanSummary,
+            'availableDiscounts' => $availableDiscounts,
+            'isEarlyEnrollee' => $isEarlyEnrollee,
+            'earlyDiscountPercentage' => $earlyDiscountPercentage,
         ]);
     }
 

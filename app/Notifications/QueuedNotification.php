@@ -49,7 +49,9 @@ class QueuedNotification extends Notification implements ShouldQueue
 
     public function broadcastOn()
     {
-        return new Channel($this->broadcastChannel);
+        // Ensure we always have a valid channel name
+        $channelName = $this->broadcastChannel ?? 'general';
+        return new Channel($channelName);
     }
 
     public function toBroadcast($notifiable)

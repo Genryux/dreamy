@@ -23,11 +23,15 @@ class InvoicePaymentController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
+            'remaining_balance' => 'nullable|numeric|min:0', // Remaining balance for installment calculation
             'payment_date' => 'required|date',
             'method' => 'nullable|string|max:50',
             'type' => 'nullable|string|max:50',
             'reference_no' => 'nullable|string|max:100',
             'payment_schedule_id' => 'nullable|integer|exists:payment_schedules,id',
+            'custom_discount_enabled' => 'nullable|boolean',
+            'selected_discounts' => 'nullable|array',
+            'selected_discounts.*' => 'exists:discounts,id',
             'pin' => 'required|string|size:6',
         ]);
 
@@ -89,11 +93,41 @@ class InvoicePaymentController extends Controller
         $cacheKey = 'payment_pin_attempts_' . $user->id;
         \Cache::forget($cacheKey);
 
+        // Use the original amount as the payment amount
+        $originalAmount = $validated['amount']; // Original amount entered by user
+        $finalAmount = $originalAmount; // Use original amount for payment
+        $remainingBalance = $validated['remaining_balance'] ?? $originalAmount; // Remaining balance for installment calculation
+        
+        // Calculate discount breakdown for record keeping
+        $earlyDiscount = 0;
+        if ($invoice->student && $invoice->student->enrollmentPeriod) {
+            $enrollmentPeriod = $invoice->student->enrollmentPeriod;
+            if ($enrollmentPeriod->isEarlyEnrollment()) {
+                $earlyDiscount = $enrollmentPeriod->calculateEarlyDiscount($originalAmount);
+            }
+        }
+        
+        // Calculate custom discounts for record keeping
+        $customDiscountsTotal = 0;
+        if (isset($validated['custom_discount_enabled']) && $validated['custom_discount_enabled'] && isset($validated['selected_discounts'])) {
+            foreach ($validated['selected_discounts'] as $discountId) {
+                $discount = \App\Models\Discount::find($discountId);
+                if ($discount && $discount->is_active) {
+                    $customDiscountsTotal += $discount->calculateDiscount($originalAmount);
+                }
+            }
+        }
+
         // Log successful PIN verification for audit
         \Log::info('Payment recording authorized with PIN verification', [
             'user_id' => $user->id,
             'invoice_id' => $invoice->id,
-            'amount' => $validated['amount'],
+            'original_amount' => $originalAmount,
+            'final_amount' => $finalAmount,
+            'early_discount' => $earlyDiscount,
+            'custom_discounts' => $customDiscountsTotal,
+            'total_discount' => $earlyDiscount + $customDiscountsTotal,
+            'remaining_balance' => $remainingBalance,
             'student_id' => $invoice->student_id,
             'timestamp' => now()
         ]);
@@ -134,24 +168,29 @@ class InvoicePaymentController extends Controller
                 }
             }
 
-            $paymentData = [
-                'payment_date' => $validated['payment_date'],
-                'method' => $validated['method'] ?? null,
-                'type' => $validated['type'] ?? null,
-                'reference_no' => $validated['reference_no'] ?? null,
-            ];
+                $paymentData = [
+                    'payment_date' => $validated['payment_date'],
+                    'method' => $validated['method'] ?? null,
+                    'type' => $validated['type'] ?? null,
+                    'reference_no' => $validated['reference_no'] ?? null,
+                    'original_amount' => $originalAmount,
+                    'early_discount' => $earlyDiscount,
+                    'custom_discounts' => $customDiscountsTotal,
+                    'total_discount' => $earlyDiscount + $customDiscountsTotal,
+                    'remaining_balance' => $remainingBalance,
+                ];
 
             // If a specific schedule is selected, use the new method
             if (isset($validated['payment_schedule_id'])) {
                 $this->paymentPlanService->recordPaymentToSchedule(
                     $invoice, 
                     $validated['payment_schedule_id'], 
-                    $validated['amount'], 
+                    $finalAmount, // Use final amount after discounts
                     $paymentData
                 );
             } else {
                 // Fallback to original method for invoices without payment plans
-                $this->paymentPlanService->recordPayment($invoice, $validated['amount'], $paymentData);
+                $this->paymentPlanService->recordPayment($invoice, $finalAmount, $paymentData); // Use final amount after discounts
             }
 
             return response()->json([

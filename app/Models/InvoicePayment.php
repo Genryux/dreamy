@@ -10,11 +10,23 @@ class InvoicePayment extends Model
         'invoice_id',
         'payment_schedule_id',
         'amount',
+        'original_amount',
+        'early_discount',
+        'custom_discounts',
+        'total_discount',
         'payment_date',
         'method',
         'type',
         'reference_no',
         'academic_term_id',
+    ];
+
+    protected $casts = [
+        'original_amount' => 'decimal:2',
+        'early_discount' => 'decimal:2',
+        'custom_discounts' => 'decimal:2',
+        'total_discount' => 'decimal:2',
+        'amount' => 'decimal:2'
     ];
 
     protected static function booted()
@@ -45,5 +57,19 @@ class InvoicePayment extends Model
     public function paymentSchedule()
     {
         return $this->belongsTo(PaymentSchedule::class);
+    }
+
+    /**
+     * Get the discount breakdown for this payment
+     */
+    public function getDiscountBreakdown()
+    {
+        return [
+            'original_amount' => $this->original_amount,
+            'early_discount' => $this->early_discount,
+            'custom_discounts' => $this->custom_discounts,
+            'total_discount' => $this->total_discount,
+            'final_amount' => $this->amount
+        ];
     }
 }

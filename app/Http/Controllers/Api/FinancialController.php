@@ -374,6 +374,7 @@ class FinancialController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'down_payment' => 'nullable|numeric|min:0',
             'installment_months' => 'nullable|integer|min:1|max:12',
+            'total_discount' => 'nullable|numeric|min:0',
         ]);
 
         $installmentMonths = $validated['installment_months'] ?? 9;
@@ -381,10 +382,13 @@ class FinancialController extends Controller
         // Use SchoolSettings down_payment if not provided
         $downPayment = $validated['down_payment'] ?? \App\Models\SchoolSetting::value('down_payment') ?? 0;
         
+        $totalDiscount = $validated['total_discount'] ?? 0;
+        
         $calculation = \App\Models\PaymentPlan::calculate(
             $validated['total_amount'],
             $downPayment,
-            $installmentMonths
+            $installmentMonths,
+            $totalDiscount
         );
 
         // Generate preview schedule
@@ -443,6 +447,7 @@ class FinancialController extends Controller
 
         $validated = $request->validate([
             'payment_mode' => 'required|in:installment,full',
+            'total_discount' => 'nullable|numeric|min:0',
         ]);
 
         // Get invoice and verify it belongs to the student
@@ -467,10 +472,14 @@ class FinancialController extends Controller
                 // Fixed down payment for now (TODO: Get from admin settings)
                 $downPayment = SchoolSetting::value('down_payment') ?? 0;
                 
+                $totalDiscount = $validated['total_discount'] ?? 0;
+                
                 $paymentPlan = $paymentPlanService->createInstallmentPlan(
                     $invoice,
                     $downPayment,
-                    9 // Fixed 9 months
+                    9, // Fixed 9 months
+                    null, // startDate
+                    $totalDiscount
                 );
 
                 return response()->json([

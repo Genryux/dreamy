@@ -10,30 +10,14 @@
             id="record-payment-modal-form" class="p-6">
             @csrf
             <div class="flex flex-col gap-3">
-                <div class="flex flex-col">
-                    <label for="amount" class="text-sm font-medium mb-1">Amount</label>
-                    <input type="number" step="0.01"
-                        min="{{ $invoice->payment_mode === 'full' && $invoice->paid_amount == 0 ? $invoice->total_amount : '0.01' }}"
-                        max="{{ $invoice->balance }}" name="amount" id="amount"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Enter payment amount" required />
-                    <p class="text-xs text-gray-500 mt-1">
-                        @if ($invoice->payment_mode === 'full')
-                            @if ($invoice->paid_amount == 0)
-                                Minimum amount: ₱{{ number_format($invoice->total_amount, 2) }} (full payment required)
-                            @else
-                                Maximum amount: ₱{{ number_format($invoice->balance, 2) }} (remaining balance)
-                            @endif
-                        @else
-                            Enter the payment amount
-                        @endif
-                    </p>
-                </div>
+
 
                 @if ($invoice->has_payment_plan && $paymentPlanSummary)
                     <div class="flex flex-col">
                         <label for="payment_schedule_id" class="text-sm font-medium mb-1">Payment Schedule</label>
                         <select name="payment_schedule_id" id="payment_schedule_id"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" required>
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                            required>
                             <option value="">Select payment schedule...</option>
                             @foreach ($paymentPlanSummary['schedules'] as $schedule)
                                 @php
@@ -63,30 +47,95 @@
                 @endif
 
                 <div class="flex flex-col">
-                    <label for="payment_date" class="text-sm font-medium mb-1">Payment Date</label>
-                    <input type="date" name="payment_date" id="payment_date"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" value="{{ now()->toDateString() }}" required />
+                    <label for="amount" class="text-sm font-medium mb-1">Amount</label>
+                    <input type="number" step="0.01"
+                        min="{{ $invoice->payment_mode === 'full' && $invoice->paid_amount == 0 ? $invoice->total_amount : '0.01' }}"
+                        max="{{ $invoice->balance }}" name="amount" id="amount"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                        placeholder="Enter payment amount" required />
+                    <p class="text-xs text-gray-500 mt-1">
+                        @if ($invoice->payment_mode === 'full')
+                            @if ($invoice->paid_amount == 0)
+                                Minimum amount: ₱{{ number_format($invoice->total_amount, 2) }} (full payment required)
+                            @else
+                                Maximum amount: ₱{{ number_format($invoice->balance, 2) }} (remaining balance)
+                            @endif
+                        @else
+                            Enter the payment amount
+                        @endif
+                    </p>
                 </div>
+
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="flex flex-col">
                         <label for="method" class="text-sm font-medium mb-1">Method</label>
                         <input type="text" name="method" id="method"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Cash, Bank, GCASH" />
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                            placeholder="Cash, Bank, GCASH" />
                     </div>
                     <div class="flex flex-col">
                         <label for="type" class="text-sm font-medium mb-1">Type</label>
                         <input type="text" name="type" id="type"
-                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Partial / Full" />
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                            placeholder="Partial / Full" />
                     </div>
                 </div>
-                <div class="flex flex-col">
-                    <label for="reference_no" class="text-sm font-medium mb-1">Reference No.</label>
-                    <input type="text" name="reference_no" id="reference_no"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Optional" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="flex flex-col">
+                        <label for="payment_date" class="text-sm font-medium mb-1">Payment Date</label>
+                        <input type="date" name="payment_date" id="payment_date"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                            value="{{ now()->toDateString() }}" required />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="reference_no" class="text-sm font-medium mb-1">Reference No.</label>
+                        <input type="text" name="reference_no" id="reference_no"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                            placeholder="Optional" />
+                    </div>
                 </div>
+
+                {{-- Discount Section (conditional display) --}}
+                <div id="discount-section" class="space-y-2 w-full" style="display: {{ $invoice->has_payment_plan ? 'none' : 'block' }};">
+                    <div class="flex flex-row justify-between items-center">
+                        <h4 class="italic text-sm font-medium text-gray-600 flex flex-row gap-1">
+                            @if($isEarlyEnrollee)
+                                Student is an early enrollee
+                                <i class="fi fi-bs-check text-sm flex justify-center items-center text-green-600"></i>
+                            @else
+                                Student is not an early enrollee
+                                <i class="fi fi-rr-cross-small text-[18px] flex justify-center items-center"></i>
+                            @endif
+                        </h4>
+                        <label for="custom-discount" class="text-sm font-medium flex gap-2">
+                            <input type="checkbox" name="custom_discount_enabled" id="custom-discount">Eligible for custom
+                            discount?
+                        </label>
+                    </div>
+                    
+                    {{-- Custom discount options (hidden by default) --}}
+                    <div id="custom-discount-options" class="flex flex-col justify-start items-center px-4 space-y-2 max-h-[150px] overflow-y-scroll" style="display: none;">
+                        @foreach($availableDiscounts as $discount)
+                            <label for="discount-{{ $discount->id }}" class="flex flex-row justify-between items-center gap-2 w-full text-sm">
+                            <div class="flex flex-row justify-center items-center gap-2">
+                                    <input type="checkbox" name="selected_discounts[]" value="{{ $discount->id }}" id="discount-{{ $discount->id }}" class="discount-checkbox">
+                                    {{ $discount->name }}
+                            </div>
+                                <h4>Amount: {{ $discount->getFormattedValue() }}</h4>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Hidden input for final amount --}}
+                <input type="hidden" name="final_amount" id="final_amount" value="0">
+
             </div>
         </form>
-
+        <x-slot name="modal_info">
+            <p data-total class="font-semibold text-[#1A3165] text-[16px]">Total: ₱0.00</p>
+        </x-slot>
         <x-slot name="modal_buttons">
             <button id="record-payment-modal-cancel-btn"
                 class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
@@ -135,8 +184,8 @@
     </x-modal>
 
     {{-- PIN Verification Modal for Payment Recording --}}
-    <x-modal modal_id="pin-verification-modal" modal_name="Security Verification" close_btn_id="pin-verification-modal-close-btn"
-        modal_container_id="modal-container-3">
+    <x-modal modal_id="pin-verification-modal" modal_name="Security Verification"
+        close_btn_id="pin-verification-modal-close-btn" modal_container_id="modal-container-3">
         <x-slot name="modal_icon">
             <i class='fi fi-rr-lock flex justify-center items-center text-blue-500'></i>
         </x-slot>
@@ -147,21 +196,14 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Enter Security PIN</h3>
                     <p class="text-gray-600">Please enter your 6-digit security PIN to record this payment.</p>
                 </div>
-                
+
                 <form id="pin-verification-form" class="w-full">
                     @csrf
                     <div class="flex flex-col items-center space-y-4">
                         <div class="relative">
-                            <input type="password" 
-                                   id="payment_pin" 
-                                   name="pin" 
-                                   maxlength="6" 
-                                   pattern="[0-9]{6}"
-                                   class="w-32 text-center text-2xl font-mono tracking-widest border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-[#199BCF] focus:ring-2 focus:ring-[#199BCF] outline-none transition duration-200"
-                                   placeholder="••••••"
-                                   autocomplete="off"
-                                   inputmode="numeric"
-                                   required>
+                            <input type="password" id="payment_pin" name="pin" maxlength="6" pattern="[0-9]{6}"
+                                class="w-32 text-center text-2xl font-mono tracking-widest border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-[#199BCF] focus:ring-2 focus:ring-[#199BCF] outline-none transition duration-200"
+                                placeholder="••••••" autocomplete="off" inputmode="numeric" required>
                         </div>
                         <p class="text-xs text-gray-500 text-center">
                             Enter your 6-digit security PIN to authorize this payment
@@ -286,6 +328,19 @@
                                     <span
                                         class="font-semibold text-gray-900">₱{{ number_format($invoice->total_amount, 2) }}</span>
                                 </div>
+                                @if($invoice->has_payment_plan && $invoice->paymentPlan && $invoice->paymentPlan->total_discount > 0)
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                    <span class="text-sm text-gray-600">Total Discount</span>
+                                    <span
+                                        class="font-semibold text-red-600">-₱{{ number_format($invoice->paymentPlan->total_discount, 2) }}</span>
+                                </div>
+                                @elseif(!$invoice->has_payment_plan && $invoice->payments->sum('total_discount') > 0)
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                    <span class="text-sm text-gray-600">Total Discount</span>
+                                    <span
+                                        class="font-semibold text-red-600">-₱{{ number_format($invoice->payments->sum('total_discount'), 2) }}</span>
+                                </div>
+                                @endif
                                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span class="text-sm text-gray-600">Paid</span>
                                     <span
@@ -321,6 +376,9 @@
                                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Method</th>
                                                 <th
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Schedule</th>
+                                                <th
                                                     class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Amount</th>
                                             </tr>
@@ -339,6 +397,23 @@
                                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                             {{ ucfirst($payment->method ?? 'Cash') }}
                                                         </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        @if($payment->paymentSchedule)
+                                                            @if($payment->paymentSchedule->installment_number === 0)
+                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                    Down Payment
+                                                                </span>
+                                                            @else
+                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                                    Installment #{{ $payment->paymentSchedule->installment_number }}
+                                                                </span>
+                                                            @endif
+                                                        @else
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                One-time Payment
+                                                            </span>
+                                                        @endif
                                                     </td>
                                                     <td
                                                         class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
@@ -528,7 +603,6 @@
             }
 
             // Auto-fill and lock amount based on selected schedule
-            const scheduleSelect = document.getElementById('payment_schedule_id');
             if (scheduleSelect && amountInput) {
                 const applyAmountLock = (remaining) => {
                     const value = parseFloat(remaining || 0).toFixed(2);
@@ -560,11 +634,38 @@
                     const opt = this.options[this.selectedIndex];
                     const remaining = opt ? opt.getAttribute('data-balance') : null;
                     const installment = opt ? opt.getAttribute('data-installment') : null;
+                    const isDownPayment = installment === '0' || installment === 'Down';
+                    
                     // Only lock for months 1..9; allow flexible DP (installment 0)
                     if (remaining && installment !== null && parseInt(installment) > 0) {
                         applyAmountLock(remaining);
                     } else {
                         clearAmountLock();
+                    }
+
+                    // Show/hide discount section based on payment mode and schedule selection
+                    if (discountSection) {
+                        const hasPaymentPlan = {{ $invoice->has_payment_plan ? 'true' : 'false' }};
+                        
+                        if (hasPaymentPlan) {
+                            // For installment plans: only show for down payment
+                            if (isDownPayment) {
+                                discountSection.style.display = 'block';
+                                updateTotal(); // Update total when showing discount section
+                            } else {
+                                discountSection.style.display = 'none';
+                                // Reset discount selections when hiding
+                                document.getElementById('custom-discount').checked = false;
+                                document.getElementById('custom-discount-options').style.display = 'none';
+                                document.querySelectorAll('.discount-checkbox').forEach(checkbox => {
+                                    checkbox.checked = false;
+                                });
+                                updateTotal();
+                            }
+                        } else {
+                            // For one-time payments: always show (already visible by default)
+                            discountSection.style.display = 'block';
+                        }
                     }
                 });
             }
@@ -633,21 +734,24 @@
             if (paymentForm) {
                 paymentForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     // Store the form data
                     const formData = new FormData(this);
                     pendingPaymentData = {
                         amount: formData.get('amount'),
+                        remaining_balance: formData.get('final_amount'), // This now contains the remaining balance
                         payment_date: formData.get('payment_date'),
                         method: formData.get('method'),
                         type: formData.get('type'),
                         reference_no: formData.get('reference_no'),
-                        payment_schedule_id: formData.get('payment_schedule_id')
+                        payment_schedule_id: formData.get('payment_schedule_id'),
+                        custom_discount_enabled: formData.get('custom_discount_enabled'),
+                        selected_discounts: formData.getAll('selected_discounts[]')
                     };
 
                     // Close payment modal and open PIN verification
                     closeModal('record-payment-modal', 'modal-container-1');
-                    
+
                     // Open PIN verification modal
                     const pinModal = document.querySelector('#pin-verification-modal');
                     const pinContainer = document.querySelector('#modal-container-3');
@@ -662,23 +766,26 @@
                     setTimeout(() => {
                         const pinInput = document.getElementById('payment_pin');
                         pinInput.focus();
-                        
+
                         // Only allow numeric input
                         pinInput.addEventListener('input', function(e) {
                             // Remove any non-numeric characters
                             this.value = this.value.replace(/[^0-9]/g, '');
-                            
+
                             // Auto-submit when 6 digits are entered
                             if (this.value.length === 6) {
                                 setTimeout(() => {
-                                    document.getElementById('pin-verification-submit-btn').click();
+                                    document.getElementById(
+                                        'pin-verification-submit-btn').click();
                                 }, 100);
                             }
                         });
-                        
+
                         // Prevent non-numeric key presses
                         pinInput.addEventListener('keypress', function(e) {
-                            if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                            if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab',
+                                    'Enter'
+                                ].includes(e.key)) {
                                 e.preventDefault();
                             }
                         });
@@ -691,14 +798,14 @@
             if (pinVerificationForm) {
                 pinVerificationForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     if (!pendingPaymentData) {
                         showAlert('error', 'No payment data found. Please try again.');
                         return;
                     }
 
                     const pin = document.getElementById('payment_pin').value;
-                    
+
                     if (!pin || pin.length !== 6) {
                         showAlert('error', 'Please enter a valid 6-digit PIN.');
                         return;
@@ -832,6 +939,7 @@
                 // Create FormData for the payment submission
                 const formData = new FormData();
                 formData.append('amount', paymentData.amount);
+                formData.append('remaining_balance', paymentData.remaining_balance);
                 formData.append('payment_date', paymentData.payment_date);
                 formData.append('method', paymentData.method || '');
                 formData.append('type', paymentData.type || '');
@@ -839,55 +947,247 @@
                 formData.append('payment_schedule_id', paymentData.payment_schedule_id || '');
                 formData.append('pin', paymentData.pin);
                 formData.append('_token', '{{ csrf_token() }}');
+                
+                // Add discount data
+                if (paymentData.custom_discount_enabled) {
+                    formData.append('custom_discount_enabled', '1');
+                }
+                if (paymentData.selected_discounts && paymentData.selected_discounts.length > 0) {
+                    paymentData.selected_discounts.forEach(discountId => {
+                        formData.append('selected_discounts[]', discountId);
+                    });
+                }
+                
+                // Debug logging
+                console.log('Payment data being sent:', {
+                    amount: paymentData.amount,
+                    remaining_balance: paymentData.remaining_balance,
+                    custom_discount_enabled: paymentData.custom_discount_enabled,
+                    selected_discounts: paymentData.selected_discounts
+                });
 
                 fetch(`/invoice/${invoiceId}/payments`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        return response.json().then(error => {
-                            throw new Error(error.message || 'Payment failed');
-                        });
-                    }
-                })
-                .then(data => {
-                    hideLoader();
-                    
-                    if (data.success) {
-                        // Close PIN verification modal
-                        closeModal('pin-verification-modal', 'modal-container-3');
-                        
-                        // Show success message
-                        showAlert('success', data.message || 'Payment recorded successfully.');
-                        
-                        // Clear PIN input
-                        document.getElementById('payment_pin').value = '';
-                        
-                        // Reset pending payment data
-                        pendingPaymentData = null;
-                        
-                        // Reload page to show updated payment information
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
-                    } else {
-                        showAlert('error', data.message || 'Payment failed. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    hideLoader();
-                    console.error('Payment error:', error);
-                    showAlert('error', error.message || 'An error occurred while recording the payment.');
-                });
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.json().then(error => {
+                                throw new Error(error.message || 'Payment failed');
+                            });
+                        }
+                    })
+                    .then(data => {
+                        hideLoader();
+
+                        if (data.success) {
+                            // Close PIN verification modal
+                            closeModal('pin-verification-modal', 'modal-container-3');
+
+                            // Show success message
+                            showAlert('success', data.message || 'Payment recorded successfully.');
+
+                            // Clear PIN input
+                            document.getElementById('payment_pin').value = '';
+
+                            // Reset pending payment data
+                            pendingPaymentData = null;
+
+                            // Reload page to show updated payment information
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            showAlert('error', data.message || 'Payment failed. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        hideLoader();
+                        console.error('Payment error:', error);
+                        showAlert('error', error.message || 'An error occurred while recording the payment.');
+                    });
             }
 
         });
+
+        // Discount calculation functionality
+        const amountInput = document.getElementById('amount');
+        const totalDisplay = document.querySelector('[data-total]');
+        const finalAmountInput = document.getElementById('final_amount');
+        const customDiscountCheckbox = document.getElementById('custom-discount');
+        const customDiscountOptions = document.getElementById('custom-discount-options');
+        const discountCheckboxes = document.querySelectorAll('.discount-checkbox');
+        const scheduleSelect = document.getElementById('payment_schedule_id');
+        const discountSection = document.getElementById('discount-section');
+        
+        // Early enrollment data from backend
+        const isEarlyEnrollee = @json($isEarlyEnrollee);
+        const earlyDiscountPercentage = @json($earlyDiscountPercentage);
+        
+        // Update total when amount input changes
+        if (amountInput) {
+            amountInput.addEventListener('input', function() {
+                updateTotal();
+            });
+        }
+        
+        // Toggle custom discount options
+        if (customDiscountCheckbox) {
+            customDiscountCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    customDiscountOptions.style.display = 'flex';
+                } else {
+                    customDiscountOptions.style.display = 'none';
+                    // Uncheck all discount checkboxes
+                    discountCheckboxes.forEach(checkbox => checkbox.checked = false);
+                    updateTotal();
+                }
+            });
+        }
+        
+        // Update total when discount checkboxes change
+        discountCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTotal);
+        });
+        
+        function updateTotal() {
+            let baseAmount = parseFloat(amountInput.value) || 0;
+            
+            // Check if this is a down payment schedule in an installment plan
+            let isDownPayment = false;
+            const hasPaymentPlan = {{ $invoice->has_payment_plan ? 'true' : 'false' }};
+            
+            if (hasPaymentPlan && scheduleSelect && scheduleSelect.selectedIndex >= 0) {
+                const selectedSchedule = scheduleSelect.options[scheduleSelect.selectedIndex];
+                const installment = selectedSchedule ? selectedSchedule.getAttribute('data-installment') : null;
+                isDownPayment = installment === '0' || installment === 'Down';
+            } else if (!hasPaymentPlan) {
+                // For one-time payments, never do live calculation
+                isDownPayment = false;
+            }
+            
+            // Calculate discounts for both down payments and one-time payments
+            let totalDiscount = 0;
+            
+            // Calculate early enrollment discount
+            if (isEarlyEnrollee && earlyDiscountPercentage > 0) {
+                const earlyDiscount = baseAmount * (earlyDiscountPercentage / 100);
+                totalDiscount += earlyDiscount;
+            }
+            
+            // Calculate custom discounts
+            discountCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const discountAmount = getDiscountAmount(checkbox.value);
+                    totalDiscount += discountAmount;
+                }
+            });
+            
+            // Calculate final amount after discounts
+            const finalAmount = baseAmount - totalDiscount;
+            
+            if (isDownPayment) {
+                // For down payments in installment plans: show live calculation following backend formula
+                // Formula: Monthly = (Total Invoice Amount - Total Discount - Down Payment) / months
+                const totalInvoiceAmount = {{ $invoice->total_amount }};
+                const discountedTotal = totalInvoiceAmount - totalDiscount;
+                const remainingBalance = discountedTotal - baseAmount; // baseAmount is the down payment
+                const monthlyAmount = remainingBalance / 9; // 9 months installment
+                
+                if (totalDisplay) {
+                    totalDisplay.textContent = `Remaining: ₱${remainingBalance.toFixed(2)} / 9 months = ₱${monthlyAmount.toFixed(2)}`;
+                }
+                if (finalAmountInput) {
+                    finalAmountInput.value = remainingBalance; // Store remaining balance for backend
+                }
+            } else {
+                // For monthly installments or one-time payments: show total with discounts applied
+                if (totalDisplay) {
+                    totalDisplay.textContent = `Total: ₱${finalAmount.toFixed(2)}`;
+                }
+                if (finalAmountInput) {
+                    finalAmountInput.value = finalAmount;
+                }
+            }
+        }
+        
+        function getDiscountAmount(discountId) {
+            // Get discount amount from the label
+            const label = document.querySelector(`label[for="discount-${discountId}"]`);
+            if (label) {
+                const h4Element = label.querySelector('h4');
+                if (h4Element) {
+                    const amountText = h4Element.textContent.replace('Amount: ', '');
+                    if (amountText.includes('%')) {
+                        const percentage = parseFloat(amountText.replace('%', ''));
+                        return (parseFloat(amountInput.value) || 0) * (percentage / 100);
+                    } else {
+                        return parseFloat(amountText.replace('₱', '').replace(',', '')) || 0;
+                    }
+                }
+            }
+            return 0;
+        }
+        
+        // Clear form fields on page load/refresh
+        function clearForm() {
+            // Clear amount input
+            if (amountInput) {
+                amountInput.value = '';
+            }
+            
+            // Clear method and type inputs
+            const methodInput = document.querySelector('input[name="method"]');
+            const typeInput = document.querySelector('input[name="type"]');
+            if (methodInput) methodInput.value = '';
+            if (typeInput) typeInput.value = '';
+            
+            // Clear reference number
+            const referenceInput = document.querySelector('input[name="reference_no"]');
+            if (referenceInput) referenceInput.value = '';
+            
+            // Reset payment date to today
+            const paymentDateInput = document.querySelector('input[name="payment_date"]');
+            if (paymentDateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                paymentDateInput.value = today;
+            }
+            
+            // Reset schedule selection to first option
+            if (scheduleSelect) {
+                scheduleSelect.selectedIndex = 0;
+            }
+            
+            // Clear discount selections
+            if (customDiscountCheckbox) {
+                customDiscountCheckbox.checked = false;
+            }
+            if (customDiscountOptions) {
+                customDiscountOptions.style.display = 'none';
+            }
+            discountCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Clear final amount input
+            if (finalAmountInput) {
+                finalAmountInput.value = '0';
+            }
+            
+            // Reset total display
+            if (totalDisplay) {
+                totalDisplay.textContent = 'Total: ₱0.00';
+            }
+        }
+        
+        // Initialize form clearing and total calculation on page load
+        clearForm();
+        updateTotal();
     </script>
 @endpush

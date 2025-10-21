@@ -23,13 +23,13 @@ class PaymentPlanService
      * @param Carbon|null $startDate
      * @return PaymentPlan
      */
-    public function createInstallmentPlan(Invoice $invoice, $downPaymentAmount, $installmentMonths = 9, $startDate = null)
+    public function createInstallmentPlan(Invoice $invoice, $downPaymentAmount, $installmentMonths = 9, $startDate = null, $totalDiscount = 0)
     {
-        return DB::transaction(function () use ($invoice, $downPaymentAmount, $installmentMonths, $startDate) {
+        return DB::transaction(function () use ($invoice, $downPaymentAmount, $installmentMonths, $startDate, $totalDiscount) {
             $totalAmount = $invoice->total_amount;
 
-            // Calculate payment plan
-            $planData = PaymentPlan::calculate($totalAmount, $downPaymentAmount, $installmentMonths);
+            // Calculate payment plan with discount
+            $planData = PaymentPlan::calculate($totalAmount, $downPaymentAmount, $installmentMonths, $totalDiscount);
             $planData['payment_type'] = 'installment';
             $planData['invoice_id'] = $invoice->id;
 
@@ -155,6 +155,10 @@ class PaymentPlanService
                         'method' => $paymentData['method'] ?? null,
                         'type' => $paymentData['type'] ?? 'Installment Payment',
                         'reference_no' => $paymentData['reference_no'] ?? null,
+                        'original_amount' => $paymentData['original_amount'] ?? $paymentAmount,
+                        'early_discount' => $paymentData['early_discount'] ?? 0,
+                        'custom_discounts' => $paymentData['custom_discounts'] ?? 0,
+                        'total_discount' => $paymentData['total_discount'] ?? 0,
                     ]);
 
                     // Update schedule
@@ -171,7 +175,8 @@ class PaymentPlanService
 
                 if ($downPaymentSchedule && $downPaymentSchedule->amount_paid > 0) {
                     // Down payment has been made, recalculate the plan
-                    $this->recalculatePaymentPlan($invoice);
+                    $totalDiscount = $paymentData['total_discount'] ?? 0;
+                    $this->recalculatePaymentPlan($invoice, $totalDiscount);
                 }
 
                 // Update invoice status
@@ -194,6 +199,10 @@ class PaymentPlanService
                     'method' => $paymentData['method'] ?? null,
                     'type' => $paymentData['type'] ?? null,
                     'reference_no' => $paymentData['reference_no'] ?? null,
+                    'original_amount' => $paymentData['original_amount'] ?? $amount,
+                    'early_discount' => $paymentData['early_discount'] ?? 0,
+                    'custom_discounts' => $paymentData['custom_discounts'] ?? 0,
+                    'total_discount' => $paymentData['total_discount'] ?? 0,
                 ]);
 
                 $invoice->refresh();
@@ -317,7 +326,7 @@ class PaymentPlanService
      * @param Invoice $invoice
      * @return void
      */
-    public function recalculatePaymentPlan(Invoice $invoice)
+    public function recalculatePaymentPlan(Invoice $invoice, $totalDiscount = 0)
     {
         if (!$invoice->has_payment_plan) {
             return;
@@ -341,8 +350,11 @@ class PaymentPlanService
         $totalAmount = $paymentPlan->total_amount;
         $installmentMonths = $paymentPlan->installment_months;
 
+        // Apply discount to total amount first
+        $discountedTotal = $totalAmount - $totalDiscount;
+
         // Calculate remaining balance after student's actual payment
-        $remainingBalance = $totalAmount - $actualDownPayment;
+        $remainingBalance = $discountedTotal - $actualDownPayment;
 
         // Calculate monthly amount (shortfall is already included in remainingBalance)
         $monthlyAmount = round($remainingBalance / $installmentMonths, 2);
@@ -354,6 +366,8 @@ class PaymentPlanService
 
         // Update payment plan
         $paymentPlan->update([
+            'discounted_total' => $discountedTotal,
+            'total_discount' => $totalDiscount,
             'remaining_amount' => $remainingBalance,
             'monthly_amount' => $monthlyAmount,
             'first_month_amount' => $firstMonthAmount,
@@ -425,6 +439,10 @@ class PaymentPlanService
                 'method' => $paymentData['method'] ?? null,
                 'type' => $paymentData['type'] ?? 'Installment Payment',
                 'reference_no' => $paymentData['reference_no'] ?? null,
+                'original_amount' => $paymentData['original_amount'] ?? $amount,
+                'early_discount' => $paymentData['early_discount'] ?? 0,
+                'custom_discounts' => $paymentData['custom_discounts'] ?? 0,
+                'total_discount' => $paymentData['total_discount'] ?? 0,
             ]);
 
             // Update schedule
@@ -433,7 +451,8 @@ class PaymentPlanService
 
             // Check if this payment affects the down payment schedule and trigger recalculation
             if ($schedule->installment_number === 0 && $schedule->amount_paid > 0) {
-                $this->recalculatePaymentPlan($invoice);
+                $totalDiscount = $paymentData['total_discount'] ?? 0;
+                $this->recalculatePaymentPlan($invoice, $totalDiscount);
             }
 
             $student = $invoice->student;

@@ -83,7 +83,13 @@ class Invoice extends Model
     // 👇 Computed balance
     public function getBalanceAttribute()
     {
-        $balance = $this->total_amount - $this->paid_amount;
+        // For installment plans, use the discounted total if payment plan exists
+        if ($this->has_payment_plan && $this->paymentPlan) {
+            $discountedTotal = $this->paymentPlan->discounted_total ?? $this->total_amount;
+            $balance = $discountedTotal - $this->paid_amount;
+        } else {
+            $balance = $this->total_amount - $this->paid_amount;
+        }
         // Round to 2 decimal places to avoid floating-point precision issues
         return round($balance, 2);
     }

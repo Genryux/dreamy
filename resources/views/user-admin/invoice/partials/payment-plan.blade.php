@@ -10,7 +10,20 @@
 	<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 		<div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
 			<p class="text-xs text-blue-600 font-medium mb-1">Down Payment</p>
-			<p class="text-2xl font-bold text-blue-700">₱{{ number_format($paymentPlanSummary['down_payment'], 2) }}</p>
+			@php
+				$downPaymentSchedule = $invoice->paymentSchedules()->where('installment_number', 0)->first();
+				$actualDownPayment = $downPaymentSchedule ? $downPaymentSchedule->amount_paid : 0;
+				$adminDownPayment = \App\Models\SchoolSetting::value('down_payment') ?? 0;
+			@endphp
+			@if($actualDownPayment > 0)
+				{{-- Show actual amount paid by student --}}
+				<p class="text-2xl font-bold text-blue-700">₱{{ number_format($actualDownPayment, 2) }}</p>
+				<p class="text-xs text-blue-500 mt-1">Paid by student</p>
+			@else
+				{{-- Show admin-set down payment amount --}}
+				<p class="text-2xl font-bold text-blue-700">₱{{ number_format($adminDownPayment, 2) }}</p>
+				<p class="text-xs text-blue-500 mt-1">Required amount</p>
+			@endif
 		</div>
 		<div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
 			<p class="text-xs text-green-600 font-medium mb-1">Monthly Amount</p>

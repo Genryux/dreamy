@@ -468,6 +468,12 @@
                 <td class="summary-label" style="width: 70%;">Total Contract Value:</td>
                 <td class="summary-value" style="width: 30%;">PHP {{ number_format($invoice->total_amount, 2) }}</td>
             </tr>
+            @if($invoice->has_payment_plan && $invoice->paymentPlan && $invoice->paymentPlan->total_discount > 0)
+            <tr>
+                <td class="summary-label">Discount Applied:</td>
+                <td class="summary-value" style="color: #dc2626;">-PHP {{ number_format($invoice->paymentPlan->total_discount, 2) }}</td>
+            </tr>
+            @endif
             <tr>
                 <td class="summary-label">Total Paid to Date:</td>
                 <td class="summary-value">PHP {{ number_format($invoice->paid_amount, 2) }}</td>

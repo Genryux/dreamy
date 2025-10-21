@@ -24,7 +24,7 @@
 
                 <div class="flex flex-row justify-between items-center px-6 py-4 space-x-1">
 
-                    <div class="text-[14px] opacity-70 flex flex-row justify-center items-center gap-2 hover:text-blue-600 hover:underline transition duration-150">
+                    <div class="text-[14px] flex flex-row justify-center items-center gap-2 transition duration-150">
                         {{ $modal_info ?? '' }}
                     </div>
                     <div class="flex flex-row justify-center items-center gap-2">

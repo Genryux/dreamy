@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\AdmissionDashboardController;
 use App\Http\Controllers\ApplicantsController;
 use App\Http\Controllers\ApplicationFormController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\DocumentsSubmissionController;
 use App\Http\Controllers\EnrollmentPeriodController;
@@ -295,6 +296,13 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/admin/news', [NewsController::class, 'index'])->name('admin.news.index');
     Route::get('/admin/getNews', [NewsController::class, 'getNews']);
     Route::get('/admin/news/{news}', [NewsController::class, 'show']);
+
+    // Discount Management
+    Route::get('/admin/discounts', [DiscountController::class, 'index'])->name('admin.discounts.index');
+    Route::post('/admin/discounts', [DiscountController::class, 'store'])->name('admin.discounts.store');
+    Route::put('/admin/discounts/{discount}', [DiscountController::class, 'update'])->name('admin.discounts.update');
+    Route::delete('/admin/discounts/{discount}', [DiscountController::class, 'destroy'])->name('admin.discounts.destroy');
+    Route::patch('/admin/discounts/{discount}/toggle', [DiscountController::class, 'toggle'])->name('admin.discounts.toggle');
     Route::post('/admin/news', [NewsController::class, 'storeOrUpdate']);
     Route::put('/admin/news/{news}', [NewsController::class, 'update']);
     Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);

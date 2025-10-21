@@ -37,7 +37,9 @@ class PrivateImmediateNotification extends Notification
      */
     public function broadcastOn()
     {
-        return new \Illuminate\Broadcasting\Channel($this->broadcastChannel ?? 'user.1');
+        // Ensure we always have a valid channel name
+        $channelName = $this->broadcastChannel ?? 'user.1';
+        return new \Illuminate\Broadcasting\Channel($channelName);
     }
 
     /**
