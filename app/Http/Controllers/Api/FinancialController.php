@@ -61,7 +61,7 @@ class FinancialController extends Controller
             ]);
         }
 
-        $invoices = Invoice::with([
+        $invoices = Invoice::withTrashed()->with([
             'items.fee',
             'payments',
             'academicTerm',
@@ -97,21 +97,21 @@ class FinancialController extends Controller
             // Add payment plan details if exists
             if ($invoice->has_payment_plan && $invoice->paymentPlan) {
                 $invoiceData['payment_plan'] = [
-                    'id' => $invoice->paymentPlan->id,
-                    'down_payment_amount' => $invoice->paymentPlan->down_payment_amount,
-                    'monthly_amount' => $invoice->paymentPlan->monthly_amount,
-                    'first_month_amount' => $invoice->paymentPlan->first_month_amount,
-                    'installment_months' => $invoice->paymentPlan->installment_months,
-                    'schedules' => $invoice->paymentPlan->schedules->map(function ($schedule) {
+                    'id' => $invoice->paymentPlan->id ?? 0,
+                    'down_payment_amount' => $invoice->paymentPlan->down_payment_amount ?? 0,
+                    'monthly_amount' => $invoice->paymentPlan->monthly_amount ?? 0,
+                    'first_month_amount' => $invoice->paymentPlan->first_month_amount ?? 0,
+                    'installment_months' => $invoice->paymentPlan->installment_months ?? 0,
+                    'schedules' => $invoice->paymentPlan->schedules ? $invoice->paymentPlan->schedules->map(function ($schedule) {
                         return [
-                            'installment_number' => $schedule->installment_number,
-                            'description' => $schedule->description,
-                            'amount_due' => $schedule->amount_due,
-                            'amount_paid' => $schedule->amount_paid,
+                            'installment_number' => $schedule->installment_number ?? 0,
+                            'description' => $schedule->description ?? 'Payment',
+                            'amount_due' => $schedule->amount_due ?? 0,
+                            'amount_paid' => $schedule->amount_paid ?? 0,
                             'due_date' => $schedule->due_date ? $schedule->due_date->format('M d, Y') : null,
-                            'status' => $schedule->status,
+                            'status' => $schedule->status ?? 'pending',
                         ];
-                    })->toArray(),
+                    })->toArray() : [],
                 ];
             }
 
@@ -180,12 +180,12 @@ class FinancialController extends Controller
             ]);
         }
 
-        // Get payments for selected term
+        // Get payments for selected term (including soft deleted invoices)
         $payments = InvoicePayment::with([
             'invoice',
             'academicTerm'
         ])->whereHas('invoice', function ($query) use ($user) {
-            $query->where('student_id', $user->student->id);
+            $query->withTrashed()->where('student_id', $user->student->id);
         })->where('academic_term_id', $selectedTerm->id)
           ->orderBy('payment_date', 'desc')
           ->get();
@@ -329,8 +329,8 @@ class FinancialController extends Controller
             ->values();
 
         $termsData = $enrolledTerms->map(function ($term) use ($user) {
-            // Get invoices for this term with their relationships
-            $invoices = \App\Models\Invoice::with(['items', 'payments'])
+            // Get invoices for this term with their relationships (including soft deleted)
+            $invoices = \App\Models\Invoice::withTrashed()->with(['items', 'payments'])
                 ->where('student_id', $user->student->id)
                 ->where('academic_term_id', $term->id)
                 ->get();
@@ -372,36 +372,53 @@ class FinancialController extends Controller
     {
         $validated = $request->validate([
             'total_amount' => 'required|numeric|min:0',
-            'down_payment' => 'required|numeric|min:0',
+            'down_payment' => 'nullable|numeric|min:0',
             'installment_months' => 'nullable|integer|min:1|max:12',
         ]);
 
         $installmentMonths = $validated['installment_months'] ?? 9;
         
+        // Use SchoolSettings down_payment if not provided
+        $downPayment = $validated['down_payment'] ?? \App\Models\SchoolSetting::value('down_payment') ?? 0;
+        
         $calculation = \App\Models\PaymentPlan::calculate(
             $validated['total_amount'],
-            $validated['down_payment'],
+            $downPayment,
             $installmentMonths
         );
 
         // Generate preview schedule
-        $startDate = \Carbon\Carbon::now()->addMonth()->startOfMonth();
+        // Get due day from SchoolSettings
+        $dueDayOfMonth = \App\Models\SchoolSetting::value('due_day_of_month') ?? 1;
+        $useLastDayIfShorter = \App\Models\SchoolSetting::value('use_last_day_if_shorter') ?? false;
+        
+        // Down payment is due immediately (current date)
+        $downPaymentDate = \Carbon\Carbon::now();
+        
+        // First monthly payment starts from next month
+        $firstMonthlyDate = \Carbon\Carbon::now()->addMonth();
+        if ($useLastDayIfShorter && $dueDayOfMonth > $firstMonthlyDate->daysInMonth) {
+            $firstMonthlyDate->day = $firstMonthlyDate->daysInMonth;
+        } else {
+            $firstMonthlyDate->day = $dueDayOfMonth;
+        }
+        
         $schedule = [
             [
                 'installment_number' => 0,
                 'description' => 'Down Payment',
                 'amount' => $calculation['down_payment_amount'],
-                'due_date' => \Carbon\Carbon::now()->format('M d, Y'),
+                'due_date' => $downPaymentDate->format('M d, Y'),
             ]
         ];
 
         for ($i = 1; $i <= $installmentMonths; $i++) {
             $amount = ($i === 1) ? $calculation['first_month_amount'] : $calculation['monthly_amount'];
-            $dueDate = $startDate->copy()->addMonths($i - 1);
+            $dueDate = $firstMonthlyDate->copy()->addMonths($i - 1);
             
             $schedule[] = [
                 'installment_number' => $i,
-                'description' => $dueDate->format('F Y'), // e.g., "November 2025"
+                'description' => $dueDate->format('F Y'), // e.g., "December 2025"
                 'amount' => $amount,
                 'due_date' => $dueDate->format('M d, Y'),
             ];
@@ -473,6 +490,32 @@ class FinancialController extends Controller
                     'payment_mode' => 'full',
                     'has_payment_plan' => false,
                 ]);
+
+                // Send immediate invoice email for one-time payment
+                $student = $invoice->student;
+                if ($student && $student->user) {
+                    \Log::info('Sending one-time payment invoice email to: ' . $student->user->email);
+                    try {
+                        // Create and save a temporary payment schedule for one-time payment
+                        $tempSchedule = \App\Models\PaymentSchedule::create([
+                            'payment_plan_id' => null,
+                            'invoice_id' => $invoice->id,
+                            'installment_number' => 0,
+                            'amount_due' => $invoice->total_amount,
+                            'amount_paid' => 0,
+                            'due_date' => now(),
+                            'status' => 'pending',
+                            'description' => 'One-time Payment - ' . $invoice->invoice_number,
+                        ]);
+                        
+                        $student->user->notify(new \App\Notifications\InvoiceEmailNotification($tempSchedule, 'initial'));
+                        \Log::info('One-time payment invoice email sent successfully');
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to send one-time payment invoice email: ' . $e->getMessage());
+                    }
+                } else {
+                    \Log::error('Student or user not found for invoice: ' . $invoice->id);
+                }
 
                 return response()->json([
                     'success' => true,

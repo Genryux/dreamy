@@ -210,19 +210,44 @@
             </div>
             <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
                 <p class="text-gray-700 text-[16px] font-semibold">
-                    Are you sure you want to verify this document?
+                    Are you sure you want to enroll this applicant?
                 </p>
                 <p id="enroll-msg" class="text-gray-500 text-[14px]"></p>
             </div>
 
 
 
-            <div class="flex items-center">
-                <input checked id="auto-assign" type="checkbox" value=""
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                <label for="auto-assign" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-500">
-                    Auto-assign relevant school fees (based on grade level and program)
-                </label>
+            <div class="flex flex-col justify-center items-center gap-2">
+                <div>
+                    <input id="auto-assign" type="checkbox" value=""
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <label for="auto-assign" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-500">
+                        Auto-assign relevant school fees (based on grade level and program)
+                    </label>
+                </div>
+                @if ($schoolFees === null && $schoolSettings === null)
+                    {{-- Scenario 1: No school fees & No downpayment --}}
+                    <div id="warning-message-both"
+                        class="hidden bg-red-50 border border-red-300 text-red-500 rounded-xl py-2.5">
+                        <p>No school fees have been set up yet and no down payment is configured. Please create a school fee record and set up down payment to avoid incorrect invoice totals.</p>
+                    </div>
+                @elseif ($schoolFees === null && $schoolSettings !== null)
+                    {{-- Scenario 2: No school fee, with downpayment --}}
+                    <div id="warning-message-fees"
+                        class="hidden bg-red-50 border border-red-300 text-red-500 rounded-xl py-2.5">
+                        <p>No school fees have been set up yet. Please create a school fee record first; otherwise, the system can't assign the right fees to students.</p>
+                    </div>
+                @elseif ($schoolFees !== null && $schoolSettings === null)
+                    {{-- Scenario 3: With school fee, no downpayment --}}
+                    <div id="warning-message-settings"
+                        class="hidden bg-red-50 border border-red-300 text-red-500 rounded-xl py-2.5">
+                        <p>School fees found, but no down payment is configured. Please set it up to avoid incorrect invoice totals.</p>
+                    </div>
+                @else
+                    {{-- Scenario 4: With school fee, with downpayment --}}
+                    {{-- Show nothing --}}
+                @endif
+
             </div>
 
         </div>
@@ -621,15 +646,41 @@
         let pendingApplications = document.querySelector('#pending-application');
 
         document.addEventListener("DOMContentLoaded", function() {
-            
+
             // Handle flash messages from server
-            @if(session('status'))
+            @if (session('status'))
                 showAlert('success', '{{ session('status') }}');
             @endif
-            
-            @if($errors->any())
+
+            @if ($errors->any())
                 showAlert('error', '{{ $errors->first() }}');
             @endif
+
+            // Handle checkbox and warning messages
+            const autoAssignCheckbox = document.getElementById('auto-assign');
+            const warningMessages = document.querySelectorAll('[id^="warning-message"]');
+
+            // Uncheck checkbox on page load/refresh
+            if (autoAssignCheckbox) {
+                autoAssignCheckbox.checked = false;
+            }
+
+            // Hide/show warning messages based on checkbox state
+            if (autoAssignCheckbox && warningMessages.length > 0) {
+                autoAssignCheckbox.addEventListener('change', function() {
+                    warningMessages.forEach(warningMessage => {
+                        if (this.checked) {
+                            // Show warning when checkbox is checked (user wants to auto-assign)
+                            warningMessage.classList.remove('hidden');
+                            warningMessage.style.display = 'block';
+                        } else {
+                            // Hide warning when checkbox is unchecked (user doesn't want to auto-assign)
+                            warningMessage.classList.add('hidden');
+                            warningMessage.style.display = 'none';
+                        }
+                    });
+                });
+            }
 
             table = new DataTable('#docs-table', {
                 paging: true,
@@ -986,19 +1037,28 @@
                 const form = document.getElementById('enroll-student-form');
                 const formData = new FormData(form);
                 const autoAssign = document.getElementById('auto-assign')?.checked;
-                
+
                 // Add auto-assign checkbox value to form data
                 formData.append('auto_assign', autoAssign ? '1' : '0');
 
+                // Debug: Log the checkbox value
+                console.log('Auto-assign checkbox checked:', autoAssign);
+                console.log('Form data auto_assign value:', autoAssign ? '1' : '0');
+
+                // Show appropriate loader message based on checkbox state
+                const loaderMessage = autoAssign ? 'Enrolling student with auto-assigned fees...' :
+                    'Enrolling student...';
+
                 try {
                     // Show loader
-                    showLoader('Enrolling student...');
+                    showLoader(loaderMessage);
 
                     // Submit via AJAX
                     const response = await fetch(`/students/{{ $applicant->id }}`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
                             'Accept': 'application/json'
                         },
                         body: formData
@@ -1012,7 +1072,7 @@
                     if (data.success) {
                         // Show success message
                         showAlert('success', data.message || 'Student enrolled successfully!');
-                        
+
                         // Close modal
                         const modal = document.getElementById('enroll-student-modal');
                         const modalContainer = document.getElementById('modal-container-2');
@@ -1034,9 +1094,10 @@
                 } catch (error) {
                     // Hide loader
                     hideLoader();
-                    
+
                     console.error('Enrollment error:', error);
-                    showAlert('error', 'An error occurred while enrolling the student. Please try again.');
+                    showAlert('error',
+                        'An error occurred while enrolling the student. Please try again.');
                 }
             });
 

@@ -339,7 +339,7 @@ class StudentsController extends Controller
             $selectedTerm = AcademicTerms::orderBy('year', 'desc')
                 ->orderBy('semester', 'desc')
                 ->first();
-            
+
             // If still no term found, fallback to original method
             if (!$selectedTerm) {
                 return $this->getOriginalUsers($request);
@@ -361,17 +361,18 @@ class StudentsController extends Controller
         if ($search = $request->input('search.value')) {
             $query->whereHas('student', function ($q) use ($search) {
                 $q->where('lrn', 'like', "%{$search}%")
-                    ->orWhere('program', 'like', "%{$search}%")
+                    ->orWhereHas('program', function ($p) use ($search) {
+                        $p->where('code', 'like', "%{$search}%")
+                          ->orWhere('name', 'like', "%{$search}%");
+                    })
                     ->orWhere('grade_level', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->where('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
                             ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%");
                     })
-                    ->orWhereHas('record', function ($recordQuery) use ($search) {
-                        $recordQuery->where('contact_number', 'like', "%{$search}%");
-                    });
+                    ->orWhere('academic_status', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
             });
         }
 
@@ -411,8 +412,8 @@ class StudentsController extends Controller
                     'grade_level' => $student->grade_level ?? '-',
                     'program' => $student->program->code ?? '-',
                     'section' => $enrollment->section->name ?? '-',
-                    'contact' => $student->record?->contact_number ?? '-',
-                    'email' => $student->user->email ?? '-',
+                    'contact' => $student->academic_status ?? 'Not Evaluated',
+                    'email' => $student->status ?? '-',
                     'status' => $enrollment->status,
                     'status_raw' => $enrollment->status,
                     'confirmed_at' => $enrollment->confirmed_at ? $enrollment->confirmed_at->format('M j, Y') : null,
@@ -670,16 +671,24 @@ class StudentsController extends Controller
     public function evaluateStudent(Request $request)
     {
         $validated = $request->validate([
-            'result' => 'required|in:Passed,Failed,Incomplete'
+            'result' => 'required|in:Passed,Failed'
         ]);
 
         $student = Student::find($request->id);
 
         try {
-            // Update the student record's academic status
-            $student->update([
-                'academic_status' => $validated['result']
-            ]);
+
+            if ($student->grade_level === 'Grade 12' && $validated['result'] === 'Passed') {
+                // Update the student record's academic status
+                $student->update([
+                    'academic_status' => 'Completed'
+                ]);
+            } else {
+                // Update the student record's academic status
+                $student->update([
+                    'academic_status' => $validated['result']
+                ]);
+            }
 
             return redirect()->back()->with('success', 'Successfully evaluated student');
         } catch (\Throwable $th) {
@@ -690,7 +699,7 @@ class StudentsController extends Controller
     public function promoteStudent(Request $request)
     {
         $validated = $request->validate([
-            'action' => 'required|in:promote-to-next-year,mark-as-graduate'
+            'action' => 'required|in:promote-to-next-year,mark-as-graduated'
         ]);
 
         $student = Student::find($request->id);
@@ -698,31 +707,32 @@ class StudentsController extends Controller
         try {
 
             if ($validated['action'] === 'promote-to-next-year') {
-                if ($student->academic_status === 'Failed') {
+
+                if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Failed') {
                     return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
                 }
 
-                $student->update([
-                    'grade_level' => 'Grade 12'
-                ]);
-                return redirect()->back()->with('success', 'Successfully promoted student');
-            } else if ($validated['action'] === 'mark-as-graduate') {
-
-                if ($student->academic_status === 'Failed') {
-                    return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
-                }
-
-                DB::transaction(function () use ($student) {
+                if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Passed') {
                     $student->update([
-                        'status' => 'Graduated'
+                        'grade_level' => 'Grade 12'
                     ]);
+                }
 
-                    $student->enrollments()->update([
-                        'status' => 'Graduated'
+                return redirect()->back()->with('success', 'Successfully promoted student');
+            } else if ($validated['action'] === 'mark-as-graduated') {
+
+                if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Failed') {
+                    return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
+                }
+
+                if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Passed') {
+
+                    $student->update([
+                        'academic_status' => 'Completed'
                     ]);
-                });
+                }
 
-                return redirect()->back()->with('success', 'Successfully mark student as graduated');
+                return redirect()->back()->with('success', 'Successfully mark student as completed');
             }
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors(['error' => "Failed to promote student: {$th->getMessage()}"]);
@@ -747,7 +757,6 @@ class StudentsController extends Controller
             });
 
             return redirect()->back()->with('success', 'Successfully dropped the student');
-
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors(['error' => "Failed to drop student: {$th->getMessage()}"]);
         }

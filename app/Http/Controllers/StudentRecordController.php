@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\StudentRecordException;
 use App\Exports\StudentsExport;
 use App\Imports\StudentsImport;
+use App\Mail\ApplicantProgressMail;
 use App\Models\Applicants;
 use App\Models\DocumentSubmissions;
 use App\Models\Invoice;
@@ -25,6 +26,7 @@ use App\Models\SchoolSetting;
 use App\Services\StudentService;
 use Carbon\Carbon;
 use App\Services\InvoiceService;
+use Illuminate\Support\Facades\Mail;
 
 class StudentRecordController extends Controller
 {
@@ -152,6 +154,8 @@ class StudentRecordController extends Controller
     {
         $applicant = Applicants::where('applicants.id', $request->id)->first();
 
+        $auto_assign = $request->input(['auto_assign']);
+
         if (!$applicant) {
             return response()->json(['error' => 'Applicant not found'], 404);
         }
@@ -169,34 +173,58 @@ class StudentRecordController extends Controller
                 return $this->student_service->enrollStudent($applicant);
             });
 
-            try {
-                $invoice = $this->invoiceService->assignInvoiceAfterPromotion($student->id);
+            $recipientEmail = $applicant->user->email;
+            $loginUrl = config('app.url') . '/portal/login';
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Student enrollment has been completed successfully, and the relevant school fees have been set.',
-                    'student_id' => $student->id,
-                    'invoice_id' => $invoice->id
-                ]);
-            } catch (\InvalidArgumentException $e) {
-                // Invoice assignment failed, but enrollment was successful
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
-                    'student_id' => $student->id,
-                    'warning' => $e->getMessage()
-                ]);
-            } catch (\Exception $e) {
-                // Log invoice assignment error but don't fail the enrollment
-                Log::warning('Invoice assignment failed after successful enrollment', [
-                    'student_id' => $student->id,
-                    'error' => $e->getMessage()
-                ]);
+            // Send exam result email regardless of school fees assignment
+            if ($recipientEmail) {
+                $title = 'Official Enrollment Confirmation — Dreamy School Enrollment';
+                $body = "Congratulations! You are now officially enrolled. Please log in to your portal to see important instructions and next steps.";
+                Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                    applicantName: $applicant->first_name ?? 'Applicant',
+                    title: $title,
+                    bodyText: $body,
+                    loginUrl: $loginUrl
+                ));
+            }
 
+            if ($auto_assign === '1') {
+
+                try {
+                    $invoice = $this->invoiceService->assignInvoiceAfterPromotion($student->id);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Student enrollment has been completed successfully, and the relevant school fees have been set.',
+                        'student_id' => $student->id,
+                        'invoice_id' => $invoice->id
+                    ]);
+                } catch (\InvalidArgumentException $e) {
+                    // Invoice assignment failed, but enrollment was successful
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
+                        'student_id' => $student->id,
+                        'warning' => $e->getMessage()
+                    ]);
+                } catch (\Exception $e) {
+                    // Log invoice assignment error but don't fail the enrollment
+                    Log::warning('Invoice assignment failed after successful enrollment', [
+                        'student_id' => $student->id,
+                        'error' => $e->getMessage()
+                    ]);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
+                        'student_id' => $student->id
+                    ]);
+                }
+            } else {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Enrollment successful, but the school fees could not be assigned. Please assign manually.',
-                    'student_id' => $student->id
+                    'message' => 'Student enrollment has been completed successfully.',
+                    'student_id' => $student->id,
                 ]);
             }
         } catch (\InvalidArgumentException $e) {
@@ -281,7 +309,7 @@ class StudentRecordController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updatePersonalInfo(Request $request, Student $student) 
+    public function updatePersonalInfo(Request $request, Student $student)
     {
         try {
             $validated = $request->validate([
@@ -313,7 +341,6 @@ class StudentRecordController extends Controller
                 'success' => true,
                 'message' => 'Personal information updated successfully'
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -334,7 +361,7 @@ class StudentRecordController extends Controller
         }
     }
 
-    public function updateAcademicInfo(Request $request, Student $student) 
+    public function updateAcademicInfo(Request $request, Student $student)
     {
         try {
             $validated = $request->validate([
@@ -366,7 +393,6 @@ class StudentRecordController extends Controller
                 'success' => true,
                 'message' => 'Academic information updated successfully'
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -387,7 +413,7 @@ class StudentRecordController extends Controller
         }
     }
 
-    public function updateAddressInfo(Request $request, Student $student) 
+    public function updateAddressInfo(Request $request, Student $student)
     {
         try {
             $validated = $request->validate([
@@ -405,7 +431,6 @@ class StudentRecordController extends Controller
                 'success' => true,
                 'message' => 'Address information updated successfully'
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -426,7 +451,7 @@ class StudentRecordController extends Controller
         }
     }
 
-    public function updateEmergencyInfo(Request $request, Student $student) 
+    public function updateEmergencyInfo(Request $request, Student $student)
     {
         try {
             $validated = $request->validate([
@@ -441,7 +466,6 @@ class StudentRecordController extends Controller
                 'success' => true,
                 'message' => 'Emergency contact information updated successfully'
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,

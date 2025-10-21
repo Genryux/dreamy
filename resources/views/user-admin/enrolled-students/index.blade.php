@@ -354,15 +354,15 @@
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Contact No.</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Academic Status</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Email Address</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Student Status</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 select-none">Status</span>
+                                <span class="mr-2 font-medium opacity-60 select-none">Enrollment Status</span>
                             </th>
                             <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
@@ -671,11 +671,11 @@
                     labelsDiv.innerHTML = `
                         <div class="grid grid-cols-2 gap-1">
                             ${programData.map((item, index) => `
-                                            <div class="flex items-center gap-1">
-                                                <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
-                                                <span class="font-medium text-gray-700 text-xs">${item.code || 'Unknown'}</span>
-                                            </div>
-                                        `).join('')}
+                                                                                    <div class="flex items-center gap-1">
+                                                                                        <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
+                                                                                        <span class="font-medium text-gray-700 text-xs">${item.code || 'Unknown'}</span>
+                                                                                    </div>
+                                                                                `).join('')}
                         </div>
                     `;
 
@@ -684,11 +684,11 @@
                             ${programData.map((item, index) => {
                                 const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
                                 return `
-                                                <div class="text-right">
-                                                    <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
-                                                    <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
-                                                </div>
-                                            `;
+                                                                                        <div class="text-right">
+                                                                                            <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
+                                                                                            <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                                                                                        </div>
+                                                                                    `;
                             }).join('')}
                         </div>
                     `;
@@ -736,11 +736,11 @@
                     labelsDiv.innerHTML = `
                         <div class="grid grid-cols-2 gap-1">
                             ${gradeData.map((item, index) => `
-                                            <div class="flex items-center gap-1">
-                                                <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
-                                                <span class="font-medium text-gray-700 text-xs">${item.grade_level || 'Unknown'}</span>
-                                            </div>
-                                        `).join('')}
+                                                                                    <div class="flex items-center gap-1">
+                                                                                        <div class="w-2 h-2 rounded-full" style="background-color: ${colors[index]}"></div>
+                                                                                        <span class="font-medium text-gray-700 text-xs">${item.grade_level || 'Unknown'}</span>
+                                                                                    </div>
+                                                                                `).join('')}
                         </div>
                     `;
 
@@ -749,11 +749,11 @@
                             ${gradeData.map((item, index) => {
                                 const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
                                 return `
-                                                <div class="text-right">
-                                                    <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
-                                                    <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
-                                                </div>
-                                            `;
+                                                                                        <div class="text-right">
+                                                                                            <div class="font-bold text-xs" style="color: ${colors[index]}">${item.count || 0}</div>
+                                                                                            <div class="font-medium text-xs" style="color: ${colors[index]}; opacity: 0.7">${percentage}%</div>
+                                                                                        </div>
+                                                                                    `;
                             }).join('')}
                         </div>
                     `;
@@ -892,21 +892,21 @@
                         targets: 3
                     }, // Grade Level
                     {
-                        width: '13.5%',
+                        width: '10%',
                         targets: 4
                     }, // Program
                     {
-                        width: '13.5%',
-                        targets: 5
+                        width: '15%',
+                        targets: 5,
                     }, // Contact
                     {
-                        width: '13.5%',
+                        width: '15%',
                         targets: 6
                     }, // Email
                     {
-                        width: '10%',
+                        width: '15%',
                         targets: 7,
-                        className: 'text-center'
+                        className: 'w-full text-center'
                     }, // Status
                     {
                         width: '10%',
@@ -936,24 +936,102 @@
                         data: 'program'
                     },
                     {
-                        data: 'contact'
+                        data: 'contact',
+                        render: function(data, type, row) {
+
+                            let badgeClass = '';
+                            let badgeText = '';
+
+                            switch (data) {
+                                case 'Passed':
+                                    badgeClass = 'bg-green-100 text-green-800';
+                                    badgeText = 'Passed';
+                                    break;
+                                case 'Failed':
+                                    badgeClass = 'bg-red-100 text-red-800';
+                                    badgeText = 'Failed';
+                                    break;
+                                case 'Completed':
+                                    badgeClass = 'bg-blue-100 text-blue-800';
+                                    badgeText = 'Completed';
+                                    break;
+                                default:
+                                    badgeClass = 'bg-gray-200 text-gray-800';
+                                    badgeText = 'Not Evaluated';
+                                    break;
+                            }
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+
+                        },
                     },
                     {
-                        data: 'email'
+                        data: 'email',
+                        render: function(data, type, row) {
+
+                            let badgeClass = '';
+                            let badgeText = '';
+
+                            switch (data) {
+                                case 'Officially Enrolled':
+                                    badgeClass = 'bg-blue-100 text-blue-800';
+                                    badgeText = 'Officially Enrolled';
+                                    break;
+                                case 'Graduated':
+                                    badgeClass = 'bg-green-100 text-green-800';
+                                    badgeText = 'Graduated';
+                                    break;
+                                case 'Dropped':
+                                    badgeClass = 'bg-red-100 text-red-800';
+                                    badgeText = 'Dropped';
+                                    break;
+                                case 'Transferred':
+                                    badgeClass = 'bg-gray-100 text-gray-800';
+                                    badgeText = 'Transferred';
+                                    break;
+                                default:
+                                    badgeClass = 'bg-gray-200 text-gray-800';
+                                    badgeText = 'N/A';
+                                    break;
+                            }
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+
+                        },
                     },
                     {
                         data: 'status',
+                        // render: function(data, type, row) {
+                        //     if (row.status_raw === 'enrolled') {
+                        //         return `<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        //             ${data}</span>`;
+                        //     } else if (row.status_raw === 'pending_confirmation') {
+                        //         return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                        //             ${data}</span>`;
+                        //     } else {
+                        //         return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                        //             ${data}</span>`;
+                        //     }
+                        // },
                         render: function(data, type, row) {
-                            if (row.status_raw === 'enrolled') {
-                                return `<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                    ${data}</span>`;
-                            } else if(row.status_raw === 'pending_confirmation') {
-                                return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                                    ${data}</span>`;
-                            } else {
-                                return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                                    ${data}</span>`;
+
+                            let badgeClass = '';
+                            let badgeText = '';
+
+                            switch (data) {
+                                case 'enrolled':
+                                    badgeClass = 'bg-green-100 text-green-800';
+                                    badgeText = 'Enrolled';
+                                    break;
+                                case 'pending_confirmation':
+                                    badgeClass = 'bg-yellow-100 text-yellow-800';
+                                    badgeText = 'Pending Confirmation';
+                                    break;
+                                default:
+                                    badgeClass = 'bg-gray-200 text-gray-800';
+                                    badgeText = 'N/A';
+                                    break;
                             }
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+
                         },
                         orderable: false
                     },

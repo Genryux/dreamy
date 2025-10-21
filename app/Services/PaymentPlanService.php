@@ -36,9 +36,6 @@ class PaymentPlanService
             // Create payment plan
             $paymentPlan = PaymentPlan::create($planData);
 
-            // Set start date (default to next month)
-            $startDate = $startDate ?? Carbon::now()->addMonth()->startOfMonth();
-
             // Get active academic term
             $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
 
@@ -46,15 +43,13 @@ class PaymentPlanService
                 throw new \Exception('No active academic term found.');
             }
 
+            // Get due day from school settings
+            $dueDay = SchoolSetting::value('due_day_of_month') ?? 10;
+            $useLastDayIfShorter = SchoolSetting::value('use_last_day_if_shorter') ?? false;
+
             // Create down payment schedule (installment_number = 0)
-            // Get the due day from school settings and create the due date
-            $dueDay = SchoolSetting::value('due_day_of_month') ?? 10; // Default to 15th if not set
-            $downPaymentDueDate = Carbon::now()->day($dueDay);
-            
-            // If the due day has already passed this month, set it for next month
-            if ($downPaymentDueDate->isPast()) {
-                $downPaymentDueDate = $downPaymentDueDate->addMonth();
-            }
+            // Down payment is due immediately (current date)
+            $downPaymentDueDate = Carbon::now();
 
             $downPaymentSchedule = PaymentSchedule::create([
                 'payment_plan_id' => $paymentPlan->id,
@@ -67,12 +62,31 @@ class PaymentPlanService
                 'description' => 'Down Payment',
             ]);
 
-            // Don't create payment record yet - wait for actual payment
+            // Send immediate invoice email for down payment
+            $student = $invoice->student;
+            if ($student && $student->user) {
+                \Log::info('Sending down payment invoice email to: ' . $student->user->email);
+                try {
+                    $student->user->notify(new \App\Notifications\InvoiceEmailNotification($downPaymentSchedule));
+                    \Log::info('Down payment invoice email sent successfully');
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send down payment invoice email: ' . $e->getMessage());
+                }
+            } else {
+                \Log::error('Student or user not found for invoice: ' . $invoice->id);
+            }
 
-            // Create monthly payment schedules
+            // Create monthly payment schedules starting from next month
+            $firstMonthlyDate = Carbon::now()->addMonth();
+            if ($useLastDayIfShorter && $dueDay > $firstMonthlyDate->daysInMonth) {
+                $firstMonthlyDate->day = $firstMonthlyDate->daysInMonth;
+            } else {
+                $firstMonthlyDate->day = $dueDay;
+            }
+
             for ($i = 1; $i <= $installmentMonths; $i++) {
                 $amount = ($i === 1) ? $planData['first_month_amount'] : $planData['monthly_amount'];
-                $dueDate = $startDate->copy()->addMonths($i - 1);
+                $dueDate = $firstMonthlyDate->copy()->addMonths($i - 1);
 
                 PaymentSchedule::create([
                     'payment_plan_id' => $paymentPlan->id,
@@ -82,7 +96,7 @@ class PaymentPlanService
                     'amount_paid' => 0,
                     'due_date' => $dueDate,
                     'status' => 'pending',
-                    'description' => $dueDate->format('F Y'), // e.g., "November 2025"
+                    'description' => $dueDate->format('F Y'), // e.g., "December 2025"
                 ]);
             }
 
@@ -186,6 +200,30 @@ class PaymentPlanService
                 if ($invoice->balance <= 0) {
                     $invoice->status = 'paid';
                     $invoice->save();
+                }
+
+                // Send receipt email for flexible payment
+                $student = $invoice->student;
+                if ($student && $student->user) {
+                    \Log::info('Sending receipt email for flexible payment to: ' . $student->user->email);
+                    try {
+                        // Create a temporary schedule for one-time payment receipt
+                        $tempSchedule = \App\Models\PaymentSchedule::create([
+                            'payment_plan_id' => null,
+                            'invoice_id' => $invoice->id,
+                            'installment_number' => 0,
+                            'amount_due' => $amount,
+                            'amount_paid' => $amount,
+                            'due_date' => now(),
+                            'status' => 'paid',
+                            'description' => 'One-time Payment - ' . $invoice->invoice_number,
+                        ]);
+                        
+                        $student->user->notify(new \App\Notifications\ReceiptEmailNotification($tempSchedule, 'receipt'));
+                        \Log::info('Receipt email sent successfully for flexible payment');
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to send receipt email for flexible payment: ' . $e->getMessage());
+                    }
                 }
 
                 return $payment;
@@ -411,13 +449,20 @@ class PaymentPlanService
 
             // Send notification to student's user account
             if ($user) {
-
+                // Send receipt email notification
+                \Log::info('Sending receipt email to: ' . $user->email);
+                try {
+                    $user->notify(new \App\Notifications\ReceiptEmailNotification($schedule, 'receipt'));
+                    \Log::info('Receipt email sent successfully');
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send receipt email: ' . $e->getMessage());
+                }
 
                 $sharedNotificationId = 'monthly-reminder-' . time() . '-' . uniqid();
 
                 $user->notify(new PrivateQueuedNotification(
                     "Payment Received!",
-                    "We’ve successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
+                    "We've successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
                     null,
                     $sharedNotificationId
                 ));
@@ -425,7 +470,7 @@ class PaymentPlanService
                 Notification::route('broadcast', 'user.' . $user->id)
                     ->notify(new PrivateImmediateNotification(
                         "Payment Received!",
-                        "We’ve successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
+                        "We've successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
                         null,
                         $sharedNotificationId,
                         'user.' . $student->id

@@ -529,12 +529,9 @@
                         render: function(data, type, row) {
                             return `
                                 <div class='flex flex-row justify-center items-center gap-1'>
-                                    <button class="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150">
+                                    <a href='/student/${data}' class="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150">
                                         <i class="fi fi-rr-eye text-xs"></i>
-                                    </button>
-                                    <button class="px-2 py-1 text-xs font-medium text-red-600 bg-red-100 rounded hover:bg-red-200 transition duration-150">
-                                        <i class="fi fi-rr-trash text-xs"></i>
-                                    </button>
+                                    </a>
                             </div>
                             `;
                         },

@@ -2,16 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ApplicantProgressMail;
 use App\Models\ApplicantDocuments;
 use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\DocumentSubmissions;
+use App\Models\SchoolFee;
+use App\Models\SchoolSetting;
+use App\Models\User;
+use App\Notifications\ImmediateNotification;
+use App\Notifications\QueuedNotification;
 use App\Services\AcademicTermService;
 use App\Services\ApplicantService;
 use App\Services\EnrollmentPeriodService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use PhpParser\Comment\Doc;
 
 class DocumentsSubmissionController extends Controller
@@ -31,7 +39,19 @@ class DocumentsSubmissionController extends Controller
         $assignedDocuments = $applicant->assignedDocuments()->get();
         $submittedDocuments = $assignedDocuments->flatMap->submissions;
 
-        return view('user-admin.applications.pending-documents.show', compact('applicant', 'submittedDocuments', 'assignedDocuments'));
+        $schoolFees = SchoolFee::all();
+
+        if ($schoolFees->isEmpty()) {
+            $schoolFees = null;
+        }
+
+        $schoolSettings = SchoolSetting::first();
+
+        if (!isset($schoolSettings->down_payment)) {
+            $schoolSettings = null;
+        }
+
+        return view('user-admin.applications.pending-documents.show', compact('applicant', 'submittedDocuments', 'assignedDocuments', 'schoolFees', 'schoolSettings'));
     }
 
     /**
@@ -40,6 +60,30 @@ class DocumentsSubmissionController extends Controller
     public function create()
     {
         //
+    }
+
+    /**
+     * Get document restrictions for dynamic validation
+     */
+    public function getDocumentRestrictions()
+    {
+        $documents = Documents::select('id', 'type', 'file_type_restriction', 'max_file_size')
+            ->whereNotNull('file_type_restriction')
+            ->whereNotNull('max_file_size')
+            ->get();
+
+        $restrictions = [];
+        foreach ($documents as $document) {
+            $restrictions[$document->id] = [
+                'type' => $document->type,
+                'allowed_types' => $document->file_type_restriction,
+                'max_size_kb' => $document->max_file_size,
+                'max_size_mb' => round($document->max_file_size / 1024, 2),
+                'accept_string' => '.' . implode(',.', $document->file_type_restriction)
+            ];
+        }
+
+        return response()->json($restrictions);
     }
 
     /**
@@ -70,12 +114,40 @@ class DocumentsSubmissionController extends Controller
             return response()->json(['message' => 'No documents received']);
         }
 
-        // $request->validate([
-        //     'documents' => 'required|array',
-        //     'documents.*' => 'file|max:10240', // adjust max size (in KB) as needed
-        //     'documents_id' => 'required|array',
-        //     'documents_id.*' => 'integer|exists:documents,id',
-        // ]);
+        // Dynamic validation based on document restrictions
+        $validationRules = [
+            'documents' => 'required|array',
+            'documents_id' => 'required|array',
+            'documents_id.*' => 'integer|exists:documents,id',
+        ];
+
+        // Get document restrictions for validation
+        $documentRestrictions = Documents::whereIn('id', $documents_id)
+            ->whereNotNull('file_type_restriction')
+            ->whereNotNull('max_file_size')
+            ->get()
+            ->keyBy('id');
+
+        // Add file validation rules for each document
+        foreach ($documents as $index => $document) {
+            $docId = $documents_id[$index];
+            if (isset($documentRestrictions[$docId])) {
+                $restriction = $documentRestrictions[$docId];
+
+                // Build mimes rule
+                $mimesRule = 'mimes:' . implode(',', $restriction->file_type_restriction);
+
+                // Build max size rule (convert KB to KB for Laravel validation)
+                $maxSizeRule = 'max:' . $restriction->max_file_size;
+
+                $validationRules["documents.{$index}"] = "file|{$mimesRule}|{$maxSizeRule}";
+            } else {
+                // Fallback validation if no restrictions found
+                $validationRules["documents.{$index}"] = 'file|max:10240'; // 10MB default
+            }
+        }
+
+        $request->validate($validationRules);
 
         $uploadedFiles = [];
 
@@ -112,6 +184,29 @@ class DocumentsSubmissionController extends Controller
                         $file
                     );
                 }
+
+
+                // Get document types for the submitted documents
+                $submittedDocumentIds = collect($uploadedFiles)->pluck('documents_id')->toArray();
+                $documentTypes = Documents::whereIn('id', $submittedDocumentIds)
+                    ->pluck('type')
+                    ->toArray();
+                $documentTypesText = implode(', ', $documentTypes);
+
+                $admins = User::role(['registrar', 'super_admin'])->get();
+                Notification::send($admins, new QueuedNotification(
+                    "Document Received",
+                    $applicant->first_name . " has submitted a document that requires verification.<br>Document Type: " . $documentTypesText,
+                    url("/applications/pending-document/submission-details/{$applicant->id}")
+                ));
+
+                // Send broadcast for real-time updates (separate broadcasts, no N+1)
+                Notification::route('broadcast', 'admins')
+                    ->notify(new ImmediateNotification(
+                        "Document Received",
+                        $applicant->first_name . " has submitted a document that requires verification.<br>Document Type: " . $documentTypesText,
+                        url("/applications/pending-document/submission-details/{$applicant->id}")
+                    ));
             });
 
             return response()->json([
@@ -199,10 +294,32 @@ class DocumentsSubmissionController extends Controller
         }
 
         // Return appropriate success message based on action
-        $successMessage = $data['action'] === 'verify' 
-            ? 'Document successfully verified' 
+        $successMessage = $data['action'] === 'verify'
+            ? 'Document successfully verified'
             : 'Document successfully rejected';
-            
+
+        $totalAssignedDocs = $applicant->assignedDocuments()->count();
+        $totalVerifiedCount = $applicant->assignedDocuments()->where('status', 'Verified')->count();
+
+        if ($totalVerifiedCount === $totalAssignedDocs) {
+
+            $recipientEmail = $applicant->user->email;
+            $loginUrl = config('app.url') . '/portal/login';
+
+            if ($recipientEmail) {
+                $title = 'Documents Verified — Dreamy School Enrollment';
+                $body = "Congratulations! All your submitted documents have been verified. You’ll be notified as soon as your enrollment is confirmed.";
+                Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                    applicantName: $applicant->first_name ?? 'Applicant',
+                    title: $title,
+                    bodyText: $body,
+                    loginUrl: $loginUrl
+                ));
+            }
+        }
+
+
+
         return redirect()->back()->with('status', $successMessage);
     }
 

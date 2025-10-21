@@ -541,7 +541,6 @@
                     The remaining balance will be divided into 9 monthly installments.
                 @else
                     This receipt confirms installment {{ $schedule->installment_number }} of a 9-month payment plan. 
-                    Your next installment is due on {{ $schedule->due_date ? \Carbon\Carbon::parse($schedule->due_date)->addMonth()->format('F d, Y') : 'N/A' }}.
                 @endif
                 Thank you for your timely payment.
             </div>

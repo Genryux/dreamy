@@ -795,16 +795,42 @@ class ApplicationForm {
             const form = document.getElementById('applicationForm');
             const formData = new FormData(form);
 
+            // Get CSRF tokens
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const csrfInput = document.querySelector('input[name="_token"]')?.value;
+            const laravelCsrfToken = window.Laravel?.csrfToken;
+
+            // Synchronize the form token with meta tag token before submission
+            const formTokenInput = document.getElementById('form-csrf-token');
+            if (formTokenInput && csrfToken) {
+                formTokenInput.value = csrfToken;
+            }
+            
+            // Use the meta tag CSRF token
+            const tokenToUse = csrfToken;
+            
+            // Update FormData with the synchronized token
+            formData.set('_token', tokenToUse);
+            
             // Submit via AJAX
             const response = await fetch('/admission/application-form', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
+                    'X-CSRF-TOKEN': tokenToUse,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: formData
             });
 
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            
+            if (!contentType || !contentType.includes('application/json')) {
+                const textResponse = await response.text();
+                throw new Error('Server returned non-JSON response. This might be a CSRF token mismatch or authentication issue.');
+            }
+            
             const data = await response.json();
 
             // Hide loader
@@ -866,14 +892,12 @@ class ApplicationForm {
             if (window.hideLoader) {
                 window.hideLoader();
             }
-
-            console.error('Submission error:', error);
             
             // Show error message
             if (window.showAlert) {
-                window.showAlert('error', 'An error occurred while submitting your application. Please try again.');
+                window.showAlert('error', `An error occurred while submitting your application: ${error.message}`);
             } else {
-                alert('An error occurred while submitting your application. Please try again.');
+                alert(`An error occurred while submitting your application: ${error.message}`);
             }
         }
     }

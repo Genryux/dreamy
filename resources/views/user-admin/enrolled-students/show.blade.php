@@ -63,20 +63,15 @@
         </x-slot>
     </x-modal>
 
-    <x-modal modal_id="evaluate-student" modal_name="Academic Evaluation For The Current Academic Term"
+    <x-modal modal_id="evaluate-student" modal_name="Academic Evaluation"
         close_btn_id="evaluate-student-close-btn" modal_container_id="modal-container-evaluate-student">
 
-        <x-slot name="modal_icon">
-            <div class="size-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                <i class="fi fi-sr-file-pdf"></i>
-            </div>
-        </x-slot>
 
         <form action="/evaluate-student/{{ $student->id }}" method="POST" id="evaluate-form" class="p-6">
             @csrf
             @method('patch')
             <div class="mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Academic Evaluation</h3>
+                <h3 class="text-[14px] font-semibold text-gray-800 mb-4">Academic evaluation for the current term</h3>
                 <div class="space-y-3 flex flex-col justify-center items-center">
                     <!-- Passed Option -->
                     <label for="passed"
@@ -96,7 +91,7 @@
                                     <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
                                     <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Passed</span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Applicant has successfully passed the interview</p>
+                                <p class="text-xs text-gray-500 mt-1">Student passed the current term</p>
                             </div>
                         </div>
                     </label>
@@ -119,34 +114,11 @@
                                     <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                                     <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Failed</span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Applicant did not meet the interview requirements</p>
+                                <p class="text-xs text-gray-500 mt-1">Student did not meet the sufficient requirements for the current term</p>
                             </div>
                         </div>
                     </label>
 
-                    <!-- Incomplete Option -->
-                    <label for="incomplete"
-                        class="w-full flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-yellow-300 transition-all duration-200 group has-[:checked]:border-yellow-500 has-[:checked]:bg-yellow-50">
-                        <div class="flex items-center">
-                            <div class="relative">
-                                <input type="radio" name="result" id="incomplete" value="Incomplete" class="sr-only">
-                                <div
-                                    class="w-4 h-4 border-2 border-gray-300 rounded-full flex items-center justify-center group-has-[:checked]:border-yellow-500 group-has-[:checked]:bg-yellow-500 transition-all duration-200">
-                                    <div
-                                        class="w-2 h-2 bg-white rounded-full opacity-0 group-has-[:checked]:opacity-100 transition-opacity duration-200">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                                    <span
-                                        class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Incomplete</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">Applicant did not meet the interview requirements</p>
-                            </div>
-                        </div>
-                    </label>
                     <p class="self-center text-[14px] text-gray-500">Please make sure you select the correct option, as this
                         action cannot be undone.</p>
                 </div>
@@ -167,7 +139,7 @@
         </x-slot>
     </x-modal>
 
-    <!-- Academic Evaluation Modal -->
+    {{-- <!-- Academic Evaluation Modal -->
     <x-modal modal_id="evaluate-student" modal_name="Promote Confirmation" close_btn_id="evaluate-student-close-btn"
         modal_container_id="modal-container-evaluate-student">
 
@@ -274,7 +246,7 @@
                 <i class="fi fi-rr-check mr-1"></i>Confirm Evaluation
             </button>
         </x-slot>
-    </x-modal>
+    </x-modal> --}}
 
     <!-- Student Promotion Modal -->
     <x-modal modal_id="promote-student" modal_name="Promote Student to Next Grade Level"
@@ -301,16 +273,12 @@
                     $message = 'This action will promote the student to the next year level (Grade 12)';
                     $action = 'promote-to-next-year';
                 } else {
-                    $message = 'This action will mark the student as Graduated';
-                    $action = 'mark-as-graduate';
+                    $message = 'This action will mark the student as graduated';
+                    $action = 'mark-as-graduated';
                 }
 
                 if ($student->academic_status === null) {
                     $warning = 'The student has not yet evaluated by the designated faculty member.';
-                    $warningColor = 'yellow';
-                } elseif ($student->academic_status === 'Incomplete') {
-                    $warning =
-                        'The student has been evaluated as Incomplete. Do you want to proceed with the promotion?';
                     $warningColor = 'yellow';
                 } elseif ($student->academic_status === 'Failed') {
                     $warning = 'The student has been evaluated as Failed. Promotion is not recommended';
@@ -344,6 +312,11 @@
                         <p class="text-red-600">{{ $warning }}</p>
                     </div>
                 @endif
+
+                <div class="flex flex-row justify-center items-center mt-6 px-4">
+                    <p class="text-start text-[12px] text-gray-600"><span class="text-gray-800 font-semibold">Important:</span> The system automatically promotes all students at the start of a new academic term. Please proceed
+                        with this manual action only for special cases.</p>
+                </div>
 
             </div>
         </form>
@@ -906,34 +879,29 @@
                             </div>
                             <div class="flex items-center">
                                 @php
-                                    $status = $student->academic_status ?? 'Pending';
+                                    $status = $student->academic_status ?? 'Not Evaluated';
                                     $statusConfig = [
                                         'Passed' => [
                                             'class' => 'bg-green-100 text-green-800',
-                                            'icon' => 'fi fi-rr-check',
                                             'label' => 'Passed',
                                         ],
                                         'Failed' => [
                                             'class' => 'bg-red-100 text-red-800',
-                                            'icon' => 'fi fi-rr-cross',
                                             'label' => 'Failed',
                                         ],
-                                        'Incomplete' => [
-                                            'class' => 'bg-yellow-100 text-yellow-800',
-                                            'icon' => 'fi fi-rr-clock',
-                                            'label' => 'Incomplete',
+                                        'Completed' => [
+                                            'class' => 'bg-blue-100 text-blue-800',
+                                            'label' => 'Completed',
                                         ],
-                                        'Pending' => [
+                                        'Not Evaluated' => [
                                             'class' => 'bg-gray-100 text-gray-800',
-                                            'icon' => 'fi fi-rr-hourglass',
-                                            'label' => 'Pending',
+                                            'label' => 'Not Evaluated',
                                         ],
                                     ];
-                                    $config = $statusConfig[$status] ?? $statusConfig['pending'];
+                                    $config = $statusConfig[$status] ?? $statusConfig['Not Evaluated'];
                                 @endphp
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $config['class'] }}">
-                                    <i class="{{ $config['icon'] }} mr-1.5 text-xs"></i>
                                     {{ $config['label'] }}
                                 </span>
                             </div>
@@ -1038,8 +1006,8 @@
                     <!-- Action Buttons Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Edit Student Info -->
-                        @if ($student->status !== 'Dropped')
-                        <button id="edit-info-btn"
+                        @if ($student->status === 'Officially Enrolled')
+                            <button id="edit-info-btn"
                                 class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div
@@ -1055,8 +1023,8 @@
                         @endif
 
                         <!-- Generate COE -->
-                        @if ($student->status !== 'Dropped')
-                        <button id="generate-coe-btn" type="button"
+                        @if ($student->status === 'Officially Enrolled')
+                            <button id="generate-coe-btn" type="button"
                                 class="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div
@@ -1072,8 +1040,8 @@
                         @endif
 
                         <!-- Generate SIS -->
-                        @if ($student->status !== 'Dropped')
-                        <button
+                        @if ($student->status === 'Officially Enrolled')
+                            <button
                                 class="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
                                     <div
@@ -1096,16 +1064,16 @@
                                 <div
                                     class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
                                     <i class="fi fi-rr-download flex justify-center items-center text-lg"></i>
-                    </div>
+                                </div>
                                 <div class="text-left">
                                     <p class="font-semibold text-sm">Download All</p>
                                     <p class="text-xs text-amber-100">All documents</p>
-                </div>
+                                </div>
                             </div>
                         </button>
 
                         <!-- Update Academic Status -->
-                        @if (!$student->academic_status || $student->status !== 'Dropped')
+                        @if ($student->status === 'Officially Enrolled' && $student->academic_status === null)
                             <button id="evaluate-student-btn"
                                 class="group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
@@ -1122,7 +1090,7 @@
                         @endif
 
                         <!-- Promote Student -->
-                        @if ($student->status !== 'Dropped')
+                        @if ($student->status === 'Officially Enrolled')
                             <button id="promote-student-btn"
                                 class="group relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
@@ -1140,7 +1108,7 @@
 
 
                         <!-- Withdraw Enrollment -->
-                        @if ($student->status !== 'Dropped')
+                        @if ($student->status === 'Officially Enrolled')
                             <button id="withdraw-btn"
                                 class="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
@@ -1184,28 +1152,28 @@
                                         <th
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
                                             #
-                                </th>
+                                        </th>
                                         <th
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                             Document Name
-                                </th>
+                                        </th>
                                         <th
                                             class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
                                             Status
-                                </th>
+                                        </th>
                                         <th
                                             class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">
                                             Action
-                                </th>
-                            </tr>
-                        </thead>
+                                        </th>
+                                    </tr>
+                                </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($assignedDocuments as $doc)
+                                    @forelse ($assignedDocuments as $doc)
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <!-- Index -->
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $loop->iteration }}
-                                    </td>
+                                                {{ $loop->iteration }}
+                                            </td>
 
                                             <!-- Document Name -->
                                             <td class="px-6 py-4 whitespace-nowrap">
@@ -1217,7 +1185,7 @@
                                                     <div class="text-sm font-medium text-gray-900">
                                                         {{ $doc->documents->type }}</div>
                                                 </div>
-                                    </td>
+                                            </td>
 
                                             <!-- Status -->
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -1234,30 +1202,30 @@
                                                 @endphp
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
-                                        {{ ucfirst($doc->status) }}
+                                                    {{ ucfirst($doc->status) }}
                                                 </span>
-                                    </td>
+                                            </td>
 
                                             <!-- Action -->
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        @if ($doc->latest_submission)
-                                            <a href="{{ asset('storage/' . $doc->latest_submission->file_path) }}"
-                                                target="_blank"
+                                                @if ($doc->latest_submission)
+                                                    <a href="{{ asset('storage/' . $doc->latest_submission->file_path) }}"
+                                                        target="_blank"
                                                         class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
                                                         <i class="fi fi-rr-eye mr-1.5"></i>
-                                                View PDF
-                                            </a>
-                                        @else
-                                            <button
+                                                        View PDF
+                                                    </a>
+                                                @else
+                                                    <button
                                                         class="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors">
                                                         <i class="fi fi-rr-bell mr-1.5"></i>
                                                         Notify
-                                            </button>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
                                             <td colspan="4" class="px-6 py-12 text-center">
                                                 <div class="flex flex-col items-center">
                                                     <div
@@ -1274,11 +1242,11 @@
                                                         Assign Documents
                                                     </button>
                                                 </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1386,19 +1354,19 @@
             });
 
             if (editStudentBtn) {
-            editStudentBtn.addEventListener('click', () => {
+                editStudentBtn.addEventListener('click', () => {
 
-                editBtns.forEach(element => {
+                    editBtns.forEach(element => {
 
-                    element.classList.toggle('opacity-100');
-                    element.classList.toggle('pointer-events-none');
-                    element.classList.toggle('scale-90');
+                        element.classList.toggle('opacity-100');
+                        element.classList.toggle('pointer-events-none');
+                        element.classList.toggle('scale-90');
 
-                    console.log(element)
-                });
+                        console.log(element)
+                    });
 
 
-            })
+                })
             }
 
 

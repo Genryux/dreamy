@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('academic_term_id')->constrained('academic_terms')->cascadeOnDelete();
             $table->foreignId('program_id')->nullable()->constrained('programs')->nullOnDelete();
             $table->foreignId('section_id')->nullable()->constrained('sections')->nullOnDelete();
-            $table->string('status')->default('pending_confirmation');
+            $table->string('status')->default('pending_confirmation')->nullable();
             $table->timestamp('enrolled_at')->nullable();
             $table->timestamp('confirmed_at')->nullable();
             $table->json('meta')->nullable();

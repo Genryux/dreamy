@@ -351,7 +351,7 @@
             {{-- This button will act as the submit button --}}
             <button type="submit" form="update-status-form"
                 class="self-end flex flex-row justify-center items-center bg-green-500 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-green-600 hover:scale-95 transition duration-200 shadow-green-500/20 hover:shadow-green-600/20 shadow-lg truncate">
-                Accept Application
+                Confirm
             </button>
         </x-slot>
 

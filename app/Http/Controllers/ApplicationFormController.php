@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ApplicationFormSubmitted;
 use App\Events\RecentApplicationTableUpdated;
+use App\Mail\ApplicantProgressMail;
 use App\Models\AcademicTerms;
 use App\Models\Applicant;
 use App\Models\Applicants;
@@ -19,6 +20,7 @@ use App\Services\AcademicTermService;
 use App\Services\ApplicationFormService;
 use App\Services\DashboardDataService;
 use App\Services\EnrollmentPeriodService;
+use App\Services\StudentService;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Validated;
@@ -27,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
 use InvalidArgumentException;
@@ -38,7 +41,8 @@ class ApplicationFormController extends Controller
         protected DashboardDataService $dashboardDataService,
         protected EnrollmentPeriodService $enrollmentPeriodService,
         protected ApplicationFormService $applicationFormService,
-        protected UserService $userService
+        protected UserService $userService,
+        protected StudentService $studentService
     ) {}
 
     // Ajax tables
@@ -619,7 +623,8 @@ class ApplicationFormController extends Controller
                     'applicationCount' => $totalApplications = $data['totalApplications'] ?? 0,
                     'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
                     'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null,
-                    'enrollmentSummary' => $enrollmentSummary
+                    'enrollmentSummary' => $enrollmentSummary,
+                    'countStudentStatuses' => $this->studentService->countStudentStatuses()
                 ]);
             }
 
@@ -692,7 +697,7 @@ class ApplicationFormController extends Controller
         $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
         $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
 
-        if (!$activeTerm || !$enrollmentPeriod) {
+        if (!$activeTerm || !$enrollmentPeriod || $enrollmentPeriod->status === 'Paused') {
             return redirect()->back();
         }
 
@@ -1009,6 +1014,21 @@ class ApplicationFormController extends Controller
                 'rejection_remarks' => $request->remarks,
                 'rejected_at' => now()
             ]);
+
+            $recipientEmail = $applicant->user->email;
+            $loginUrl = config('app.url') . '/portal/login';
+
+            if ($recipientEmail) {
+                $title = 'Application Update — Dreamy School Enrollment';
+                $body = "Unfortunately, your application was not accepted. Check your account for details and guidance on any further options.";
+                Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                    applicantName: $applicant->first_name ?? 'Applicant',
+                    title: $title,
+                    bodyText: $body,
+                    loginUrl: $loginUrl
+                ));
+            }
+
 
             return response()->json([
                 'success' => true,

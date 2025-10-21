@@ -81,10 +81,10 @@
                                 Please click the button below to fill out the form.
                             </p>
                             <div id="btn-container" class="flex flex-col justify-center items-center flex-grow mt-8">
-                                <x-nav-link href="/admission/application-form"
-                                    class="bg-[#199BCF]/80 text-white px-6 py-3 rounded-full hover:bg-[#1689b8] transition-colors duration-200 backdrop-blur-sm shadow-lg">
-                                    <p class="text-[16px] font-bold">Get Started</p>
-                                </x-nav-link>
+                                <a href="/admission/application-form"
+                                    class="bg-[#199BCF]/80 text-white px-6 py-3 rounded-full hover:bg-[#1689b8] transition-colors duration-200 backdrop-blur-sm shadow-lg text-[16px] font-bold inline-block text-center">
+                                    Get Started
+                                </a>
                             </div>
                         </div>
                     @endif
@@ -336,10 +336,13 @@
                             awaiting review
                         </h2>
                         <p
-                            class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">
+                            class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4">
                             Please check back later or
                             contact the Admissions Office if you need
                             further assistance or updates.</p>
+                        <p
+                            class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">
+                            You will receive an email notification once your application form has been reviewed and accepted.</p>
                     </div>
                 </div>
                 <div
@@ -725,8 +728,8 @@
                                     </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
-                                    <td class="px-3 md:px-6 py-2 text-[12px] md:text-[14px] w-1/2 truncate">Date Applied:<span
-                                            class="font-bold">
+                                    <td class="px-3 md:px-6 py-2 text-[12px] md:text-[14px] w-1/2 truncate">Date
+                                        Applied:<span class="font-bold">
                                             {{ \Carbon\Carbon::parse($applicant->applicationForm->admission_date)->timezone('Asia/Manila')->format('M. d, Y — g:i A') ?? '-' }}</span>
                                     </td>
                                 </tr>
@@ -763,9 +766,13 @@
             @if ($applicant->interview() && $applicant->interview->status === null)
                 <div class="flex flex-col justify-center items-center space-y-4 md:space-y-6 py-4">
                     <div class="flex flex-col justify-center items-center gap-1">
-                        <h2 class="font-semibold text-[16px] md:text-[18px] text-gray-800">Awaiting Your Admission Exam Schedule</h2>
-                        <p class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">Your exam schedule will be
-                            available soon. Please check back later or contact the <br class="hidden md:block"> Admissions Office if you need
+                        <h2 class="font-semibold text-[16px] md:text-[18px] text-gray-800">Awaiting Your Admission Exam
+                            Schedule</h2>
+                        <p
+                            class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">
+                            Your exam schedule will be
+                            available soon. Please check back later or contact the <br class="hidden md:block"> Admissions
+                            Office if you need
                             further assistance or updates.</p>
                     </div>
 
@@ -777,14 +784,18 @@
                 <div class="flex flex-col justify-center items-center space-y-3 md:space-y-4 py-6 md:py-8">
 
                     <div class="flex flex-col justify-center items-center gap-1">
-                        <p class="font-semibold text-[16px] md:text-[18px] text-gray-800">Your admission exam has been scheduled!</p>
-                        <p class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">Everything is set up for
+                        <p class="font-semibold text-[16px] md:text-[18px] text-gray-800">Your admission exam has been
+                            scheduled!</p>
+                        <p
+                            class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">
+                            Everything is set up for
                             your upcoming interview. Please review the details below
                             and make sure to
                             arrive on time. </p>
                     </div>
 
-                    <div class="w-full md:w-[70%] border border-[#1e1e1e]/10 px-3 md:px-2 py-3 md:py-4 rounded-xl bg-[#E3ECFF]/20">
+                    <div
+                        class="w-full md:w-[70%] border border-[#1e1e1e]/10 px-3 md:px-2 py-3 md:py-4 rounded-xl bg-[#E3ECFF]/20">
 
                         <div class="flex flex-row justify-center items-center gap-2 mb-3 md:mb-4">
                             <p class="font-semibold text-[16px] md:text-[18px] text-gray-800">Interview Details</p>
@@ -981,7 +992,8 @@
                         <h2 class="font-semibold text-[18px] text-gray-800">Congratulations! You're In!</h2>
                         <p class="self-center text-center text-[14px] text-gray-500 px-22 mb-8">You’ve successfully
                             passed
-                            your interview and are now conditionally enrolled. <br class="hidden md:block">Please submit all required documents by clicking the button below. <br>
+                            your interview and are now conditionally enrolled. <br class="hidden md:block">Please submit
+                            all required documents by clicking the button below. <br>
                         </p>
                     </div>
 
@@ -1011,15 +1023,21 @@
             @if ($applicant->interview->status === 'Exam-Completed')
                 <div class="flex flex-col justify-center items-center py-4 pb-8 space-y-4">
 
-                    @if ($verifiedCount < 5)
+                    @if ($verifiedCount < $totalAssignedDocuments)
                         <div class="flex flex-col justify-center items-center gap-1">
-                            <h2 class="font-semibold text-[18px] text-center text-gray-800">Upload all required documents for your
+                            <h2 class="font-semibold text-[18px] text-center text-gray-800">Upload all required documents
+                                for your
                                 application. Make sure all files are clear and
                                 readable.</h2>
-                            <p class="self-center text-center text-[14px] text-gray-500 px-22 mb-8">Your exam schedule will
-                                be
-                                Please select a document type first before uploading any
-                                file.</p>
+                            <p class="self-center text-center text-[14px] text-gray-500 px-22 mb-4">
+                                Please select a document type first before uploading any file.
+                            </p>
+                            <div class="bg-blue-100 border border-blue-300 rounded-lg p-3 mb-4">
+                                <p class="text-sm text-blue-800">
+                                    <strong>Progress:</strong> {{ $verifiedCount }} of {{ $totalAssignedDocuments }}
+                                    documents verified
+                                </p>
+                            </div>
                         </div>
                     @else
                         <div class="flex flex-col justify-center items-center gap-1">
@@ -1119,7 +1137,7 @@
                         </div>
                     </div>
 
-                    @if ($verifiedCount < 5)
+                    @if ($verifiedCount < $totalAssignedDocuments)
                         <div
                             class="w-full md:w-[80%] flex flex-col justify-center items-center space-y-4 bg-[#E3ECFF]/20 p-6 border border-[#1e1e1e]/5 rounded-xl ">
 
@@ -1153,15 +1171,15 @@
                                         </svg>
                                         <p class="mb-2 text-sm text-[#0f111c]/80"><span class="font-semibold">Click to
                                                 upload</span> or drag and drop</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG or PDF(MAX. 800x400px)
+                                        <p id="fileRestrictions" class="text-xs text-gray-500 dark:text-gray-400">
+                                            Loading file restrictions...
                                         </p>
                                     </div>
                                     <span
                                         class="flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 mb-6 shadow-lg truncate">Choose
                                         Files</span>
 
-                                    <input id="fileInput" type="file" class="hidden" accept=".pdf,.png,.jpeg"
-                                        disabled />
+                                    <input id="fileInput" type="file" class="hidden" accept="" disabled />
                                 </label>
                             </form>
                         </div>
@@ -1213,7 +1231,7 @@
 
 @if ($applicant->application_status === 'Completed-Failed')
     @section('completed-failed')
-        <div class="bg-[#f8f8f8] flex flex-col rounded-md border border-[#1e1e1e]/20 md:w-full justify-center py-4 px-6">
+        <div class="bg-[#f8f8f8] flex flex-col rounded-xl border border-[#1e1e1e]/20 md:w-full justify-center py-4 px-6">
             <div class="flex flex-row justify-start items-center gap-3">
 
                 <div class="text-[20px] text-white bg-[#0f111c] size-[35px] rounded-full flex justify-center items-center">
@@ -1252,7 +1270,7 @@
 
 @if ($applicant->application_status === 'Officially Enrolled')
     @section('officially-enrolled')
-        <div class="bg-[#f8f8f8] flex flex-col rounded-lg border border-[#1e1e1e]/20 md:w-full justify-center p-4">
+        <div class="bg-[#f8f8f8] flex flex-col rounded-xl border border-[#1e1e1e]/20 md:w-full justify-center p-4">
 
             <div class="flex flex-col w-full justify-center items-center px-4 pb-8 gap-8">
 
@@ -1281,8 +1299,7 @@
                     <div class="space-y-2 w-full ">
                         <div class="flex flex-col justify-center items-center">
                             <p class="font-semibold text-[14px] text-gray-700 mb-1">Your school fee details have been sent
-                                to your
-                                email.</p>
+                                to the mobile app</p>
                             <p class="self-center text-center text-[14px] text-gray-500 px-22 mb-6">Download our official
                                 mobile app using the link below to choose your preferred payment plan <br> and settle your
                                 fees at school.</p>
@@ -1342,7 +1359,8 @@
             const container = document.getElementById('filesList');
 
 
-            if (applicant.application_status === 'Pending-Documents') {
+            if (applicant.application_status === 'Pending-Documents' && applicant.interview.status ===
+                'Exam-Completed') {
 
                 let submittedDocs = @json($applicant->submissions ?? null);
 
@@ -1371,16 +1389,19 @@
 
                 console.log(matchedItems);
 
-                matchedItems.forEach(docs => {
+                // Only process if doc_option exists (upload section is visible)
+                if (doc_option) {
+                    matchedItems.forEach(docs => {
+                        //find options with a value matched with the documents_id of the docs
+                        const foundOption = Array.from(doc_option.options).find(
+                            option => option.value === String(docs.documents_id)
+                        )
 
-                    //find options with a value matched with the documents_id of the docs
-                    const foundOption = Array.from(doc_option.options).find(
-                        option => option.value === String(docs.documents_id)
-                    )
-
-                    foundOption.disabled = true;
-
-                })
+                        if (foundOption) {
+                            foundOption.disabled = true;
+                        }
+                    })
+                }
 
                 let uploadedFiles = [];
                 let attachedFiles = [];
@@ -1388,98 +1409,117 @@
                 updateFileUploadInput()
                 updateUploadedFilesList()
 
-                doc_option.addEventListener('change', (event) => {
-                    updateFileUploadInput()
-                })
+                if (doc_option) {
+                    doc_option.addEventListener('change', (event) => {
+                        updateFileUploadInput()
+                    })
+                }
 
                 function updateFileUploadInput() {
-                    if (doc_option.options[doc_option.selectedIndex].text !== 'Select document type...') {
-                        fileInputLabel.classList.remove('opacity-40')
-                        fileInputLabel.classList.remove('cursor-not-allowed')
-                        input.disabled = false;
+                    if (doc_option && doc_option.options[doc_option.selectedIndex].text !==
+                        'Select document type...') {
+                        if (fileInputLabel) {
+                            fileInputLabel.classList.remove('opacity-40')
+                            fileInputLabel.classList.remove('cursor-not-allowed')
+                        }
+                        if (input) {
+                            input.disabled = false;
+                        }
                     } else {
-                        fileInputLabel.classList.add('opacity-40')
-                        fileInputLabel.classList.add('cursor-not-allowed')
-                        input.disabled = true;
+                        if (fileInputLabel) {
+                            fileInputLabel.classList.add('opacity-40')
+                            fileInputLabel.classList.add('cursor-not-allowed')
+                        }
+                        if (input) {
+                            input.disabled = true;
+                        }
                     }
                 }
 
-                input.addEventListener('change', (event) => {
+                if (input) {
+                    input.addEventListener('change', (event) => {
 
-                    const files = Array.from(event.target.files);
+                        const files = Array.from(event.target.files);
 
-                    files.forEach(file => {
-                        uploadedFiles.push({
-                            file: file, // actual File object
-                            assignedTo: doc_option.value
+                        files.forEach(file => {
+                            uploadedFiles.push({
+                                file: file, // actual File object
+                                assignedTo: doc_option ? doc_option.value : ''
+                            });
                         });
-                    });
 
-                    files.forEach(file => {
-                        attachedFiles.push({
-                            name: file.name,
-                            assignedTo: doc_option.options[doc_option.selectedIndex].text,
-                            docId: doc_option.value
+                        files.forEach(file => {
+                            attachedFiles.push({
+                                name: file.name,
+                                assignedTo: doc_option ? doc_option.options[doc_option
+                                    .selectedIndex].text : '',
+                                docId: doc_option ? doc_option.value : ''
+                            });
                         });
-                    });
 
-                    console.log(uploadedFiles)
-
-                    updateUploadedFilesList()
-                    updateButton()
-
-                    let optionId = doc_option.options[doc_option.selectedIndex].value;
-                    disableSelection(optionId)
-                    updateFileUploadInput()
-                    updateSubmitButton()
-                    //checkboxState()
-                    //setupSubmitButtonWatcher()
-                })
-
-                function updateUploadedFilesList() {
-
-                    container.innerHTML = '';
-
-                    attachedFiles.forEach((file, index) => {
-                        const docTypeInfo = attachedFiles.find(req => req.docId === file.docId);
-                        const item = document.createElement('div');
-                        item.className = 'uploaded-file';
-
-                        item.innerHTML = `
-                            <div
-                                class="flex flex-row justify-between items-center gap-2 bg-[#E7F0FD]/60 border-2 border-[#1e1e1e]/10 px-4 py-4 rounded-xl hover:shadow-xl hover:ring hover:ring-[#199BCF]/20 hover:border-[#199BCF]/60 transition duration-200">
-                                <div class="flex flex-row items-center gap-2 flex-1">
-                                    <!-- Icon -->
-                                    <div class="size-10 bg-[#199BCF] rounded-lg flex justify-center items-center text-white">
-                                        <i class="fi fi-rr-document flex justify-center items-center text-[24px]"></i>
-                                    </div>
-
-                                    <!-- Text container -->
-                                    <div class="flex flex-col justify-center items-start overflow-hidden">
-                                        <p class="font-semibold text-gray-700 leading-tight truncate max-w-[300px]">
-                                            ${file.name}
-                                        </p>
-                                        <p class="text-[14px] text-gray-500">${file.assignedTo}</p>
-                                    </div>
-                                </div>
-
-                                <!-- Remove Button -->
-                                <div class="shrink-0">
-                                    <button
-                                        id="${file.docId}"
-                                        class="remove-btn border border-red-300 bg-red-50 hover:bg-red-500 rounded-xl flex justify-center items-center text-red-500 px-3 py-2 gap-1 hover:text-white hover:ring ring-red-200 transition duration-200 text-[14px]">
-                                        <i class="fi fi-ss-trash flex justify-center items-center text-[14px]"></i>
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                    `;
-                        container.appendChild(item);
                         console.log(uploadedFiles)
 
-                    });
+                        updateUploadedFilesList()
+                        updateButton()
 
-                    if (uploadedFiles.length === 0) {
+                        if (doc_option) {
+                            let optionId = doc_option.options[doc_option.selectedIndex].value;
+                            disableSelection(optionId)
+                        }
+                        updateFileUploadInput()
+                        updateSubmitButton()
+                        //checkboxState()
+                        //setupSubmitButtonWatcher()
+                    })
+                }
+
+                function updateUploadedFilesList() {
+                    if (container) {
+                        container.innerHTML = '';
+                    }
+
+                    if (container) {
+                        attachedFiles.forEach((file, index) => {
+                            const docTypeInfo = attachedFiles.find(req => req.docId === file.docId);
+                            const item = document.createElement('div');
+                            item.className = 'uploaded-file';
+
+                            item.innerHTML = `
+                                <div
+                                    class="flex flex-row justify-between items-center gap-2 bg-[#E7F0FD]/60 border-2 border-[#1e1e1e]/10 px-4 py-4 rounded-xl hover:shadow-xl hover:ring hover:ring-[#199BCF]/20 hover:border-[#199BCF]/60 transition duration-200">
+                                    <div class="flex flex-row items-center gap-2 flex-1">
+                                        <!-- Icon -->
+                                        <div class="size-10 bg-[#199BCF] rounded-lg flex justify-center items-center text-white">
+                                            <i class="fi fi-rr-document flex justify-center items-center text-[24px]"></i>
+                                        </div>
+
+                                        <!-- Text container -->
+                                        <div class="flex flex-col justify-center items-start overflow-hidden">
+                                            <p class="font-semibold text-gray-700 leading-tight truncate max-w-[300px]">
+                                                ${file.name}
+                                            </p>
+                                            <p class="text-[14px] text-gray-500">${file.assignedTo}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Remove Button -->
+                                    <div class="shrink-0">
+                                        <button
+                                            id="${file.docId}"
+                                            class="remove-btn border border-red-300 bg-red-50 hover:bg-red-500 rounded-xl flex justify-center items-center text-red-500 px-3 py-2 gap-1 hover:text-white hover:ring ring-red-200 transition duration-200 text-[14px]">
+                                            <i class="fi fi-ss-trash flex justify-center items-center text-[14px]"></i>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                        `;
+                            container.appendChild(item);
+                            console.log(uploadedFiles)
+
+                        });
+                    }
+
+                    if (uploadedFiles.length === 0 && container) {
                         container.innerHTML = `
                     <div class="empty-state flex flex-col justify-center items-center gap-4">
                         <img src="{{ asset('images/clipboard.png') }}" class="h-[70px] opacity-60" alt="">
@@ -1504,139 +1544,158 @@
                 }
 
                 function removeDocument(docId) {
-                    let optionId = doc_option.options[doc_option.selectedIndex].value;
-                    uploadedFiles = uploadedFiles.filter(doc => doc.assignedTo !== docId);
-                    attachedFiles = attachedFiles.filter(doc => doc.docId !== docId);
-                    console.log(uploadedFiles)
-                    updateUploadedFilesList()
-                    updateButton()
-                    enableSelection(docId)
-                    updateSubmitButton()
-                    //setupSubmitButtonWatcher()
+                    if (doc_option) {
+                        let optionId = doc_option.options[doc_option.selectedIndex].value;
+                        uploadedFiles = uploadedFiles.filter(doc => doc.assignedTo !== docId);
+                        attachedFiles = attachedFiles.filter(doc => doc.docId !== docId);
+                        console.log(uploadedFiles)
+                        updateUploadedFilesList()
+                        updateButton()
+                        enableSelection(docId)
+                        updateSubmitButton()
+                        //setupSubmitButtonWatcher()
+                    }
                 }
 
                 function disableSelection(optionId) {
-                    const foundItem = uploadedFiles.find(item => item.assignedTo === optionId);
-                    const foundOption = Array.from(doc_option.options).find(
-                        option => option.value === foundItem.assignedTo
-                    );
-                    foundOption.disabled = true
-                    doc_option.selectedIndex = 0;
+                    if (doc_option) {
+                        const foundItem = uploadedFiles.find(item => item.assignedTo === optionId);
+                        const foundOption = Array.from(doc_option.options).find(
+                            option => option.value === foundItem.assignedTo
+                        );
+                        if (foundOption) {
+                            foundOption.disabled = true
+                        }
+                        doc_option.selectedIndex = 0;
+                    }
                 }
 
                 function enableSelection(optionId) {
-                    const foundOption = Array.from(doc_option.options).find(
-                        option => option.value === optionId
-                    );
-                    foundOption.disabled = false
-                    doc_option.selectedIndex = 0;
+                    if (doc_option) {
+                        const foundOption = Array.from(doc_option.options).find(
+                            option => option.value === optionId
+                        );
+                        if (foundOption) {
+                            foundOption.disabled = false
+                        }
+                        doc_option.selectedIndex = 0;
+                    }
                 }
 
                 function updateSubmitButton() {
                     const submitBtn = document.getElementById('submitBtn');
                     const checkbox = document.getElementById('consent');
 
-                    if (uploadedFiles.length <= 0) {
-                        disableSubmitButton()
-                    } else if (uploadedFiles.length > 0 && checkbox.checked === true) {
-                        enableSubmitButton()
-                    } else {
-                        checkboxState()
-                    }
-
-                }
-
-                (function checkboxState() {
-
-                    const checkbox = document.getElementById('consent');
-
-                    checkbox.addEventListener('change', () => {
-
-                        if (uploadedFiles.length <= 0 && checkbox.checked === true) {
+                    if (submitBtn) {
+                        if (uploadedFiles.length <= 0) {
                             disableSubmitButton()
-                        } else if (uploadedFiles.length > 0 && checkbox.checked ===
-                            true) {
+                        } else if (uploadedFiles.length > 0 && checkbox && checkbox.checked === true) {
                             enableSubmitButton()
                         } else {
                             disableSubmitButton()
                         }
+                    }
+                }
 
-                    })
+                function checkboxState() {
+                    const checkbox = document.getElementById('consent');
 
-                })()
+                    if (checkbox) {
+                        checkbox.addEventListener('change', () => {
+                            if (uploadedFiles.length <= 0 && checkbox.checked === true) {
+                                disableSubmitButton()
+                            } else if (uploadedFiles.length > 0 && checkbox.checked === true) {
+                                enableSubmitButton()
+                            } else {
+                                disableSubmitButton()
+                            }
+                        })
+                    }
+                }
+
+                // Initialize checkbox state
+                checkboxState();
 
                 function enableSubmitButton() {
-                    submitBtn.classList.remove('opacity-50');
-                    submitBtn.classList.remove('cursor-not-allowed');
-                    submitBtn.disabled = false
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.classList.remove('opacity-50');
+                        submitBtn.classList.remove('cursor-not-allowed');
+                        submitBtn.disabled = false
+                    }
                 }
 
                 function disableSubmitButton() {
-                    submitBtn.classList.add('opacity-50');
-                    submitBtn.classList.add('cursor-not-allowed');
-                    submitBtn.disabled = true
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.classList.add('opacity-50');
+                        submitBtn.classList.add('cursor-not-allowed');
+                        submitBtn.disabled = true
+                    }
                 }
 
 
                 const form = document.getElementById('uploadForm')
 
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-                    const fileInput = document.getElementById('fileInput');
-                    const files = fileInput.files;
+                        const fileInput = document.getElementById('fileInput');
+                        const files = fileInput.files;
 
-                    const formData = new FormData();
+                        const formData = new FormData();
 
-                    console.log(files)
+                        console.log(files)
 
-                    uploadedFiles.forEach((item, i) => {
-                        // Add the file
-                        formData.append(`documents[${i}]`, item.file);
+                        uploadedFiles.forEach((item, i) => {
+                            // Add the file
+                            formData.append(`documents[${i}]`, item.file);
 
-                        // Add the assigned option (or use files_assigned[i] = ...)
-                        formData.append(`documents_id[${i}]`, item.assignedTo);
-                    });
-
-                    console.log(formData)
-
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content');
-
-                    axios.post('/submit-document', formData, {
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content'),
-                                "Accept": "application/json"
-                            }
-                        })
-                        .then(response => {
-                            const data = response.data;
-
-                            if (data.success) {
-                                showAlert('success', data.message ||
-                                    'Document submitted successfully!');
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            } else {
-                                showAlert('error', data.message || 'Failed to submit document');
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Upload failed:', error.response?.data || error.message);
-                            const errorMessage = error.response?.data?.message ||
-                                'An error occurred while submitting the document';
-                            showAlert('error', errorMessage);
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2000);
+                            // Add the assigned option (or use files_assigned[i] = ...)
+                            formData.append(`documents_id[${i}]`, item.assignedTo);
                         });
 
-                });
+                        console.log(formData)
+
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content');
+
+                        axios.post('/submit-document', formData, {
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                                    "Accept": "application/json"
+                                }
+                            })
+                            .then(response => {
+                                const data = response.data;
+
+                                if (data.success) {
+                                    showAlert('success', data.message ||
+                                        'Document submitted successfully!');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                } else {
+                                    showAlert('error', data.message || 'Failed to submit document');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Upload failed:', error.response?.data || error.message);
+                                const errorMessage = error.response?.data?.message ||
+                                    'An error occurred while submitting the document';
+                                showAlert('error', errorMessage);
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            });
+
+                    });
+                }
 
             }
 
@@ -1661,14 +1720,27 @@
                         }
                         if (zspan) {
                             zspan.textContent = '';
+                            zspan.style.display = 'none'; // Force hide
                         }
                         if (btnContainer) {
                             btnContainer.classList.add('hidden');
+                            btnContainer.style.display = 'none'; // Force hide
                         }
                         if (epstatus) {
                             epstatus.textContent = status;
                             epstatus.style.color = '#FF9800'; // Orange color for paused status
                         }
+
+                        // Force hide with timeout to ensure it's hidden
+                        setTimeout(() => {
+                            if (btnContainer) {
+                                btnContainer.classList.add('hidden');
+                                btnContainer.style.display = 'none';
+                            }
+                            if (zspan) {
+                                zspan.style.display = 'none';
+                            }
+                        }, 100);
                     }
 
                     if (status === 'Ongoing') {
@@ -1676,7 +1748,7 @@
                         const currentTermElement = document.querySelector('[data-current-term]');
                         const termName = currentTermElement ? currentTermElement.getAttribute(
                                 'data-current-term') :
-                            '{{  $currentAcadTerm?->getFullNameAttribute() ?? 'Academic Year' }}';
+                            '{{ $currentAcadTerm?->getFullNameAttribute() ?? 'Academic Year' }}';
 
                         // Update the dashboard text to match the PHP template
                         if (dbText) {
@@ -1689,14 +1761,26 @@
                         }
                         if (zspan) {
                             zspan.textContent = "Please click the button below to fill out the form.";
+                            zspan.style.display = 'block'; // Ensure it's visible
                         }
                         if (btnContainer) {
                             btnContainer.classList.remove('hidden');
+                            btnContainer.style.display = 'block'; // Force display
                         }
                         if (epstatus) {
                             epstatus.textContent = status;
                             epstatus.style.color = '#34A853'; // Green color for ongoing status
                         }
+
+                        // Force a re-render by triggering a small delay
+                        setTimeout(() => {
+                            if (btnContainer) {
+                                btnContainer.style.display = 'block';
+                            }
+                            if (zspan) {
+                                zspan.style.display = 'block';
+                            }
+                        }, 100);
                     }
 
                     if (status === 'Closed') {
@@ -1782,6 +1866,52 @@
                 if (successfulApplicantsElement) successfulApplicantsElement.textContent = '0';
                 if (acceptanceRateElement) acceptanceRateElement.textContent = '0% Acceptance rate';
             }
+
+            // Load dynamic file restrictions
+            function loadFileRestrictions() {
+                fetch('/document-restrictions')
+                    .then(response => response.json())
+                    .then(restrictions => {
+                        if (Object.keys(restrictions).length > 0) {
+                            // Get the first document's restrictions (or you can modify this logic)
+                            const firstDocId = Object.keys(restrictions)[0];
+                            const restriction = restrictions[firstDocId];
+
+                            // Update file input accept attribute
+                            const fileInput = document.getElementById('fileInput');
+                            if (fileInput) {
+                                fileInput.accept = restriction.accept_string;
+                            }
+
+                            // Update restrictions text
+                            const restrictionsText = document.getElementById('fileRestrictions');
+                            if (restrictionsText) {
+                                const typesText = restriction.allowed_types.join(', ').toUpperCase();
+                                restrictionsText.textContent =
+                                    `${typesText} (MAX. ${restriction.max_size_mb}MB)`;
+                            }
+                        } else {
+                            // Fallback to default restrictions
+                            const fileInput = document.getElementById('fileInput');
+                            const restrictionsText = document.getElementById('fileRestrictions');
+
+                            if (fileInput) fileInput.accept = '.pdf,.png,.jpeg';
+                            if (restrictionsText) restrictionsText.textContent = 'PNG, JPG or PDF (MAX. 10MB)';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading file restrictions:', error);
+                        // Fallback to default restrictions
+                        const fileInput = document.getElementById('fileInput');
+                        const restrictionsText = document.getElementById('fileRestrictions');
+
+                        if (fileInput) fileInput.accept = '.pdf,.png,.jpeg';
+                        if (restrictionsText) restrictionsText.textContent = 'PNG, JPG or PDF (MAX. 10MB)';
+                    });
+            }
+
+            // Load file restrictions on page load
+            loadFileRestrictions();
 
         });
     </script>

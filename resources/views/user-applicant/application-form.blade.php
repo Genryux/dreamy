@@ -70,7 +70,18 @@
 
                 <!-- Form Content -->
                 <form id="applicationForm" action="/admission/application-form" method="POST" class="p-8">
-                    @csrf
+                    <!-- Use the meta tag token directly to ensure consistency -->
+                    <input type="hidden" name="_token" id="form-csrf-token" value="">
+                    
+                    <!-- CSRF Token Synchronization -->
+                    <script>
+                        // Synchronize form token with meta tag token
+                        const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        const formTokenInput = document.getElementById('form-csrf-token');
+                        if (formTokenInput && metaToken) {
+                            formTokenInput.value = metaToken;
+                        }
+                    </script>
 
                     <!-- Hidden fields for user data -->
                     <input type="hidden" name="first_name" value="{{ $user->first_name }}">

@@ -106,7 +106,7 @@ class InvoiceController extends Controller
 
         $payments = InvoicePayment::with(['invoice', 'academicTerm'])
             ->whereHas('invoice', function ($query) use ($user) {
-                $query->where('student_id', $user->student->id);
+                $query->withTrashed()->where('student_id', $user->student->id);
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -141,7 +141,7 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'User is not a student'], 403);
         }
 
-        $invoices = Invoice::where('student_id', $user->student->id)->get();
+        $invoices = Invoice::withTrashed()->where('student_id', $user->student->id)->get();
         
         $totalAmount = $invoices->sum('total_amount');
         $paidAmount = $invoices->sum('paid_amount');

@@ -83,7 +83,9 @@ class Invoice extends Model
     // 👇 Computed balance
     public function getBalanceAttribute()
     {
-        return $this->total_amount - $this->paid_amount;
+        $balance = $this->total_amount - $this->paid_amount;
+        // Round to 2 decimal places to avoid floating-point precision issues
+        return round($balance, 2);
     }
 
     /**

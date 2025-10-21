@@ -23,16 +23,16 @@ class ExcludeApplicantRole
 
         $user = Auth::user();
         
-        // Check if user has applicant role
-        $hasApplicantRole = $user->hasRole('applicant') || 
-                           $user->getRoleNames()->contains('applicant') ||
-                           $user->roles->where('name', 'applicant')->isNotEmpty();
+        // Check if user has applicant or student role
+        $hasRestrictedRole = $user->hasRole('applicant') || $user->hasRole('student') ||
+                           $user->getRoleNames()->contains('applicant') || $user->getRoleNames()->contains('student') ||
+                           $user->roles->where('name', 'applicant')->isNotEmpty() || $user->roles->where('name', 'student')->isNotEmpty();
 
-        // If user has applicant role, check if they're trying to access admission routes
-        if ($hasApplicantRole) {
+        // If user has restricted role, check if they're trying to access allowed routes
+        if ($hasRestrictedRole) {
             $currentPath = $request->path();
             
-            // Allow access to admission-related routes
+            // Allow access to admission-related routes (same for both applicant and student roles)
             $allowedPaths = [
                 'admission',
                 'admission/',
@@ -61,11 +61,14 @@ class ExcludeApplicantRole
                 }
             }
 
-            // If not allowed, redirect to admission dashboard
+            // If not allowed, redirect to admission dashboard (same for both applicant and student roles)
             if (!$isAllowed) {
-                \Log::info('Applicant role blocked from accessing non-admission route', [
+                $userRoles = $user->getRoleNames();
+                
+                \Log::info('Restricted role blocked from accessing administrative route', [
                     'user_id' => $user->id,
                     'user_email' => $user->email,
+                    'user_roles' => $userRoles->toArray(),
                     'attempted_path' => $currentPath,
                     'full_url' => $request->fullUrl(),
                     'timestamp' => now()

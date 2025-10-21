@@ -110,12 +110,16 @@ class AdmissionDashboardController extends Controller
                 }
 
                 if ($interview_status === 'Exam-Completed') {
-                    $verifiedCount = Applicants::withStatus('Pending-Documents')->get()->sum(fn($a) => $a->assignedDocuments->where('status', 'Verified')->count());
+                    // Get the current applicant's assigned documents
+                    $assignedDocuments = $applicant->assignedDocuments;
+                    $totalAssignedDocuments = $assignedDocuments->count();
+                    $verifiedCount = $assignedDocuments->where('status', 'Verified')->count();
 
                     return view('user-applicant.dashboard', [
                         'applicant' => $applicant,
-                        'assignedDocuments' => $data['assignedDocuments'] ?? null,
+                        'assignedDocuments' => $assignedDocuments,
                         'verifiedCount' => $verifiedCount,
+                        'totalAssignedDocuments' => $totalAssignedDocuments,
                         'activeEnrollmentPeriod' => $data['activeEnrollmentPeriod'] ?? null,
                         'currentAcadTerm' => $data['currentAcadTerm'] ?? null,
                     ]);

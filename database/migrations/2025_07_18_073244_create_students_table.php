@@ -23,9 +23,9 @@ return new class extends Migration
             $table->foreignIdFor(Program::class)->nullable()->constrained()->nullOnDelete();
             $table->string('lrn')->nullable();
             $table->string('grade_level')->nullable();
-            $table->enum('academic_status', ['Passed', 'Failed', 'Incomplete'])->nullable();
+            $table->enum('academic_status', ['Passed', 'Failed', 'Completed'])->nullable();
             $table->date('enrollment_date')->nullable();
-            $table->enum('status', ['Officially Enrolled', 'Graduated', 'Dropped', 'Transferred'])->nullable();
+            $table->enum('status', ['Officially Enrolled', 'Dropped', 'Transferred', 'Graduated'])->nullable();
             $table->timestamps();
         });
     }

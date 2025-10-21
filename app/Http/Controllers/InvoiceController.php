@@ -59,7 +59,7 @@ class InvoiceController extends Controller
             ->with(['student.user', 'items', 'paymentPlan', 'academicTerm'])
             ->offset($start)
             ->limit($length)
-            ->get(['id', 'student_id', 'invoice_number', 'status', 'academic_term_id'])
+            ->get(['id', 'student_id', 'invoice_number', 'status', 'academic_term_id', 'payment_mode'])
             ->map(function ($item, $key) use ($start) {
                 // Get current active academic term
                 $currentTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
@@ -76,7 +76,7 @@ class InvoiceController extends Controller
                     'invoice_number' => $item->invoice_number ?? '-',
                     'student' => $item->student->user->last_name . ', ' .  $item->student->user->first_name ?? '-',
                     'status' => $statusBadge,
-                    'payment_method' => $item->paymentPlan ? $item->paymentPlan->payment_type : 'Not Set',
+                    'payment_method' => $item->payment_mode ?? 'Not Set',
                     'academic_term' => $item->academicTerm ? $item->academicTerm->getFullNameAttribute() : 'Unknown',
                     'total' => '₱ ' . number_format($item->total_amount, 2) ?? '-',
                     'balance' => '₱ ' . number_format($item->balance, 2) ?? '-',
@@ -139,7 +139,7 @@ class InvoiceController extends Controller
             ->with(['student.user', 'items', 'paymentPlan', 'academicTerm'])
             ->offset($start)
             ->limit($length)
-            ->get(['id', 'student_id', 'invoice_number', 'status', 'academic_term_id'])
+            ->get(['id', 'student_id', 'invoice_number', 'status', 'academic_term_id', 'payment_mode'])
             ->map(function ($item, $key) use ($start) {
                 // Get current active academic term
                 $currentTerm = \App\Models\AcademicTerms::where('is_active', true)->first();

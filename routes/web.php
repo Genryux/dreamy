@@ -83,11 +83,12 @@ Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMain
 | Routes that require user authentication
 */
 
-Route::middleware(['role:applicant', 'auth', 'pin.security'])->group(function () {
+Route::middleware(['role:applicant|student', 'auth', 'pin.security'])->group(function () {
     Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
     Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
     // Applicant Dashboard and Status
     Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard')->middleware('verified');
+    Route::get('/api/application-summary', [ApplicationFormController::class, 'getApplicationSummary'])->name('api.application-summary');
 });
 
 // PIN Security Routes (must be outside pin.security middleware to avoid loops)
@@ -126,12 +127,12 @@ Route::middleware(['auth', 'pin.security'])->group(function () {
         return view('user-student.student');
     })->name('student');
 
+    Route::post('/update-status/{applicant}', [InterviewController::class, 'updateStatus'])->name('admission.update.status');
+
     // Document Submission
+    Route::get('/document-restrictions', [DocumentsSubmissionController::class, 'getDocumentRestrictions'])->name('documents.restrictions');
     Route::post('/submit-document', [DocumentsSubmissionController::class, 'store'])
         ->middleware(['permission:submit document', 'verified'])->name('documents.store');
-    Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update'])
-        ->middleware(['permission:manage submitted documents', 'verified']);
-
     // Applicant Updates
     Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
 });
@@ -183,7 +184,6 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
 
     // Application statistics API
     Route::get('/api/application-statistics', [ApplicationFormController::class, 'getApplicationStatistics'])->name('api.application-statistics');
-    Route::get('/api/application-summary', [ApplicationFormController::class, 'getApplicationSummary'])->name('api.application-summary');
 
     // Enrollment summary API
     Route::get('/api/enrollment-summary/{enrollmentPeriod?}', function ($enrollmentPeriodId = null) {
@@ -202,9 +202,11 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/required-docs/{id}', [DocumentsController::class, 'show']);
     Route::put('/required-docs/{id}', [DocumentsController::class, 'update'])->middleware(['permission:edit documents']);
     Route::delete('/required-docs/{id}', [DocumentsController::class, 'destroy'])->middleware(['permission:delete documents']);
-
+    Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update'])
+        ->middleware(['permission:manage submitted documents']);
     // Academic Terms
     Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
+    Route::post('/new-term/{id}', [AcademicTermController::class, 'startNewTerm'])->name('new-term');
     Route::put('/academic-terms/{id}', [AcademicTermController::class, 'update'])->name('academic-terms.update');
 
     // Enrollment Period
@@ -216,7 +218,6 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
         ->middleware(['permission:accept and schedule'])->name('admission.post');
     Route::put('/record-admission-result/{applicant}', [InterviewController::class, 'recordAdmissionResult'])
         ->middleware(['permission:record result'])->name('admission.record');
-    Route::post('/update-status/{applicant}', [InterviewController::class, 'updateStatus'])->name('admission.update.status');
     // Route::put('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
     Route::post('/reject-application/{applicant}', [ApplicationFormController::class, 'reject'])
         ->middleware(['permission:reject application'])->name('application.reject');

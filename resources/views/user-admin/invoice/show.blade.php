@@ -11,11 +11,11 @@
             @csrf
             <div class="flex flex-col gap-3">
                 <div class="flex flex-col">
-                    <label for="amount" class="text-sm font-medium">Amount</label>
+                    <label for="amount" class="text-sm font-medium mb-1">Amount</label>
                     <input type="number" step="0.01"
                         min="{{ $invoice->payment_mode === 'full' && $invoice->paid_amount == 0 ? $invoice->total_amount : '0.01' }}"
                         max="{{ $invoice->balance }}" name="amount" id="amount"
-                        class="border border-gray-300 rounded-lg px-3 py-2" placeholder="Enter payment amount" required />
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Enter payment amount" required />
                     <p class="text-xs text-gray-500 mt-1">
                         @if ($invoice->payment_mode === 'full')
                             @if ($invoice->paid_amount == 0)
@@ -31,9 +31,9 @@
 
                 @if ($invoice->has_payment_plan && $paymentPlanSummary)
                     <div class="flex flex-col">
-                        <label for="payment_schedule_id" class="text-sm font-medium">Payment Schedule</label>
+                        <label for="payment_schedule_id" class="text-sm font-medium mb-1">Payment Schedule</label>
                         <select name="payment_schedule_id" id="payment_schedule_id"
-                            class="border border-gray-300 rounded-lg px-3 py-2" required>
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" required>
                             <option value="">Select payment schedule...</option>
                             @foreach ($paymentPlanSummary['schedules'] as $schedule)
                                 @php
@@ -63,37 +63,37 @@
                 @endif
 
                 <div class="flex flex-col">
-                    <label for="payment_date" class="text-sm font-medium">Payment Date</label>
+                    <label for="payment_date" class="text-sm font-medium mb-1">Payment Date</label>
                     <input type="date" name="payment_date" id="payment_date"
-                        class="border border-gray-300 rounded-lg px-3 py-2" value="{{ now()->toDateString() }}" required />
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" value="{{ now()->toDateString() }}" required />
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="flex flex-col">
-                        <label for="method" class="text-sm font-medium">Method</label>
+                        <label for="method" class="text-sm font-medium mb-1">Method</label>
                         <input type="text" name="method" id="method"
-                            class="border border-gray-300 rounded-lg px-3 py-2" placeholder="Cash, Bank, GCASH" />
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Cash, Bank, GCASH" />
                     </div>
                     <div class="flex flex-col">
-                        <label for="type" class="text-sm font-medium">Type</label>
+                        <label for="type" class="text-sm font-medium mb-1">Type</label>
                         <input type="text" name="type" id="type"
-                            class="border border-gray-300 rounded-lg px-3 py-2" placeholder="Partial / Full" />
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Partial / Full" />
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <label for="reference_no" class="text-sm font-medium">Reference No.</label>
+                    <label for="reference_no" class="text-sm font-medium mb-1">Reference No.</label>
                     <input type="text" name="reference_no" id="reference_no"
-                        class="border border-gray-300 rounded-lg px-3 py-2" placeholder="Optional" />
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" placeholder="Optional" />
                 </div>
             </div>
         </form>
 
         <x-slot name="modal_buttons">
             <button id="record-payment-modal-cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             <button type="submit" form="record-payment-modal-form"
-                class="bg-green-600 text-[14px] px-3 py-2 rounded-md text-white font-bold hover:ring hover:ring-green-200 hover:bg-green-500 transition duration-150 shadow-sm">
+                class="bg-green-600 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-green-200 hover:bg-green-500 transition duration-150 shadow-sm">
                 Record Payment
             </button>
         </x-slot>
@@ -157,7 +157,7 @@
                                    name="pin" 
                                    maxlength="6" 
                                    pattern="[0-9]{6}"
-                                   class="w-32 text-center text-2xl font-mono tracking-widest border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
+                                   class="w-32 text-center text-2xl font-mono tracking-widest border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-[#199BCF] focus:ring-2 focus:ring-[#199BCF] outline-none transition duration-200"
                                    placeholder="••••••"
                                    autocomplete="off"
                                    inputmode="numeric"
@@ -173,11 +173,11 @@
 
         <x-slot name="modal_buttons">
             <button id="pin-verification-modal-cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             <button type="submit" form="pin-verification-form" id="pin-verification-submit-btn"
-                class="bg-blue-600 text-[14px] px-3 py-2 rounded-md text-white font-bold hover:ring hover:ring-blue-200 hover:bg-blue-500 transition duration-150 shadow-sm">
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Verify & Record Payment
             </button>
         </x-slot>
@@ -372,8 +372,8 @@
                                 ($invoice->payment_mode && $invoice->payment_mode !== 'flexible') &&
                                 $invoice->balance > 0)
                             <button id="record-payment-open"
-                                class="inline-flex items-center gap-2 bg-[#199BCF] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[#1A3165] transition">
-                                <i class="fi fi-rr-credit-card text-[16px]"></i>
+                                class="flex flex-row bg-[#199BCF] py-2.5 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                                <i class="fi fi-rr-credit-card flex justify-center items-center text-[16px]"></i>
                                 Record Payment
                             </button>
                         @endif

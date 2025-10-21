@@ -7,6 +7,8 @@ use App\Models\Applicants;
 use App\Models\Documents;
 use App\Models\Interview;
 use App\Services\ApplicantService;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicantProgressMail;
 use App\Services\InterviewService;
 use App\Services\NotificationService;
 use Carbon\Carbon;
@@ -51,6 +53,9 @@ class InterviewController extends Controller
         $user = Auth::user();
         $role = $user?->getRoleNames()->first() ?? 'No Role';
 
+        $loginUrl = config('app.url') . '/portal/login';
+        $recipientEmail = $user_applicant->email ?? null;
+
         if ($action === 'accept-only') {
             $request->validate([
                 'date' => ['nullable', 'date'],
@@ -69,7 +74,7 @@ class InterviewController extends Controller
         }
 
         try {
-            $result = DB::transaction(function () use ($action, $request, $applicant, $user, $role, $user_applicant) {
+            $result = DB::transaction(function () use ($action, $request, $applicant, $user, $role, $user_applicant, $recipientEmail, $loginUrl) {
                 $msg = '';
 
                 if ($action === 'accept-only') {
@@ -82,11 +87,18 @@ class InterviewController extends Controller
                         ]
                     );
                     $msg = 'Applicant successfully accepted.';
-                    $this->notificationService->NotifyPrivateUser(
-                        $user_applicant,
-                        'Application Form Accepted!',
-                        'Your application has been successfully accepted and is now awaiting scheduling. You’ll be notified once your schedule has been finalized.',
-                    );
+                    // Send acceptance email instead of private notification
+
+                    if ($recipientEmail) {
+                        $title = 'Application Accepted — Dreamy School Enrollment';
+                        $body = "Your application has been successfully accepted and is now awaiting scheduling.\n\nPlease log in to your account to view your application status and next steps.";
+                        Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                            applicantName: $applicant->first_name ?? 'Applicant',
+                            title: $title,
+                            bodyText: $body,
+                            loginUrl: $loginUrl
+                        ));
+                    }
                 } elseif ($action === 'update-status') {
                     $applicant->interview()->updateOrCreate(
                         [
@@ -115,8 +127,29 @@ class InterviewController extends Controller
 
                     if ($action === 'accept-with-schedule') {
                         $msg = 'Applicant successfully accepted and scheduled.';
+
+                        if ($recipientEmail) {
+                            $title = 'Application Accepted & Scheduled — Dreamy School Enrollment';
+                            $body = "Congratulations! Your application has been successfully accepted and your schedule has been confirmed.\n\nPlease log in to your account to view your scheduled dates and next steps.";
+                            Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                                applicantName: $applicant->first_name ?? 'Applicant',
+                                title: $title,
+                                bodyText: $body,
+                                loginUrl: $loginUrl
+                            ));
+                        }
                     } else {
                         $msg = 'Applicant successfully scheduled.';
+                        if ($recipientEmail) {
+                            $title = 'Schedule Confirmed — Dreamy School Enrollment';
+                            $body = "Great news! Your schedule is confirmed. Log in to your account to see your scheduled dates and next steps.";
+                            Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                                applicantName: $applicant->first_name ?? 'Applicant',
+                                title: $title,
+                                bodyText: $body,
+                                loginUrl: $loginUrl
+                            ));
+                        }
                     }
                 } elseif ($action === 'edit-admission') {
                     $applicant->interview()->updateOrCreate(
@@ -182,9 +215,14 @@ class InterviewController extends Controller
         $user = Auth::user();
         $role = $user?->getRoleNames()->first() ?? 'No Role';
 
+        $user_applicant = $applicant->user;
+
+        $loginUrl = config('app.url') . '/portal/login';
+        $recipientEmail = $user_applicant->email ?? null;
+
         try {
 
-            $result = DB::transaction(function () use ($applicant, $request, $user, $role) {
+            $result = DB::transaction(function () use ($applicant, $request, $user, $role, $loginUrl, $recipientEmail) {
 
                 if ($request->input('result') === 'Exam-Failed') {
 
@@ -197,6 +235,18 @@ class InterviewController extends Controller
                     $applicant->update([
                         'application_status' => 'Completed-Failed'
                     ]);
+
+
+                    if ($recipientEmail) {
+                        $title = 'Admission Exam Result — Dreamy School Enrollment';
+                        $body = "We regret to inform you that you did not pass the admission exam. Please check your account for your results and guidance on available next steps.";
+                        Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                            applicantName: $applicant->first_name ?? 'Applicant',
+                            title: $title,
+                            bodyText: $body,
+                            loginUrl: $loginUrl
+                        ));
+                    }
 
                     return 'Result successfully recorded.';
                 }
@@ -226,6 +276,17 @@ class InterviewController extends Controller
                     ]);
                 }
 
+                if ($recipientEmail) {
+                    $title = 'Admission Exam Result — Dreamy School Enrollment';
+                    $body = "Congratulations! You have successfully passed the admission exam. Please log in to your account to view your results and next steps in the enrollment process.";
+                    Mail::to($recipientEmail)->queue(new ApplicantProgressMail(
+                        applicantName: $applicant->first_name ?? 'Applicant',
+                        title: $title,
+                        bodyText: $body,
+                        loginUrl: $loginUrl
+                    ));
+                }
+
                 return 'Result recorded and documents successfully assigned.';
             });
 
@@ -253,13 +314,12 @@ class InterviewController extends Controller
         try {
 
             $applicant->interview->update(['status' => $validated['status']]);
-            
+
             // Clear the dashboard cache for this user
             $cacheKey = 'admission_dashboard_' . auth()->id();
             \Cache::forget($cacheKey);
-            
+
             return redirect()->back();
-            
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

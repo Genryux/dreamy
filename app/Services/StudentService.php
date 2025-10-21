@@ -121,4 +121,114 @@ class StudentService
             return $student;
         });
     }
+
+    public function promoteStudents($academicTerm)
+    {
+        $continuingStudents = collect();
+
+        Student::chunk(500, function ($students) use (&$continuingStudents, $academicTerm) {
+
+            foreach ($students as $student) {
+
+                if ($student->status === 'Graduated') {
+                    continue;
+                } else if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Passed') {
+                    $student->update([
+                        'grade_level' => 'Grade 12',
+                        'academic_status' => null // cleared for the next term
+                    ]);
+
+                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $continuingStudents->push($student);
+                } else if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Failed') {
+                    $student->update([
+                        'academic_status' => null
+                    ]);
+
+                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $continuingStudents->push($student);
+                } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Failed') {
+                    $student->update([
+                        'academic_status' => null
+                    ]);
+
+                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $continuingStudents->push($student);
+                } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Completed') {
+                    $student->update([
+                        'status' => 'Graduated'
+                    ]);
+
+                    $student->enrollments()->update([
+                        'status' => null,
+                    ]);
+                } else if ($student->grade_level === 'Grade 12' && $student->academic_status === null) {
+                    $student->update([
+                        'status' => 'Graduated'
+                    ]);
+
+                    $student->enrollments()->update([
+                        'status' => null,
+                    ]);
+                } else if ($student->grade_level === 'Grade 11' && $student->academic_status === null) {
+                    $student->update([
+                        'grade_level' => 'Grade 12',
+                        'academic_status' => null // cleared for the next term
+                    ]);
+
+                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $continuingStudents->push($student);
+                }
+            }
+        });
+
+        if ($continuingStudents->isEmpty()) {
+            \Log::info('No students found or eligible for promotion');
+            return $continuingStudents; // Return empty collection instead of JSON response
+        }
+
+        return $continuingStudents;
+    }
+
+    private function updateOrCreateEnrollment($student, $academicTerm)
+    {
+        $latestEnrollment = $student->enrollments()->latest()->first();
+
+        if ($latestEnrollment) {
+            $latestEnrollment->update([
+                'academic_term_id' => $academicTerm->id,
+                'status' => 'pending_confirmation',
+                'enrolled_at' => null,
+            ]);
+        } else {
+            $student->enrollments()->create([
+                'academic_term_id' => $academicTerm->id,
+                'status' => 'pending_confirmation',
+                'enrolled_at' => null,
+            ]);
+        }
+    }
+
+    public function countStudentStatuses()
+    {
+        return [
+            'to_promote' => Student::where('grade_level', 'Grade 11')
+                ->where(function ($query) {
+                    $query->whereIn('academic_status', ['Passed'])
+                        ->orWhereNull('academic_status');
+                })->count(),
+
+            'to_retain' => Student::whereIn('grade_level', ['Grade 11', 'Grade 12'])
+                ->where('academic_status', 'Failed')->count(),
+
+            'to_graduate' => Student::where('grade_level', 'Grade 12')
+                ->where(function ($query) {
+                    $query->whereIn('academic_status', ['Completed'])
+                        ->orWhereNull('academic_status');
+                })->count(),
+
+            'not_evaluated' => Student::whereIn('grade_level', ['Grade 11', 'Grade 12'])
+                ->whereNull('academic_status')->count(),
+        ];
+    }
 }
