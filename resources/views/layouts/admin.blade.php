@@ -16,7 +16,8 @@
                     <x-slot name="logo">
                         {{ asset('images/dreamy_logo2.png') }}
                     </x-slot>
-                    <div id="nav-container" class="h-[630px] overflow-y-scroll overflow-x-hidden flex flex-col justify-center items-start transition-all duration-300">
+                    <div id="nav-container"
+                        class="h-[630px] overflow-y-scroll overflow-x-hidden flex flex-col justify-center items-start transition-all duration-300">
                         <div class="flex flex-col space-y-2 w-full ">
                             <x-divider color='#f8f8f8' opacity="0.10"></x-divider>
 
@@ -72,8 +73,7 @@
                             </span>
                         </div>
 
-                        <div
-                            class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full overflow-x-hidden overflow-y-scroll">
+                        <div class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full overflow-x-hidden overflow-y-scroll">
 
                             @can('view enrolled students page')
                                 <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
@@ -170,14 +170,17 @@
                                 </x-nav-link>
                             @endcan
 
-                            <x-nav-link href="/homepage" :active="request()->is('homepage')">
+                            @can('view site management page')
+                                <x-nav-link href="/homepage" :active="request()->is('homepage')">
 
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">Site Management</p>
-                                </span>
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-books text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Site Management</p>
+                                    </span>
 
-                            </x-nav-link>
+                                </x-nav-link>
+                            @endcan
+
 
                             @can('view user management page')
                                 <x-nav-link href="/admin/users" :active="request()->is('admin/users*')">
@@ -190,22 +193,28 @@
                                 </x-nav-link>
                             @endcan
 
-                            <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
+                            @can('view site management page')
+                                <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
 
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rr-newspaper text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">News</p>
-                                </span>
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-newspaper text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">News</p>
+                                    </span>
 
-                            </x-nav-link>
-                            <x-nav-link href="/admin/settings/school" :active="request()->is('admin/settings/school')">
+                                </x-nav-link>
+                            @endcan
 
-                                <span class="flex flex-row items-center space-x-4">
-                                    <i class="fi fi-rr-settings text-[20px] flex-shrink-0"></i>
-                                    <p class="font-semibold text-[16px] nav-text truncate">School Settings</p>
-                                </span>
+                            @can('view school settings page')
+                                <x-nav-link href="/admin/settings/school" :active="request()->is('admin/settings/school')">
 
-                            </x-nav-link>
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-settings text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">School Settings</p>
+                                    </span>
+
+                                </x-nav-link>
+                            @endcan
+
                         </div>
                     </div>
 
@@ -314,7 +323,8 @@
                                                 {{ auth()->user()->first_name ?? 'User' }}
                                                 {{ auth()->user()->last_name ?? 'Name' }}
                                             </p>
-                                            <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? '-' }}</p>
+                                            <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? '-' }}
+                                            </p>
                                         </div>
                                     </a>
 
@@ -378,11 +388,12 @@
                     $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
                 @endphp
 
-                @if(!$currentAcadTerm)
-                <div class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
-                    <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
-                    No active academic term, some features might not work properly
-                </div>
+                @if (!$currentAcadTerm)
+                    <div
+                        class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
+                        <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
+                        No active academic term, some features might not work properly
+                    </div>
                 @endif
 
             </main>

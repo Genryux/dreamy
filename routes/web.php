@@ -148,7 +148,7 @@ Route::middleware(['auth', 'pin.security'])->group(function () {
 Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function () {
 
     // Admin Dashboard
-    Route::get('/admin', [ApplicationFormController::class, 'index'])->name('admin');
+    Route::get('/admin', [ApplicationFormController::class, 'index'])->middleware(['permission:view enrollment dashboard page'])->name('admin');
 
 
     // School Settings
@@ -160,13 +160,13 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
 
     // Application Management
     Route::get('/applications/pending', [ApplicationFormController::class, 'index'])
-        ->middleware(['permission:view applications'])->name('applications.pending');
+        ->middleware(['permission:view applications page'])->name('applications.pending');
     Route::get('/applications/accepted', [ApplicationFormController::class, 'index'])
-        ->middleware(['permission:view applications'])->name('applications.accepted');
+        ->middleware(['permission:view applications page'])->name('applications.accepted');
     Route::get('/applications/pending-documents', [ApplicationFormController::class, 'index'])
-        ->middleware(['permission:view applications'])->name('applications.pending-documents');
+        ->middleware(['permission:view applications page'])->name('applications.pending-documents');
     Route::get('/applications/rejected', [ApplicationFormController::class, 'index'])
-        ->middleware(['permission:view applications'])->name('applications.rejected');
+        ->middleware(['permission:view applications page'])->name('applications.rejected');
 
     // Individual application pages
     Route::get('/applications/pending/form-details/{applicant}', [ApplicationFormController::class, 'pendingDetails'])
@@ -206,13 +206,13 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::patch('/submit-document/{applicant}', [DocumentsSubmissionController::class, 'update'])
         ->middleware(['permission:manage submitted documents']);
     // Academic Terms
-    Route::post('/academic-terms', [AcademicTermController::class, 'store'])->name('academic-terms.post');
-    Route::post('/new-term/{id}', [AcademicTermController::class, 'startNewTerm'])->name('new-term');
-    Route::put('/academic-terms/{id}', [AcademicTermController::class, 'update'])->name('academic-terms.update');
+    Route::post('/academic-terms', [AcademicTermController::class, 'store'])->middleware(['permission:create new term'])->name('academic-terms.post');
+    Route::post('/new-term/{id}', [AcademicTermController::class, 'startNewTerm'])->middleware(['permission:create new term'])->name('new-term');
+    Route::put('/academic-terms/{id}', [AcademicTermController::class, 'update'])->middleware(['permission:edit term'])->name('academic-terms.update');
 
     // Enrollment Period
-    Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->name('enrollment-period.post');
-    Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->name('enrollment-period.patch');
+    Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->middleware(['permission:add enrollment period'])->name('enrollment-period.post');
+    Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->middleware(['permission:update enrollment period'])->name('enrollment-period.patch');
 
     // Interview Management
     Route::post('/schedule-admission/{applicant}', [InterviewController::class, 'store'])
@@ -224,7 +224,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
         ->middleware(['permission:reject application'])->name('application.reject');
 
     // Student Management
-    Route::get('/enrolled-students', [StudentsController::class, 'index'])->name('students.index');
+    Route::get('/enrolled-students', [StudentsController::class, 'index'])->middleware(['permission:view enrolled students page'])->name('students.index');
     Route::get('/users', [StudentsController::class, 'getUsers']);
     Route::get('/application-analytics', [StudentsController::class, 'getApplicationAnalytics']);
     Route::get('/enrollment-analytics', [StudentsController::class, 'getEnrollmentAnalytics']);
@@ -232,40 +232,40 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::post('/getStudent', [StudentsController::class, 'getStudent']);
     Route::post('/students/import', [StudentRecordController::class, 'import'])->middleware(['permission:import student']);
     Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
-    Route::post('/student-record/{id}', [StudentRecordController::class, 'store']);
+    Route::post('/student-record/{id}', [StudentRecordController::class, 'store'])->middleware(['permission:enroll student']);
     Route::post('/students/{id}', [StudentRecordController::class, 'store'])
         ->middleware(['permission:enroll student']);
-    Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection']);
+    Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection'])->middleware(['permission:add student to a section']);
     Route::post('/removeStudentFromSection/{section}', [StudentsController::class, 'removeStudentFromSection'])->middleware(['permission:remove assigned subject to a section', 'throttle:10,1']);
-    Route::patch('/evaluate-student/{id}', [StudentsController::class, 'evaluateStudent']);
-    Route::patch('/promote-student/{id}', [StudentsController::class, 'promoteStudent']);
-    Route::patch('/withdraw-student/{id}', [StudentsController::class, 'withdrawStudent']);
+    Route::patch('/evaluate-student/{id}', [StudentsController::class, 'evaluateStudent'])->middleware(['permission:evaluate student']);
+    Route::patch('/promote-student/{id}', [StudentsController::class, 'promoteStudent'])->middleware(['permission:promote student']);
+    Route::patch('/withdraw-student/{id}', [StudentsController::class, 'withdrawStudent'])->middleware(['permission:withdraw enrollment']);
 
 
 
     // Student Records
-    Route::get('/student/{student}', [StudentRecordController::class, 'show']);
+    Route::get('/student/{student}', [StudentRecordController::class, 'show'])->middleware(['permission:view student']);
     Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');
     Route::get('/student-record/{studentRecord}/coe.pdf', [StudentRecordController::class, 'coePdf'])->name('students.coe.pdf');
-    Route::put('/students/{student}/personal-info', [StudentRecordController::class, 'updatePersonalInfo'])->name('students.personal.info');
-    Route::put('/students/{student}/academic-info', [StudentRecordController::class, 'updateAcademicInfo'])->name('students.academic.info');
-    Route::put('/students/{student}/address-info', [StudentRecordController::class, 'updateAddressInfo'])->name('students.address.info');
-    Route::put('/students/{student}/emergency-info', [StudentRecordController::class, 'updateEmergencyInfo'])->name('students.emergency.info');
+    Route::put('/students/{student}/personal-info', [StudentRecordController::class, 'updatePersonalInfo'])->middleware(['permission:edit student'])->name('students.personal.info');
+    Route::put('/students/{student}/academic-info', [StudentRecordController::class, 'updateAcademicInfo'])->middleware(['permission:edit student'])->name('students.academic.info');
+    Route::put('/students/{student}/address-info', [StudentRecordController::class, 'updateAddressInfo'])->middleware(['permission:edit student'])->name('students.address.info');
+    Route::put('/students/{student}/emergency-info', [StudentRecordController::class, 'updateEmergencyInfo'])->middleware(['permission:edit student'])->name('students.emergency.info');
 
 
-    // Teacher Management
-    Route::get('/admin/teachers', [TeacherManagementController::class, 'index'])->name('admin.teachers.index');
-    Route::get('/admin/teachers/create', [TeacherManagementController::class, 'create'])->name('admin.teachers.create');
-    Route::post('/admin/teachers', [TeacherManagementController::class, 'store'])->name('admin.teachers.store');
-    Route::get('/admin/teachers/{teacher}', [TeacherManagementController::class, 'show'])->name('admin.teachers.show');
-    Route::get('/admin/teachers/{teacher}/edit', [TeacherManagementController::class, 'edit'])->name('admin.teachers.edit');
-    Route::put('/admin/teachers/{teacher}', [TeacherManagementController::class, 'update'])->name('admin.teachers.update');
-    Route::delete('/admin/teachers/{teacher}', [TeacherManagementController::class, 'destroy'])->name('admin.teachers.destroy');
-    Route::patch('/admin/teachers/{teacher}/toggle-status', [TeacherManagementController::class, 'toggleStatus'])->name('admin.teachers.toggle-status');
-    Route::get('/admin/getTeachers', [TeacherManagementController::class, 'getTeachers'])->name('admin.getTeachers');
+    // // Teacher Management
+    // Route::get('/admin/teachers', [TeacherManagementController::class, 'index'])->name('admin.teachers.index');
+    // Route::get('/admin/teachers/create', [TeacherManagementController::class, 'create'])->name('admin.teachers.create');
+    // Route::post('/admin/teachers', [TeacherManagementController::class, 'store'])->name('admin.teachers.store');
+    // Route::get('/admin/teachers/{teacher}', [TeacherManagementController::class, 'show'])->name('admin.teachers.show');
+    // Route::get('/admin/teachers/{teacher}/edit', [TeacherManagementController::class, 'edit'])->name('admin.teachers.edit');
+    // Route::put('/admin/teachers/{teacher}', [TeacherManagementController::class, 'update'])->name('admin.teachers.update');
+    // Route::delete('/admin/teachers/{teacher}', [TeacherManagementController::class, 'destroy'])->name('admin.teachers.destroy');
+    // Route::patch('/admin/teachers/{teacher}/toggle-status', [TeacherManagementController::class, 'toggleStatus'])->name('admin.teachers.toggle-status');
+    // Route::get('/admin/getTeachers', [TeacherManagementController::class, 'getTeachers'])->name('admin.getTeachers');
 
     // User Management
-    Route::get('/admin/users', [UserInvitationController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/users', [UserInvitationController::class, 'index'])->middleware(['permission:view users'])->name('admin.users.index');
     Route::get('/admin/users/data', [UserInvitationController::class, 'getAllUsers'])->name('admin.users.data');
     Route::get('/admin/users/analytics', [UserInvitationController::class, 'getAnalytics'])->name('admin.users.analytics');
 
@@ -298,11 +298,11 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/admin/news/{news}', [NewsController::class, 'show']);
 
     // Discount Management
-    Route::get('/admin/discounts', [DiscountController::class, 'index'])->name('admin.discounts.index');
-    Route::post('/admin/discounts', [DiscountController::class, 'store'])->name('admin.discounts.store');
-    Route::put('/admin/discounts/{discount}', [DiscountController::class, 'update'])->name('admin.discounts.update');
-    Route::delete('/admin/discounts/{discount}', [DiscountController::class, 'destroy'])->name('admin.discounts.destroy');
-    Route::patch('/admin/discounts/{discount}/toggle', [DiscountController::class, 'toggle'])->name('admin.discounts.toggle');
+    Route::get('/getDiscounts', [DiscountController::class, 'getDiscounts'])->name('admin.discounts.get');
+    Route::post('/admin/discounts', [DiscountController::class, 'store'])->middleware(['permission:create discount', 'throttle:10,1'])->name('admin.discounts.store');
+    Route::put('/admin/discounts/{discount}', [DiscountController::class, 'update'])->middleware(['permission:update discount'])->name('admin.discounts.update');
+    Route::delete('/admin/discounts/{discount}', [DiscountController::class, 'destroy'])->middleware(['permission:delete discount'])->name('admin.discounts.destroy');
+    Route::patch('/admin/discounts/{discount}/toggle', [DiscountController::class, 'toggle'])->middleware(['permission:update discount', 'throttle:10,1'])->name('admin.discounts.toggle');
     Route::post('/admin/news', [NewsController::class, 'storeOrUpdate']);
     Route::put('/admin/news/{news}', [NewsController::class, 'update']);
     Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
@@ -315,6 +315,8 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])->name('school-fees.invoices')->middleware('permission:view invoice records');
 
     Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])->name('school-fees.payments')->middleware('permission:view payment history');
+    
+    Route::get('/school-fees/discounts', [SchoolFeeController::class, 'index'])->name('school-fees.discounts');
 
     // School fee show route (must come after specific routes)
     Route::get('/school-fees/{id}', [SchoolFeeController::class, 'show'])->middleware('permission:view school fees');

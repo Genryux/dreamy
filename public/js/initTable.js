@@ -23,6 +23,7 @@ export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInpu
                 d.semester_filter = window.selectedSemester || '';
                 d.category_filter = window.selectedCategory || '';
                 d.gender_filter = window.selectedGender || '';
+                d.type_filter = window.selectedType || '';
             }
         },
         order: order,

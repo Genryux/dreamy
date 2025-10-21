@@ -392,6 +392,237 @@
         </x-slot>
 
     </x-modal>
+
+    {{-- create discount --}}
+    <x-modal modal_id="create-discount-modal" modal_name="Create Discount" close_btn_id="create-discount-modal-close-btn"
+        modal_container_id="modal-container-6">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-percentage flex justify-center items-center'></i>
+        </x-slot>
+
+        <form id="create-discount-modal-form" class="p-6">
+            @csrf
+
+            <div class="flex flex-col justify-center items-center space-y-4">
+
+                <div class="w-full">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-tags mr-2"></i>
+                        Discount Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" id="name" required
+                        placeholder="e.g., Early Bird Discount, Senior Citizen Discount"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                </div>
+
+                <div class="w-full">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-document mr-2"></i>
+                        Description
+                    </label>
+                    <textarea name="description" id="description" rows="3" placeholder="Optional description of the discount"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"></textarea>
+                </div>
+
+                <div class="w-full">
+                    <label for="discount_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-percentage mr-2"></i>
+                        Discount Type <span class="text-red-500">*</span>
+                    </label>
+                    <select name="discount_type" id="discount_type" required
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                        <option value="">Select Type</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="fixed">Fixed Amount</option>
+                    </select>
+                </div>
+
+                <div class="w-full">
+                    <label for="discount_value" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-usd-circle mr-2"></i>
+                        Discount Value <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="discount_value" id="discount_value" required min="0"
+                        step="0.01" placeholder="0.00"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                    <p class="text-sm text-gray-500 mt-1" id="value-help">Enter the discount value</p>
+                </div>
+
+                <div class="w-full">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="is_active" id="is_active"
+                            class="mr-2 w-4 h-4 text-[#199BCF] border-[#199BCF]/30 rounded focus:ring-[#199BCF]/20">
+                        <span class="text-sm text-gray-700">Active</span>
+                    </label>
+                </div>
+            </div>
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="create-discount-modal-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="create-discount-modal-form" id="create-discount-submit-btn"
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                Create Discount
+            </button>
+        </x-slot>
+
+    </x-modal>
+
+    {{-- edit discount --}}
+    <x-modal modal_id="edit-discount-modal" modal_name="Edit Discount" close_btn_id="edit-discount-modal-close-btn"
+        modal_container_id="modal-container-7">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-edit flex justify-center items-center'></i>
+        </x-slot>
+
+        <form id="edit-discount-modal-form" class="p-6">
+            @csrf
+
+            <div class="flex flex-col justify-center items-center space-y-4">
+
+                <div class="w-full">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-tags mr-2"></i>
+                        Discount Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" id="name" required
+                        placeholder="e.g., Early Bird Discount, Senior Citizen Discount"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                </div>
+
+                <div class="w-full">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-document mr-2"></i>
+                        Description
+                    </label>
+                    <textarea name="description" id="description" rows="3" placeholder="Optional description of the discount"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"></textarea>
+                </div>
+
+                <div class="w-full">
+                    <label for="discount_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-percentage mr-2"></i>
+                        Discount Type <span class="text-red-500">*</span>
+                    </label>
+                    <select name="discount_type" id="discount_type" required
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                        <option value="">Select Type</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="fixed">Fixed Amount</option>
+                    </select>
+                </div>
+
+                <div class="w-full">
+                    <label for="discount_value" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-usd-circle mr-2"></i>
+                        Discount Value <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="discount_value" id="discount_value" required min="0"
+                        step="0.01" placeholder="0.00"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                    <p class="text-sm text-gray-500 mt-1" id="value-help">Enter the discount value</p>
+                </div>
+
+                <div class="w-full">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="is_active" id="is_active"
+                            class="mr-2 w-4 h-4 text-[#199BCF] border-[#199BCF]/30 rounded focus:ring-[#199BCF]/20">
+                        <span class="text-sm text-gray-700">Active</span>
+                    </label>
+                </div>
+            </div>
+
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="edit-discount-modal-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            {{-- This button will acts as the submit button --}}
+            <button type="submit" form="edit-discount-modal-form" id="edit-discount-submit-btn"
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                Update Discount
+            </button>
+        </x-slot>
+
+    </x-modal>
+
+    {{-- delete discount --}}
+    <x-modal modal_id="delete-discount-modal" modal_name="Delete Discount" close_btn_id="delete-discount-close-btn"
+        modal_container_id="modal-container-delete-discount">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-trash flex justify-center items-center text-red-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Deletion</h3>
+                    <p class="text-gray-600">Are you sure you want to delete this discount? This action cannot be undone.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="delete-discount-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <form id="delete-discount-form" class="inline">
+                @csrf
+                <button type="submit" id="delete-discount-submit-btn"
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                    Delete Discount
+                </button>
+            </form>
+        </x-slot>
+
+    </x-modal>
+
+    {{-- toggle discount --}}
+    <x-modal modal_id="toggle-discount-modal" modal_name="Toggle Discount Status"
+        close_btn_id="toggle-discount-close-btn" modal_container_id="modal-container-toggle-discount">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-toggle-on flex justify-center items-center text-yellow-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Toggle Discount Status</h3>
+                    <p class="text-gray-600">Are you sure you want to change the status of this discount?</p>
+                    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p class="text-sm text-yellow-800">
+                            <strong>Note:</strong> This will activate or deactivate the discount for all future
+                            applications.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="toggle-discount-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <form id="toggle-discount-form" class="inline">
+                @csrf
+                <button type="submit" id="toggle-discount-submit-btn"
+                    class="bg-yellow-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-yellow-200 hover:bg-yellow-400 transition duration-150 shadow-sm hover:scale-95">
+                    Toggle Status
+                </button>
+            </form>
+        </x-slot>
+
+    </x-modal>
 @endsection
 @section('header')
     <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
@@ -569,11 +800,119 @@
                 </li>
             @endcan
 
+            <li class="me-2">
+                <a href="{{ route('school-fees.discounts') }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg 
+              {{ Route::is('school-fees.discounts') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Discounts
+                </a>
+            </li>
+
 
 
 
         </ul>
     </div>
+
+    @if (Route::is('school-fees.discounts'))
+        <div
+            class="flex flex-col justify-start items-start flex-grow p-5 space-y-2 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10">
+            <div class="flex flex-col justify-center my-2 items-center w-full">
+                <span class="font-semibold text-[18px]">
+                    Discounts Management
+                </span>
+                <span class="font-medium text-gray-400 text-[14px]">
+                    Manage discount types and values
+                </span>
+            </div>
+
+            <div class="flex flex-row justify-between items-center w-full h-full py-2">
+                <div class="flex flex-row justify-between w-2/3 items-center gap-4">
+                    <label for="discount-search"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm">
+                        <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                        <input type="search" name="" id="discount-search"
+                            class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                            placeholder="Search by name or description">
+                        <button id="clear-discount-btn"
+                            class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                            <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                        </button>
+                    </label>
+
+                    <div class="flex flex-row justify-start items-center w-full gap-2">
+                        <div
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                            <select name="" id="type-selection"
+                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                <option value="" selected>All Types</option>
+                                <option value="percentage" data-type="percentage">Percentage</option>
+                                <option value="fixed" data-type="fixed">Fixed Amount</option>
+                            </select>
+                            <i id="clear-type-filter-btn"
+                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
+                        </div>
+
+                        <div
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                            <select name="" id="status-selection-discount"
+                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                <option value="" selected>All Status</option>
+                                <option value="active" data-status="active">Active</option>
+                                <option value="inactive" data-status="inactive">Inactive</option>
+                            </select>
+                            <i id="clear-status-filter-btn-discount"
+                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center cursor-pointer"></i>
+                        </div>
+                    </div>
+                </div>
+
+                    <button id="create-discount-btn"
+                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                        Add Discount
+                    </button>
+            </div>
+
+            <div class="w-full">
+                <table id="discount-table" class="w-full table-fixed">
+                    <thead class="text-[14px]">
+                        <tr>
+                            <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Name</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[25%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Description</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Type</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Value</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[10%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[15%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 
     @if (Route::is('school-fees.index'))
         <div class="flex flex-row justify-center items-start gap-4">
@@ -1079,7 +1418,10 @@
                 initializeInvoiceTab();
             } else if (currentPath === '/school-fees/payments') {
                 initializePaymentHistoryTab();
+            } else if (currentPath === '/school-fees/discounts') {
+                initializeDiscountTab();
             }
+
 
         });
 
@@ -2317,6 +2659,341 @@
             clearSearch('clear-btn', 'payment-history-search', paymentHistory)
         }
 
+         function initializeDiscountTab() {
+            // Initialize discount table
+            let discountTable = initCustomDataTable(
+                'discount-table',
+                `/getDiscounts`,
+                [{
+                        data: 'index',
+                        width: '5%',
+                    },
+                    {
+                        data: 'name',
+                        width: '15%',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        width: '15%',
+                        data: 'description',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'discount_type',
+                        render: function(data, type, row) {
+                            let badgeClass = data === 'percentage' ? 'bg-blue-100 text-blue-800' :
+                                'bg-green-100 text-green-800';
+                            let badgeText = data === 'percentage' ? 'Percentage' : 'Fixed Amount';
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+                        }
+                    },
+                    {
+                        data: 'discount_value',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'is_active',
+                        render: function(data, type, row) {
+                            let badgeClass = data ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+                            let badgeText = data ? 'Active' : 'Inactive';
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">${badgeText}</span>`;
+                        }
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return `
+                                <div class='flex flex-row justify-center items-center gap-2'>
+                                    <button id="open-edit-discount-btn-${data}" data-discount-id="${data}"
+                                        class="edit-discount-btn group relative inline-flex items-center gap-1 bg-blue-100 text-blue-500 font-semibold px-3 py-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                        <i class="fi fi-rr-edit text-[16px] flex justify-center items-center"></i>
+                                    </button>
+                                    <button id="open-toggle-discount-btn-${data}" data-discount-id="${data}"
+                                        class="toggle-discount-btn group relative inline-flex items-center gap-1 bg-yellow-100 text-yellow-500 font-semibold px-3 py-2 rounded-xl hover:bg-yellow-500 hover:ring hover:ring-yellow-200 hover:text-white transition duration-150">
+                                        <i class="fi fi-rr-toggle-on text-[16px] flex justify-center items-center"></i>
+                                    </button>
+                                    <button id="open-delete-discount-btn-${data}" data-discount-id="${data}"
+                                        class="delete-discount-btn group relative inline-flex items-center gap-1 bg-red-100 text-red-500 font-semibold px-3 py-2 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                        <i class="fi fi-rr-trash text-[16px] flex justify-center items-center"></i>
+                                    </button>
+                                </div>
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                [
+                    [0, 'desc']
+                ],
+                'discount-search', {
+                    type_filter: window.selectedType || '',
+                    status_filter: window.selectedStatus || ''
+                }
+            );
+
+            clearSearch('clear-discount-btn', 'discount-search', discountTable);
+
+            // Filter handlers
+            let typeSelection = document.querySelector('#type-selection');
+            let statusSelection = document.querySelector('#status-selection-discount');
+
+            typeSelection.addEventListener('change', handleFilterChange('type', 'data-type', 'selectedType',
+                discountTable, typeSelection, null, document.querySelector('#clear-type-filter-btn')));
+            statusSelection.addEventListener('change', handleFilterChange('status', 'data-status', 'selectedStatus',
+                discountTable, statusSelection, null, document.querySelector('#clear-status-filter-btn-discount')));
+
+            createClearFilterHandler(typeSelection, null, document.querySelector('#clear-type-filter-btn'),
+                'selectedType', discountTable, 'type_filter');
+            createClearFilterHandler(statusSelection, null, document.querySelector('#clear-status-filter-btn-discount'),
+                'selectedStatus', discountTable, 'status_filter');
+
+            // Initialize modals
+            initModal('create-discount-modal', 'create-discount-btn', 'create-discount-modal-close-btn',
+                'create-discount-modal-cancel-btn', 'modal-container-6');
+
+            // Initialize edit discount modals
+            function initializeEditDiscountModals() {
+                document.querySelectorAll('.edit-discount-btn').forEach((button) => {
+                    let discountId = button.getAttribute('data-discount-id');
+                    let buttonId = `open-edit-discount-btn-${discountId}`;
+
+                    initModal('edit-discount-modal', buttonId, 'edit-discount-modal-close-btn',
+                        'edit-discount-modal-cancel-btn', 'modal-container-7');
+
+                    button.addEventListener('click', () => {
+                        fetch(`/getDiscounts`)
+                            .then(response => response.json())
+                            .then(data => {
+                                let discount = data.data.find(d => d.id == discountId);
+                                if (discount) {
+                                    document.querySelector(
+                                            '#edit-discount-modal-form input[name="name"]').value =
+                                        discount.name;
+                                    document.querySelector(
+                                            '#edit-discount-modal-form textarea[name="description"]')
+                                        .value = discount.description || '';
+                                    document.querySelector(
+                                            '#edit-discount-modal-form select[name="discount_type"]')
+                                        .value = discount.discount_type;
+                                    document.querySelector(
+                                            '#edit-discount-modal-form input[name="discount_value"]')
+                                        .value = discount.discount_value;
+                                    document.querySelector(
+                                            '#edit-discount-modal-form input[name="is_active"]')
+                                        .checked = discount.is_active;
+                                    document.querySelector('#edit-discount-modal-form').setAttribute(
+                                        'data-discount-id', discountId);
+                                }
+                            });
+                    });
+                });
+            }
+
+            // Initialize delete discount modals
+            function initializeDeleteDiscountModals() {
+                document.querySelectorAll('.delete-discount-btn').forEach((button) => {
+                    let discountId = button.getAttribute('data-discount-id');
+                    let buttonId = `open-delete-discount-btn-${discountId}`;
+
+                    initModal('delete-discount-modal', buttonId, 'delete-discount-close-btn',
+                        'delete-discount-cancel-btn', 'modal-container-delete-discount');
+
+                    button.addEventListener('click', () => {
+                        let form = document.getElementById('delete-discount-form');
+                        let existingInputs = form.querySelectorAll('input[name="discount_id"]');
+                        existingInputs.forEach(input => input.remove());
+
+                        form.action = `/admin/discounts/${discountId}`;
+
+                        let discountIdInput = document.createElement('input');
+                        discountIdInput.type = 'hidden';
+                        discountIdInput.name = 'discount_id';
+                        discountIdInput.value = discountId;
+                        form.appendChild(discountIdInput);
+                    });
+                });
+            }
+
+            // Initialize toggle discount modals
+            function initializeToggleDiscountModals() {
+                document.querySelectorAll('.toggle-discount-btn').forEach((button) => {
+                    let discountId = button.getAttribute('data-discount-id');
+                    let buttonId = `open-toggle-discount-btn-${discountId}`;
+
+                    initModal('toggle-discount-modal', buttonId, 'toggle-discount-close-btn',
+                        'toggle-discount-cancel-btn', 'modal-container-toggle-discount');
+
+                    button.addEventListener('click', () => {
+                        let form = document.getElementById('toggle-discount-form');
+                        let existingInputs = form.querySelectorAll('input[name="discount_id"]');
+                        existingInputs.forEach(input => input.remove());
+
+                        form.action = `/admin/discounts/${discountId}/toggle`;
+
+                        let discountIdInput = document.createElement('input');
+                        discountIdInput.type = 'hidden';
+                        discountIdInput.name = 'discount_id';
+                        discountIdInput.value = discountId;
+                        form.appendChild(discountIdInput);
+                    });
+                });
+            }
+
+            discountTable.on('draw', function() {
+                initializeEditDiscountModals();
+                initializeDeleteDiscountModals();
+                initializeToggleDiscountModals();
+            });
+
+            // Create discount form submission
+            const createDiscountForm = document.getElementById('create-discount-modal-form');
+            if (createDiscountForm) {
+                createDiscountForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    formData.append('is_active', document.getElementById('is_active').checked ? 1 : 0);
+
+                    showLoader();
+                    fetch('/admin/discounts', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success === true) {
+                                showAlert('success', data.message);
+                                discountTable.draw();
+                                document.getElementById('create-discount-modal-close-btn').click();
+                                createDiscountForm.reset();
+                            } else {
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while creating the discount');
+                        });
+                });
+            }
+
+            // Edit discount form submission
+            const editDiscountForm = document.getElementById('edit-discount-modal-form');
+            if (editDiscountForm) {
+                editDiscountForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const discountId = this.getAttribute('data-discount-id');
+                    formData.append('is_active', document.querySelector(
+                        '#edit-discount-modal-form input[name="is_active"]').checked ? 1 : 0);
+                    formData.append('_method', 'PUT');
+
+                    showLoader();
+                    fetch(`/admin/discounts/${discountId}`, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success === true) {
+                                showAlert('success', data.message);
+                                discountTable.draw();
+                                document.getElementById('edit-discount-modal-close-btn').click();
+                            } else {
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while updating the discount');
+                        });
+                });
+            }
+
+            // Delete discount form submission
+            const deleteDiscountForm = document.getElementById('delete-discount-form');
+            if (deleteDiscountForm) {
+                deleteDiscountForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const discountId = formData.get('discount_id');
+
+                    showLoader();
+                    fetch(`/admin/discounts/${discountId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success === true) {
+                                showAlert('success', data.message);
+                                discountTable.draw();
+                                document.getElementById('delete-discount-close-btn').click();
+                            } else {
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while deleting the discount');
+                        });
+                });
+            }
+
+            // Toggle discount form submission
+            const toggleDiscountForm = document.getElementById('toggle-discount-form');
+            if (toggleDiscountForm) {
+                toggleDiscountForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const discountId = formData.get('discount_id');
+
+                    showLoader();
+                    fetch(`/admin/discounts/${discountId}/toggle`, {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            hideLoader();
+                            if (data.success === true) {
+                                showAlert('success', data.message);
+                                discountTable.draw();
+                                document.getElementById('toggle-discount-close-btn').click();
+                            } else {
+                                showAlert('error', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            hideLoader();
+                            console.error('Error:', error);
+                            showAlert('error', 'An error occurred while toggling the discount');
+                        });
+                });
+            }
+        }
+
         // =========================
         // Down Payment Auto-Format
         // =========================
@@ -2438,21 +3115,21 @@
                 .then((data) => {
                     console.log('Response data:', data);
                     hideLoader();
-                    
+
                     if (data.success === true) {
                         try {
                             // Update the display with the new down payment value
                             const newDownPayment = data.data?.down_payment || 0;
                             const formattedAmount = newDownPayment.toLocaleString();
-                            
+
                             // Safely update elements
                             const studentCountElement = document.getElementById('studentCount');
                             const markElement = document.getElementById('mark');
-                            
+
                             if (studentCountElement) {
                                 studentCountElement.textContent = `₱${formattedAmount}`;
                             }
-                            
+
                             if (markElement) {
                                 markElement.classList.add('hidden');
                             }

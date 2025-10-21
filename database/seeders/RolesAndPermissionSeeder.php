@@ -23,8 +23,7 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('create new term', 'Academic Term Management', 'Create new academic terms and semesters');
         $this->createPermissionWithCategory('edit term', 'Academic Term Management', 'Edit existing academic terms');
         $this->createPermissionWithCategory('add enrollment period', 'Academic Term Management', 'Add enrollment periods to academic terms');
-        $this->createPermissionWithCategory('pause enrollment period', 'Academic Term Management', 'Pause active enrollment periods');
-        $this->createPermissionWithCategory('end enrollment period', 'Academic Term Management', 'End enrollment periods');
+        $this->createPermissionWithCategory('update enrollment period', 'Academic Term Management', 'Update active enrollment periods');
 
         // Applicant/Application Management
         $this->createPermissionWithCategory('submit form', 'Applicant/Application Management', 'Submit application forms');
@@ -53,12 +52,20 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('withdraw enrollment', 'Student Management', 'Withdraw student enrollment');
         $this->createPermissionWithCategory('generate document', 'Student Management', 'Generate documents for students');
         $this->createPermissionWithCategory('edit student', 'Student Management', 'Edit student information');
+        $this->createPermissionWithCategory('evaluate student', 'Student Management', 'Evaluate student information');
+        $this->createPermissionWithCategory('promote student', 'Student Management', 'Promote student information');
 
         // Payment Management
         $this->createPermissionWithCategory('view school fees', 'Payment Management', 'View school fees information');
         $this->createPermissionWithCategory('create school fees', 'Payment Management', 'Create and manage school fees');
         $this->createPermissionWithCategory('delete school fees', 'Payment Management', 'Delete school fees');
         $this->createPermissionWithCategory('update school fees', 'Payment Management', 'Update school fees');
+
+        // Discount Management
+        $this->createPermissionWithCategory('create discount', 'Discount Management', 'Create discount');
+        $this->createPermissionWithCategory('update discount', 'Discount Management', 'Update discount');
+        $this->createPermissionWithCategory('view discount', 'Discount Management', 'View discount');
+        $this->createPermissionWithCategory('delete discount', 'Discount Management', 'Delete discount');
 
         // Invoice
         $this->createPermissionWithCategory('create invoice', 'Payment Management', 'Create invoices for students');
@@ -116,8 +123,7 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('invite user', 'User Invitation', 'Send invitations to new users');
 
         // System Settings Management
-        $this->createPermissionWithCategory('view system settings', 'System Settings Management', 'View system settings (school name, address, contact, etc.)');
-        $this->createPermissionWithCategory('edit system settings', 'System Settings Management', 'Edit system settings');
+        $this->createPermissionWithCategory('update school settings', 'School Settings Management', 'Update school settings');
 
         // Dashboard viewing
         $this->createPermissionWithCategory('view enrollment dashboard page', 'Page Viewing', 'View enrollment dashboard');
@@ -129,6 +135,9 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('view applications page', 'Page Viewing', 'View applications page');
         $this->createPermissionWithCategory('view curriculum page', 'Page Viewing', 'View curriculum page');
         $this->createPermissionWithCategory('view user management page', 'Page Viewing', 'View user management page');
+        $this->createPermissionWithCategory('view school settings page', 'Page Viewing', 'View school settings page');
+        $this->createPermissionWithCategory('view site management page', 'Page Viewing', 'View site management page');
+        
 
 
 
@@ -142,16 +151,91 @@ class RolesAndPermissionSeeder extends Seeder
         $adminRole->givePermissionTo(Permission::all());
 
         $registrar = Role::firstOrCreate(['name' => 'registrar']);
+        $registrar->givePermissionTo([
+            // Dashboard and Page Viewing
+            'view enrollment dashboard page',
+            'view applications page',
+            'view enrolled students page',
+            'view school fees page',
+            'view documents page',
+            'view user management page',
+            
+            // Application Management
+            'view applications',
+            'view pending form',
+            'view accepted form',
+            'view pending-document form',
+            'view rejected form',
+            'accept and schedule',
+            'reject application',
+            'record result',
+            'enroll student',
+            
+            // Student Management
+            'view student',
+            'edit student',
+            'import student',
+            'evaluate student',
+            'promote student',
+            'withdraw enrollment',
+            'add student to a section',
+            'remove student to a section',
+            
+            // Academic Term Management
+            'create new term',
+            'edit term',
+            'add enrollment period',
+            'update enrollment period',
+            
+            // User Management
+            'view users',
+            'create users',
+            'update users',
+            'delete users',
+            'view roles',
+            'create roles',
+            'edit roles',
+            'delete roles',
+            
+            // Discount Management
+            'view discount',
+            'create discount',
+            'update discount',
+            'delete discount',
+            
+            // School Fees Management
+            'view school fees',
+            'create school fees',
+            'update school fees',
+            'delete school fees',
+            'view invoice records',
+            'view payment history',
+            'create invoice',
+            'record payment',
+            'remove invoice item',
+            
+            // Document Management
+            'view documents',
+            'create documents',
+            'edit documents',
+            'delete documents',
+            'manage submitted documents'
+        ]);
 
         $teacher = Role::firstOrCreate(['name' => 'teacher']);
         $teacher->givePermissionTo([
+            // Section and Subject Management
             'view sections',
             'view subjects',
-            'view student'
+            'view student',
+            
+            // Page Viewing (limited)
+            'view enrolled students page'
         ]);
 
         $headTeacher = Role::firstOrCreate(['name' => 'head_teacher']);
         $headTeacher->givePermissionTo([
+            // Section Management
             'view sections',
             'create section',
             'edit section',
@@ -161,8 +245,22 @@ class RolesAndPermissionSeeder extends Seeder
             'remove assigned subject to a section',
             'add student to a section',
             'remove student to a section',
+            
+            // Subject Management
             'view subjects',
-            'view student'
+            'create subject',
+            'edit subject',
+            'delete subject',
+            
+            // Student Management
+            'view student',
+            'edit student',
+            'evaluate student',
+            'promote student',
+            
+            // Page Viewing
+            'view enrolled students page',
+            'view head teacher dashboard page'
         ]);
 
         $applicant = Role::firstOrCreate(['name' => 'applicant']);

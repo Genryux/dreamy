@@ -7,13 +7,83 @@ use Illuminate\Http\Request;
 
 class DiscountController extends Controller
 {
+
+
     /**
-     * Display a listing of discounts
+     * Get discounts for DataTable
      */
-    public function index()
+    public function getDiscounts(Request $request)
     {
-        $discounts = Discount::orderBy('created_at', 'desc')->get();
-        return view('user-admin.discounts.index', compact('discounts'));
+        try {
+
+            $query = Discount::query();
+
+            // Search functionality
+            if ($search = $request->input('search.value')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
+
+            // Type filter
+            if ($type = $request->input('type_filter')) {
+                if ($type !== '') {
+                    $query->where('discount_type', $type);
+                }
+            }
+
+            // Status filter
+            if ($status = $request->input('status_filter')) {
+                if ($status !== '') {
+                    $query->where('is_active', $status === 'active' ? 1 : 0);
+                }
+            }
+
+            // Get total count
+            $totalRecords = Discount::count();
+            $filteredRecords = $query->count();
+
+            // Pagination
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 10);
+
+            // Get data
+            $data = $query
+                ->orderBy('created_at', 'desc')
+                ->offset($start)
+                ->limit($length)
+                ->get()
+                ->map(function ($item, $key) use ($start) {
+                    return [
+                        'index' => $start + $key + 1,
+                        'name' => $item->name,
+                        'description' => $item->description,
+                        'discount_type' => $item->discount_type,
+                        'discount_value' => $item->discount_type === 'percentage'
+                            ? $item->discount_value . '%'
+                            : '₱ ' . number_format($item->discount_value, 2),
+                        'is_active' => $item->is_active,
+                        'id' => $item->id
+                    ];
+                });
+
+            return response()->json([
+                'draw' => intval($request->input('draw', 1)),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getDiscounts error: ' . $e->getMessage());
+            return response()->json([
+                'draw' => intval($request->input('draw', 1)),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -31,7 +101,10 @@ class DiscountController extends Controller
 
         // Additional validation for percentage discounts
         if ($validated['discount_type'] === 'percentage' && $validated['discount_value'] > 100) {
-            return back()->withErrors(['discount_value' => 'Percentage discount cannot exceed 100%']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Percentage discount cannot exceed 100%'
+            ], 422);
         }
 
         // Handle is_active checkbox properly
@@ -39,8 +112,10 @@ class DiscountController extends Controller
 
         Discount::create($validated);
 
-        return redirect()->route('admin.discounts.index')
-            ->with('success', 'Discount created successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Discount created successfully.'
+        ]);
     }
 
     /**
@@ -58,7 +133,10 @@ class DiscountController extends Controller
 
         // Additional validation for percentage discounts
         if ($validated['discount_type'] === 'percentage' && $validated['discount_value'] > 100) {
-            return back()->withErrors(['discount_value' => 'Percentage discount cannot exceed 100%']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Percentage discount cannot exceed 100%'
+            ], 422);
         }
 
         // Handle is_active checkbox properly
@@ -66,8 +144,10 @@ class DiscountController extends Controller
 
         $discount->update($validated);
 
-        return redirect()->route('admin.discounts.index')
-            ->with('success', 'Discount updated successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Discount updated successfully.'
+        ]);
     }
 
     /**
@@ -77,8 +157,10 @@ class DiscountController extends Controller
     {
         $discount->delete();
 
-        return redirect()->route('admin.discounts.index')
-            ->with('success', 'Discount deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Discount deleted successfully.'
+        ]);
     }
 
     /**
@@ -89,7 +171,9 @@ class DiscountController extends Controller
         $discount->update(['is_active' => !$discount->is_active]);
 
         $status = $discount->is_active ? 'activated' : 'deactivated';
-        return redirect()->route('admin.discounts.index')
-            ->with('success', "Discount {$status} successfully.");
+        return response()->json([
+            'success' => true,
+            'message' => "Discount {$status} successfully."
+        ]);
     }
 }
