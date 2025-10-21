@@ -100,11 +100,11 @@
                 <div id="discount-section" class="space-y-2 w-full" style="display: {{ $invoice->has_payment_plan ? 'none' : 'block' }};">
                     <div class="flex flex-row justify-between items-center">
                         <h4 class="italic text-sm font-medium text-gray-600 flex flex-row gap-1">
-                            @if($isEarlyEnrollee)
-                                Student is an early enrollee
+                            @if($isEarlyEnrollee && $earlyDiscountPercentage > 0)
+                                Early enrollee discount is taking effect
                                 <i class="fi fi-bs-check text-sm flex justify-center items-center text-green-600"></i>
                             @else
-                                Student is not an early enrollee
+                                No early enrollee discount
                                 <i class="fi fi-rr-cross-small text-[18px] flex justify-center items-center"></i>
                             @endif
                         </h4>
@@ -134,7 +134,7 @@
             </div>
         </form>
         <x-slot name="modal_info">
-            <p data-total class="font-semibold text-[#1A3165] text-[16px]">Total: ₱0.00</p>
+            <p data-total class="font-semibold text-[#1A3165] text-[14px]">Total: ₱0.00</p>
         </x-slot>
         <x-slot name="modal_buttons">
             <button id="record-payment-modal-cancel-btn"
@@ -1074,23 +1074,27 @@
             
             // Calculate discounts for both down payments and one-time payments
             let totalDiscount = 0;
+            let earlyDiscount = 0;
+            let customDiscounts = 0;
             
-            // Calculate early enrollment discount
+            // Calculate early enrollment discount (always applied to total invoice amount)
             if (isEarlyEnrollee && earlyDiscountPercentage > 0) {
-                const earlyDiscount = baseAmount * (earlyDiscountPercentage / 100);
+                const totalInvoiceAmount = {{ $invoice->total_amount }};
+                earlyDiscount = totalInvoiceAmount * (earlyDiscountPercentage / 100);
                 totalDiscount += earlyDiscount;
             }
             
-            // Calculate custom discounts
+            // Calculate custom discounts (applied to payment amount)
             discountCheckboxes.forEach(checkbox => {
                 if (checkbox.checked) {
                     const discountAmount = getDiscountAmount(checkbox.value);
+                    customDiscounts += discountAmount;
                     totalDiscount += discountAmount;
                 }
             });
             
             // Calculate final amount after discounts
-            const finalAmount = baseAmount - totalDiscount;
+            const finalAmount = baseAmount - customDiscounts; // Only subtract custom discounts from payment amount
             
             if (isDownPayment) {
                 // For down payments in installment plans: show live calculation following backend formula
@@ -1109,10 +1113,20 @@
             } else {
                 // For monthly installments or one-time payments: show total with discounts applied
                 if (totalDisplay) {
-                    totalDisplay.textContent = `Total: ₱${finalAmount.toFixed(2)}`;
+                    // For one-time payments, show the payment amount minus custom discounts
+                    // Early enrollment discount is applied to total invoice, not payment amount
+                    if (isEarlyEnrollee && earlyDiscountPercentage > 0) {
+                        // Show early enrollment discount deducted from total for one-time payments (preview only)
+                        const totalInvoiceAmount = {{ $invoice->total_amount }};
+                        const earlyDiscountAmount = totalInvoiceAmount * (earlyDiscountPercentage / 100);
+                        const discountedTotal = finalAmount - earlyDiscountAmount;
+                        totalDisplay.textContent = `Total: ₱${Math.max(0, discountedTotal).toFixed(2)}`;
+                    } else {
+                        totalDisplay.textContent = `Total: ₱${finalAmount.toFixed(2)}`;
+                    }
                 }
                 if (finalAmountInput) {
-                    finalAmountInput.value = finalAmount;
+                    finalAmountInput.value = finalAmount; // Still send original amount to backend
                 }
             }
         }

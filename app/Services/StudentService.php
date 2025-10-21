@@ -40,6 +40,7 @@ class StudentService
                     'user_id'         => $user->id,
                 ],
                 [
+                    'enrollment_period_id' => $applicant->enrollment_period_id,
                     'lrn'             => $form->lrn,
                     'track_id'        => $applicant->track_id,
                     'program_id'      => $applicant->program_id,

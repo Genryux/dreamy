@@ -350,6 +350,15 @@ class PaymentPlanService
         $totalAmount = $paymentPlan->total_amount;
         $installmentMonths = $paymentPlan->installment_months;
 
+        // Debug logging
+        \Log::info('Recalculating payment plan', [
+            'invoice_id' => $invoice->id,
+            'totalAmount' => $totalAmount,
+            'totalDiscount' => $totalDiscount,
+            'actualDownPayment' => $actualDownPayment,
+            'installmentMonths' => $installmentMonths
+        ]);
+
         // Apply discount to total amount first
         $discountedTotal = $totalAmount - $totalDiscount;
 
@@ -358,6 +367,13 @@ class PaymentPlanService
 
         // Calculate monthly amount (shortfall is already included in remainingBalance)
         $monthlyAmount = round($remainingBalance / $installmentMonths, 2);
+
+        // Debug logging for calculated amounts
+        \Log::info('Payment plan calculation results', [
+            'discountedTotal' => $discountedTotal,
+            'remainingBalance' => $remainingBalance,
+            'monthlyAmount' => $monthlyAmount
+        ]);
 
         // Distribute rounding residual to the first month so totals align exactly
         $totalMonthly = $monthlyAmount * $installmentMonths;

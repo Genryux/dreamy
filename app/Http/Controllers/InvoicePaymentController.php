@@ -103,7 +103,7 @@ class InvoicePaymentController extends Controller
         if ($invoice->student && $invoice->student->enrollmentPeriod) {
             $enrollmentPeriod = $invoice->student->enrollmentPeriod;
             if ($enrollmentPeriod->isEarlyEnrollment()) {
-                $earlyDiscount = $enrollmentPeriod->calculateEarlyDiscount($originalAmount);
+                $earlyDiscount = $enrollmentPeriod->calculateEarlyDiscount($invoice->total_amount);
             }
         }
         

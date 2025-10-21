@@ -10,6 +10,7 @@ class Student extends Model
     protected $table = 'students';
     protected $fillable = [
         'user_id',
+        'enrollment_period_id',
         'track_id',
         'program_id',
         'section_id',
@@ -79,5 +80,10 @@ class Student extends Model
     public function program()
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function enrollmentPeriod()
+    {
+        return $this->belongsTo(EnrollmentPeriod::class);
     }
 }

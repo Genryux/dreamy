@@ -36,7 +36,14 @@ class EnrollmentPeriodController extends Controller
             'max_applicants' => 'required|integer|min:1',
             'application_start_date' => 'required|date',
             'application_end_date' => 'required|date|after:application_start_date',
+            'period_type' => 'required|in:early,regular,late',
+            'early_discount_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
+
+        // Set default values
+        $validated['early_discount_percentage'] = $validated['early_discount_percentage'] ?? 0.00;
+        $validated['status'] = 'Ongoing';
+        $validated['active'] = true;
 
         EnrollmentPeriod::create($validated);
 

@@ -260,6 +260,38 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Period Type and Early Discount Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="period_type" class="text-sm font-medium text-gray-700 mb-2">Period Type</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                            </div>
+                            <select name="period_type" id="period_type"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                                <option value="">Select Period Type</option>
+                                <option value="early">Early Enrollment</option>
+                                <option value="regular">Regular Enrollment</option>
+                                <option value="late">Late Enrollment</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <label for="early_discount_percentage" class="text-sm font-medium text-gray-700 mb-2">Early Discount Percentage</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-percentage text-gray-400"></i>
+                            </div>
+                            <input type="number" name="early_discount_percentage" id="early_discount_percentage"
+                                min="0" max="100" step="0.01" placeholder="0.00"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1" id="discount-help-text">Enter discount percentage for early enrollment (0-100)</p>
+                    </div>
+                </div>
             </div>
         </form>
 
@@ -1063,6 +1095,55 @@
                 'end-enrollment-cancel-btn', 'modal-container-3');
             initModal('end-academic-term', 'end-term-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn', 'modal-container-end-term');
+
+            // Enrollment Period Type Logic
+            const periodTypeSelect = document.getElementById('period_type');
+            const discountField = document.getElementById('early_discount_percentage');
+            const discountLabel = document.querySelector('label[for="early_discount_percentage"]');
+            const discountHelpText = document.getElementById('discount-help-text');
+            const discountContainer = discountField?.closest('.flex-1');
+
+            if (periodTypeSelect && discountField && discountContainer) {
+                // Function to update discount field based on period type
+                function updateDiscountField() {
+                    const isEarly = periodTypeSelect.value === 'early';
+                    
+                    if (isEarly) {
+                        // For early enrollment - make discount optional but encourage it
+                        discountField.required = false;
+                        discountField.setAttribute('min', '0');
+                        discountField.setAttribute('max', '100');
+                        discountField.placeholder = 'Enter discount percentage (0-100)';
+                        discountLabel.innerHTML = 'Early Discount Percentage <span class="text-blue-500">(Recommended)</span>';
+                        if (discountHelpText) {
+                            discountHelpText.textContent = 'Optional: Enter discount percentage to incentivize early enrollment (0-100)';
+                            discountHelpText.className = 'text-xs text-blue-500 mt-1';
+                        }
+                        discountContainer.style.opacity = '1';
+                        discountContainer.style.pointerEvents = 'auto';
+                    } else {
+                        // For regular/late enrollment - make discount optional
+                        discountField.required = false;
+                        discountField.setAttribute('min', '0');
+                        discountField.setAttribute('max', '100');
+                        discountField.placeholder = '0.00';
+                        discountField.value = '0';
+                        discountLabel.innerHTML = 'Early Discount Percentage <span class="text-gray-400">(Optional)</span>';
+                        if (discountHelpText) {
+                            discountHelpText.textContent = 'Optional discount for early enrollment (0-100)';
+                            discountHelpText.className = 'text-xs text-gray-500 mt-1';
+                        }
+                        discountContainer.style.opacity = '0.6';
+                        discountContainer.style.pointerEvents = 'auto';
+                    }
+                }
+
+                // Initial state
+                updateDiscountField();
+
+                // Listen for changes
+                periodTypeSelect.addEventListener('change', updateDiscountField);
+            }
 
             // Edit Academic Term Modal Functionality
             const editAcadTermBtn = document.getElementById('edit-acad-term-btn');
