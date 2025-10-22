@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             AcademicTermSeeder::class,
             DocumentSeeder::class,
             ProgramSeeder::class,
+            TeacherSeeder::class,
+            DiscountSeeder::class,
             SubjectSeeder::class,
             SectionSeeder::class,
             SectionSubjectsSeeder::class,
