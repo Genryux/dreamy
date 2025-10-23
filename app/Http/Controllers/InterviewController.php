@@ -174,6 +174,28 @@ class InterviewController extends Controller
                     'accepted_at' => Carbon::now(),
                 ]);
 
+                // Log the activity
+                activity('application')
+                    ->causedBy($user)
+                    ->performedOn($applicant)
+                    ->withProperties([
+                        'action' => 'accepted',
+                        'applicant_id' => $applicant->applicant_id,
+                        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'acceptance_action' => $action,
+                        'accepted_by' => "{$user->first_name} - {$role}",
+                        'interview_details' => $action === 'accept-with-schedule' || $action === 'schedule-admission' ? [
+                            'date' => $request->date,
+                            'time' => $request->time,
+                            'location' => $request->location,
+                            'teacher_id' => $request->contact_person,
+                            'additional_info' => $request->add_info
+                        ] : null,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('Application accepted');
+
                 return $msg;
             });
 
@@ -236,6 +258,20 @@ class InterviewController extends Controller
                         'application_status' => 'Completed-Failed'
                     ]);
 
+                    // Log the activity
+                    activity('application')
+                        ->causedBy($user)
+                        ->performedOn($applicant)
+                        ->withProperties([
+                            'action' => 'exam_result_recorded',
+                            'applicant_id' => $applicant->applicant_id,
+                            'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                            'exam_result' => 'Exam-Failed',
+                            'recorded_by' => "{$user->first_name} - {$role}",
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent()
+                        ])
+                        ->log('Admission exam result recorded - Failed');
 
                     if ($recipientEmail) {
                         $title = 'Admission Exam Result — Dreamy School Enrollment';
@@ -275,6 +311,23 @@ class InterviewController extends Controller
 
                     ]);
                 }
+
+                // Log the activity
+                activity('application')
+                    ->causedBy($user)
+                    ->performedOn($applicant)
+                    ->withProperties([
+                        'action' => 'exam_result_recorded',
+                        'applicant_id' => $applicant->applicant_id,
+                        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'exam_result' => 'Exam-Passed',
+                        'recorded_by' => "{$user->first_name} - {$role}",
+                        'document_due_date' => $request->input('due-date'),
+                        'documents_assigned_count' => $required_docs->count(),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('Admission exam result recorded - Passed');
 
                 if ($recipientEmail) {
                     $title = 'Admission Exam Result — Dreamy School Enrollment';

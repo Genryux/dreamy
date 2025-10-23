@@ -28,6 +28,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherManagementController;
 use App\Http\Controllers\UserInvitationController;
 use App\Http\Controllers\TrackController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Models\Applicants;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +55,13 @@ Route::middleware('guest')->group(function () {
     Route::get('/portal/register', [RegistrationController::class, 'create'])->name('register');
     Route::post('/session', [SessionController::class, 'store']);
     Route::post('/register', [RegistrationController::class, 'store']);
+    
+    // Password Reset Routes
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
+    Route::get('/password-reset-success', [PasswordResetController::class, 'showSuccessPage'])->name('password.reset.success');
 });
 
 // Email Verification Routes
@@ -158,6 +167,9 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
         ->middleware(['permission:create school fees', 'throttle:10,1']) // 10 requests per minute
         ->name('admin.settings.school.payments.update');
 
+    // Activity Logs
+    Route::get('/admin/activity-logs', [ActivityController::class, 'getActivityLogs'])->name('admin.activity-logs');
+
     // Application Management
     Route::get('/applications/pending', [ApplicationFormController::class, 'index'])
         ->middleware(['permission:view applications page'])->name('applications.pending');
@@ -213,6 +225,8 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     // Enrollment Period
     Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->middleware(['permission:add enrollment period'])->name('enrollment-period.post');
     Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->middleware(['permission:update enrollment period'])->name('enrollment-period.patch');
+    Route::put('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'updateEnrollment'])->middleware(['permission:update enrollment period'])->name('enrollment-period.update');
+
 
     // Interview Management
     Route::post('/schedule-admission/{applicant}', [InterviewController::class, 'store'])
@@ -308,14 +322,14 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::delete('/admin/news/{news}', [NewsController::class, 'destroy']);
 
     // School Fees and Invoices
-    Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index')->middleware('permission:view school fees');
+    Route::get('/school-fees', [SchoolFeeController::class, 'index'])->name('school-fees.index')->middleware('permission:view school fees page');
     Route::get('/getSchoolFees', [SchoolFeeController::class, 'getSchoolFees']);
 
     // Invoices (must come before /school-fees/{id} to avoid route conflict)
     Route::get('/school-fees/invoices', [SchoolFeeController::class, 'index'])->name('school-fees.invoices')->middleware('permission:view invoice records');
 
     Route::get('/school-fees/payments', [SchoolFeeController::class, 'index'])->name('school-fees.payments')->middleware('permission:view payment history');
-    
+
     Route::get('/school-fees/discounts', [SchoolFeeController::class, 'index'])->name('school-fees.discounts');
 
     // School fee show route (must come after specific routes)

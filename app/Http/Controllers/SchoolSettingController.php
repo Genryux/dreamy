@@ -73,6 +73,17 @@ class SchoolSettingController extends Controller
         $setting->fill($validated);
         $setting->save();
 
+        // Log the activity
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($setting)
+            ->withProperties([
+                'changes' => $validated,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('School settings updated');
+
         return redirect()->back()->with('success', 'School settings updated.');
     }
 
@@ -105,6 +116,16 @@ class SchoolSettingController extends Controller
             $setting->fill($validated);
             $setting->save();
 
+            // Log the activity
+            activity('payment')
+                ->causedBy(auth()->user())
+                ->performedOn($setting)
+                ->withProperties([
+                    'changes' => $validated,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Payment settings updated');
 
             // Audit logging for payment settings update
             \Log::info('Payment settings updated', [

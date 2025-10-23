@@ -102,6 +102,7 @@ class FinancialController extends Controller
                     'monthly_amount' => $invoice->paymentPlan->monthly_amount ?? 0,
                     'first_month_amount' => $invoice->paymentPlan->first_month_amount ?? 0,
                     'installment_months' => $invoice->paymentPlan->installment_months ?? 0,
+                    'total_discount' => $invoice->paymentPlan->total_discount ?? 0,
                     'schedules' => $invoice->paymentPlan->schedules ? $invoice->paymentPlan->schedules->map(function ($schedule) {
                         return [
                             'installment_number' => $schedule->installment_number ?? 0,
@@ -113,6 +114,18 @@ class FinancialController extends Controller
                         ];
                     })->toArray() : [],
                 ];
+            }
+
+            // Add payments data with discount information
+            if ($invoice->payments && $invoice->payments->count() > 0) {
+                $invoiceData['payments'] = $invoice->payments->map(function ($payment) {
+                    return [
+                        'id' => $payment->id,
+                        'amount' => $payment->amount,
+                        'total_discount' => $payment->total_discount ?? 0,
+                        'payment_date' => $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : null,
+                    ];
+                })->toArray();
             }
 
             return $invoiceData;
@@ -182,7 +195,9 @@ class FinancialController extends Controller
 
         // Get payments for selected term (including soft deleted invoices)
         $payments = InvoicePayment::with([
-            'invoice',
+            'invoice' => function ($query) {
+                $query->withTrashed(); // Include soft-deleted invoices
+            },
             'academicTerm'
         ])->whereHas('invoice', function ($query) use ($user) {
             $query->withTrashed()->where('student_id', $user->student->id);
@@ -192,9 +207,16 @@ class FinancialController extends Controller
 
         // Format payment data
         $paymentsData = $payments->map(function ($payment) {
+            // Get invoice number with better fallback handling
+            $invoiceNumber = null;
+            if ($payment->invoice) {
+                $invoiceNumber = $payment->invoice->invoice_number;
+            }
+            
+            
             return [
                 'id' => $payment->id,
-                'invoice_number' => $payment->invoice->invoice_number ?? '-',
+                'invoice_number' => $invoiceNumber ?: 'N/A',
                 'amount' => $payment->amount,
                 'payment_date' => $payment->payment_date ? 
                     \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : '-',
@@ -202,6 +224,10 @@ class FinancialController extends Controller
                 'type' => $payment->type ?: '-',
                 'reference_no' => $payment->reference_no ?: '-',
                 'status' => 'completed', // All payments in history are completed
+                'total_discount' => $payment->total_discount ?? 0,
+                'original_amount' => $payment->original_amount ?? $payment->amount,
+                'early_discount' => $payment->early_discount ?? 0,
+                'custom_discounts' => $payment->custom_discounts ?? 0,
             ];
         });
 

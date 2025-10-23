@@ -236,16 +236,24 @@ class SubjectController extends Controller
             // Calculate total subjects for the program
             $totalSubjects = Subject::where('program_id', $subject->program_id)->count();
 
-            // Audit logging for subject creation
-            \Log::info('Subject created', [
-                'subject_id' => $subject->id,
-                'subject_name' => $subject->name,
-                'program_id' => $subject->program_id,
-                'created_by' => auth()->user()->id,
-                'created_by_email' => auth()->user()->email,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($subject)
+                ->withProperties([
+                    'action' => 'created',
+                    'subject_id' => $subject->id,
+                    'subject_name' => $subject->name,
+                    'program_id' => $subject->program_id,
+                    'program_name' => $subject->program->name ?? 'Unknown',
+                    'grade_level' => $subject->grade_level,
+                    'category' => $subject->category,
+                    'semester' => $subject->semester,
+                    'total_subjects_in_program' => $totalSubjects,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Subject created');
 
             return response()->json([
                 'success' => true,
@@ -323,18 +331,29 @@ class SubjectController extends Controller
             ]);
 
             $subject = Subject::findOrFail($id);
+            
+            // Store original values for comparison
+            $originalValues = $subject->toArray();
+            
             $subject->update($validated);
 
-            // Audit logging for subject update
-            \Log::info('Subject updated', [
-                'subject_id' => $subject->id,
-                'subject_name' => $subject->name,
-                'program_id' => $subject->program_id,
-                'updated_by' => auth()->user()->id,
-                'updated_by_email' => auth()->user()->email,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($subject)
+                ->withProperties([
+                    'action' => 'updated',
+                    'subject_id' => $subject->id,
+                    'subject_name' => $subject->name,
+                    'program_id' => $subject->program_id,
+                    'program_name' => $subject->program->name ?? 'Unknown',
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Subject updated');
 
             return response()->json([
                 'success' => true,
@@ -388,19 +407,36 @@ class SubjectController extends Controller
                 ], 422);
             }
 
-            // Audit logging for subject deletion
-            \Log::info('Subject deleted', [
-                'subject_id' => $subject->id,
-                'subject_name' => $subject->name,
+            // Store subject details before deletion
+            $subjectDetails = [
+                'id' => $subject->id,
+                'name' => $subject->name,
                 'program_id' => $subject->program_id,
-                'deleted_by' => auth()->user()->id,
-                'deleted_by_email' => auth()->user()->email,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
-            ]);
+                'program_name' => $subject->program->name ?? 'Unknown',
+                'grade_level' => $subject->grade_level,
+                'category' => $subject->category,
+                'semester' => $subject->semester
+            ];
 
             // Safe to delete
             $subject->delete();
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted',
+                    'subject_id' => $subjectDetails['id'],
+                    'subject_name' => $subjectDetails['name'],
+                    'program_id' => $subjectDetails['program_id'],
+                    'program_name' => $subjectDetails['program_name'],
+                    'grade_level' => $subjectDetails['grade_level'],
+                    'category' => $subjectDetails['category'],
+                    'semester' => $subjectDetails['semester'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Subject deleted');
 
             return response()->json([
                 'success' => true,

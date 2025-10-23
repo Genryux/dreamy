@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             SectionSeeder::class,
             SectionSubjectsSeeder::class,
             StudentEnrollmentSeeder::class, // Must be last - depends on students existing
+            ActivityLogSeeder::class, // Add sample activity logs
         ]);
 
     }

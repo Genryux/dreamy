@@ -728,6 +728,21 @@ class UserInvitationController extends Controller
                 $role->syncPermissions($permissions);
             }
 
+            // Log the activity
+            activity('user_management')
+                ->causedBy(auth()->user())
+                ->performedOn($role)
+                ->withProperties([
+                    'action' => 'created',
+                    'role_id' => $role->id,
+                    'role_name' => $role->name,
+                    'assigned_permissions' => $request->permissions ?? [],
+                    'permissions_count' => $role->permissions()->count(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Role created');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Role created successfully',
@@ -763,6 +778,10 @@ class UserInvitationController extends Controller
                 ], 404);
             }
 
+            // Store original values for comparison
+            $originalName = $role->name;
+            $originalPermissions = $role->permissions()->pluck('id')->toArray();
+
             // Update role name
             $role->name = $request->name;
             $role->save();
@@ -774,6 +793,24 @@ class UserInvitationController extends Controller
             } else {
                 $role->syncPermissions([]);
             }
+
+            // Log the activity
+            activity('user_management')
+                ->causedBy(auth()->user())
+                ->performedOn($role)
+                ->withProperties([
+                    'action' => 'updated',
+                    'role_id' => $role->id,
+                    'role_name' => $role->name,
+                    'original_name' => $originalName,
+                    'name_changed' => $originalName !== $request->name,
+                    'original_permissions' => $originalPermissions,
+                    'new_permissions' => $request->permissions ?? [],
+                    'permissions_changed' => $originalPermissions !== ($request->permissions ?? []),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Role updated');
 
             return response()->json([
                 'success' => true,
@@ -859,7 +896,31 @@ class UserInvitationController extends Controller
                 ], 400);
             }
 
+            // Store role details before deletion
+            $roleDetails = [
+                'id' => $role->id,
+                'name' => $role->name,
+                'permissions_count' => $role->permissions()->count(),
+                'permissions' => $role->permissions()->pluck('name')->toArray(),
+                'users_count' => $role->users()->count()
+            ];
+
             $role->delete();
+
+            // Log the activity
+            activity('user_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted',
+                    'role_id' => $roleDetails['id'],
+                    'role_name' => $roleDetails['name'],
+                    'permissions_count' => $roleDetails['permissions_count'],
+                    'permissions' => $roleDetails['permissions'],
+                    'users_count' => $roleDetails['users_count'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Role deleted');
 
             return response()->json([
                 'success' => true,

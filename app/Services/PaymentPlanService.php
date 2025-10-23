@@ -209,6 +209,7 @@ class PaymentPlanService
                 if ($invoice->balance <= 0) {
                     $invoice->status = 'paid';
                     $invoice->save();
+                    $invoice->delete();
                 }
 
                 // Send receipt email for flexible payment

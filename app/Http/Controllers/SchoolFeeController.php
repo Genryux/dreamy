@@ -135,16 +135,23 @@ class SchoolFeeController extends Controller
 
             $schoolFee = SchoolFee::create($validated);
 
-            // Audit logging for school fee creation
-            \Log::info('School fee created', [
-                'school_fee_id' => $schoolFee->id,
-                'fee_name' => $schoolFee->name,
-                'amount' => $schoolFee->amount,
-                'created_by' => auth()->user()->id,
-                'created_by_email' => auth()->user()->email,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Log the activity
+            activity('financial_management')
+                ->causedBy(auth()->user())
+                ->performedOn($schoolFee)
+                ->withProperties([
+                    'action' => 'created',
+                    'school_fee_id' => $schoolFee->id,
+                    'fee_name' => $schoolFee->name,
+                    'amount' => $schoolFee->amount,
+                    'program_id' => $schoolFee->program_id,
+                    'program_name' => $schoolFee->program->name ?? 'All Programs',
+                    'grade_level' => $schoolFee->grade_level ?? 'All Year Levels',
+                    'total_school_fees' => $totalSchoolFees,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('School fee created');
 
             // Calculate updated total school fees
             $totalSchoolFees = SchoolFee::sum('amount');
@@ -220,18 +227,29 @@ class SchoolFeeController extends Controller
             ]);
 
             $schoolFee = SchoolFee::findOrFail($id);
+            
+            // Store original values for comparison
+            $originalValues = $schoolFee->toArray();
+            
             $schoolFee->update($validated);
 
-            // Audit logging for school fee update
-            \Log::info('School fee updated', [
-                'school_fee_id' => $schoolFee->id,
-                'fee_name' => $schoolFee->name,
-                'amount' => $schoolFee->amount,
-                'updated_by' => auth()->user()->id,
-                'updated_by_email' => auth()->user()->email,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Log the activity
+            activity('financial_management')
+                ->causedBy(auth()->user())
+                ->performedOn($schoolFee)
+                ->withProperties([
+                    'action' => 'updated',
+                    'school_fee_id' => $schoolFee->id,
+                    'fee_name' => $schoolFee->name,
+                    'program_id' => $schoolFee->program_id,
+                    'program_name' => $schoolFee->program->name ?? 'All Programs',
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('School fee updated');
 
             // Calculate updated total school fees
             $totalSchoolFees = SchoolFee::sum('amount');
@@ -273,18 +291,33 @@ class SchoolFeeController extends Controller
         }
         
         try {
+            // Store school fee details before deletion
+            $schoolFeeDetails = [
+                'id' => $schoolFee->id,
+                'name' => $schoolFee->name,
+                'amount' => $schoolFee->amount,
+                'program_id' => $schoolFee->program_id,
+                'program_name' => $schoolFee->program->name ?? 'All Programs',
+                'grade_level' => $schoolFee->grade_level ?? 'All Year Levels'
+            ];
+            
             $schoolFee->delete();
             
-            // Audit logging for school fee deletion
-            \Log::info('School fee deleted', [
-                'school_fee_id' => $schoolFee->id,
-                'fee_name' => $schoolFee->name,
-                'amount' => $schoolFee->amount,
-                'deleted_by' => auth()->user()->id,
-                'deleted_by_email' => auth()->user()->email,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
-            ]);
+            // Log the activity
+            activity('financial_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted',
+                    'school_fee_id' => $schoolFeeDetails['id'],
+                    'fee_name' => $schoolFeeDetails['name'],
+                    'amount' => $schoolFeeDetails['amount'],
+                    'program_id' => $schoolFeeDetails['program_id'],
+                    'program_name' => $schoolFeeDetails['program_name'],
+                    'grade_level' => $schoolFeeDetails['grade_level'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('School fee deleted');
             
             return response()->json([
                 'success' => true,

@@ -48,6 +48,21 @@ class UsersController extends Controller
             $user->assignRole($validated['roles']);
         }
 
+        // Log the activity
+        activity('user_management')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties([
+                'action' => 'created',
+                'user_id' => $user->id,
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_email' => $user->email,
+                'assigned_roles' => $validated['roles'] ?? [],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('User created');
+
         return response()->json([
             'success' => true,
             'message' => 'User created successfully',
@@ -92,9 +107,33 @@ class UsersController extends Controller
 
         $user->update($updateData);
 
+        // Store original values for comparison
+        $originalValues = $user->toArray();
+        $originalRoles = $user->roles->pluck('name')->toArray();
+
         if (isset($validated['roles'])) {
             $user->syncRoles($validated['roles']);
         }
+
+        // Log the activity
+        activity('user_management')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties([
+                'action' => 'updated',
+                'user_id' => $user->id,
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_email' => $user->email,
+                'original_values' => $originalValues,
+                'new_values' => $updateData,
+                'changes' => array_diff_assoc($updateData, $originalValues),
+                'original_roles' => $originalRoles,
+                'new_roles' => $validated['roles'] ?? $originalRoles,
+                'password_changed' => isset($validated['password']),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('User updated');
 
         return response()->json([
             'success' => true,
@@ -108,7 +147,33 @@ class UsersController extends Controller
      */
     public function destroy(User $user): JsonResponse
     {
+        // Store user details before deletion
+        $userDetails = [
+            'id' => $user->id,
+            'name' => $user->first_name . ' ' . $user->last_name,
+            'email' => $user->email,
+            'roles' => $user->roles->pluck('name')->toArray(),
+            'created_at' => $user->created_at,
+            'last_login' => $user->last_login_at
+        ];
+
         $user->delete();
+
+        // Log the activity
+        activity('user_management')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'deleted',
+                'user_id' => $userDetails['id'],
+                'user_name' => $userDetails['name'],
+                'user_email' => $userDetails['email'],
+                'user_roles' => $userDetails['roles'],
+                'user_created_at' => $userDetails['created_at'],
+                'last_login' => $userDetails['last_login'],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ])
+            ->log('User deleted');
 
         return response()->json([
             'success' => true,

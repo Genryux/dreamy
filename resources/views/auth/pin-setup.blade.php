@@ -3,25 +3,25 @@
 @section('title', 'Setup Security PIN')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
-            <div class="mx-auto h-12 w-12 bg-gradient-to-r from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center">
+            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#199BCF] to-[#C8A165]">
                 <i class="fi fi-rr-shield-check text-white text-xl"></i>
             </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
                 Setup Security PIN
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
+            <p class="mt-2 text-center text-sm text-gray-300">
                 Create a 6-digit PIN for additional security
             </p>
         </div>
 
         @if ($errors->any())
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="rounded-md bg-red-50 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fi fi-rr-exclamation text-red-400"></i>
+                        <i class="fi fi-rr-cross-circle text-red-400"></i>
                     </div>
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-red-800">
@@ -39,71 +39,82 @@
             </div>
         @endif
 
-        <form class="mt-8 space-y-6" method="POST" action="{{ route('auth.pin.setup.store') }}">
-            @csrf
-            
-            <div class="space-y-4">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+            <form class="space-y-6" method="POST" action="{{ route('auth.pin.setup.store') }}">
+                @csrf
+                
                 <div>
-                    <label for="new_pin" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-shield-check mr-2"></i>
-                        New PIN <span class="text-red-500">*</span>
+                    <label for="new_pin" class="block text-sm font-medium text-white mb-2">
+                        New PIN
                     </label>
                     <input id="new_pin" 
                            name="new_pin" 
                            type="password" 
                            maxlength="6"
                            required 
-                           class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#199BCF] focus:border-[#199BCF] focus:z-10 sm:text-sm text-center text-2xl tracking-widest"
+                           class="w-full px-3 py-2 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#199BCF] focus:border-transparent text-center text-2xl tracking-widest @error('new_pin') border-red-400 @enderror"
                            placeholder="••••••">
-                    <p class="mt-1 text-xs text-gray-500">Enter a 6-digit PIN</p>
+                    <p class="mt-1 text-xs text-gray-300">Enter a 6-digit PIN</p>
+                    @error('new_pin')
+                        <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
-                    <label for="new_pin_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-shield-check mr-2"></i>
-                        Confirm PIN <span class="text-red-500">*</span>
+                    <label for="new_pin_confirmation" class="block text-sm font-medium text-white mb-2">
+                        Confirm PIN
                     </label>
                     <input id="new_pin_confirmation" 
                            name="new_pin_confirmation" 
                            type="password" 
                            maxlength="6"
                            required 
-                           class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#199BCF] focus:border-[#199BCF] focus:z-10 sm:text-sm text-center text-2xl tracking-widest"
+                           class="w-full px-3 py-2 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#199BCF] focus:border-transparent text-center text-2xl tracking-widest @error('new_pin_confirmation') border-red-400 @enderror"
                            placeholder="••••••">
-                    <p class="mt-1 text-xs text-gray-500">Re-enter your 6-digit PIN</p>
+                    <p class="mt-1 text-xs text-gray-300">Re-enter your 6-digit PIN</p>
+                    @error('new_pin_confirmation')
+                        <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
+                    @enderror
                 </div>
-            </div>
 
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fi fi-rr-info text-blue-400"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-blue-800">
-                            Security Information
-                        </h3>
-                        <div class="mt-2 text-sm text-blue-700">
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Your PIN will be required for sensitive operations</li>
-                                <li>You can disable/enable your PIN anytime in settings</li>
-                                <li>Keep your PIN secure and don't share it</li>
-                            </ul>
+                <div class="bg-blue-500/20 border border-blue-400/30 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fi fi-rr-shield-check text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-300">
+                                Security Information
+                            </h3>
+                            <div class="mt-2 text-sm text-blue-200">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Your PIN will be required for sensitive operations</li>
+                                    <li>You can disable/enable your PIN anytime in settings</li>
+                                    <li>Keep your PIN secure and don't share it</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <button type="submit" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="fi fi-rr-shield-check text-white"></i>
-                    </span>
-                    Setup Security PIN
-                </button>
-            </div>
-        </form>
+                <div class="space-y-4">
+                    <button type="submit" 
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
+                        <i class="fi fi-rr-shield-check mr-2"></i>
+                        Setup Security PIN
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="text-center">
+            <p class="text-xs text-gray-400">
+                Need help? Contact our support team at 
+                <a href="mailto:support@dreamyschool.com" class="text-[#199BCF] hover:text-[#C8A165]">
+                    support@dreamyschool.com
+                </a>
+            </p>
+        </div>
     </div>
 </div>
 

@@ -37,7 +37,7 @@
 
     <main class="flex flex-col justify-center items-center h-full w-full relative overflow-hidden">
         {{-- heading --}}
-        @unless (Request::is('portal/login') || Request::is('portal/register') || Request::is('email/verify*'))
+        @unless (Request::is('portal/login') || Request::is('portal/register') || Request::is('email/verify*') || Request::is('forgot-password') || Request::is('reset-password*') || Request::is('password-reset-success'))
             <div class="fixed top-0 flex flex-row justify-between items-center w-full px-[120px] py-4 z-10">
                 <div>
                     <img src="{{ asset('images/Dreamy_logo.png') }}" class="size-[120px]" alt="">

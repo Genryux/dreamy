@@ -63,6 +63,19 @@ class StudentRecordController extends Controller
 
         try {
             $filename = 'officially_enrolled_students_' . $currentTerm->year . '_' . $currentTerm->semester . '.xlsx';
+            
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'exported_students',
+                    'academic_term' => $currentTerm->year . ' ' . $currentTerm->semester,
+                    'filename' => $filename,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Students data exported to Excel');
+            
             return Excel::download(new StudentsExport, $filename);
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Something went wrong while exporting');
@@ -134,6 +147,20 @@ class StudentRecordController extends Controller
             // Use the job instead of Excel::queueImport
             Excel::import(new StudentsImport, $request->file('file'));
 
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'imported_students',
+                    'academic_term' => $currentTerm->year . ' ' . $currentTerm->semester,
+                    'filename' => $request->file('file')->getClientOriginalName(),
+                    'file_size' => $request->file('file')->getSize(),
+                    'file_type' => $request->file('file')->getMimeType(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Students data imported from Excel');
+
             return response()->json(['success' => 'Import completed successfully']);
         } catch (ValidationException $e) {
             return response()->json([
@@ -170,7 +197,26 @@ class StudentRecordController extends Controller
 
                 $applicant->update(['application_status' => 'Officially Enrolled']);
 
-                return $this->student_service->enrollStudent($applicant);
+                $enrolledStudent = $this->student_service->enrollStudent($applicant);
+
+                // Log the activity
+                activity('application')
+                    ->causedBy(auth()->user())
+                    ->performedOn($applicant)
+                    ->withProperties([
+                        'action' => 'enrolled_student',
+                        'applicant_id' => $applicant->applicant_id,
+                        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'student_id' => $enrolledStudent->id,
+                        'program_id' => $applicant->program_id,
+                        'grade_level' => $applicant->applicationForm->grade_level ?? 'Unknown',
+                        'auto_assign_fees' => $auto_assign === '1',
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Student officially enrolled');
+
+                return $enrolledStudent;
             });
 
             $recipientEmail = $applicant->user->email;
@@ -290,6 +336,22 @@ class StudentRecordController extends Controller
         ])->setPaper('letter')->setOptions([
             'isRemoteEnabled' => true,
         ]);
+
+        // Log the activity
+        activity('student_management')
+            ->causedBy(auth()->user())
+            ->performedOn($studentRecord->student)
+            ->withProperties([
+                'action' => 'generated_coe',
+                'student_id' => $studentRecord->student->id,
+                'student_name' => $studentRecord->student->user->first_name . ' ' . $studentRecord->student->user->last_name,
+                'coe_id' => $studentRecord->id,
+                'download_type' => request()->boolean('inline') ? 'preview' : 'download',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ])
+            ->log('Certificate of Enrollment (COE) generated');
+
         if (request()->boolean('inline')) {
             // Stream inline for preview
             return $pdf->stream('COE-' . $studentRecord->id . '.pdf');
@@ -336,6 +398,20 @@ class StudentRecordController extends Controller
                     'place_of_birth' => $validated['place_of_birth'],
                 ]);
             });
+
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->performedOn($student)
+                ->withProperties([
+                    'action' => 'updated_personal_info',
+                    'student_id' => $student->id,
+                    'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                    'updated_fields' => array_keys($validated),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Student personal information updated');
 
             return response()->json([
                 'success' => true,
@@ -389,6 +465,22 @@ class StudentRecordController extends Controller
                 ]);
             });
 
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->performedOn($student)
+                ->withProperties([
+                    'action' => 'updated_academic_info',
+                    'student_id' => $student->id,
+                    'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                    'updated_fields' => array_keys($validated),
+                    'new_grade_level' => $validated['grade_level'],
+                    'new_program_id' => $validated['program_id'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Student academic information updated');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Academic information updated successfully'
@@ -427,6 +519,20 @@ class StudentRecordController extends Controller
 
             $student->record->update($validated);
 
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->performedOn($student)
+                ->withProperties([
+                    'action' => 'updated_address_info',
+                    'student_id' => $student->id,
+                    'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                    'updated_fields' => array_keys($validated),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Student address information updated');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Address information updated successfully'
@@ -461,6 +567,20 @@ class StudentRecordController extends Controller
             ]);
 
             $student->record->update($validated);
+
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->performedOn($student)
+                ->withProperties([
+                    'action' => 'updated_emergency_info',
+                    'student_id' => $student->id,
+                    'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                    'updated_fields' => array_keys($validated),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Student emergency contact information updated');
 
             return response()->json([
                 'success' => true,

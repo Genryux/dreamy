@@ -12,3 +12,4 @@ Artisan::command('inspire', function () {
 Schedule::command('app:send-monthly-reminder')->daily();
 Schedule::command('app:update-overdue-schedules')->daily();
 Schedule::command('invoices:send-reminders')->daily();
+Schedule::command('password:cleanup')->hourly();

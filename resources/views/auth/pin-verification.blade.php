@@ -3,20 +3,20 @@
 @section('title', 'Enter Security PIN')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
-            <div class="mx-auto h-12 w-12 bg-gradient-to-r from-[#199BCF] to-[#C8A165] rounded-full flex items-center justify-center">
+            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#199BCF] to-[#C8A165]">
                 <i class="fi fi-rr-shield-check text-white text-xl"></i>
             </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
                 Enter Security PIN
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
+            <p class="mt-2 text-center text-sm text-gray-300">
                 Please enter your 6-digit PIN to continue
             </p>
             <div class="mt-4 text-center">
-                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white border border-white/20">
                     <i class="fi fi-rr-user mr-2"></i>
                     {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
                 </div>
@@ -24,10 +24,10 @@
         </div>
 
         @if ($errors->any())
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="rounded-md bg-red-50 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fi fi-rr-exclamation text-red-400"></i>
+                        <i class="fi fi-rr-cross-circle text-red-400"></i>
                     </div>
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-red-800">
@@ -46,16 +46,16 @@
         @endif
 
         @if (session('pin_attempts'))
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="bg-yellow-500/20 border border-yellow-400/30 rounded-md p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <i class="fi fi-rr-exclamation text-yellow-400"></i>
+                        <i class="fi fi-rr-exclamation-triangle text-yellow-400"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800">
+                        <h3 class="text-sm font-medium text-yellow-300">
                             Security Notice
                         </h3>
-                        <div class="mt-2 text-sm text-yellow-700">
+                        <div class="mt-2 text-sm text-yellow-200">
                             <p>Failed attempts: {{ session('pin_attempts') }}/3</p>
                             @if(session('pin_attempts') >= 3)
                                 <p class="font-semibold">Account temporarily locked. Please contact administrator.</p>
@@ -66,14 +66,13 @@
             </div>
         @endif
 
-        <form class="mt-8 space-y-6" method="POST" action="{{ route('auth.pin.verify.store') }}">
-            @csrf
-            
-            <div class="space-y-4">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+            <form class="space-y-6" method="POST" action="{{ route('auth.pin.verify.store') }}">
+                @csrf
+                
                 <div>
-                    <label for="pin" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-shield-check mr-2"></i>
-                        Security PIN <span class="text-red-500">*</span>
+                    <label for="pin" class="block text-sm font-medium text-white mb-2">
+                        Security PIN
                     </label>
                     <input id="pin" 
                            name="pin" 
@@ -81,47 +80,57 @@
                            maxlength="6"
                            required 
                            autofocus
-                           class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#199BCF] focus:border-[#199BCF] focus:z-10 sm:text-sm text-center text-2xl tracking-widest"
+                           class="w-full px-3 py-2 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#199BCF] focus:border-transparent text-center text-2xl tracking-widest @error('pin') border-red-400 @enderror"
                            placeholder="••••••">
-                    <p class="mt-1 text-xs text-gray-500">Enter your 6-digit security PIN</p>
+                    <p class="mt-1 text-xs text-gray-300">Enter your 6-digit security PIN</p>
+                    @error('pin')
+                        <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
+                    @enderror
                 </div>
-            </div>
 
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fi fi-rr-info text-blue-400"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-blue-800">
-                            Security Verification
-                        </h3>
-                        <div class="mt-2 text-sm text-blue-700">
-                            <p>This additional security step helps protect your account from unauthorized access.</p>
+                <div class="bg-blue-500/20 border border-blue-400/30 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fi fi-rr-shield-check text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-300">
+                                Security Verification
+                            </h3>
+                            <div class="mt-2 text-sm text-blue-200">
+                                <p>This additional security step helps protect your account from unauthorized access.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="space-y-3">
-                <button type="submit" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="fi fi-rr-shield-check text-white"></i>
-                    </span>
-                    Verify PIN & Continue
-                </button>
+                <div class="space-y-4">
+                    <button type="submit" 
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
+                        <i class="fi fi-rr-shield-check mr-2"></i>
+                        Verify PIN & Continue
+                    </button>
 
-                <div class="text-center">
-                    <a href="{{ route('logout') }}" 
-                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                       class="text-sm text-gray-600 hover:text-gray-900 transition duration-150">
-                        <i class="fi fi-rr-sign-out mr-1"></i>
-                        Sign out and try again
-                    </a>
+                    <div class="text-center">
+                        <a href="{{ route('logout') }}" 
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                           class="text-sm text-gray-300 hover:text-white transition duration-150">
+                            <i class="fi fi-rr-sign-out mr-1"></i>
+                            Sign out and try again
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+
+        <div class="text-center">
+            <p class="text-xs text-gray-400">
+                Need help? Contact our support team at 
+                <a href="mailto:support@dreamyschool.com" class="text-[#199BCF] hover:text-[#C8A165]">
+                    support@dreamyschool.com
+                </a>
+            </p>
+        </div>
 
         <!-- Hidden logout form -->
         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">

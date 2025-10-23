@@ -89,6 +89,8 @@ class DashboardController extends Controller
                     'status' => $currentEnrollment ? $currentEnrollment->status : 'not_enrolled',
                     'term' => $currentEnrollment ? $currentEnrollment->academicTerm->getFullNameAttribute() : null,
                     'confirmed_at' => $currentEnrollment?->confirmed_at?->format('M j, Y'),
+                    'evaluation_status' => $user->student->academic_status ? strtolower($user->student->academic_status) : null,
+                    'evaluation_notes' => null, // Can be added later if needed
                 ],
                 'news' => $news->map(function ($item) {
                     return [

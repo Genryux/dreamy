@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.9",
         "league/commonmark": "2.7",
         "maatwebsite/excel": "^3.1",
+        "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.16"
     },
     "require-dev": {

@@ -97,6 +97,14 @@
                         <div class="flex flex-col justify-center items-center gap-y-6 w-full">
                             <button type="submit"
                                 class="rounded-md bg-[#199BCF] px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full shadow-xl" data-aos="fade-up" data-aos-duration="1000">Login</button>
+                            
+                            <!-- Forgot Password Link -->
+                            <div class="w-full text-center" data-aos="fade-up" data-aos-duration="1100">
+                                <a href="{{ route('password.request') }}" class="text-[#C8A165] hover:text-yellow-400 text-sm font-medium">
+                                    Forgot your password?
+                                </a>
+                            </div>
+                            
                             <span class="flex items-center w-full" data-aos="fade-up" data-aos-duration="1200">
                                 <span class="h-px flex-1 bg-gray-400/40"></span>
 

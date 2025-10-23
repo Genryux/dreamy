@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-solid-rounded/css/uicons-solid-rounded.css">
 </head>
 
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-[#1A3165]">
     <div class="min-h-screen">
         @yield('content')
     </div>

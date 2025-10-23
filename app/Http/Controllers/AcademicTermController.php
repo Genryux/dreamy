@@ -68,6 +68,18 @@ class AcademicTermController extends Controller
 
             $newTerm = AcademicTerms::create($validated);
 
+            // Log the activity
+            activity('academic_term')
+                ->causedBy(auth()->user())
+                ->performedOn($newTerm)
+                ->withProperties([
+                    'action' => 'created',
+                    'term_details' => $validated,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Academic term created');
+
             // Auto-seed enrollments if this is the new active term
             if ($newTerm->is_active) {
                 \Artisan::call('db:seed', ['--class' => 'StudentEnrollmentSeeder']);
@@ -123,6 +135,20 @@ class AcademicTermController extends Controller
             //promote students to next term
             $continuingStudents = collect($this->studentService->promoteStudents($newTerm));
             \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
+
+            // Log the activity for starting new term
+            activity('academic_term')
+                ->causedBy(auth()->user())
+                ->performedOn($newTerm)
+                ->withProperties([
+                    'action' => 'started_new_term',
+                    'new_term_details' => array_merge($validated, ['is_active' => true]),
+                    'previous_term_id' => $activeTerm ? $activeTerm->id : null,
+                    'students_promoted_count' => $continuingStudents->count(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('New academic term started and students promoted');
             
             //get all school fees
             $schoolFees = SchoolFee::all();
@@ -220,7 +246,24 @@ class AcademicTermController extends Controller
                 'is_active' => 'required|in:0,1'
             ]);
 
+            // Store original values for comparison
+            $originalValues = $academicTerm->toArray();
+            
             $academicTerm->update($validated);
+
+            // Log the activity
+            activity('academic_term')
+                ->causedBy(auth()->user())
+                ->performedOn($academicTerm)
+                ->withProperties([
+                    'action' => 'updated',
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Academic term updated');
 
             return redirect()->back()->with('success', 'Academic term updated successfully.');
         } catch (\Illuminate\Validation\ValidationException $e) {

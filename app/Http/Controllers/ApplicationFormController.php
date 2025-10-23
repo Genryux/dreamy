@@ -792,6 +792,22 @@ class ApplicationFormController extends Controller
 
                 $form = $this->applicationFormService->createApplication($applicant, $validated);
 
+                // Log the activity
+                activity('application')
+                    ->causedBy($user)
+                    ->performedOn($applicant)
+                    ->withProperties([
+                        'action' => 'submitted',
+                        'applicant_id' => $applicant->applicant_id,
+                        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'program_id' => $applicant->program_id,
+                        'grade_level' => $form->grade_level,
+                        'enrollment_period_id' => $activeEnrollmentPeriod->id,
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Application submitted');
+
                 // Get total applications count for the current academic term
                 $totalApplications = Applicants::where('application_status', 'Pending')
                     ->where('enrollment_period_id', $activeEnrollmentPeriod->id)->count();
@@ -1014,6 +1030,22 @@ class ApplicationFormController extends Controller
                 'rejection_remarks' => $request->remarks,
                 'rejected_at' => now()
             ]);
+
+            // Log the activity
+            activity('application')
+                ->causedBy($user)
+                ->performedOn($applicant)
+                ->withProperties([
+                    'action' => 'rejected',
+                    'applicant_id' => $applicant->applicant_id,
+                    'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                    'rejection_reason' => $request->reason,
+                    'rejection_remarks' => $request->remarks,
+                    'rejected_by' => "{$user->first_name} - {$role}",
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Application rejected');
 
             $recipientEmail = $applicant->user->email;
             $loginUrl = config('app.url') . '/portal/login';

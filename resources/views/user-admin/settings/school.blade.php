@@ -384,34 +384,38 @@
             </div>
         </div>
 
-        <!-- School Branding -->
+        <!-- Activity Log -->
         <div class="bg-white rounded-lg shadow-sm border border-[#1e1e1e]/10 p-6">
             <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <i class="fi fi-rr-picture mr-2 text-[#199BCF]"></i>
-                School Branding
+                <i class="fi fi-rr-clock mr-2 text-[#199BCF]"></i>
+                Recent Activity Log
             </h2>
             
-            <div class="grid grid-cols-1 gap-4">
-            <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-picture mr-2"></i>
-                        Logo Path
-                    </label>
-                    <input type="text" 
-                           name="logo_path" 
-                           value="{{ old('logo_path', $setting->logo_path) }}" 
-                           class="flex flex-row justify-start items-center border-2 border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]" 
-                           placeholder="e.g., /images/logo.png or /storage/logos/school-logo.png">
-                    @error('logo_path')
-                        <p class="text-red-600 text-sm mt-1 flex items-center">
-                            <i class="fi fi-rr-exclamation mr-1"></i>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                    <p class="text-xs text-gray-500 mt-1">
-                        <i class="fi fi-rr-info mr-1"></i>
-                        Path to your school's logo file (relative to public directory)
-                    </p>
+            <div class="mb-4 flex items-center justify-between">
+                <p class="text-sm text-gray-600">
+                    <i class="fi fi-rr-info mr-1"></i>
+                    System activity and user actions
+                </p>
+                <div class="flex items-center gap-2">
+                    <select id="activity-filter" class="text-xs border border-gray-300 rounded px-2 py-1">
+                        <option value="">All Activities</option>
+                        <option value="default">General</option>
+                        <option value="user">User Actions</option>
+                        <option value="payment">Payment</option>
+                        <option value="enrollment">Enrollment</option>
+                    </select>
+                    <button id="refresh-activities" class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                        <i class="fi fi-rr-refresh mr-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <div id="activity-log-container" class="max-h-96 overflow-y-auto space-y-3">
+                <div class="flex items-center justify-center py-8">
+                    <div class="text-center">
+                        <i class="fi fi-rr-clock text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-gray-500 text-sm">Loading activity log...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -432,6 +436,143 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const activityContainer = document.getElementById('activity-log-container');
+    const activityFilter = document.getElementById('activity-filter');
+    const refreshButton = document.getElementById('refresh-activities');
+    
+    // Load activities on page load
+    loadActivities();
+    
+    // Filter change handler
+    activityFilter.addEventListener('change', function() {
+        loadActivities();
+    });
+    
+    // Refresh button handler
+    refreshButton.addEventListener('click', function() {
+        loadActivities();
+    });
+    
+    function loadActivities() {
+        const filter = activityFilter.value;
+        const url = new URL('/admin/activity-logs', window.location.origin);
+        if (filter) {
+            url.searchParams.set('log_name', filter);
+        }
+        url.searchParams.set('limit', 20);
+        
+        // Show loading state
+        activityContainer.innerHTML = `
+            <div class="flex items-center justify-center py-8">
+                <div class="text-center">
+                    <i class="fi fi-rr-clock text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">Loading activity log...</p>
+                </div>
+            </div>
+        `;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayActivities(data.activities);
+                } else {
+                    showError('Failed to load activity log');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading activities:', error);
+                showError('Error loading activity log');
+            });
+    }
+    
+    function displayActivities(activities) {
+        if (activities.length === 0) {
+            activityContainer.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="text-center">
+                        <i class="fi fi-rr-clock text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-gray-500 text-sm">No activities found</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const activitiesHtml = activities.map(activity => {
+            const icon = getActivityIcon(activity.log_name);
+            const color = getActivityColor(activity.log_name);
+            
+            return `
+                <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 ${color.bg} rounded-full flex items-center justify-center">
+                            <i class="${icon} ${color.text} text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-900">${activity.description}</p>
+                            <span class="text-xs text-gray-500">${activity.created_at_human}</span>
+                        </div>
+                        <div class="mt-1 flex items-center space-x-2">
+                            <span class="text-xs text-gray-600">
+                                <i class="fi fi-rr-user mr-1"></i>
+                                ${activity.causer_name}
+                            </span>
+                            ${activity.log_name ? `<span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${activity.log_name}</span>` : ''}
+                        </div>
+                        ${activity.properties && Object.keys(activity.properties).length > 0 ? `
+                            <div class="mt-2 text-xs text-gray-500">
+                                <details class="cursor-pointer">
+                                    <summary class="hover:text-gray-700">View Details</summary>
+                                    <pre class="mt-2 p-2 bg-white rounded border text-xs overflow-x-auto">${JSON.stringify(activity.properties, null, 2)}</pre>
+                                </details>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        activityContainer.innerHTML = activitiesHtml;
+    }
+    
+    function getActivityIcon(logName) {
+        switch(logName) {
+            case 'user': return 'fi fi-rr-user';
+            case 'payment': return 'fi fi-rr-credit-card';
+            case 'enrollment': return 'fi fi-rr-graduation-cap';
+            case 'default': return 'fi fi-rr-clock';
+            default: return 'fi fi-rr-clock';
+        }
+    }
+    
+    function getActivityColor(logName) {
+        switch(logName) {
+            case 'user': return { bg: 'bg-green-100', text: 'text-green-600' };
+            case 'payment': return { bg: 'bg-blue-100', text: 'text-blue-600' };
+            case 'enrollment': return { bg: 'bg-purple-100', text: 'text-purple-600' };
+            case 'default': return { bg: 'bg-gray-100', text: 'text-gray-600' };
+            default: return { bg: 'bg-gray-100', text: 'text-gray-600' };
+        }
+    }
+    
+    function showError(message) {
+        activityContainer.innerHTML = `
+            <div class="flex items-center justify-center py-8">
+                <div class="text-center">
+                    <i class="fi fi-rr-exclamation text-red-400 text-2xl mb-2"></i>
+                    <p class="text-red-500 text-sm">${message}</p>
+                </div>
+            </div>
+        `;
+    }
+});
+</script>
 @endsection
 
 

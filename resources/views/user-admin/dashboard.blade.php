@@ -269,27 +269,30 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fi fi-rr-calendar-day text-gray-400"></i>
                             </div>
-                            <select name="period_type" id="period_type"
+                            <select name="period_type" id="edit_period_type"
                                 class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
                                 required>
                                 <option value="">Select Period Type</option>
-                                <option value="early">Early Enrollment</option>
-                                <option value="regular">Regular Enrollment</option>
-                                <option value="late">Late Enrollment</option>
+                                <option value="early" {{ $activeEnrollmentPeriod->period_type == 'early' ? 'selected' : '' }}>Early Enrollment</option>
+                                <option value="regular" {{ $activeEnrollmentPeriod->period_type == 'regular' ? 'selected' : '' }}>Regular Enrollment</option>
+                                <option value="late" {{ $activeEnrollmentPeriod->period_type == 'late' ? 'selected' : '' }}>Late Enrollment</option>
                             </select>
                         </div>
                     </div>
                     <div class="flex-1 flex flex-col">
-                        <label for="early_discount_percentage" class="text-sm font-medium text-gray-700 mb-2">Early Discount Percentage</label>
+                        <label for="early_discount_percentage" class="text-sm font-medium text-gray-700 mb-2">Early
+                            Discount Percentage</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fi fi-rr-percentage text-gray-400"></i>
                             </div>
-                            <input type="number" name="early_discount_percentage" id="early_discount_percentage"
+                            <input type="number" name="early_discount_percentage" id="edit_early_discount_percentage"
                                 min="0" max="100" step="0.01" placeholder="0.00"
+                                value="{{ $activeEnrollmentPeriod->early_discount_percentage }}"
                                 class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
                         </div>
-                        <p class="text-xs text-gray-500 mt-1" id="discount-help-text">Enter discount percentage for early enrollment (0-100)</p>
+                        <p class="text-xs text-gray-500 mt-1" id="discount-help-text">Enter discount percentage for early
+                            enrollment (0-100)</p>
                     </div>
                 </div>
             </div>
@@ -307,6 +310,127 @@
         </x-slot>
     </x-modal>
     @if ($activeEnrollmentPeriod)
+        <x-modal modal_id="edit-period-modal" modal_name="Edit Enrollment Period" close_btn_id="edit-enrollment-close-btn"
+            modal_container_id="modal-container-edit-period">
+            <x-slot name="modal_icon">
+                <i class='fi fi-rr-edit flex justify-center items-center text-blue-500'></i>
+            </x-slot>
+
+            <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="edit-enrollment-period-form" class="p-6">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="id" value="{{ $activeEnrollmentPeriod->id }}">
+                <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
+                <div class="space-y-4">
+                    <!-- Name and Max Applicants Row -->
+                    <div class="flex flex-row gap-4">
+                        <div class="flex-1 flex flex-col">
+                            <label for="name" class="text-sm font-medium text-gray-700 mb-2">Period Name</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                                </div>
+                                <input type="text" name="name" id="edit_name"
+                                    placeholder="Early Registration, Regular, etc."
+                                    value="{{ $activeEnrollmentPeriod->name }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <label for="max_applicants" class="text-sm font-medium text-gray-700 mb-2">Max
+                                Applicants</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-users text-gray-400"></i>
+                                </div>
+                                <input type="number" name="max_applicants" id="edit_max_applicants"
+                                    value="{{ $activeEnrollmentPeriod->max_applicants }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start and End Date Row -->
+                    <div class="flex flex-row gap-4">
+                        <div class="flex-1 flex flex-col">
+                            <label for="start_date" class="text-sm font-medium text-gray-700 mb-2">Application Start
+                                Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-check text-gray-400"></i>
+                                </div>
+                                <input type="date" name="application_start_date" id="edit_start_date"
+                                    value="{{ $activeEnrollmentPeriod->application_start_date }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <label for="end_date" class="text-sm font-medium text-gray-700 mb-2">Application End
+                                Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
+                                </div>
+                                <input type="date" name="application_end_date" id="edit_end_date"
+                                    value="{{ $activeEnrollmentPeriod->application_end_date }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Period Type and Early Discount Row -->
+                    <div class="flex flex-row gap-4">
+                        <div class="flex-1 flex flex-col">
+                            <label for="period_type" class="text-sm font-medium text-gray-700 mb-2">Period Type</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                                </div>
+                                <select name="period_type" id="period_type"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                                    <option value="">Select Period Type</option>
+                                    <option value="early">Early Enrollment</option>
+                                    <option value="regular">Regular Enrollment</option>
+                                    <option value="late">Late Enrollment</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <label for="early_discount_percentage" class="text-sm font-medium text-gray-700 mb-2">Early
+                                Discount Percentage</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-percentage text-gray-400"></i>
+                                </div>
+                                <input type="number" name="early_discount_percentage" id="early_discount_percentage"
+                                    min="0" max="100" step="0.01" placeholder="0.00"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1" id="discount-help-text">Enter discount percentage for
+                                early
+                                enrollment (0-100)</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <x-slot name="modal_buttons">
+                <button id="edit-period-cancel-btn"
+                    class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                    Cancel
+                </button>
+                <button type="submit" form="edit-enrollment-period-form"
+                    class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                    Update Period
+                </button>
+            </x-slot>
+        </x-modal>
+        {{-- End period --}}
         <x-modal modal_id="end-enrollment-modal" modal_name="End Enrollment Period"
             close_btn_id="end-enrollment-close-btn" modal_container_id="modal-container-3">
             <x-slot name="modal_icon">
@@ -474,21 +598,25 @@
                                 <div class="mt-1 text-sm text-gray-700 flex flex-row justify-evenly items-center w-full">
                                     <div class="flex flex-col justify-center items-center">
                                         <span>To promote</span>
-                                        <span class="font-semibold text-gray-600">{{ $countStudentStatuses['to_promote'] }}</span>
+                                        <span
+                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['to_promote'] }}</span>
                                     </div>
                                     <div class="flex flex-col justify-center items-center">
                                         <span>To retain</span>
-                                        <span class="font-semibold text-gray-600">{{ $countStudentStatuses['to_retain'] }}</span>
+                                        <span
+                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['to_retain'] }}</span>
 
                                     </div>
                                     <div class="flex flex-col justify-center items-center">
                                         <span>To graduate</span>
-                                        <span class="font-semibold text-gray-600">{{ $countStudentStatuses['to_graduate'] }}</span>
+                                        <span
+                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['to_graduate'] }}</span>
 
                                     </div>
                                     <div class="flex flex-col justify-center items-center">
                                         <span>Not Evaluated</span>
-                                        <span class="font-semibold text-gray-600">{{ $countStudentStatuses['not_evaluated'] }}</span>
+                                        <span
+                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['not_evaluated'] }}</span>
 
                                     </div>
                                 </div>
@@ -575,7 +703,7 @@
                     class="flex-1 w-full flex flex-row items-center {{ $activeEnrollmentPeriod->status == 'Ongoing' ? 'bg-green-50' : 'bg-red-50' }} bg-blue-50 rounded-xl justify-between p-6">
                     <div class="flex flex-row items-center space-x-1">
                         @if (@isset($currentAcadTerm->id))
-                            <div
+                            <button id="edit-period-btn"
                                 class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 cursor-pointer">
                                 <span class="font-bold text-[16px] text-gray-800">
                                     {{ $activeEnrollmentPeriod->name }}
@@ -590,7 +718,7 @@
                                     <span id="status-span"
                                         class="text-[12px] text-red-500 bg-red-100 px-2 py-1 rounded-full mt-1">Paused</span>
                                 @endif
-                            </div>
+                            </button>
                         @else
                             <div class="flex flex-col">
                                 <button
@@ -1095,6 +1223,8 @@
                 'end-enrollment-cancel-btn', 'modal-container-3');
             initModal('end-academic-term', 'end-term-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn', 'modal-container-end-term');
+            initModal('edit-period-modal', 'edit-period-btn', 'edit-enrollment-close-btn',
+                'edit-period-cancel-btn', 'modal-container-edit-period');
 
             // Enrollment Period Type Logic
             const periodTypeSelect = document.getElementById('period_type');
@@ -1107,16 +1237,18 @@
                 // Function to update discount field based on period type
                 function updateDiscountField() {
                     const isEarly = periodTypeSelect.value === 'early';
-                    
+
                     if (isEarly) {
                         // For early enrollment - make discount optional but encourage it
                         discountField.required = false;
                         discountField.setAttribute('min', '0');
                         discountField.setAttribute('max', '100');
                         discountField.placeholder = 'Enter discount percentage (0-100)';
-                        discountLabel.innerHTML = 'Early Discount Percentage <span class="text-blue-500">(Recommended)</span>';
+                        discountLabel.innerHTML =
+                            'Early Discount Percentage <span class="text-blue-500">(Recommended)</span>';
                         if (discountHelpText) {
-                            discountHelpText.textContent = 'Optional: Enter discount percentage to incentivize early enrollment (0-100)';
+                            discountHelpText.textContent =
+                                'Optional: Enter discount percentage to incentivize early enrollment (0-100)';
                             discountHelpText.className = 'text-xs text-blue-500 mt-1';
                         }
                         discountContainer.style.opacity = '1';
@@ -1128,7 +1260,8 @@
                         discountField.setAttribute('max', '100');
                         discountField.placeholder = '0.00';
                         discountField.value = '0';
-                        discountLabel.innerHTML = 'Early Discount Percentage <span class="text-gray-400">(Optional)</span>';
+                        discountLabel.innerHTML =
+                            'Early Discount Percentage <span class="text-gray-400">(Optional)</span>';
                         if (discountHelpText) {
                             discountHelpText.textContent = 'Optional discount for early enrollment (0-100)';
                             discountHelpText.className = 'text-xs text-gray-500 mt-1';
@@ -1175,6 +1308,25 @@
                 editAcadTermForm.addEventListener('submit', function(e) {
                     // Let the form submit normally - no preventDefault needed
                     // The form action will be set when the edit button is clicked
+                });
+            }
+
+            // Edit Enrollment Period Modal Functionality
+            const editPeriodBtn = document.getElementById('edit-period-btn');
+            if (editPeriodBtn) {
+                editPeriodBtn.addEventListener('click', function() {
+                    // The form is already populated with data from the server
+                    // No need to populate fields as they're already set in the Blade template
+                    console.log('Edit enrollment period modal opened');
+                });
+            }
+
+            // Handle edit enrollment period form submission
+            const editEnrollmentPeriodForm = document.getElementById('edit-enrollment-period-form');
+            if (editEnrollmentPeriodForm) {
+                editEnrollmentPeriodForm.addEventListener('submit', function(e) {
+                    // Let the form submit normally - no preventDefault needed
+                    console.log('Edit enrollment period form submitted');
                 });
             }
 

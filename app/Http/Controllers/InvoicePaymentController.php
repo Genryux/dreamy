@@ -193,6 +193,33 @@ class InvoicePaymentController extends Controller
                 $this->paymentPlanService->recordPayment($invoice, $finalAmount, $paymentData); // Use final amount after discounts
             }
 
+            // Log the activity
+            activity('financial_management')
+                ->causedBy(auth()->user())
+                ->performedOn($invoice)
+                ->withProperties([
+                    'action' => 'recorded_payment',
+                    'invoice_id' => $invoice->id,
+                    'invoice_number' => $invoice->invoice_number,
+                    'student_id' => $invoice->student_id,
+                    'student_name' => $invoice->student->user->first_name . ' ' . $invoice->student->user->last_name,
+                    'payment_amount' => $finalAmount,
+                    'original_amount' => $originalAmount,
+                    'early_discount' => $earlyDiscount,
+                    'custom_discounts' => $customDiscountsTotal,
+                    'total_discount' => $earlyDiscount + $customDiscountsTotal,
+                    'payment_date' => $validated['payment_date'],
+                    'payment_method' => $validated['method'] ?? null,
+                    'payment_type' => $validated['type'] ?? null,
+                    'reference_no' => $validated['reference_no'] ?? null,
+                    'payment_schedule_id' => $validated['payment_schedule_id'] ?? null,
+                    'remaining_balance' => $remainingBalance,
+                    'new_invoice_balance' => $invoice->fresh()->balance,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Payment recorded');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payment recorded successfully.'

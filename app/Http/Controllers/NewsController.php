@@ -109,7 +109,23 @@ class NewsController extends Controller
                 'published_at' => $request->status === 'published' ? now() : null
             ]);
 
-
+            // Log the activity
+            activity('content_management')
+                ->causedBy(auth()->user())
+                ->performedOn($news)
+                ->withProperties([
+                    'action' => 'created',
+                    'news_id' => $news->id,
+                    'news_title' => $news->title,
+                    'news_type' => $news->is_announcement ? 'Announcement' : 'News',
+                    'status' => $news->status,
+                    'visibility' => $news->visibility,
+                    'published_at' => $news->published_at,
+                    'content_length' => strlen($news->content),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('News/Announcement created');
 
             return response()->json([
                 'success' => 'News created successfully',
@@ -136,6 +152,9 @@ class NewsController extends Controller
         ]);
 
         try {
+            // Store original values for comparison
+            $originalValues = $news->toArray();
+
             $news->update([
                 'title' => $request->title,
                 'content' => $request->content,
@@ -144,6 +163,26 @@ class NewsController extends Controller
                 'is_announcement' => $request->boolean('is_announcement'),
                 'published_at' => $request->status === 'published' && !$news->published_at ? now() : $news->published_at
             ]);
+
+            // Log the activity
+            activity('content_management')
+                ->causedBy(auth()->user())
+                ->performedOn($news)
+                ->withProperties([
+                    'action' => 'updated',
+                    'news_id' => $news->id,
+                    'news_title' => $news->title,
+                    'news_type' => $news->is_announcement ? 'Announcement' : 'News',
+                    'original_values' => $originalValues,
+                    'new_values' => $news->fresh()->toArray(),
+                    'changes' => array_diff_assoc($news->fresh()->toArray(), $originalValues),
+                    'status_changed' => $originalValues['status'] !== $request->status,
+                    'visibility_changed' => $originalValues['visibility'] !== $request->visibility,
+                    'type_changed' => $originalValues['is_announcement'] !== $request->boolean('is_announcement'),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('News/Announcement updated');
 
             return response()->json([
                 'success' => 'News updated successfully',
@@ -248,7 +287,38 @@ class NewsController extends Controller
     public function destroy(News $news)
     {
         try {
+            // Store news details before deletion
+            $newsDetails = [
+                'id' => $news->id,
+                'title' => $news->title,
+                'news_type' => $news->is_announcement ? 'Announcement' : 'News',
+                'status' => $news->status,
+                'visibility' => $news->visibility,
+                'published_at' => $news->published_at,
+                'created_at' => $news->created_at,
+                'content_length' => strlen($news->content)
+            ];
+
             $news->delete();
+
+            // Log the activity
+            activity('content_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted',
+                    'news_id' => $newsDetails['id'],
+                    'news_title' => $newsDetails['title'],
+                    'news_type' => $newsDetails['news_type'],
+                    'status' => $newsDetails['status'],
+                    'visibility' => $newsDetails['visibility'],
+                    'published_at' => $newsDetails['published_at'],
+                    'created_at' => $newsDetails['created_at'],
+                    'content_length' => $newsDetails['content_length'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('News/Announcement deleted');
+
             return response()->json([
                 'success' => 'News deleted successfully'
             ]);

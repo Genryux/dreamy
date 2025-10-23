@@ -83,15 +83,22 @@ class ProgramController extends Controller
         $program = Program::create($validated);
         $programCount = Program::count();
 
-        // Audit logging for program creation
-        \Log::info('Program created', [
-            'program_id' => $program->id,
-            'program_code' => $program->code,
-            'created_by' => auth()->user()->id,
-            'created_by_email' => auth()->user()->email,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent()
-        ]);
+        // Log the activity
+        activity('curriculum_management')
+            ->causedBy(auth()->user())
+            ->performedOn($program)
+            ->withProperties([
+                'action' => 'created_program',
+                'program_id' => $program->id,
+                'program_code' => $program->code,
+                'program_name' => $program->name,
+                'track_id' => $program->track_id,
+                'track_name' => $tracks->name,
+                'status' => $program->status,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('Program created');
 
         return response()->json([
             'success' => 'Program created successfully',
@@ -138,7 +145,27 @@ class ProgramController extends Controller
             'status' => 'nullable|in:active,inactive',
         ]);
 
+        // Store original values for comparison
+        $originalValues = $program->toArray();
+        
         $program->update($validated);
+
+        // Log the activity
+        activity('curriculum_management')
+            ->causedBy(auth()->user())
+            ->performedOn($program)
+            ->withProperties([
+                'action' => 'updated_program',
+                'program_id' => $program->id,
+                'program_code' => $program->code,
+                'program_name' => $program->name,
+                'original_values' => $originalValues,
+                'new_values' => $validated,
+                'changes' => array_diff_assoc($validated, $originalValues),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('Program updated');
 
         return response()->json([
             'success' => 'Program updated successfully',
@@ -186,8 +213,32 @@ class ProgramController extends Controller
                 ], 422);
             }
 
+            // Store program details before deletion
+            $programDetails = [
+                'id' => $program->id,
+                'code' => $program->code,
+                'name' => $program->name,
+                'track_id' => $program->track_id,
+                'status' => $program->status
+            ];
+            
             // Safe to delete
             $program->delete();
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted_program',
+                    'program_id' => $programDetails['id'],
+                    'program_code' => $programDetails['code'],
+                    'program_name' => $programDetails['name'],
+                    'track_id' => $programDetails['track_id'],
+                    'status' => $programDetails['status'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Program deleted');
 
             return response()->json([
                 'success' => true,

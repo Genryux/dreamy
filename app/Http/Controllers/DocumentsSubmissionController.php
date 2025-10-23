@@ -193,6 +193,25 @@ class DocumentsSubmissionController extends Controller
                     ->toArray();
                 $documentTypesText = implode(', ', $documentTypes);
 
+                // Log the activity
+                activity('application')
+                    ->causedBy($applicant->user)
+                    ->performedOn($applicant)
+                    ->withProperties([
+                        'action' => 'documents_submitted',
+                        'applicant_id' => $applicant->applicant_id,
+                        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'submitted_documents' => $submittedDocumentIds,
+                        'document_types' => $documentTypes,
+                        'document_types_text' => $documentTypesText,
+                        'academic_term' => $currentAcadTermId,
+                        'enrollment_period' => $enrollment_period->id,
+                        'submission_count' => count($uploadedFiles),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Documents submitted for verification');
+
                 $admins = User::role(['registrar', 'super_admin'])->get();
                 Notification::send($admins, new QueuedNotification(
                     "Document Received",
@@ -288,6 +307,23 @@ class DocumentsSubmissionController extends Controller
         if (($assigned->status ?? null) !== $newStatus) {
             try {
                 $assigned->update(['status' => $newStatus]);
+
+                // Log the activity
+                activity('application')
+                    ->causedBy(auth()->user())
+                    ->performedOn($applicant)
+                    ->withProperties([
+                        'action' => $data['action'] === 'verify' ? 'document_verified' : 'document_rejected',
+                        'applicant_id' => $applicant->applicant_id,
+                        'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'document_id' => $data['document_id'],
+                        'document_type' => $assigned->documents->type ?? 'Unknown',
+                        'previous_status' => $assigned->getOriginal('status'),
+                        'new_status' => $newStatus,
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log($data['action'] === 'verify' ? 'Document verified' : 'Document rejected');
             } catch (\Throwable $e) {
                 return redirect()->back()->withErrors(['error' => 'Failed to update document status.']);
             }

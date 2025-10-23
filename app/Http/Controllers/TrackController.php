@@ -128,7 +128,26 @@ class TrackController extends Controller
                 'status' => 'nullable|in:active,inactive'
             ]);
 
+            // Store original values for comparison
+            $originalValues = $track->toArray();
+            
             $track->update($validated);
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($track)
+                ->withProperties([
+                    'action' => 'updated_track',
+                    'track_id' => $track->id,
+                    'track_name' => $track->name,
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Track updated');
 
             return response()->json([
                 'success' => true,

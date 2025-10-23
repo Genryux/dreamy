@@ -127,6 +127,24 @@ class StudentsController extends Controller
 
             $studentCount = $section->students->count();
 
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($section)
+                ->withProperties([
+                    'action' => 'assigned_students_to_section',
+                    'section_id' => $section->id,
+                    'section_name' => $section->name,
+                    'program_id' => $section->program_id,
+                    'program_name' => $section->program->name ?? 'Unknown',
+                    'student_ids' => $selectedStudents,
+                    'students_count' => count($selectedStudents),
+                    'total_students_in_section' => $studentCount,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Students assigned to section');
+
             return response()->json([
                 'success' => 'Section successfully assigned to the selected students',
                 'count'   => $studentCount
@@ -174,6 +192,23 @@ class StudentsController extends Controller
             });
 
             $studentCount = $section->students->count();
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($section)
+                ->withProperties([
+                    'action' => 'removed_student_from_section',
+                    'section_id' => $section->id,
+                    'section_name' => $section->name,
+                    'program_id' => $section->program_id,
+                    'program_name' => $section->program->name ?? 'Unknown',
+                    'student_id' => $studentId,
+                    'total_students_in_section' => $studentCount,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Student removed from section');
 
             return response()->json([
                 'success' => true,
@@ -690,6 +725,22 @@ class StudentsController extends Controller
                 ]);
             }
 
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->performedOn($student)
+                ->withProperties([
+                    'action' => 'evaluated_student',
+                    'student_id' => $student->id,
+                    'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                    'evaluation_result' => $validated['result'],
+                    'grade_level' => $student->grade_level,
+                    'new_academic_status' => $student->grade_level === 'Grade 12' && $validated['result'] === 'Passed' ? 'Completed' : $validated['result'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Student academic status evaluated');
+
             return redirect()->back()->with('success', 'Successfully evaluated student');
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors(['error' => "Failed to evaluate student: {$th->getMessage()}"]);
@@ -716,6 +767,23 @@ class StudentsController extends Controller
                     $student->update([
                         'grade_level' => 'Grade 12'
                     ]);
+
+                    // Log the activity
+                    activity('student_management')
+                        ->causedBy(auth()->user())
+                        ->performedOn($student)
+                        ->withProperties([
+                            'action' => 'promoted_student',
+                            'student_id' => $student->id,
+                            'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                            'promotion_action' => 'promote-to-next-year',
+                            'previous_grade_level' => 'Grade 11',
+                            'new_grade_level' => 'Grade 12',
+                            'academic_status' => $student->academic_status,
+                            'ip_address' => request()->ip(),
+                            'user_agent' => request()->userAgent()
+                        ])
+                        ->log('Student promoted to next year level');
                 }
 
                 return redirect()->back()->with('success', 'Successfully promoted student');
@@ -730,6 +798,23 @@ class StudentsController extends Controller
                     $student->update([
                         'academic_status' => 'Completed'
                     ]);
+
+                    // Log the activity
+                    activity('student_management')
+                        ->causedBy(auth()->user())
+                        ->performedOn($student)
+                        ->withProperties([
+                            'action' => 'graduated_student',
+                            'student_id' => $student->id,
+                            'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                            'promotion_action' => 'mark-as-graduated',
+                            'grade_level' => $student->grade_level,
+                            'previous_academic_status' => 'Passed',
+                            'new_academic_status' => 'Completed',
+                            'ip_address' => request()->ip(),
+                            'user_agent' => request()->userAgent()
+                        ])
+                        ->log('Student marked as graduated');
                 }
 
                 return redirect()->back()->with('success', 'Successfully mark student as completed');
@@ -754,6 +839,23 @@ class StudentsController extends Controller
                 $student->enrollments()->update([
                     'status' => 'Dropped'
                 ]);
+
+                // Log the activity
+                activity('student_management')
+                    ->causedBy(auth()->user())
+                    ->performedOn($student)
+                    ->withProperties([
+                        'action' => 'withdrew_student',
+                        'student_id' => $student->id,
+                        'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                        'previous_status' => $student->getOriginal('status'),
+                        'new_status' => 'Dropped',
+                        'grade_level' => $student->grade_level,
+                        'program_id' => $student->program_id,
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Student withdrawn from school');
             });
 
             return redirect()->back()->with('success', 'Successfully dropped the student');

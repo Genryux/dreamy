@@ -95,15 +95,21 @@ class DocumentsController extends Controller
                 'max_file_size' => $validated['file-size'],
             ]);
 
-            // Audit logging for document creation
-            \Log::info('Document created', [
-                'document_id' => $document->id,
-                'document_type' => $document->type,
-                'created_by' => auth()->user()->id,
-                'created_by_email' => auth()->user()->email,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Log the activity
+            activity('document_management')
+                ->causedBy(auth()->user())
+                ->performedOn($document)
+                ->withProperties([
+                    'action' => 'created',
+                    'document_id' => $document->id,
+                    'document_type' => $document->type,
+                    'description' => $document->description,
+                    'file_type_restriction' => $document->file_type_restriction,
+                    'max_file_size' => $document->max_file_size,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Document created');
 
             return response()->json([
                 'success' => true,
@@ -181,6 +187,10 @@ class DocumentsController extends Controller
             ]);
 
             $document = Documents::findOrFail($id);
+            
+            // Store original values for comparison
+            $originalValues = $document->toArray();
+            
             $document->update([
                 'type' => $validated['doc-type'],
                 'description' => $validated['description'],
@@ -188,15 +198,20 @@ class DocumentsController extends Controller
                 'max_file_size' => $validated['file-size'],
             ]);
 
-            // Audit logging for document update
-            \Log::info('Document updated', [
-                'document_id' => $document->id,
-                'document_type' => $document->type,
-                'updated_by' => auth()->user()->id,
-                'updated_by_email' => auth()->user()->email,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
+            // Log the activity
+            activity('document_management')
+                ->causedBy(auth()->user())
+                ->performedOn($document)
+                ->withProperties([
+                    'action' => 'updated',
+                    'document_id' => $document->id,
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Document updated');
 
             return response()->json([
                 'success' => true,
@@ -236,17 +251,31 @@ class DocumentsController extends Controller
                 ], 422);
             }
             
+            // Store document details before deletion
+            $documentDetails = [
+                'id' => $document->id,
+                'type' => $document->type,
+                'description' => $document->description,
+                'file_type_restriction' => $document->file_type_restriction,
+                'max_file_size' => $document->max_file_size
+            ];
+            
             $document->delete();
             
-            // Audit logging for document deletion
-            \Log::info('Document deleted', [
-                'document_id' => $document->id,
-                'document_type' => $document->type,
-                'deleted_by' => auth()->user()->id,
-                'deleted_by_email' => auth()->user()->email,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
-            ]);
+            // Log the activity
+            activity('document_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted',
+                    'document_id' => $documentDetails['id'],
+                    'document_type' => $documentDetails['type'],
+                    'document_description' => $documentDetails['description'],
+                    'file_type_restriction' => $documentDetails['file_type_restriction'],
+                    'max_file_size' => $documentDetails['max_file_size'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Document deleted');
             
             return response()->json([
                 'success' => true,

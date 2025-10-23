@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Discount;
 use Illuminate\Http\Request;
+use function activity;
 
 class DiscountController extends Controller
 {
@@ -110,7 +111,23 @@ class DiscountController extends Controller
         // Handle is_active checkbox properly
         $validated['is_active'] = $request->has('is_active');
 
-        Discount::create($validated);
+        $discount = Discount::create($validated);
+
+        activity('financial_management')
+            ->causedBy(auth()->user())
+            ->performedOn($discount)
+            ->withProperties([
+                'action' => 'created',
+                'discount_id' => $discount->id,
+                'discount_name' => $discount->name,
+                'discount_description' => $discount->description,
+                'discount_type' => $discount->discount_type,
+                'discount_value' => $discount->discount_value,
+                'is_active' => $discount->is_active,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('Discount created');
 
         return response()->json([
             'success' => true,
@@ -142,7 +159,26 @@ class DiscountController extends Controller
         // Handle is_active checkbox properly
         $validated['is_active'] = $request->has('is_active');
 
+        // Store original values for comparison
+        $originalValues = $discount->toArray();
+
         $discount->update($validated);
+
+        // Log the activity
+        activity('financial_management')
+            ->causedBy(auth()->user())
+            ->performedOn($discount)
+            ->withProperties([
+                'action' => 'updated',
+                'discount_id' => $discount->id,
+                'discount_name' => $discount->name,
+                'original_values' => $originalValues,
+                'new_values' => $validated,
+                'changes' => array_diff_assoc($validated, $originalValues),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('Discount updated');
 
         return response()->json([
             'success' => true,
@@ -155,7 +191,33 @@ class DiscountController extends Controller
      */
     public function destroy(Discount $discount)
     {
+        // Store discount details before deletion
+        $discountDetails = [
+            'id' => $discount->id,
+            'name' => $discount->name,
+            'description' => $discount->description,
+            'discount_type' => $discount->discount_type,
+            'discount_value' => $discount->discount_value,
+            'is_active' => $discount->is_active
+        ];
+
         $discount->delete();
+
+        // Log the activity
+        activity('financial_management')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'action' => 'deleted',
+                'discount_id' => $discountDetails['id'],
+                'discount_name' => $discountDetails['name'],
+                'discount_description' => $discountDetails['description'],
+                'discount_type' => $discountDetails['discount_type'],
+                'discount_value' => $discountDetails['discount_value'],
+                'was_active' => $discountDetails['is_active'],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ])
+            ->log('Discount deleted');
 
         return response()->json([
             'success' => true,
@@ -168,7 +230,24 @@ class DiscountController extends Controller
      */
     public function toggle(Discount $discount)
     {
+        $previousStatus = $discount->is_active;
         $discount->update(['is_active' => !$discount->is_active]);
+
+        // Log the activity
+        activity('financial_management')
+            ->causedBy(auth()->user())
+            ->performedOn($discount)
+            ->withProperties([
+                'action' => 'toggled_status',
+                'discount_id' => $discount->id,
+                'discount_name' => $discount->name,
+                'previous_status' => $previousStatus,
+                'new_status' => $discount->is_active,
+                'status_change' => $previousStatus ? 'deactivated' : 'activated',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ])
+            ->log('Discount status toggled');
 
         $status = $discount->is_active ? 'activated' : 'deactivated';
         return response()->json([

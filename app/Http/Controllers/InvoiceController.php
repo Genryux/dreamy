@@ -254,15 +254,25 @@ class InvoiceController extends Controller
                         'user.' . $user->id // Pass the channel
                     ));
 
-                // Audit logging for invoice creation (inside transaction)
-                \Log::info('Invoice created', [
-                    'invoice_id' => $invoice->id,
-                    'student_id' => $validated['student_id'],
-                    'created_by' => auth()->user()->id,
-                    'created_by_email' => auth()->user()->email,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ]);
+                // Log the activity
+                activity('financial_management')
+                    ->causedBy(auth()->user())
+                    ->performedOn($invoice)
+                    ->withProperties([
+                        'action' => 'assigned_invoice',
+                        'invoice_id' => $invoice->id,
+                        'invoice_number' => $invoice->invoice_number,
+                        'student_id' => $validated['student_id'],
+                        'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                        'academic_term_id' => $activeTerm->id,
+                        'academic_term' => $currentTerm['year'] . ' ' . $currentTerm['semester'],
+                        'school_fees_count' => count($validated['school_fees']),
+                        'school_fee_ids' => $validated['school_fees'],
+                        'total_amount' => $invoice->total_amount,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('Invoice assigned to student');
 
                 return $invoice; // Return the invoice from the transaction
             });
@@ -606,19 +616,25 @@ class InvoiceController extends Controller
                 ]);
             }
 
-            // Audit logging
-            \Log::info('Invoice item removed', [
-                'invoice_id' => $invoice->id,
-                'invoice_number' => $invoice->invoice_number,
-                'item_id' => $item,
-                'fee_name' => $itemName,
-                'removed_amount' => $itemAmount,
-                'new_total_amount' => $invoice->fresh()->total_amount,
-                'removed_by' => auth()->user()->id,
-                'removed_by_email' => auth()->user()->email,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
-            ]);
+            // Log the activity
+            activity('financial_management')
+                ->causedBy(auth()->user())
+                ->performedOn($invoice)
+                ->withProperties([
+                    'action' => 'removed_invoice_item',
+                    'invoice_id' => $invoice->id,
+                    'invoice_number' => $invoice->invoice_number,
+                    'student_id' => $invoice->student_id,
+                    'student_name' => $invoice->student->user->first_name . ' ' . $invoice->student->user->last_name,
+                    'item_id' => $item,
+                    'fee_name' => $itemName,
+                    'removed_amount' => $itemAmount,
+                    'new_total_amount' => $invoice->fresh()->total_amount,
+                    'remaining_items_count' => $invoice->items()->count(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Invoice item removed');
         } catch (Throwable $e) {
             \Log::error('Invoice item removal failed', [
                 'error' => $e->getMessage(),

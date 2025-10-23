@@ -357,6 +357,26 @@ class SectionController extends Controller
                     }
                 }
 
+                // Log the activity
+                activity('curriculum_management')
+                    ->causedBy(auth()->user())
+                    ->performedOn($section)
+                    ->withProperties([
+                        'action' => 'created_section',
+                        'section_id' => $section->id,
+                        'section_name' => $section->name,
+                        'program_id' => $section->program_id,
+                        'program_name' => $section->program->name ?? 'Unknown',
+                        'year_level' => $section->year_level,
+                        'room' => $section->room,
+                        'adviser_id' => $section->teacher_id,
+                        'subjects_count' => count($validated['subjects'] ?? []),
+                        'auto_assign' => isset($validated['auto_assign']),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Section created');
+
                 return $section;
             });
 
@@ -536,6 +556,28 @@ class SectionController extends Controller
         try {
             $sectionSubject = $section->sectionSubjects()->create($validated);
 
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($section)
+                ->withProperties([
+                    'action' => 'assigned_subject',
+                    'section_id' => $section->id,
+                    'section_name' => $section->name,
+                    'program_id' => $section->program_id,
+                    'program_name' => $section->program->name ?? 'Unknown',
+                    'subject_id' => $validated['subject_id'],
+                    'subject_name' => $sectionSubject->subject->name ?? 'Unknown',
+                    'teacher_id' => $validated['teacher_id'] ?? null,
+                    'room' => $validated['room'] ?? null,
+                    'days_of_week' => $validated['days_of_week'] ?? null,
+                    'start_time' => $validated['start_time'] ?? null,
+                    'end_time' => $validated['end_time'] ?? null,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Subject assigned to section');
+
             return response()->json([
                 'success' => 'Subject assigned successfully',
                 'section_subject' => $sectionSubject->load(['subject', 'teacher'])
@@ -590,7 +632,31 @@ class SectionController extends Controller
         }
 
         try {
+            // Store original values for comparison
+            $originalValues = $sectionSubject->toArray();
+            
             $sectionSubject->update($validated);
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($section)
+                ->withProperties([
+                    'action' => 'updated_section_subject',
+                    'section_id' => $section->id,
+                    'section_name' => $section->name,
+                    'program_id' => $section->program_id,
+                    'program_name' => $section->program->name ?? 'Unknown',
+                    'section_subject_id' => $sectionSubject->id,
+                    'subject_id' => $sectionSubject->subject_id,
+                    'subject_name' => $sectionSubject->subject->name ?? 'Unknown',
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Section subject updated');
 
             return response()->json([
                 'success' => 'Subject updated successfully',
@@ -617,11 +683,46 @@ class SectionController extends Controller
                     throw new \Exception('Section subject not found or does not belong to this section');
                 }
 
+                // Store subject details before deletion
+                $subjectDetails = [
+                    'section_subject_id' => $sectionSubject->id,
+                    'subject_id' => $sectionSubject->subject_id,
+                    'subject_name' => $sectionSubject->subject->name ?? 'Unknown',
+                    'teacher_id' => $sectionSubject->teacher_id,
+                    'room' => $sectionSubject->room,
+                    'days_of_week' => $sectionSubject->days_of_week,
+                    'start_time' => $sectionSubject->start_time,
+                    'end_time' => $sectionSubject->end_time
+                ];
+
                 // Remove all student enrollments for this subject
                 \App\Models\StudentSubject::where('section_subject_id', $sectionSubject->id)->delete();
 
                 // Delete the section subject
                 $sectionSubject->delete();
+
+                // Log the activity
+                activity('curriculum_management')
+                    ->causedBy(auth()->user())
+                    ->performedOn($section)
+                    ->withProperties([
+                        'action' => 'removed_section_subject',
+                        'section_id' => $section->id,
+                        'section_name' => $section->name,
+                        'program_id' => $section->program_id,
+                        'program_name' => $section->program->name ?? 'Unknown',
+                        'section_subject_id' => $subjectDetails['section_subject_id'],
+                        'subject_id' => $subjectDetails['subject_id'],
+                        'subject_name' => $subjectDetails['subject_name'],
+                        'teacher_id' => $subjectDetails['teacher_id'],
+                        'room' => $subjectDetails['room'],
+                        'days_of_week' => $subjectDetails['days_of_week'],
+                        'start_time' => $subjectDetails['start_time'],
+                        'end_time' => $subjectDetails['end_time'],
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Subject removed from section');
             });
 
             return response()->json([
@@ -660,7 +761,28 @@ class SectionController extends Controller
                 'teacher_id' => 'nullable|exists:teachers,id',
             ]);
 
+            // Store original values for comparison
+            $originalValues = $section->toArray();
+            
             $section->update($validated);
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($section)
+                ->withProperties([
+                    'action' => 'updated_section',
+                    'section_id' => $section->id,
+                    'section_name' => $section->name,
+                    'program_id' => $section->program_id,
+                    'program_name' => $section->program->name ?? 'Unknown',
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Section updated');
             
             // Reload the section with teacher relationship
             $section->load('teacher.user');
@@ -689,6 +811,17 @@ class SectionController extends Controller
     public function destroy(Section $section, Request $request)
     {
         try {
+            // Store section details before deletion
+            $sectionDetails = [
+                'id' => $section->id,
+                'name' => $section->name,
+                'program_id' => $section->program_id,
+                'program_name' => $section->program->name ?? 'Unknown',
+                'year_level' => $section->year_level,
+                'room' => $section->room,
+                'teacher_id' => $section->teacher_id
+            ];
+
             DB::transaction(function () use ($section) {
                 // Get all students in this section
                 $students = $section->students;
@@ -721,6 +854,23 @@ class SectionController extends Controller
                 // Finally, delete the section itself
                 $section->delete();
             });
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'deleted_section',
+                    'section_id' => $sectionDetails['id'],
+                    'section_name' => $sectionDetails['name'],
+                    'program_id' => $sectionDetails['program_id'],
+                    'program_name' => $sectionDetails['program_name'],
+                    'year_level' => $sectionDetails['year_level'],
+                    'room' => $sectionDetails['room'],
+                    'teacher_id' => $sectionDetails['teacher_id'],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Section deleted');
 
             // Determine redirect URL based on referrer or program
             $redirectUrl = '/tracks'; // Default fallback (replaced /programs)
