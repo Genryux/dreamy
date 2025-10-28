@@ -13,8 +13,11 @@ use App\Models\AcademicTerms;
 use App\Models\Applicants;
 use App\Models\Program;
 use App\Models\User;
+use App\Notifications\PrivateImmediateNotification;
+use App\Notifications\PrivateQueuedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class StudentsController extends Controller
 {
@@ -398,7 +401,7 @@ class StudentsController extends Controller
                 $q->where('lrn', 'like', "%{$search}%")
                     ->orWhereHas('program', function ($p) use ($search) {
                         $p->where('code', 'like', "%{$search}%")
-                          ->orWhere('name', 'like', "%{$search}%");
+                            ->orWhere('name', 'like', "%{$search}%");
                     })
                     ->orWhere('grade_level', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
@@ -741,6 +744,26 @@ class StudentsController extends Controller
                 ])
                 ->log('Student academic status evaluated');
 
+            $user = $student->user;
+
+            $sharedNotificationId = 'enrollment-confirmation-' . time() . '-' . uniqid();
+
+            $user->notify(new PrivateQueuedNotification(
+                "Evaluation Results Update!",
+                "Your academic evaluation results have been released. Kindly click this notification or navigate to the Dashboard to review them.",
+                '/(tabs)/dashboard',
+                $sharedNotificationId
+            ));
+
+            Notification::route('broadcast', 'user.' . $user->id)
+                ->notify(new PrivateImmediateNotification(
+                    "Evaluation Results Update!",
+                    "Your academic evaluation results have been released. Kindly click this notification or navigate to the Dashboard to review them.",
+                    '/(tabs)/dashboard',
+                    $sharedNotificationId,
+                    'user.' . $student->id
+                ));
+
             return redirect()->back()->with('success', 'Successfully evaluated student');
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors(['error' => "Failed to evaluate student: {$th->getMessage()}"]);
@@ -796,7 +819,7 @@ class StudentsController extends Controller
                 if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Passed') {
 
                     $student->update([
-                        'academic_status' => 'Completed'
+                        'academic_status' => 'Completed',
                     ]);
 
                     // Log the activity

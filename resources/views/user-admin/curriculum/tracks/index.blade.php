@@ -2,9 +2,6 @@
 @section('modal')
     <x-modal modal_id="edit-track-modal" modal_name="Edit Track" close_btn_id="edit-track-modal-close-btn"
         modal_container_id="modal-container-1">
-        <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-        </x-slot>
 
         <form id="edit-track-form" class="p-6">
             @csrf
@@ -59,12 +56,12 @@
 
         <x-slot name="modal_buttons">
             <button id="cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="edit-track-form"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Update
             </button>
         </x-slot>
@@ -73,9 +70,6 @@
     {{-- Create strand/program --}}
     <x-modal modal_id="create-program-modal" modal_name="Create Program" close_btn_id="create-program-modal-close-btn"
         modal_container_id="modal-container-2">
-        <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-        </x-slot>
 
         <form id="create-program-form" class="p-6">
             @csrf
@@ -129,12 +123,12 @@
 
         <x-slot name="modal_buttons">
             <button id="cancel-btn"
-                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-md text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
+                class="bg-gray-100 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-200 hover:ring hover:ring-gray-200 transition duration-150">
                 Cancel
             </button>
             {{-- This button will acts as the submit button --}}
             <button type="submit" form="create-program-form"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Create
             </button>
         </x-slot>

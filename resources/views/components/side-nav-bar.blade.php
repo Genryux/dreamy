@@ -1,6 +1,6 @@
 @props(['role', 'logo'])
 
-<aside id="side-nav-bar" class="md:block fixed md:relative z-50 md:z-auto bg-[#1A3165] text-white py-4 px-4 w-[260px] h-screen overflow-y-auto transition-all duration-300">
+<aside id="side-nav-bar" class="md:block fixed md:relative z-50 md:z-auto bg-[#1A3165] text-white py-4 px-4 w-[260px] h-screen transition-all duration-300">
     <div class="h-22 flex items-center justify-center mb-4 pr-2">
         <img src="{{ $logo }}" alt="Enrollment System" class="h-[60%] w-[80%] transition-opacity duration-300">
     </div>

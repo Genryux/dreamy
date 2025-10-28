@@ -79,13 +79,13 @@
             <strong>{{ $studentRecord->getFullName() ?? 'Student Name' }}</strong>, with Learner Reference Number (LRN)
             <strong>{{ $studentRecord->student->lrn ?? 'N/A' }}</strong>, is officially enrolled at
             <strong>{{ $schoolName }}</strong> for the
-            <strong>{{ $studentRecord->acad_term_applied ?? 'Academic Year' }}</strong>
-            {{ $studentRecord->semester_applied ? '(' . $studentRecord->semester_applied . ')' : '' }}.
+            <strong>{{ $studentRecord->acad_term_applied ?? $acadTerm?->year ?? 'Academic Year' }}</strong>
+            {{ $studentRecord->semester_applied ? '(' . $studentRecord->semester_applied . ')' : ($acadTerm?->semester ? '(' . $acadTerm->semester . ')' : '') }}.
         </p>
         <p class="p">
             The student is admitted in the <strong>{{ $studentRecord->student->program->code ?? 'Program' }}</strong> program, Grade Level
             <strong>{{ $studentRecord->student->grade_level ?? 'N/A' }}</strong>, Section
-            <strong>{{ $studentRecord->student->sections->name ?? 'N/A' }}</strong>.
+            <strong>{{ $studentRecord->student->getCurrentSectionName() }}</strong>.
         </p>
         <p class="p">
             This certification is issued upon request of the student for whatever legal purpose it may serve.

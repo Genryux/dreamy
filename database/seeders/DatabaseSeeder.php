@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
 
         $this->call([
             RolesAndPermissionSeeder::class,
@@ -27,7 +26,7 @@ class DatabaseSeeder extends Seeder
             SectionSeeder::class,
             SectionSubjectsSeeder::class,
             StudentEnrollmentSeeder::class, // Must be last - depends on students existing
-            ActivityLogSeeder::class, // Add sample activity logs
+            // ActivityLogSeeder::class, // Add sample activity logs
         ]);
 
     }

@@ -77,4 +77,58 @@ class Program extends Model
     {
         return $this->subjects()->count();
     }
+
+    /**
+     * Get track-specific icon class
+     */
+    public function getTrackIcon()
+    {
+        if (!$this->track) {
+            return 'fi fi-rr-book';
+        }
+
+        $icons = [
+            'STEM' => 'fi fi-rr-microscope',
+            'ABM' => 'fi fi-rr-briefcase', 
+            'HUMSS' => 'fi fi-rr-book',
+            'GAS' => 'fi fi-rr-star',
+            'TVL' => 'fi fi-rr-tools',
+            'ICT' => 'fi fi-rr-computer'
+        ];
+
+        return $icons[$this->track->name] ?? 'fi fi-rr-book';
+    }
+
+    /**
+     * Get track-specific gradient colors
+     */
+    public function getTrackGradient()
+    {
+        if (!$this->track) {
+            return 'from-[#1A3165] to-[#2A4A7A]';
+        }
+
+        $gradients = [
+            'STEM' => 'from-[#1A3165] to-[#2A4A7A]',
+            'ABM' => 'from-[#C8A165] to-[#D4B876]',
+            'HUMSS' => 'from-[#1A3165] to-[#2A4A7A]',
+            'GAS' => 'from-[#C8A165] to-[#D4B876]',
+            'TVL' => 'from-[#1A3165] to-[#2A4A7A]',
+            'ICT' => 'from-[#C8A165] to-[#D4B876]'
+        ];
+
+        return $gradients[$this->track->name] ?? 'from-[#1A3165] to-[#2A4A7A]';
+    }
+
+    /**
+     * Check if track uses gold color scheme
+     */
+    public function isGoldTrack()
+    {
+        if (!$this->track) {
+            return false;
+        }
+
+        return in_array($this->track->name, ['ABM', 'GAS', 'ICT']);
+    }
 }

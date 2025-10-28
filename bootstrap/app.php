@@ -26,6 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'               => RoleMiddleware::class,
             'permission'         => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            
+            // ✅ Platform detection middleware
+            'detect.platform' => \App\Http\Middleware\DetectPlatform::class,
+            'desktop.only'   => \App\Http\Middleware\DesktopOnly::class,
+            'web.only'       => \App\Http\Middleware\WebOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

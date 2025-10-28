@@ -9,6 +9,7 @@ use App\Mail\ApplicantProgressMail;
 use App\Models\Applicants;
 use App\Models\DocumentSubmissions;
 use App\Models\Invoice;
+use App\Models\Program;
 use App\Models\StudentRecord;
 use App\Models\Student;
 use App\Services\AcademicTermService;
@@ -23,6 +24,7 @@ use Maatwebsite\Excel\Imports\HeadingRowExtractor;
 use Maatwebsite\Excel\Validators\ValidationException as ValidatorsValidationException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SchoolSetting;
+use App\Models\Section;
 use App\Services\StudentService;
 use Carbon\Carbon;
 use App\Services\InvoiceService;
@@ -63,7 +65,7 @@ class StudentRecordController extends Controller
 
         try {
             $filename = 'officially_enrolled_students_' . $currentTerm->year . '_' . $currentTerm->semester . '.xlsx';
-            
+
             // Log the activity
             activity('student_management')
                 ->causedBy(auth()->user())
@@ -75,7 +77,7 @@ class StudentRecordController extends Controller
                     'user_agent' => request()->userAgent()
                 ])
                 ->log('Students data exported to Excel');
-            
+
             return Excel::download(new StudentsExport, $filename);
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Something went wrong while exporting');
@@ -193,7 +195,7 @@ class StudentRecordController extends Controller
 
         try {
 
-            $student = DB::transaction(function () use ($applicant) {
+            $student = DB::transaction(function () use ($applicant, $auto_assign) {
 
                 $applicant->update(['application_status' => 'Officially Enrolled']);
 
@@ -309,8 +311,31 @@ class StudentRecordController extends Controller
                 : null;
         });
 
+        $programs = Program::all();
+
+        if (!$programs) {
+            $programs = null;
+        }
+
+        $sections = Section::where('year_level', $student->grade_level)->where('program_id', $student->program_id)->get();
+
+        if (!$sections) {
+            $sections = null;
+        }
+        
+        // Get the current active academic term for the student
+        $currentEnrollment = $student->getCurrentAcademicTerm();
+        
+        if ($currentEnrollment) {
+            $acadTerm = $currentEnrollment->academicTerm;
+        } else {
+            // Fallback to latest enrollment if no active term
+            $latestEnrollment = $student->getLatestAcademicTerm();
+            $acadTerm = $latestEnrollment ? $latestEnrollment->academicTerm : 'No Academic Term';
+        }
+
         // dd($record, $studentRecordId)
-        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments'));
+        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm'));
     }
 
     /**
@@ -320,8 +345,18 @@ class StudentRecordController extends Controller
     {
         $student = $studentRecord->student;
         $school = SchoolSetting::query()->first();
+        
+        // Get academic term fallback
+        $currentEnrollment = $student->getCurrentAcademicTerm();
+        if ($currentEnrollment) {
+            $acadTerm = $currentEnrollment->academicTerm;
+        } else {
+            $latestEnrollment = $student->getLatestAcademicTerm();
+            $acadTerm = $latestEnrollment ? $latestEnrollment->academicTerm : null;
+        }
+        
         // Use the same view as the PDF to keep preview and download consistent
-        return view('pdf.coe', compact('studentRecord', 'school'));
+        return view('pdf.coe', compact('studentRecord', 'school', 'acadTerm'));
     }
 
     /**
@@ -329,10 +364,22 @@ class StudentRecordController extends Controller
      */
     public function coePdf(StudentRecord $studentRecord)
     {
+        $student = $studentRecord->student;
         $school = SchoolSetting::query()->first();
+        
+        // Get academic term fallback
+        $currentEnrollment = $student->getCurrentAcademicTerm();
+        if ($currentEnrollment) {
+            $acadTerm = $currentEnrollment->academicTerm;
+        } else {
+            $latestEnrollment = $student->getLatestAcademicTerm();
+            $acadTerm = $latestEnrollment ? $latestEnrollment->academicTerm : null;
+        }
+        
         $pdf = Pdf::loadView('pdf.coe', [
             'studentRecord' => $studentRecord,
             'school' => $school,
+            'acadTerm' => $acadTerm,
         ])->setPaper('letter')->setOptions([
             'isRemoteEnabled' => true,
         ]);
@@ -455,7 +502,11 @@ class StudentRecordController extends Controller
                     'lrn' => $validated['lrn'],
                     'grade_level' => $validated['grade_level'],
                     'program_id' => $validated['program_id'],
-                    'section' => $validated['section'],
+                    'section_id' => $validated['section'],
+                ]);
+
+                $student->enrollments()->update([
+                    'section_id' => $validated['section']
                 ]);
 
                 // Update student record information

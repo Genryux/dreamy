@@ -173,18 +173,18 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
 
 
         // assign documents to student
-        foreach ($required_docs as $doc) {
-            $students->assignedDocuments()->create([
-                'documents_id'  => $doc->id,
-                'status'        => 'Pending', // default
-                'submit_before' =>  null,
-            ]);
-        }
+        // foreach ($required_docs as $doc) {
+        //     $students->assignedDocuments()->create([
+        //         'documents_id'  => $doc->id,
+        //         'status'        => 'Pending', // default
+        //         'submit_before' =>  null,
+        //     ]);
+        // }
 
-        $students->submissions()->update([
-            'owner_id'   => $students->id,
-            'owner_type' => Student::class,
-        ]);
+        // $students->submissions()->update([
+        //     'owner_id'   => $students->id,
+        //     'owner_type' => Student::class,
+        // ]);
 
         // Auto-enroll imported students in the active academic term
         if (config('app.use_term_enrollments')) {

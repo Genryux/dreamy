@@ -906,7 +906,7 @@
                     {
                         width: '15%',
                         targets: 7,
-                        className: 'w-full text-center'
+                        className: 'text-center'
                     }, // Status
                     {
                         width: '10%',

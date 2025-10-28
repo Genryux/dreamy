@@ -736,11 +736,11 @@
                         document.getElementById('totalApplicationsCount').textContent = data.statistics.total || 0;
                         document.getElementById('pendingApplicationsCount').textContent = data.statistics.pending || 0;
                         document.getElementById('acceptedApplicationsCount').textContent = data.statistics.accepted ||
-                        0;
+                            0;
                         document.getElementById('pendingDocumentsCount').textContent = data.statistics
                             .pending_documents || 0;
                         document.getElementById('rejectedApplicationsCount').textContent = data.statistics.rejected ||
-                        0;
+                            0;
                     } else {
                         console.error('Failed to load application statistics:', data.message);
                     }
@@ -804,6 +804,7 @@
                         width: '15%',
                         render: function(data, type, row) {
                             return `
+                            @can('view pending form')
                                 <div class='flex flex-row justify-center items-center opacity-100'>
                                     <a href="/applications/pending/form-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
@@ -813,7 +814,10 @@
                                         </span>
                                         View
                                     </a>
-                                </div>
+                                </div>  
+                            @else 
+                                <p class='text-gray-400'>Forbidden</p>
+                            @endcan
                                 `;
                         },
                         orderable: false,
@@ -914,6 +918,7 @@
                         width: '10%',
                         render: function(data, type, row) {
                             return `
+                            @can('view accepted form')
                                 <div class='flex flex-row justify-center items-center opacity-100'>
                                     <a href="/applications/accepted/admission-details/${data}" 
                                        class="group relative inline-flex items-center gap-2 bg-green-100 text-green-500 font-semibold px-3 py-1 rounded-xl hover:bg-green-500 hover:ring hover:ring-green-200 hover:text-white transition duration-150">
@@ -924,6 +929,10 @@
                                         View
                                     </a>
                                 </div>
+                            @else 
+                                <p class='text-gray-400'>Forbidden</p>
+                            @endcan
+
                                 `;
                         },
                         orderable: false,
@@ -1012,16 +1021,20 @@
                             width: '12%',
                             render: function(data, type, row) {
                                 return `
-                                <div class='flex flex-row justify-center items-center opacity-100'>
-                                    <a href="/applications/pending-document/submission-details/${data}" 
-                                       class="group relative inline-flex items-center gap-2 bg-orange-100 text-orange-500 font-semibold px-3 py-1 rounded-xl hover:bg-orange-500 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
-                                        <span class="relative w-4 h-4">
-                                            <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-                                            <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-                                        </span>
-                                        View
-                                    </a>
-                                </div>
+                                    @can('view pending-document form')
+                                        <div class='flex flex-row justify-center items-center opacity-100'>
+                                            <a href="/applications/pending-document/submission-details/${data}" 
+                                            class="group relative inline-flex items-center gap-2 bg-orange-100 text-orange-500 font-semibold px-3 py-1 rounded-xl hover:bg-orange-500 hover:ring hover:ring-orange-200 hover:text-white transition duration-150">
+                                                <span class="relative w-4 h-4">
+                                                    <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                                    <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                                </span>
+                                                View
+                                            </a>
+                                        </div>
+                                    @else 
+                                        <p class='text-gray-400'>Forbidden</p>
+                                    @endcan
                                 `;
                             },
                             orderable: false,
@@ -1106,16 +1119,20 @@
                             width: '10%',
                             render: function(data, type, row) {
                                 return `
-                                <div class='flex flex-row justify-center items-center opacity-100'>
-                                    <a href="/rejected-application/details/${data}" 
-                                       class="group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold px-3 py-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
-                                        <span class="relative w-4 h-4">
-                                            <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
-                                            <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
-                                        </span>
-                                        View
-                                    </a>
-                                </div>
+                                @can('view rejected form')
+                                    <div class='flex flex-row justify-center items-center opacity-100'>
+                                        <a href="/rejected-application/details/${data}" 
+                                        class="group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold px-3 py-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                            <span class="relative w-4 h-4">
+                                                <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                                <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                            </span>
+                                            View
+                                        </a>
+                                    </div>
+                                @else 
+                                    <p class='text-gray-400'>Forbidden</p>
+                                @endcan
                                 `;
                             },
                             orderable: false,
@@ -1343,4 +1360,3 @@
         }
     </script>
 @endpush
-

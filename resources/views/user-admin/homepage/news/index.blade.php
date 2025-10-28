@@ -8,8 +8,8 @@
             </p>
         </div>
         <button id="create-news-modal-btn"
-            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-150 flex items-center gap-2">
-            <i class="fi fi-rr-plus text-[16px]"></i>
+            class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+            <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
             Add News/Announcement
         </button>
     </div>
@@ -21,7 +21,7 @@
     <div class="flex flex-row justify-center items-start gap-4">
         <div
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-full">
-            
+
             <div class="w-full flex flex-row justify-between items-center gap-4">
                 <label for="myCustomSearch"
                     class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-1 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
@@ -34,7 +34,7 @@
                         <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
                     </button>
                 </label>
-                
+
                 <div class="flex flex-row justify-start items-center w-full gap-2">
                     <div
                         class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-1 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
@@ -101,23 +101,23 @@
         <form id="news-form" class="p-6 space-y-4">
             @csrf
             <input type="hidden" id="news_id" name="news_id" value="">
-            
+
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
                 <input type="text" id="title" name="title" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
             </div>
-            
+
             <div>
                 <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
                 <textarea id="content" name="content" rows="4" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"></textarea>
             </div>
-            
+
             <div>
                 <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select id="status" name="status" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>
                 </select>
@@ -126,7 +126,7 @@
             <div>
                 <label for="visibility" class="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
                 <select id="visibility" name="visibility" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-4 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                     <option value="public">Public (Everyone)</option>
                     <option value="students_only">Students Only</option>
                     <option value="both" selected>Both (Public & Students)</option>
@@ -148,7 +148,7 @@
                 Cancel
             </button>
             <button type="submit" form="news-form" id="news-submit-btn"
-                class="bg-blue-500 text-[14px] px-3 py-2 rounded-md text-[#f8f8f8] font-bold hover:ring hover:ring-blue-200 hover:bg-blue-400 transition duration-150 shadow-sm">
+                class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                 Save
             </button>
         </x-slot>
@@ -157,22 +157,32 @@
 
 @push('scripts')
     <script type="module">
-        import { clearSearch } from "/js/clearSearch.js"
-        import { initModal } from "/js/modal.js";
-        import { showAlert } from "/js/alert.js";
-        import { showLoader, hideLoader } from "/js/loader.js";
+        import {
+            clearSearch
+        } from "/js/clearSearch.js"
+        import {
+            initModal
+        } from "/js/modal.js";
+        import {
+            showAlert
+        } from "/js/alert.js";
+        import {
+            showLoader,
+            hideLoader
+        } from "/js/loader.js";
 
         let newsTable;
         let selectedStatus = '';
 
         document.addEventListener("DOMContentLoaded", function() {
             console.log('Initializing modal...');
-            initModal('news-modal', 'create-news-modal-btn', 'news-modal-close-btn', 'news-modal-cancel-btn', 'news-modal-container');
-            
+            initModal('news-modal', 'create-news-modal-btn', 'news-modal-close-btn', 'news-modal-cancel-btn',
+                'news-modal-container');
+
             // Debug: Check if modal button exists
             const modalBtn = document.getElementById('create-news-modal-btn');
             console.log('Modal button found:', modalBtn);
-            
+
             if (modalBtn) {
                 modalBtn.addEventListener('click', function() {
                     console.log('Modal button clicked');
@@ -199,16 +209,47 @@
                         d.status_filter = selectedStatus;
                     }
                 },
-                order: [[0, 'desc']],
-                columnDefs: [
-                    { width: '5%', targets: 0, className: 'text-center' },
-                    { width: '20%', targets: 1 },
-                    { width: '20%', targets: 2 },
-                    { width: '12%', targets: 3, className: 'text-center' },
-                    { width: '12%', targets: 4, className: 'text-center' },
-                    { width: '12%', targets: 5, className: 'text-center' },
-                    { width: '12%', targets: 6, className: 'text-center' },
-                    { width: '12%', targets: 7, className: 'text-center' }
+                order: [
+                    [0, 'desc']
+                ],
+                columnDefs: [{
+                        width: '5%',
+                        targets: 0,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '15%',
+                        targets: 1
+                    },
+                    {
+                        width: '20%',
+                        targets: 2
+                    },
+                    {
+                        width: '12%',
+                        targets: 3,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '12%',
+                        targets: 4,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '12%',
+                        targets: 5,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '12%',
+                        targets: 6,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '12%',
+                        targets: 7,
+                        className: 'text-center'
+                    }
                 ],
                 layout: {
                     topStart: null,
@@ -216,38 +257,47 @@
                     bottomStart: 'info',
                     bottomEnd: 'paging',
                 },
-                columns: [
-                    { data: 'index' },
-                    { data: 'title' },
-                    { data: 'content' },
-                    { 
+                columns: [{
+                        data: 'index'
+                    },
+                    {
+                        data: 'title'
+                    },
+                    {
+                        data: 'content'
+                    },
+                    {
                         data: 'type',
                         render: function(data, type, row) {
-                            const typeClass = data === 'Announcement' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800';
-                            const icon = data === 'Announcement' ? '📢' : '📰';
-                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${typeClass}">${icon} ${data}</span>`;
+                            const typeClass = data === 'Announcement' ? 'bg-red-100 text-red-800' :
+                                'bg-blue-100 text-blue-800';
+                            return `<span class="px-2 py-1 rounded-full text-xs font-medium ${typeClass}">${data}</span>`;
                         }
                     },
-                    { 
+                    {
                         data: 'visibility',
                         render: function(data, type, row) {
-                            const visibilityClass = data === 'public' ? 'bg-gray-100 text-gray-800' : 
-                                                  data === 'students_only' ? 'bg-green-100 text-green-800' : 
-                                                  'bg-blue-100 text-blue-800';
-                            const visibilityText = data === 'public' ? 'Public' : 
-                                                  data === 'students_only' ? 'Students Only' : 
-                                                  'Both';
+                            const visibilityClass = data === 'public' ?
+                                'bg-gray-100 text-gray-800' :
+                                data === 'students_only' ? 'bg-green-100 text-green-800' :
+                                'bg-blue-100 text-blue-800';
+                            const visibilityText = data === 'public' ? 'Public' :
+                                data === 'students_only' ? 'Students Only' :
+                                'Both';
                             return `<span class="px-2 py-1 rounded-full text-xs font-medium ${visibilityClass}">${visibilityText}</span>`;
                         }
                     },
-                    { 
+                    {
                         data: 'status',
                         render: function(data, type, row) {
-                            const statusClass = data === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                            const statusClass = data === 'published' ?
+                                'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
                             return `<span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
                         }
                     },
-                    { data: 'published_at' },
+                    {
+                        data: 'published_at'
+                    },
                     {
                         data: 'id',
                         render: function(data, type, row) {
@@ -255,11 +305,9 @@
                                 <div class='flex flex-row justify-center items-center gap-2'>
                                     <button onclick="editNews(${data})" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
                                         <i class="fi fi-rs-edit text-[16px]"></i>
-                                        Edit
                                     </button>
                                     <button onclick="deleteNews(${data})" class="group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold px-3 py-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
                                         <i class="fi fi-rs-trash text-[16px]"></i>
-                                        Delete
                                     </button>
                                 </div>
                             `;
@@ -288,7 +336,9 @@
                     row.classList.add('hover:bg-gray-200', 'transition', 'duration-150');
                     let cells = row.querySelectorAll('td');
                     cells.forEach(function(cell) {
-                        cell.classList.add('px-4', 'py-1', 'text-start', 'font-regular', 'text-[14px]', 'opacity-80', 'truncate', 'border-t', 'border-[#1e1e1e]/10', 'font-semibold');
+                        cell.classList.add('px-4', 'py-1', 'text-start', 'font-regular',
+                            'text-[14px]', 'opacity-80', 'truncate', 'border-t',
+                            'border-[#1e1e1e]/10', 'font-semibold');
                     });
                 });
             });
@@ -303,23 +353,23 @@
             // Form submission
             document.getElementById('news-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 const form = e.target;
                 const formData = new FormData(form);
                 const newsId = document.getElementById('news_id').value;
                 const isEdit = newsId !== '';
-                
+
                 // Basic validation
                 const title = formData.get('title');
                 const content = formData.get('content');
                 const status = formData.get('status');
                 const visibility = formData.get('visibility');
-                
+
                 if (!title || !content || !status || !visibility) {
                     showAlert('error', 'Please fill in all required fields');
                     return;
                 }
-                
+
                 // Debug: Log form data
                 console.log('Form data:', {
                     title: title,
@@ -330,42 +380,42 @@
                     news_id: newsId,
                     isEdit: isEdit
                 });
-                
+
                 showLoader(isEdit ? "Updating..." : "Creating...");
-                
+
                 const url = '/admin/news';
                 const method = 'POST';
-                
+
                 fetch(url, {
-                    method: method,
-                    body: formData,
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    hideLoader();
-                    
-                    if (data.success) {
-                        showAlert('success', data.success);
-                        closeModal();
-                        form.reset();
-                        document.getElementById('news_id').value = '';
-                        newsTable.draw();
-                    } else if (data.error) {
-                        showAlert('error', data.error);
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    hideLoader();
-                    showAlert('error', 'Something went wrong: ' + err.message);
-                });
+                        method: method,
+                        body: formData,
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        hideLoader();
+
+                        if (data.success) {
+                            showAlert('success', data.success);
+                            closeModal();
+                            form.reset();
+                            document.getElementById('news_id').value = '';
+                            newsTable.draw();
+                        } else if (data.error) {
+                            showAlert('error', data.error);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        hideLoader();
+                        showAlert('error', 'Something went wrong: ' + err.message);
+                    });
             });
         });
 
@@ -391,35 +441,35 @@
         window.deleteNews = function(id) {
             if (confirm('Are you sure you want to delete this news article?')) {
                 showLoader("Deleting...");
-                
+
                 fetch(`/admin/news/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoader();
-                    
-                    if (data.success) {
-                        showAlert('success', data.success);
-                        newsTable.draw();
-                    } else if (data.error) {
-                        showAlert('error', data.error);
-                    }
-                })
-                .catch(err => {
-                    hideLoader();
-                    showAlert('error', 'Something went wrong');
-                });
+                        method: 'DELETE',
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+
+                        if (data.success) {
+                            showAlert('success', data.success);
+                            newsTable.draw();
+                        } else if (data.error) {
+                            showAlert('error', data.error);
+                        }
+                    })
+                    .catch(err => {
+                        hideLoader();
+                        showAlert('error', 'Something went wrong');
+                    });
             }
         };
 
         function closeModal() {
             let modal = document.querySelector('#news-modal');
             let body = document.querySelector('#news-modal-container');
-            
+
             if (modal && body) {
                 modal.classList.remove('opacity-100', 'scale-100');
                 modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
@@ -431,7 +481,7 @@
         function openModal() {
             let modal = document.querySelector('#news-modal');
             let body = document.querySelector('#news-modal-container');
-            
+
             if (modal && body) {
                 modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
                 modal.classList.add('opacity-100', 'scale-100');

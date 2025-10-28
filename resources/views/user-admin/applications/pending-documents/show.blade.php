@@ -578,7 +578,7 @@
                                                     View
                                                 </button>
 
-                                                @if ($doc->status !== 'Verified')
+                                                @if ($doc->status !== 'Verified' && $doc->status !== 'Rejected')
                                                     <button type="button" id="open-verify-modal-btn-{{ $doc->id }}"
                                                         data-document-id="{{ $doc->id }}"
                                                         class="verify-document-btn inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-green-50 text-green-700 hover:bg-green-100 hover:ring-2 hover:ring-green-200 transition-all duration-200"
@@ -596,11 +596,7 @@
                                                     </button>
                                                 @endif
                                             @empty
-                                                <button
-                                                    class="inline-flex items-center gap-2 px-6 py-2 text-sm font-semibold rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 hover:ring-2 hover:ring-orange-200 transition-all duration-200">
-                                                    <i class="fi fi-rs-bell text-sm flex justify-center items-center"></i>
-                                                    Send Reminder
-                                                </button>
+                                                -
                                             @endforelse
                                         </div>
                                     </td>

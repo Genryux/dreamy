@@ -52,7 +52,6 @@ class SubjectController extends Controller
         //return response()->json(['ewan' => $request->all()]);
 
         $query = Subject::query()->where('program_id', $program->id);
-        //dd($query);
 
         // search filter
         if ($search = $request->input('search.value')) {
@@ -69,7 +68,7 @@ class SubjectController extends Controller
             $query->where('grade_level', $grade);
         }
 
-        // Semester filter
+        // Semester filter - only filter if explicitly specified
         if ($semester = $request->input('semester_filter')) {
             $query->where('semester', $semester);
         }

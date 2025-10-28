@@ -2,6 +2,16 @@
 <html lang="en">
 <x-head></x-head>
 
+@php
+    // Platform detection helper (temporarily disabled for testing)
+    $userAgent = request()->header('User-Agent');
+    $isDesktop =
+        str_contains($userAgent, 'Electron') ||
+        str_contains($userAgent, 'DreamyDesktopApp') ||
+        request()->hasHeader('X-Electron-App');
+    $isWeb = !$isDesktop;
+@endphp
+
 <body class="bg-[#E4EAF9]/70 relative h-screen">
     @unless (Request::is('invoice/*'))
         @include('components.skeleton')
@@ -17,16 +27,30 @@
                         {{ asset('images/dreamy_logo2.png') }}
                     </x-slot>
                     <div id="nav-container"
-                        class="h-[630px] overflow-y-scroll overflow-x-hidden flex flex-col justify-center items-start transition-all duration-300">
+                        class="h-[630px] flex flex-col justify-center items-start transition-all duration-300">
                         <div class="flex flex-col space-y-2 w-full ">
                             <x-divider color='#f8f8f8' opacity="0.10"></x-divider>
 
                             @can('view enrollment dashboard page')
                                 <x-nav-link href="/admin" :active="request()->is('admin')">
 
-                                    <span class="flex flex-row items-center space-x-4">
-                                        <i class="fi fi-rs-chart-simple text-[20px] flex-shrink-0"></i>
-                                        <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
+                                    <span class="flex flex-row justify-between items-center space-x-4 w-full">
+                                        <div class="flex flex-row justify-between items-center space-x-4">
+                                            <i class="fi fi-rr-chart-simple text-[20px] flex-shrink-0"></i>
+                                            <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
+                                        </div>
+
+                                        @php
+                                            $hasActiveAcademicTerm = \App\Models\AcademicTerms::where(
+                                                'is_active',
+                                                1,
+                                            )->count();
+                                        @endphp
+                                        @if ($hasActiveAcademicTerm <= 0)
+                                            <div class="h-[8px] w-[8px] bg-red-500  rounded-full"
+                                                title="No active academic term set">
+                                            </div>
+                                        @endif
                                     </span>
 
                                 </x-nav-link>
@@ -73,7 +97,7 @@
                             </span>
                         </div>
 
-                        <div class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full overflow-x-hidden overflow-y-scroll">
+                        <div class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full ">
 
                             @can('view enrolled students page')
                                 <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
@@ -122,7 +146,7 @@
 
                                 </x-nav-link>
                             @endcan
-                            @can('view enrolled students page')
+                            @can('view sections page')
                                 <x-nav-link href="/sections" :active="str_starts_with(request()->path(), 'sections') ||
                                     str_starts_with(request()->path(), 'section')">
 
@@ -134,7 +158,7 @@
 
                                 </x-nav-link>
                             @endcan
-                            @can('view enrolled students page')
+                            @can('view subjects page')
                                 <x-nav-link href="/subjects" :active="str_starts_with(request()->path(), 'subjects')">
 
                                     <span class="flex flex-row items-center space-x-4">
@@ -170,7 +194,7 @@
                                 </x-nav-link>
                             @endcan
 
-                            @can('view site management page')
+                            {{-- @can('view site management page')
                                 <x-nav-link href="/homepage" :active="request()->is('homepage')">
 
                                     <span class="flex flex-row items-center space-x-4">
@@ -179,7 +203,7 @@
                                     </span>
 
                                 </x-nav-link>
-                            @endcan
+                            @endcan --}}
 
 
                             @can('view user management page')
@@ -215,11 +239,17 @@
                                 </x-nav-link>
                             @endcan
 
+
                         </div>
                     </div>
 
                     <x-slot name="role">
                         {{ auth()->user()->getRoleNames()->first() }}
+                        @if ($isDesktop)
+                            <span class="text-xs text-blue-500 ml-1">(Desktop)</span>
+                        @else
+                            <span class="text-xs text-green-500 ml-1">(Web)</span>
+                        @endif
                     </x-slot>
                 </x-side-nav-bar>
             @endunlessrole
@@ -383,18 +413,22 @@
                 @yield('ongoing-interviews')
                 @yield('docs_submission_progress')
 
-                @php
-                    $academicTermService = app(\App\Services\AcademicTermService::class);
-                    $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
-                @endphp
+                @hasanyrole('super_admin|registrar')
+                    @php
+                        $academicTermService = app(\App\Services\AcademicTermService::class);
+                        $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
+                    @endphp
 
-                @if (!$currentAcadTerm)
-                    <div
-                        class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
-                        <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
-                        No active academic term, some features might not work properly
-                    </div>
-                @endif
+                    @if (!$currentAcadTerm)
+                        <div
+                            class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
+                            <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
+                            No active academic term, some features might not work properly
+                        </div>
+                    @endif
+                @endhasanyrole
+
+
 
             </main>
         </div>

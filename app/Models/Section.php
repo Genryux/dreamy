@@ -29,18 +29,11 @@ class Section extends Model
     }
 
     /**
-     * Section has many students through enrollments.
+     * Section has many students.
      */
     public function students()
     {
-        return $this->hasManyThrough(
-            Student::class,
-            StudentEnrollment::class,
-            'section_id', // Foreign key on student_enrollments table
-            'id', // Foreign key on students table
-            'id', // Local key on sections table
-            'student_id' // Local key on student_enrollments table
-        )->select('students.id', 'students.lrn', 'students.section_id');
+        return $this->hasMany(Student::class, 'section_id');
     }
 
     /**
@@ -73,7 +66,7 @@ class Section extends Model
         return $this->total_enrolled_students >= $limit;
     }
 
-    public function getEnrolledStudentsCountAttribute()
+    public function countStudents()
     {
         return $this->students()->count();
     }

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('section_1')
-    <div class="relative bg-[#1A3165] min-h-screen w-screen py-40 px-[120px] border border-red-500">
+    <div class="relative bg-[#1A3165] min-h-screen w-screen py-40 px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
                 <h1 class="font-bold text-[48px] text-white mb-4">News & Announcements</h1>

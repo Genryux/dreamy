@@ -56,15 +56,18 @@
             <div class="flex items-center justify-end gap-2">
                 <button id="generate-coe-cancel-btn"
                     class="px-3 py-2 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition">Cancel</button>
-                <a id="generate-coe-download-btn" target="_blank"
-                    href="{{ route('students.coe.pdf', $student->record->id) }}"
-                    class="px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition">Download PDF</a>
+                <button
+                    class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                    <a id="generate-coe-download-btn" target="_blank"
+                        href="{{ route('students.coe.pdf', $student->record->id) }}">Download PDF</a>
+                </button>
+
             </div>
         </x-slot>
     </x-modal>
 
-    <x-modal modal_id="evaluate-student" modal_name="Academic Evaluation"
-        close_btn_id="evaluate-student-close-btn" modal_container_id="modal-container-evaluate-student">
+    <x-modal modal_id="evaluate-student" modal_name="Academic Evaluation" close_btn_id="evaluate-student-close-btn"
+        modal_container_id="modal-container-evaluate-student">
 
 
         <form action="/evaluate-student/{{ $student->id }}" method="POST" id="evaluate-form" class="p-6">
@@ -114,7 +117,8 @@
                                     <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                                     <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Failed</span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Student did not meet the sufficient requirements for the current term</p>
+                                <p class="text-xs text-gray-500 mt-1">Student did not meet the sufficient requirements for
+                                    the current term</p>
                             </div>
                         </div>
                     </label>
@@ -314,7 +318,9 @@
                 @endif
 
                 <div class="flex flex-row justify-center items-center mt-6 px-4">
-                    <p class="text-start text-[12px] text-gray-600"><span class="text-gray-800 font-semibold">Important:</span> The system automatically promotes all students at the start of a new academic term. Please proceed
+                    <p class="text-start text-[12px] text-gray-600"><span
+                            class="text-gray-800 font-semibold">Important:</span> The system automatically promotes all
+                        students at the start of a new academic term. Please proceed
                         with this manual action only for special cases.</p>
                 </div>
 
@@ -453,7 +459,7 @@
                         <i class="fi fi-rr-graduation-cap mr-2"></i>
                         Program <span class="text-red-500">*</span>
                     </label>
-                    <select name="program_id" id="program_id" required
+                    <select name="program_id" id="program_id"
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                         <option value="">Select Program</option>
                         @foreach ($programs ?? [] as $program)
@@ -467,8 +473,13 @@
                         <i class="fi fi-rr-tags mr-2"></i>
                         Section
                     </label>
-                    <input type="text" name="section" id="section" placeholder="Enter section"
+                    <select name="section" id="section"
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                        <option value="">Select Section</option>
+                        @foreach ($sections ?? [] as $section)
+                            <option value="{{ $section->id }}">{{ $section->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="w-full">
@@ -707,8 +718,8 @@
                     <img src="{{ asset('images/business-man.png') }}" alt=""
                         class="size-20 rounded-md ring ring-gray-200">
                     <div class="flex flex-col justify-center items-start pt-1">
-                        <p class="text-lg font-bold">{{ $student->record->getFullName() ?? '-' }}</p>
-                        <p class="text-sm font-medium opacity-60">#{{ $student->lrn ?? '-' }}</p>
+                        <p class="text-lg font-bold">{{ $student->record->getFullName() ?? 'N/A' }}</p>
+                        <p class="text-sm font-medium opacity-60">#{{ $student->lrn ?? 'N/A' }}</p>
 
                         @if ($student->status === 'Officially Enrolled')
                             @if ($student->enrollments->isNotEmpty() && $student->enrollments->first()->status === 'enrolled')
@@ -745,7 +756,7 @@
                                 <i class="fi fi-rr-phone-flip flex justify-center items-center"></i>
                                 <span>Phone:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->contact_number ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->contact_number ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start w-full gap-2">
                             {{-- icon here --}}
@@ -753,7 +764,7 @@
                                 <i class="fi fi-rr-at flex justify-center items-center"></i>
                                 <span>Email:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->user->email ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->user->email ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>
@@ -772,28 +783,28 @@
                                 <i class="fi fi-rr-square-l flex justify-center items-center"></i>
                                 <span>Last Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->user->last_name ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->user->last_name ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-square-f flex justify-center items-center"></i>
                                 <span>First Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->user->first_name ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->user->first_name ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-square-m flex justify-center items-center"></i>
                                 <span>Middle Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->middle_name ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->middle_name ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-square-e flex justify-center items-center"></i>
                                 <span>Extension Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->extension_name ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->extension_name ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
@@ -801,21 +812,22 @@
                                 <span>Birthdate:</span>
                             </div>
                             <p class="font-semibold opacity-85">
-                                {{ $student->record->birthdate ? $student->record->birthdate->format('F j, Y') : '-' }}</p>
+                                {{ \Carbon\Carbon::parse($student->record->birthdate)->timezone('Asia/Manila')->format('M. d, Y') }}
+                            </p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-age-restriction-sixteen flex justify-center items-center"></i>
                                 <span>Age</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->age ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->age ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-land-layer-location flex justify-center items-center"></i>
                                 <span>Place of Birth</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->place_of_birth ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->place_of_birth ?? 'N/A' }}</p>
                         </div>
                     </div>
 
@@ -835,42 +847,44 @@
                                 <i class="fi fi-rr-hastag flex justify-center items-center"></i>
                                 <span>LRN:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->lrn ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->lrn ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-star flex justify-center items-center"></i>
                                 <span>Grade Level:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->grade_level ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->grade_level ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
                                 <span>Program:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->program->code ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->program->code ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-calendar flex justify-center items-center"></i>
                                 <span>Academic Year:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->acad_term_applied ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">
+                                {{ $student->record?->acad_term_applied ?? $acadTerm->year }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-hourglass-end flex justify-center items-center"></i>
                                 <span>Semester</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->semester_applied ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">
+                                {{ $student->record?->acad_term_applied ?? $acadTerm->semester }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 <i class="fi fi-rr-tags flex justify-center items-center"></i>
                                 <span>Section</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->section ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->getCurrentSectionName() }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
@@ -924,42 +938,42 @@
                                 {{-- icon here --}}
                                 <span>House No:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->house_no ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->house_no ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 {{-- icon here --}}
                                 <span>Sitio/Street:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->street ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->street ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 {{-- icon here --}}
                                 <span>Barangay:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->barangay ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->barangay ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 {{-- icon here --}}
                                 <span>Municipality/City:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->city ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->city ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 {{-- icon here --}}
                                 <span>Country:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->country ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->country ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 {{-- icon here --}}
                                 <span>Zip Code:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->zip_code ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->zip_code ?? 'N/A' }}</p>
                         </div>
                     </div>
 
@@ -979,14 +993,84 @@
                                 {{-- icon here --}}
                                 <span>Guardian Name:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->guardian_name ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->guardian_name ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
                                 {{-- icon here --}}
                                 <span>Guardian Contact Number:</span>
                             </div>
-                            <p class="font-semibold opacity-85">{{ $student->record->guardian_contact_number ?? '-' }}</p>
+                            <p class="font-semibold opacity-85">{{ $student->record->guardian_contact_number ?? 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="space-y-2">
+                    <div class="flex flex-row justify-between items-center">
+                        <h2 class="font-bold opacity-90">Other informations</h2>
+                        <button id="edit-emergency-info-btn"
+                            class="edit-btn opacity-0 pointer-events-none text-[14px] font-semibold text-blue-500 hover:text-blue-600 transition duration-150">
+                            Edit
+                        </button>
+                    </div>
+                    <div class="flex flex-col justify-center items-start w-full gap-1">
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>Last School Attended:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">{{ $student->record->last_school_attended ?? 'N/A' }}</p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>Last Grade Level Completed:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">
+                                {{ $student->record->last_grade_level_completed ?? 'N/A' }}</p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>School ID:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">{{ $student->record->school_id ?? 'N/A' }}</p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>Admission Date:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">
+
+                                {{ \Carbon\Carbon::parse($student->record->admission_date)->timezone('Asia/Manila')->format('M. d, Y — g:i A') }}
+
+                            </p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>Special Needs:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">
+                                {{ implode(', ', $student->record->special_needs ?? []) }}</p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>Belongs to IP:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">{{ $student->record->belongs_to_ip === 1 ? 'Yes' : 'No' }}
+                            </p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                {{-- icon here --}}
+                                <span>4Ps Beneficiary:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">
+                                {{ $student->record->is_4ps_beneficiary === 1 ? 'Yes' : 'No' }}</p>
                         </div>
                     </div>
 
@@ -1005,72 +1089,63 @@
 
                     <!-- Action Buttons Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Edit Student Info -->
-                        @if ($student->status === 'Officially Enrolled')
-                            <button id="edit-info-btn"
-                                class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1">
-                                <div class="flex items-center space-x-3">
-                                    <div
-                                        class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                        <i class="fi fi-rr-edit flex justify-center items-center text-lg"></i>
+                        @hasanyrole('registrar|super_admin')
+                            <!-- Edit Student Info -->
+                            @if ($student->status === 'Officially Enrolled')
+                                <button id="edit-info-btn"
+                                    class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-rr-edit flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Edit Student Info</p>
+                                            <p class="text-xs text-blue-100">Update personal details</p>
+                                        </div>
                                     </div>
-                                    <div class="text-left">
-                                        <p class="font-semibold text-sm">Edit Student Info</p>
-                                        <p class="text-xs text-blue-100">Update personal details</p>
-                                    </div>
-                                </div>
-                            </button>
-                        @endif
+                                </button>
+                            @endif
+                        @endhasanyrole
 
-                        <!-- Generate COE -->
-                        @if ($student->status === 'Officially Enrolled')
-                            <button id="generate-coe-btn" type="button"
-                                class="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-1">
-                                <div class="flex items-center space-x-3">
-                                    <div
-                                        class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                        <i class="fi fi-sr-file-pdf flex justify-center items-center text-lg"></i>
+                        @hasanyrole('registrar|super_admin')
+                            <!-- Generate COE -->
+                            @if ($student->status === 'Officially Enrolled')
+                                <button id="generate-coe-btn" type="button"
+                                    class="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-sr-file-pdf flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Generate COE</p>
+                                            <p class="text-xs text-emerald-100">Certificate of Enrollment</p>
+                                        </div>
                                     </div>
-                                    <div class="text-left">
-                                        <p class="font-semibold text-sm">Generate COE</p>
-                                        <p class="text-xs text-emerald-100">Certificate of Enrollment</p>
-                                    </div>
-                                </div>
-                            </button>
-                        @endif
+                                </button>
+                            @endif
+                        @endhasanyrole
 
-                        <!-- Generate SIS -->
-                        @if ($student->status === 'Officially Enrolled')
-                            <button
-                                class="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-1">
-                                <div class="flex items-center space-x-3">
-                                    <div
-                                        class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                        <i class="fi fi-rr-document flex justify-center items-center text-lg"></i>
+                        @hasanyrole('registrar|super_admin')
+                            <!-- Generate SIS -->
+                            @if ($student->status === 'Officially Enrolled')
+                                <button
+                                    class="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-rr-document flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Generate SIS</p>
+                                            <p class="text-xs text-purple-100">Student Information Sheet</p>
+                                        </div>
                                     </div>
-                                    <div class="text-left">
-                                        <p class="font-semibold text-sm">Generate SIS</p>
-                                        <p class="text-xs text-purple-100">Student Information Sheet</p>
-                                    </div>
-                                </div>
-                            </button>
-                        @endif
+                                </button>
+                            @endif
+                        @endhasanyrole
 
-
-                        <!-- Download All Documents -->
-                        <button
-                            class="group relative overflow-hidden bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/25 hover:-translate-y-1">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                    <i class="fi fi-rr-download flex justify-center items-center text-lg"></i>
-                                </div>
-                                <div class="text-left">
-                                    <p class="font-semibold text-sm">Download All</p>
-                                    <p class="text-xs text-amber-100">All documents</p>
-                                </div>
-                            </div>
-                        </button>
 
                         <!-- Update Academic Status -->
                         @if ($student->status === 'Officially Enrolled' && $student->academic_status === null)
@@ -1087,169 +1162,185 @@
                                     </div>
                                 </div>
                             </button>
-                        @endif
-
-                        <!-- Promote Student -->
-                        @if ($student->status === 'Officially Enrolled')
-                            <button id="promote-student-btn"
-                                class="group relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-1">
+                        @else
+                            <button disabled
+                                class="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white rounded-xl p-4 transition-all duration-300 ">
                                 <div class="flex items-center space-x-3">
                                     <div
                                         class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                        <i class="fi fi-rr-arrow-up flex justify-center items-center text-lg"></i>
+                                        <i class="fi fi-rr-graduation-cap flex justify-center items-center text-lg"></i>
                                     </div>
                                     <div class="text-left">
-                                        <p class="font-semibold text-sm">Promote Student</p>
-                                        <p class="text-xs text-teal-100">Advance to next level</p>
+                                        <p class="font-semibold text-sm">Academic Status</p>
+                                        <p class="text-xs text-gray-100">Pass/Fail evaluation</p>
                                     </div>
                                 </div>
                             </button>
                         @endif
 
-
-                        <!-- Withdraw Enrollment -->
-                        @if ($student->status === 'Officially Enrolled')
-                            <button id="withdraw-btn"
-                                class="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 hover:-translate-y-1">
-                                <div class="flex items-center space-x-3">
-                                    <div
-                                        class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                        <i class="fi fi-rr-delete-user flex justify-center items-center text-lg"></i>
+                        @hasanyrole('registrar|super_admin')
+                            <!-- Promote Student -->
+                            @if ($student->status === 'Officially Enrolled')
+                                <button id="promote-student-btn"
+                                    class="group relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-rr-arrow-up flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Promote Student</p>
+                                            <p class="text-xs text-teal-100">Advance to next level</p>
+                                        </div>
                                     </div>
-                                    <div class="text-left">
-                                        <p class="font-semibold text-sm">Withdraw</p>
-                                        <p class="text-xs text-red-100">Remove enrollment</p>
+                                </button>
+                            @endif
+                        @endhasanyrole
+                        @hasanyrole('registrar|super_admin')
+                            <!-- Withdraw Enrollment -->
+                            @if ($student->status === 'Officially Enrolled')
+                                <button id="withdraw-btn"
+                                    class="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 hover:-translate-y-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-rr-delete-user flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Withdraw</p>
+                                            <p class="text-xs text-red-100">Remove enrollment</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </button>
-                        @endif
-
+                                </button>
+                            @endif
+                        @endhasanyrole
                     </div>
                 </div>
 
-                <!-- Documents & Requirements Section -->
-                <div class="w-full">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-900">Documents & Requirements</h2>
-                            <p class="text-sm text-gray-600 mt-1">Track student document submissions and status</p>
+                @hasanyrole('registrar|super_admin')
+                    <!-- Documents & Requirements Section -->
+                    <div class="w-full">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Documents & Requirements</h2>
+                                <p class="text-sm text-gray-600 mt-1">Track student document submissions and status</p>
+                            </div>
+                            @if (!$assignedDocuments)
+                                <button
+                                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                    <i class="fi fi-rr-plus mr-2"></i>
+                                    Assign Documents
+                                </button>
+                            @endif
                         </div>
-                        @if (!$assignedDocuments)
-                            <button
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                <i class="fi fi-rr-plus mr-2"></i>
-                                Assign Documents
-                            </button>
-                        @endif
-                    </div>
 
-                    <!-- Documents Table -->
-                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                        <div class="overflow-x-auto">
-                            <table id="enrolledStudents" class="w-full">
-                                <thead class="bg-gray-50 border-b border-gray-200">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
-                                            #
-                                        </th>
-                                        <th
-                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Document Name
-                                        </th>
-                                        <th
-                                            class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
-                                            Status
-                                        </th>
-                                        <th
-                                            class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">
-                                            Action
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse ($assignedDocuments as $doc)
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <!-- Index -->
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {{ $loop->iteration }}
-                                            </td>
-
-                                            <!-- Document Name -->
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div
-                                                        class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                                        <i class="fi fi-rr-file text-blue-600 text-sm"></i>
-                                                    </div>
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        {{ $doc->documents->type }}</div>
-                                                </div>
-                                            </td>
-
-                                            <!-- Status -->
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                @php
-                                                    $statusColors = [
-                                                        'submitted' => 'bg-green-100 text-green-800',
-                                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                                        'missing' => 'bg-red-100 text-red-800',
-                                                        'reviewed' => 'bg-blue-100 text-blue-800',
-                                                    ];
-                                                    $statusColor =
-                                                        $statusColors[strtolower($doc->status)] ??
-                                                        'bg-gray-100 text-gray-800';
-                                                @endphp
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
-                                                    {{ ucfirst($doc->status) }}
-                                                </span>
-                                            </td>
-
-                                            <!-- Action -->
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                @if ($doc->latest_submission)
-                                                    <a href="{{ asset('storage/' . $doc->latest_submission->file_path) }}"
-                                                        target="_blank"
-                                                        class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
-                                                        <i class="fi fi-rr-eye mr-1.5"></i>
-                                                        View PDF
-                                                    </a>
-                                                @else
-                                                    <button
-                                                        class="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors">
-                                                        <i class="fi fi-rr-bell mr-1.5"></i>
-                                                        Notify
-                                                    </button>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @empty
+                        <!-- Documents Table -->
+                        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table id="enrolledStudents" class="w-full">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <td colspan="4" class="px-6 py-12 text-center">
-                                                <div class="flex flex-col items-center">
-                                                    <div
-                                                        class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                                        <i class="fi fi-rr-document text-gray-400 text-2xl"></i>
-                                                    </div>
-                                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No documents
-                                                        assigned</h3>
-                                                    <p class="text-sm text-gray-500 mb-4">This student doesn't have any
-                                                        documents assigned yet.</p>
-                                                    <button
-                                                        class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                                        <i class="fi fi-rr-plus mr-2"></i>
-                                                        Assign Documents
-                                                    </button>
-                                                </div>
-                                            </td>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                                                #
+                                            </th>
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Document Name
+                                            </th>
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                                Status
+                                            </th>
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">
+                                                Action
+                                            </th>
                                         </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @forelse ($assignedDocuments as $doc)
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <!-- Index -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $loop->iteration }}
+                                                </td>
+
+                                                <!-- Document Name -->
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="flex items-center">
+                                                        <div
+                                                            class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                            <i class="fi fi-rr-file text-blue-600 text-sm"></i>
+                                                        </div>
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ $doc->documents->type }}</div>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Status -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @php
+                                                        $statusColors = [
+                                                            'submitted' => 'bg-green-100 text-green-800',
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'missing' => 'bg-red-100 text-red-800',
+                                                            'reviewed' => 'bg-blue-100 text-blue-800',
+                                                        ];
+                                                        $statusColor =
+                                                            $statusColors[strtolower($doc->status)] ??
+                                                            'bg-gray-100 text-gray-800';
+                                                    @endphp
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                        {{ ucfirst($doc->status) }}
+                                                    </span>
+                                                </td>
+
+                                                <!-- Action -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @if ($doc->latest_submission)
+                                                        <a href="{{ asset('storage/' . $doc->latest_submission->file_path) }}"
+                                                            target="_blank"
+                                                            class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                                            <i class="fi fi-rr-eye mr-1.5"></i>
+                                                            View PDF
+                                                        </a>
+                                                    @else
+                                                        <button
+                                                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                                            <i class="fi fi-rr-bell mr-1.5"></i>
+                                                            Notify
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-12 text-center">
+                                                    <div class="flex flex-col items-center">
+                                                        <div
+                                                            class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fi fi-rr-document text-gray-400 text-2xl"></i>
+                                                        </div>
+                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No documents
+                                                            found</h3>
+                                                        <p class="text-sm text-gray-500 mb-4">This student was either imported
+                                                            or got promoted without submitting any documents.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endhasanyrole
+
+
+
+
             </div>
         </div>
     </div>

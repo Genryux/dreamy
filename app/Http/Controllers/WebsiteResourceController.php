@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\WebBackground;
 use App\Models\News;
+use App\Models\Program;
+use App\Models\Track;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +33,21 @@ class WebsiteResourceController extends Controller
             ->limit(6)
             ->get();
 
-        return view('home', compact('background', 'news'));
+        // Get programs and manually link them to appropriate tracks
+        $programs = Program::with('track')
+            ->orderBy('name')
+            ->limit(6)
+            ->get();
+
+        // Don't force incorrect relationships - if programs don't have tracks, leave them empty
+        // The view will handle displaying programs without tracks gracefully
+
+        // Get all active tracks for reference
+        $tracks = Track::where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        return view('home', compact('background', 'news', 'programs', 'tracks'));
     }
 
     public function UploadMainBg(Request $request)

@@ -14,7 +14,7 @@ class StudentController extends Controller
      */
     public function index(): JsonResponse
     {
-        $students = Student::with(['user', 'sections', 'record'])->paginate(15);
+        $students = Student::with(['user', 'section', 'record'])->paginate(15);
         
         return response()->json([
             'success' => true,
@@ -42,7 +42,7 @@ class StudentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Student created successfully',
-            'data' => $student->load(['user', 'sections', 'record'])
+            'data' => $student->load(['user', 'section', 'record'])
         ], 201);
     }
 
@@ -53,7 +53,7 @@ class StudentController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $student->load(['user', 'sections', 'record', 'assignedDocuments'])
+            'data' => $student->load(['user', 'section', 'record', 'assignedDocuments'])
         ]);
     }
 
@@ -76,7 +76,7 @@ class StudentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Student updated successfully',
-            'data' => $student->load(['user', 'sections', 'record'])
+            'data' => $student->load(['user', 'section', 'record'])
         ]);
     }
 

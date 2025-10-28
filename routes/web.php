@@ -55,7 +55,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/portal/register', [RegistrationController::class, 'create'])->name('register');
     Route::post('/session', [SessionController::class, 'store']);
     Route::post('/register', [RegistrationController::class, 'store']);
-    
+
     // Password Reset Routes
     Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
@@ -86,6 +86,11 @@ Route::get('/user/invitation/{token}', [UserInvitationController::class, 'status
 // Website Background Upload (Public)
 Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMainBg'])->name('upload.store');
 
+// Web Admin Message (for admin users accessing via web browser)
+Route::get('/web-admin-message', function () {
+    return view('auth.web-admin-message');
+})->name('web.admin.message');
+
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED ROUTES
@@ -96,7 +101,7 @@ Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMain
 Route::middleware(['role:applicant|student', 'auth', 'pin.security'])->group(function () {
     Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
     Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
-    // Applicant Dashboard and Status
+    // Applicant Dashboard and Status - WEB ONLY
     Route::get('/admission', [AdmissionDashboardController::class, 'index'])->name('admission.dashboard')->middleware('verified');
     Route::get('/api/application-summary', [ApplicationFormController::class, 'getApplicationSummary'])->name('api.application-summary');
 });
@@ -145,6 +150,17 @@ Route::middleware(['auth', 'pin.security'])->group(function () {
         ->middleware(['permission:submit document', 'verified'])->name('documents.store');
     // Applicant Updates
     Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
+
+
+
+
+    // Invoice Downloads
+    Route::get('/invoice/{invoice}/schedule/{schedule}/download', [InvoiceController::class, 'downloadScheduleInvoice'])->name('invoice.schedule.download');
+    Route::get('/invoice/{invoice}/schedule/{schedule}/receipt', [InvoiceController::class, 'downloadScheduleReceipt'])->name('invoice.schedule.receipt');
+
+    // One-time payment invoice and receipt
+    Route::get('/invoice/{invoice}/onetime/download', [InvoiceController::class, 'downloadOneTimeInvoice'])->name('invoice.onetime.download');
+    Route::get('/invoice/{invoice}/onetime/receipt', [InvoiceController::class, 'downloadOneTimeReceipt'])->name('invoice.onetime.receipt');
 });
 
 /*
@@ -156,7 +172,7 @@ Route::middleware(['auth', 'pin.security'])->group(function () {
 
 Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function () {
 
-    // Admin Dashboard
+    // Admin Dashboard - DESKTOP ONLY
     Route::get('/admin', [ApplicationFormController::class, 'index'])->middleware(['permission:view enrollment dashboard page'])->name('admin');
 
 
@@ -353,16 +369,6 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::post('/invoice/{invoice}/payments', [InvoicePaymentController::class, 'store'])
         ->name('invoice.payments.store')
         ->middleware('permission:record payment');
-
-
-
-    // Invoice Downloads
-    Route::get('/invoice/{invoice}/schedule/{schedule}/download', [InvoiceController::class, 'downloadScheduleInvoice'])->name('invoice.schedule.download');
-    Route::get('/invoice/{invoice}/schedule/{schedule}/receipt', [InvoiceController::class, 'downloadScheduleReceipt'])->name('invoice.schedule.receipt');
-
-    // One-time payment invoice and receipt
-    Route::get('/invoice/{invoice}/onetime/download', [InvoiceController::class, 'downloadOneTimeInvoice'])->name('invoice.onetime.download');
-    Route::get('/invoice/{invoice}/onetime/receipt', [InvoiceController::class, 'downloadOneTimeReceipt'])->name('invoice.onetime.receipt');
 
     // Payment Plans
     Route::post('/invoice/{invoice}/payment-plan', [App\Http\Controllers\PaymentPlanController::class, 'store'])->name('invoice.payment-plan.store');

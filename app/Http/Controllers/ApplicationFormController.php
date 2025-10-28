@@ -831,19 +831,6 @@ class ApplicationFormController extends Controller
                         url('/applications/pending')
                     ));
 
-                $user->notify(new PrivateQueuedNotification(
-                    "Application Form Received!",
-                    "Your application form has been successfully received and is now pending review. You’ll be notified once your application has been reviewed and approved.",
-                    null
-                ));
-
-                Notification::route('broadcast', 'user.' . $user->id)
-                    ->notify(new PrivateImmediateNotification(
-                        "Application Form Received!",
-                        "Your application form has been successfully received and is now pending review. You’ll be notified once your application has been reviewed and approved.",
-                        null,
-                        'user.' . $user->id
-                    ));
             });
 
             return response()->json([

@@ -211,7 +211,7 @@
                             <h4 class="text-sm font-medium text-gray-700">Automatic Document Assignment</h4>
                             <p class="text-sm text-gray-600 mt-1">
                                 By selecting 'Passed', standard document requirements will be automatically assigned to this applicant. 
-                                The applicant will receive notifications about the required documents and submission deadline.
+                                The applicant will receive email notifications about the required documents and submission deadline.
                             </p>
                         </div>
                     </div>

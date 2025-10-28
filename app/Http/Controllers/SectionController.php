@@ -78,7 +78,7 @@ class SectionController extends Controller
                     'adviser' => 'Not Assigned',
                     'year_level' => $item->year_level,
                     'room' => $item->room ?? 'Not Assigned',
-                    'total_enrolled_students' => $item->enrolled_students_count ?? '-',
+                    'total_enrolled_students' => $item->countStudents() ?? '-',
                     'id' => $item->id
                 ];
             });
@@ -100,24 +100,24 @@ class SectionController extends Controller
 
         // Search filter
         if ($search = $request->input('search.value')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('year_level', 'like', "%{$search}%")
-                  ->orWhere('room', 'like', "%{$search}%")
-                  ->orWhereHas('teacher.user', function($teacherQuery) use ($search) {
-                      $teacherQuery->where('first_name', 'like', "%{$search}%")
-                                   ->orWhere('last_name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('program', function($programQuery) use ($search) {
-                      $programQuery->where('name', 'like', "%{$search}%")
-                                   ->orWhere('code', 'like', "%{$search}%");
-                  });
+                    ->orWhere('year_level', 'like', "%{$search}%")
+                    ->orWhere('room', 'like', "%{$search}%")
+                    ->orWhereHas('teacher.user', function ($teacherQuery) use ($search) {
+                        $teacherQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('program', function ($programQuery) use ($search) {
+                        $programQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Program filter
         if ($programFilter = $request->input('program_filter')) {
-            $query->whereHas('program', function($q) use ($programFilter) {
+            $query->whereHas('program', function ($q) use ($programFilter) {
                 $q->where('code', $programFilter);
             });
         }
@@ -136,14 +136,14 @@ class SectionController extends Controller
         // Handle special sorting for teacher and program columns
         if ($sortColumn === 'teacher') {
             $query->leftJoin('teachers', 'sections.teacher_id', '=', 'teachers.id')
-                  ->leftJoin('users', 'teachers.user_id', '=', 'users.id')
-                  ->orderBy('users.last_name', $orderDir)
-                  ->orderBy('users.first_name', $orderDir)
-                  ->select('sections.*');
+                ->leftJoin('users', 'teachers.user_id', '=', 'users.id')
+                ->orderBy('users.last_name', $orderDir)
+                ->orderBy('users.first_name', $orderDir)
+                ->select('sections.*');
         } elseif ($sortColumn === 'program') {
             $query->leftJoin('programs', 'sections.program_id', '=', 'programs.id')
-                  ->orderBy('programs.code', $orderDir)
-                  ->select('sections.*');
+                ->orderBy('programs.code', $orderDir)
+                ->select('sections.*');
         } else {
             $query->orderBy($sortColumn, $orderDir);
         }
@@ -160,7 +160,7 @@ class SectionController extends Controller
             ->get()
             ->map(function ($section, $key) use ($start) {
                 $adviser = 'Not Assigned';
-                
+
                 // Debug: Check if teacher exists and what it contains
                 if ($section->teacher_id) {
                     if ($section->teacher && $section->teacher->user) {
@@ -183,7 +183,7 @@ class SectionController extends Controller
                     'adviser' => $adviser,
                     'year_level' => $section->year_level ?? 'Not Set',
                     'room' => $section->room ?? 'Not Assigned',
-                    'total_enrolled_students' => $section->enrollments->count(),
+                    'total_enrolled_students' => $section->countStudents(),
                     'id' => $section->id
                 ];
             });
@@ -297,7 +297,7 @@ class SectionController extends Controller
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
                 'data' => [],
-                'error' => 'An error occurred while fetching students: ' . $e->getMessage()
+                'error' => 'An error occurred while fetching students: '
             ], 500);
         }
     }
@@ -387,7 +387,7 @@ class SectionController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => 'Something went wrong while creating the section'
             ], 500);
         }
     }
@@ -488,7 +488,7 @@ class SectionController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Failed to fetch section subject data: ' . $e->getMessage()
+                'error' => 'Failed to fetch section subject data: '
             ], 500);
         }
     }
@@ -584,7 +584,7 @@ class SectionController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Failed to assign subject: ' . $e->getMessage()
+                'error' => 'Failed to assign subject'
             ], 500);
         }
     }
@@ -592,50 +592,63 @@ class SectionController extends Controller
 
     public function updateSubject(Request $request, Section $section)
     {
-        $validated = $request->validate([
-            'section_subject_id' => 'required|exists:section_subjects,id',
-            'teacher_id' => 'nullable|exists:teachers,id',
-            'room' => 'nullable|string|max:100',
-            'days_of_week' => 'nullable|array',
-            'days_of_week.*' => 'string|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
-        ]);
-
-        // Get the section subject to update
-        $sectionSubject = \App\Models\SectionSubject::find($validated['section_subject_id']);
-        if (!$sectionSubject) {
-            return response()->json([
-                'error' => 'Section subject not found'
-            ], 404);
-        }
-
-        // Remove section_subject_id from validated data as it's not a field to update
-        unset($validated['section_subject_id']);
-
-        // Validate schedule data
-        $validationErrors = $this->scheduleConflictService->validateScheduleData($validated);
-        if (!empty($validationErrors)) {
-            return response()->json([
-                'error' => 'Validation errors: ' . implode('; ', $validationErrors)
-            ], 422);
-        }
-
-        // Check for conflicts using the service (exclude current record)
-        $conflictResult = $this->scheduleConflictService->checkConflicts($section, $validated, $sectionSubject->id);
-
-        if ($conflictResult['has_conflicts']) {
-            $conflictMessages = array_column($conflictResult['conflicts'], 'message');
-            return response()->json([
-                'error' => 'Schedule conflicts detected: ' . implode('; ', $conflictMessages)
-            ], 422);
-        }
 
         try {
+
+            $validated = $request->validate([
+                'section_subject_id' => 'required|exists:section_subjects,id',
+                'teacher_id' => 'nullable|exists:teachers,id',
+                'room' => 'nullable|string|max:100',
+                'days_of_week' => 'nullable|array',
+                'days_of_week.*' => 'string|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+                'start_time' => 'nullable|date_format:H:i',
+                'end_time' => 'nullable|date_format:H:i|after:start_time',
+            ]);
+
+            // Get the section subject to update
+            $sectionSubject = \App\Models\SectionSubject::find($validated['section_subject_id']);
+            if (!$sectionSubject) {
+                return response()->json([
+                    'error' => 'Section subject not found'
+                ], 404);
+            }
+
+            // Remove section_subject_id from validated data as it's not a field to update
+            unset($validated['section_subject_id']);
+
+            // Validate schedule data
+            $validationErrors = $this->scheduleConflictService->validateScheduleData($validated);
+            if (!empty($validationErrors)) {
+                return response()->json([
+                    'error' => 'Validation errors: ' . implode('; ', $validationErrors)
+                ], 422);
+            }
+
+            // Check for conflicts using the service (exclude current record)
+            $conflictResult = $this->scheduleConflictService->checkConflicts($section, $validated, $sectionSubject->id);
+
+            if ($conflictResult['has_conflicts']) {
+                $conflictMessages = array_column($conflictResult['conflicts'], 'message');
+                return response()->json([
+                    'error' => 'Schedule conflicts detected: ' . implode('; ', $conflictMessages)
+                ], 422);
+            }
+
             // Store original values for comparison
             $originalValues = $sectionSubject->toArray();
-            
+
             $sectionSubject->update($validated);
+
+            // Calculate changes (only track scalar values to avoid array conversion error)
+            $changes = [];
+            foreach ($validated as $key => $value) {
+                if (isset($originalValues[$key]) && $originalValues[$key] != $value) {
+                    $changes[$key] = [
+                        'old' => $originalValues[$key],
+                        'new' => $value
+                    ];
+                }
+            }
 
             // Log the activity
             activity('curriculum_management')
@@ -650,9 +663,7 @@ class SectionController extends Controller
                     'section_subject_id' => $sectionSubject->id,
                     'subject_id' => $sectionSubject->subject_id,
                     'subject_name' => $sectionSubject->subject->name ?? 'Unknown',
-                    'original_values' => $originalValues,
-                    'new_values' => $validated,
-                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'changes' => $changes,
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent()
                 ])
@@ -662,9 +673,14 @@ class SectionController extends Controller
                 'success' => 'Subject updated successfully',
                 'section_subject' => $sectionSubject->load(['subject', 'teacher'])
             ]);
-        } catch (\Exception $e) {
+        } catch (\ValidationException $e) {
             return response()->json([
-                'error' => 'Failed to update subject: ' . $e->getMessage()
+                'error' => $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Failed to update section subject: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Failed to update subject. Please try again.'
             ], 500);
         }
     }
@@ -732,7 +748,7 @@ class SectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to remove subject from section: ' . $e->getMessage()
+                'message' => 'Failed to remove subject from section: '
             ], 500);
         }
     }
@@ -763,7 +779,7 @@ class SectionController extends Controller
 
             // Store original values for comparison
             $originalValues = $section->toArray();
-            
+
             $section->update($validated);
 
             // Log the activity
@@ -783,7 +799,7 @@ class SectionController extends Controller
                     'user_agent' => $request->userAgent()
                 ])
                 ->log('Section updated');
-            
+
             // Reload the section with teacher relationship
             $section->load('teacher.user');
 
@@ -801,8 +817,8 @@ class SectionController extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'error' => $th->getMessage(),
-            ]);
+                'error' => 'Something went wrong while updating the section',
+            ], 500);
         }
 
         return response()->json($section);

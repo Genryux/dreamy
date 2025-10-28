@@ -51,7 +51,9 @@
                     <input type="number" step="0.01"
                         min="{{ $invoice->payment_mode === 'full' && $invoice->paid_amount == 0 ? $invoice->total_amount : '0.01' }}"
                         max="{{ $invoice->balance }}" name="amount" id="amount"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
+                        value="{{ !$invoice->has_payment_plan ? $invoice->total_amount : '' }}"
+                        {{ !$invoice->has_payment_plan ? 'readonly' : '' }}
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 {{ !$invoice->has_payment_plan ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-100' }} self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]"
                         placeholder="Enter payment amount" required />
                     <p class="text-xs text-gray-500 mt-1">
                         @if ($invoice->payment_mode === 'full')
@@ -60,6 +62,8 @@
                             @else
                                 Maximum amount: ₱{{ number_format($invoice->balance, 2) }} (remaining balance)
                             @endif
+                        @elseif (!$invoice->has_payment_plan)
+                            One-time payment amount is fixed at the total invoice amount
                         @else
                             Enter the payment amount
                         @endif
@@ -1084,54 +1088,56 @@
                 totalDiscount += earlyDiscount;
             }
             
-            // Calculate custom discounts (applied to payment amount)
-            discountCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    const discountAmount = getDiscountAmount(checkbox.value);
-                    customDiscounts += discountAmount;
-                    totalDiscount += discountAmount;
-                }
-            });
+            // Calculate custom discounts (applied to total invoice amount)
+            if (isDownPayment || !hasPaymentPlan) {
+                const totalInvoiceAmount = {{ $invoice->total_amount }};
+                discountCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const discountAmount = getDiscountAmount(checkbox.value, totalInvoiceAmount);
+                        customDiscounts += discountAmount;
+                        totalDiscount += discountAmount;
+                    }
+                });
+            }
             
             // Calculate final amount after discounts
             const finalAmount = baseAmount - customDiscounts; // Only subtract custom discounts from payment amount
             
             if (isDownPayment) {
                 // For down payments in installment plans: show live calculation following backend formula
-                // Formula: Monthly = (Total Invoice Amount - Total Discount - Down Payment) / months
+                // Formula: Monthly = (Total Invoice Amount - Early Discount - Down Payment - Custom Discounts) / months
                 const totalInvoiceAmount = {{ $invoice->total_amount }};
-                const discountedTotal = totalInvoiceAmount - totalDiscount;
-                const remainingBalance = discountedTotal - baseAmount; // baseAmount is the down payment
+                const discountedTotal = totalInvoiceAmount - earlyDiscount; // Only subtract early discount from invoice total
+                const remainingBalance = discountedTotal - baseAmount - customDiscounts; // Subtract down payment and custom discounts
                 const monthlyAmount = remainingBalance / 9; // 9 months installment
                 
                 if (totalDisplay) {
                     totalDisplay.textContent = `Remaining: ₱${remainingBalance.toFixed(2)} / 9 months = ₱${monthlyAmount.toFixed(2)}`;
                 }
                 if (finalAmountInput) {
-                    finalAmountInput.value = remainingBalance; // Store remaining balance for backend
+                    finalAmountInput.value = remainingBalance; // Store remaining balance for backend (preview only)
                 }
             } else {
                 // For monthly installments or one-time payments: show total with discounts applied
                 if (totalDisplay) {
-                    // For one-time payments, show the payment amount minus custom discounts
-                    // Early enrollment discount is applied to total invoice, not payment amount
-                    if (isEarlyEnrollee && earlyDiscountPercentage > 0) {
-                        // Show early enrollment discount deducted from total for one-time payments (preview only)
+                    if (!hasPaymentPlan) {
+                        // For one-time payments: show invoice total after all discounts
+                        // Formula: Total Invoice - Early Discount - Custom Discounts
                         const totalInvoiceAmount = {{ $invoice->total_amount }};
-                        const earlyDiscountAmount = totalInvoiceAmount * (earlyDiscountPercentage / 100);
-                        const discountedTotal = finalAmount - earlyDiscountAmount;
-                        totalDisplay.textContent = `Total: ₱${Math.max(0, discountedTotal).toFixed(2)}`;
+                        const discountedTotal = totalInvoiceAmount - earlyDiscount - customDiscounts;
+                        totalDisplay.textContent = `Total to Pay: ₱${Math.max(0, discountedTotal).toFixed(2)}`;
                     } else {
-                        totalDisplay.textContent = `Total: ₱${finalAmount.toFixed(2)}`;
+                        // For monthly installments (non-down payment): show payment amount only
+                        totalDisplay.textContent = `Total: ₱${baseAmount.toFixed(2)}`;
                     }
                 }
                 if (finalAmountInput) {
-                    finalAmountInput.value = finalAmount; // Still send original amount to backend
+                    finalAmountInput.value = baseAmount; // Send payment amount to backend
                 }
             }
         }
         
-        function getDiscountAmount(discountId) {
+        function getDiscountAmount(discountId, baseAmount = null) {
             // Get discount amount from the label
             const label = document.querySelector(`label[for="discount-${discountId}"]`);
             if (label) {
@@ -1140,8 +1146,11 @@
                     const amountText = h4Element.textContent.replace('Amount: ', '');
                     if (amountText.includes('%')) {
                         const percentage = parseFloat(amountText.replace('%', ''));
-                        return (parseFloat(amountInput.value) || 0) * (percentage / 100);
+                        // Use baseAmount (invoice total) if provided, otherwise use payment amount
+                        const calculationBase = baseAmount !== null ? baseAmount : (parseFloat(amountInput.value) || 0);
+                        return calculationBase * (percentage / 100);
                     } else {
+                        // Fixed amount discount
                         return parseFloat(amountText.replace('₱', '').replace(',', '')) || 0;
                     }
                 }
@@ -1151,8 +1160,15 @@
         
         // Clear form fields on page load/refresh
         function clearForm() {
-            // Clear amount input
-            if (amountInput) {
+            const hasPaymentPlan = {{ $invoice->has_payment_plan ? 'true' : 'false' }};
+            
+            // For one-time payments, set the amount to total invoice amount and lock it
+            if (!hasPaymentPlan && amountInput) {
+                const totalAmount = {{ $invoice->total_amount }};
+                amountInput.value = totalAmount;
+                amountInput.readOnly = true;
+            } else if (amountInput) {
+                // For installment plans, clear the amount
                 amountInput.value = '';
             }
             

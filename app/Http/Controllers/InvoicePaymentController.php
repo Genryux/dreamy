@@ -107,13 +107,14 @@ class InvoicePaymentController extends Controller
             }
         }
         
-        // Calculate custom discounts for record keeping
+        // Calculate custom discounts for record keeping (applied to total invoice amount)
         $customDiscountsTotal = 0;
         if (isset($validated['custom_discount_enabled']) && $validated['custom_discount_enabled'] && isset($validated['selected_discounts'])) {
             foreach ($validated['selected_discounts'] as $discountId) {
                 $discount = \App\Models\Discount::find($discountId);
                 if ($discount && $discount->is_active) {
-                    $customDiscountsTotal += $discount->calculateDiscount($originalAmount);
+                    // Apply custom discount to total invoice amount, not payment amount
+                    $customDiscountsTotal += $discount->calculateDiscount($invoice->total_amount);
                 }
             }
         }

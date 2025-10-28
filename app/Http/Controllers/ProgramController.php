@@ -11,6 +11,8 @@ use App\Models\Track;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as FacadesRoute;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class ProgramController extends Controller
 {
@@ -138,39 +140,60 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
 
-        $validated = $request->validate([
-            'code' => 'required|string|max:10|unique:programs,code,' . $program->id,
-            'name' => 'required|string|max:255',
-            'track' => 'nullable|string|max:255',
-            'status' => 'nullable|in:active,inactive',
-        ]);
 
-        // Store original values for comparison
-        $originalValues = $program->toArray();
-        
-        $program->update($validated);
+        try {
 
-        // Log the activity
-        activity('curriculum_management')
-            ->causedBy(auth()->user())
-            ->performedOn($program)
-            ->withProperties([
-                'action' => 'updated_program',
-                'program_id' => $program->id,
-                'program_code' => $program->code,
-                'program_name' => $program->name,
-                'original_values' => $originalValues,
-                'new_values' => $validated,
-                'changes' => array_diff_assoc($validated, $originalValues),
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ])
-            ->log('Program updated');
+            $validated = $request->validate([
+                'code' => 'required|string|max:10|unique:programs,code,' . $program->id,
+                'name' => 'required|string|max:255',
+                'track' => 'nullable|string|max:255',
+                'status' => 'nullable|in:active,inactive',
+            ]);
 
-        return response()->json([
-            'success' => 'Program updated successfully',
-            'data' => $program
-        ]);
+            // Store original values for comparison
+            $originalValues = $program->toArray();
+
+            $program->update($validated);
+
+            // Log the activity
+            activity('curriculum_management')
+                ->causedBy(auth()->user())
+                ->performedOn($program)
+                ->withProperties([
+                    'action' => 'updated_program',
+                    'program_id' => $program->id,
+                    'program_code' => $program->code,
+                    'program_name' => $program->name,
+                    'original_values' => $originalValues,
+                    'new_values' => $validated,
+                    'changes' => array_diff_assoc($validated, $originalValues),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Program updated');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Program updated successfully',
+                'data' => $program
+            ]);
+        } catch (ValidationException $th) {
+
+            // custom handling for validation errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $th->getMessage(),
+            ], 422);
+
+        } catch (Throwable $e) {
+            // catch any other unexpected error
+            return response()->json([
+                'success' => false,
+                'message' => 'Program failed to update',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function destroy(Program $program)
@@ -221,7 +244,7 @@ class ProgramController extends Controller
                 'track_id' => $program->track_id,
                 'status' => $program->status
             ];
-            
+
             // Safe to delete
             $program->delete();
 

@@ -10,10 +10,6 @@
 @section('modal')
     <x-modal modal_id="create-section-modal" modal_name="Create Section" close_btn_id="create-section-modal-close-btn"
         modal_container_id="modal-container-1">
-        <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-
-        </x-slot>
 
         <div class="max-h-[70vh] overflow-y-auto">
             <form id="create-section-form" class="p-6">
@@ -338,14 +334,19 @@
                         data: 'id',
                         render: function(data, type, row) {
                             return `
-                            <a href='/section/${data}' class='flex flex-row justify-center items-center gap-2'>
-                                <button type="button" id="open-edit-modal-btn-${data}"
-                                    data-section-id="${data}"
-                                    class="edit-section-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
-                                    <i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i>
-                                    View
-                                </button>
-                            </a>`;
+                            @can('view section')
+                                <a href='/section/${data}' class='flex flex-row justify-center items-center gap-2'>
+                                    <button type="button" id="open-edit-modal-btn-${data}"
+                                        data-section-id="${data}"
+                                        class="edit-section-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                        <i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i>
+                                        View
+                                    </button>
+                                </a>
+                            @else
+                            <p class='text-gray-400'>Forbidden</p>
+                            @endcan
+                            `;
                         },
                         orderable: false,
                         searchable: false

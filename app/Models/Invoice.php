@@ -88,10 +88,35 @@ class Invoice extends Model
             $discountedTotal = $this->paymentPlan->discounted_total ?? $this->total_amount;
             $balance = $discountedTotal - $this->paid_amount;
         } else {
-            $balance = $this->total_amount - $this->paid_amount;
+            // For flexible/one-time payments, calculate balance based on discounted total
+            $totalDiscounts = $this->payments->sum('total_discount');
+            $discountedTotal = $this->total_amount - $totalDiscounts;
+            $balance = $discountedTotal - $this->paid_amount;
         }
         // Round to 2 decimal places to avoid floating-point precision issues
         return round($balance, 2);
+    }
+
+    // 👇 Get discounted total (invoice total minus all discounts)
+    public function getDiscountedTotalAttribute()
+    {
+        if ($this->has_payment_plan && $this->paymentPlan) {
+            return $this->paymentPlan->discounted_total ?? $this->total_amount;
+        } else {
+            // For flexible/one-time payments, subtract total discounts from invoice total
+            $totalDiscounts = $this->payments->sum('total_discount');
+            return round($this->total_amount - $totalDiscounts, 2);
+        }
+    }
+
+    // 👇 Get total discount amount
+    public function getTotalDiscountAttribute()
+    {
+        if ($this->has_payment_plan && $this->paymentPlan) {
+            return $this->paymentPlan->total_discount ?? 0;
+        } else {
+            return $this->payments->sum('total_discount');
+        }
     }
 
     /**

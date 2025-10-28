@@ -166,10 +166,6 @@
     </x-modal>
     <x-modal modal_id="create-section-modal" modal_name="Create Section" close_btn_id="create-section-modal-close-btn"
         modal_container_id="modal-container-1">
-        <x-slot name="modal_icon">
-            <i class='fi fi-rr-progress-upload flex justify-center items-center '></i>
-
-        </x-slot>
 
         <div class="max-h-[70vh] overflow-y-auto">
             <form id="create-section-form" class="p-6">
@@ -647,14 +643,6 @@
                     class="inline-block p-4 border-b-2 rounded-t-lg 
               {{ Route::is('program.subjects') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
                     Subjects
-                </a>
-            </li>
-
-            <li class="me-2">
-                <a href="{{ route('program.faculty', $program->id) }}"
-                    class="inline-block p-4 border-b-2 rounded-t-lg 
-              {{ Route::is('program.subjects') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
-                    Faculty
                 </a>
             </li>
 
@@ -1710,16 +1698,16 @@
                                 closeModal('edit-program-modal', 'modal-container-2');
 
                                 // Show success alert
-                                showAlert('success', data.success);
+                                showAlert('success', data.message);
 
                                 // Reload page to show updated data
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
 
-                            } else if (data.error) {
+                            } else {
                                 closeModal('edit-program-modal', 'modal-container-2');
-                                showAlert('error', data.error);
+                                showAlert('error', `${data.message}: ${data.errors}`);
                             }
                         })
                         .catch(err => {

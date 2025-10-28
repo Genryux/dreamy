@@ -72,9 +72,9 @@
                             </div>
                         </div>
                     @elseif ($activeEnrollmentPeriod->status === 'Ongoing')
-                        <div data-current-term="{{ $currentAcadTerm->getFullNameAttribute() }}">
+                        <div data-current-term="{{ $currentAcadTerm->getFullNameAttribute() }}" data-enrollment-period="{{ $activeEnrollmentPeriod->name }}">
                             <p id="db-text" class="text-[18px] md:text-[22px] font-bold p-2">
-                                Welcome to Dreamy School' Online Registration for
+                                Welcome to Dreamy School' {{ $activeEnrollmentPeriod->name }} for
                                 {{ $currentAcadTerm->getFullNameAttribute() }}
                             </p>
                             <p id="zspan" class="text-[16px] md:text-[18px] font-medium">
@@ -1300,15 +1300,15 @@
                         <div class="flex flex-col justify-center items-center">
                             <p class="font-semibold text-[14px] text-gray-700 mb-1">Your school fee details have been sent
                                 to the mobile app</p>
-                            <p class="self-center text-center text-[14px] text-gray-500 px-22 mb-6">Download our official
+                            <p  class="self-center text-center text-[14px] text-gray-500 px-22 mb-6">Download our official
                                 mobile app using the link below to choose your preferred payment plan <br> and settle your
                                 fees at school.</p>
 
-                            <button
+                            <a href='{{ asset('apk/application-33998b53-1d52-45e9-8a7e-df517e152896.apk') }}' download 
                                 class="w-auto flex flex-row justify-start items-center rounded-full px-4 py-2.5 text-start bg-[#199BCF] text-white shadow-[#199BCF]/40 gap-1 shadow-xl transition hover:translate-x-2 hover:bg-[#C8A165] hover:shadow-[#C8A165]/40 duration-200 mb-6">
                                 <p class="font-medium">Download App</p><i
                                     class="fi fi-rr-arrow-small-right flex justify-center items-center text-[24px] pt-0.5"></i>
-                            </button>
+                            </a>
 
                             <p class="self-center text-center text-[14px] font-medium text-gray-600 px-22 mb-2">Inside the
                                 app, you’ll also find exclusive student content such as:
@@ -1744,16 +1744,20 @@
                     }
 
                     if (status === 'Ongoing') {
-                        // Get the current academic term name from the page
+                        // Get the current academic term name and enrollment period name from the page
                         const currentTermElement = document.querySelector('[data-current-term]');
                         const termName = currentTermElement ? currentTermElement.getAttribute(
                                 'data-current-term') :
                             '{{ $currentAcadTerm?->getFullNameAttribute() ?? 'Academic Year' }}';
+                        
+                        const enrollmentPeriodName = currentTermElement ? currentTermElement.getAttribute(
+                                'data-enrollment-period') :
+                            '{{ $activeEnrollmentPeriod->name ?? 'Online Registration' }}';
 
                         // Update the dashboard text to match the PHP template
                         if (dbText) {
                             dbText.textContent =
-                                `Welcome to Dreamy School' Online Registration for ${termName}`;
+                                `Welcome to Dreamy School' ${enrollmentPeriodName} for ${termName}`;
                             dbText.classList.remove('md:text-[20px]');
                             dbText.classList.add('md:text-[22px]');
                             dbText.classList.remove('p-10');

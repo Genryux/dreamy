@@ -1,22 +1,5 @@
 @extends('layouts.admin')
 
-@section('breadcrumbs')
-    <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
-        <ol class="flex items-center gap-1 text-sm text-gray-700">
-            <li class="rtl:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-4 rotate-180" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </li>
-            <li>
-                <span class="block text-gray-900">User Management</span>
-            </li>
-        </ol>
-    </nav>
-@endsection
-
 @section('modal')
     @if (Route::is('admin.users.roles'))
         <!-- Create Role Modal -->
@@ -433,25 +416,6 @@
                     <p class="text-[12px] truncate text-gray-300">Users registered this week</p>
                 </div>
 
-                <div
-                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
-                    <div class="opacity-80 flex flex-row justify-center items-center gap-2">
-                        <i class="fi fi-rr-envelope flex justify-center items-center"></i>
-                        <p class="text-[14px]">Pending Invites</p>
-                    </div>
-                    <p class="font-bold text-[24px]" id="pending-invitations">0</p>
-                    <p class="text-[12px] truncate text-gray-300">Awaiting registration</p>
-                </div>
-
-                <div
-                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
-                    <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
-                        <i class="fi fi-rr-exclamation-triangle flex justify-center items-center"></i>
-                        <p class="text-[14px] truncate">Expired Invites</p>
-                    </div>
-                    <p class="font-bold text-[24px]" id="expired-invitations">0</p>
-                    <p class="text-[12px] truncate text-gray-300">Need attention</p>
-                </div>
             </div>
 
             <!-- Second Row - Role Distribution -->

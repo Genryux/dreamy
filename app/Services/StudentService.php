@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Models\Student;
+use App\Notifications\PrivateImmediateNotification;
+use App\Notifications\PrivateQueuedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class StudentService
 {
@@ -157,7 +160,8 @@ class StudentService
                     $continuingStudents->push($student);
                 } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Completed') {
                     $student->update([
-                        'status' => 'Graduated'
+                        'status' => 'Graduated',
+                        'section_id' => null
                     ]);
 
                     $student->enrollments()->update([
@@ -165,7 +169,8 @@ class StudentService
                     ]);
                 } else if ($student->grade_level === 'Grade 12' && $student->academic_status === null) {
                     $student->update([
-                        'status' => 'Graduated'
+                        'status' => 'Graduated',
+                        'section_id' => null
                     ]);
 
                     $student->enrollments()->update([
@@ -208,6 +213,26 @@ class StudentService
                 'enrolled_at' => null,
             ]);
         }
+
+        $user = $student->user;
+
+        $sharedNotificationId = 'enrollment-confirmation-' . time() . '-' . uniqid();
+
+        $user->notify(new PrivateQueuedNotification(
+            "Enrollment Confirmation!",
+            "The new academic term has officially begun. Click this notification or head to your Dashboard to confirm your enrollment.",
+            null,
+            $sharedNotificationId
+        ));
+
+        Notification::route('broadcast', 'user.' . $user->id)
+            ->notify(new PrivateImmediateNotification(
+                "Enrollment Confirmation!",
+                "The new academic term has officially begun. Click this notification or head to your Dashboard to confirm your enrollment.",
+                null,
+                $sharedNotificationId,
+                'user.' . $student->id
+            ));
     }
 
     public function countStudentStatuses()

@@ -131,6 +131,8 @@ class RolesAndPermissionSeeder extends Seeder
         $this->createPermissionWithCategory('view teachers dashboard page', 'Page Viewing', 'View teachers dashboard');
         $this->createPermissionWithCategory('view enrolled students page', 'Page Viewing', 'View enrolled students dashboard');
         $this->createPermissionWithCategory('view school fees page', 'Page Viewing', 'View school fees page');
+        $this->createPermissionWithCategory('view subjects page', 'Page Viewing', 'View subjects page');
+        $this->createPermissionWithCategory('view sections page', 'Page Viewing', 'View sections page');
         $this->createPermissionWithCategory('view documents page', 'Page Viewing', 'View documents page');
         $this->createPermissionWithCategory('view applications page', 'Page Viewing', 'View applications page');
         $this->createPermissionWithCategory('view curriculum page', 'Page Viewing', 'View curriculum page');
@@ -158,7 +160,6 @@ class RolesAndPermissionSeeder extends Seeder
             'view enrolled students page',
             'view school fees page',
             'view documents page',
-            'view user management page',
             
             // Application Management
             'view applications',
@@ -186,16 +187,7 @@ class RolesAndPermissionSeeder extends Seeder
             'edit term',
             'add enrollment period',
             'update enrollment period',
-            
-            // User Management
-            'view users',
-            'create users',
-            'update users',
-            'delete users',
-            'view roles',
-            'create roles',
-            'edit roles',
-            'delete roles',
+
             
             // Discount Management
             'view discount',
@@ -213,6 +205,9 @@ class RolesAndPermissionSeeder extends Seeder
             'create invoice',
             'record payment',
             'remove invoice item',
+
+            'update school settings',
+            'view school settings page',
             
             // Document Management
             'view documents',
@@ -226,11 +221,14 @@ class RolesAndPermissionSeeder extends Seeder
         $teacher->givePermissionTo([
             // Section and Subject Management
             'view sections',
-            'view subjects',
             'view student',
+
+            // Student management
+            'evaluate student',
             
             // Page Viewing (limited)
-            'view enrolled students page'
+            'view enrolled students page',
+            'view teachers dashboard page'
         ]);
 
         $headTeacher = Role::firstOrCreate(['name' => 'head_teacher']);
@@ -240,6 +238,23 @@ class RolesAndPermissionSeeder extends Seeder
             'create section',
             'edit section',
             'delete section',
+            'view section', // for specific sections
+
+            // application management
+            
+
+            // track management
+            'view track',
+            'edit track',
+            'create track',
+            'delete track',
+
+            // strand management
+            'view strand',
+            'create strand',
+            'edit strand',
+            'delete strand',
+
             'assign subject to a section',
             'edit subject assigned to a section',
             'remove assigned subject to a section',
@@ -256,11 +271,14 @@ class RolesAndPermissionSeeder extends Seeder
             'view student',
             'edit student',
             'evaluate student',
-            'promote student',
             
             // Page Viewing
             'view enrolled students page',
-            'view head teacher dashboard page'
+            'view head teacher dashboard page',
+            'view curriculum page',
+            'view sections page',
+            'view subjects page',
+            'view applications page'
         ]);
 
         $applicant = Role::firstOrCreate(['name' => 'applicant']);

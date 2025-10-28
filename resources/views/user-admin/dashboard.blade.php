@@ -196,127 +196,141 @@
         </x-slot>
     </x-modal>
 
-    {{-- enrollment period modal --}}
-    <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn"
-        modal_container_id="modal-container-2">
-        <x-slot name="modal_icon">
-            <i class='fi fi-rr-user-add flex justify-center items-center'></i>
-        </x-slot>
+    @if (!$activeEnrollmentPeriod)
+        {{-- enrollment period modal --}}
+        <x-modal modal_id="enrollment-period-modal" modal_name="Add Enrollment Period" close_btn_id="ep-close-btn"
+            modal_container_id="modal-container-2">
+            <x-slot name="modal_icon">
+                <i class='fi fi-rr-user-add flex justify-center items-center'></i>
+            </x-slot>
 
-        <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="p-6">
-            @csrf
-            <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
-            <div class="space-y-4">
-                <!-- Name and Max Applicants Row -->
-                <div class="flex flex-row gap-4">
-                    <div class="flex-1 flex flex-col">
-                        <label for="name" class="text-sm font-medium text-gray-700 mb-2">Period Name</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fi fi-rr-calendar-day text-gray-400"></i>
+            <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="p-6">
+                @csrf
+                <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
+                <div class="space-y-4">
+                    <!-- Name and Max Applicants Row -->
+                    <div class="flex flex-row gap-4">
+                        <div class="flex-1 flex flex-col">
+                            <label for="name" class="text-sm font-medium text-gray-700 mb-2">Period Name</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                                </div>
+                                <input type="text" name="name" id="name"
+                                    placeholder="Early Registration, Regular, etc."
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
                             </div>
-                            <input type="text" name="name" id="name"
-                                placeholder="Early Registration, Regular, etc."
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                required>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <label for="max_applicants" class="text-sm font-medium text-gray-700 mb-2">Max
+                                Applicants</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-users text-gray-400"></i>
+                                </div>
+                                <input type="number" name="max_applicants" id="max_applicants"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex-1 flex flex-col">
-                        <label for="max_applicants" class="text-sm font-medium text-gray-700 mb-2">Max Applicants</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fi fi-rr-users text-gray-400"></i>
+
+                    <!-- Start and End Date Row -->
+                    <div class="flex flex-row gap-4">
+                        <div class="flex-1 flex flex-col">
+                            <label for="start_date" class="text-sm font-medium text-gray-700 mb-2">Application Start
+                                Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-check text-gray-400"></i>
+                                </div>
+                                <input type="date" name="application_start_date" id="start_date"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
                             </div>
-                            <input type="number" name="max_applicants" id="max_applicants"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                required>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <label for="end_date" class="text-sm font-medium text-gray-700 mb-2">Application End
+                                Date</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
+                                </div>
+                                <input type="date" name="application_end_date" id="end_date"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Period Type and Early Discount Row -->
+                    <div class="flex flex-row gap-4">
+                        <div class="flex-1 flex flex-col">
+                            <label for="period_type" class="text-sm font-medium text-gray-700 mb-2">Period Type</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-day text-gray-400"></i>
+                                </div>
+                                <select name="period_type" id="edit_period_type"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    required>
+                                    <option value="">Select Period Type</option>
+                                    <option value="early"
+                                        {{ $activeEnrollmentPeriod?->period_type == 'early' ? 'selected' : '' }}>Early
+                                        Enrollment</option>
+                                    <option value="regular"
+                                        {{ $activeEnrollmentPeriod?->period_type == 'regular' ? 'selected' : '' }}>Regular
+                                        Enrollment</option>
+                                    <option value="late"
+                                        {{ $activeEnrollmentPeriod?->period_type == 'late' ? 'selected' : '' }}>Late
+                                        Enrollment</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col">
+                            <label for="early_discount_percentage" class="text-sm font-medium text-gray-700 mb-2">Early
+                                Discount Percentage</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-percentage text-gray-400"></i>
+                                </div>
+                                <input type="number" name="early_discount_percentage"
+                                    id="edit_early_discount_percentage" min="0" max="100" step="0.01"
+                                    placeholder="0.00" value="{{ $activeEnrollmentPeriod?->early_discount_percentage }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1" id="discount-help-text">Enter discount percentage for
+                                early
+                                enrollment (0-100)</p>
                         </div>
                     </div>
                 </div>
+            </form>
 
-                <!-- Start and End Date Row -->
-                <div class="flex flex-row gap-4">
-                    <div class="flex-1 flex flex-col">
-                        <label for="start_date" class="text-sm font-medium text-gray-700 mb-2">Application Start
-                            Date</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fi fi-rr-calendar-check text-gray-400"></i>
-                            </div>
-                            <input type="date" name="application_start_date" id="start_date"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                required>
-                        </div>
-                    </div>
-                    <div class="flex-1 flex flex-col">
-                        <label for="end_date" class="text-sm font-medium text-gray-700 mb-2">Application End Date</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
-                            </div>
-                            <input type="date" name="application_end_date" id="end_date"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                required>
-                        </div>
-                    </div>
-                </div>
+            <x-slot name="modal_buttons">
+                <button id="ep-cancel-btn"
+                    class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                    Cancel
+                </button>
+                <button type="submit" form="enrollment-period-form"
+                    class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                    Create Period
+                </button>
+            </x-slot>
+        </x-modal>
+    @endif
 
-                <!-- Period Type and Early Discount Row -->
-                <div class="flex flex-row gap-4">
-                    <div class="flex-1 flex flex-col">
-                        <label for="period_type" class="text-sm font-medium text-gray-700 mb-2">Period Type</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fi fi-rr-calendar-day text-gray-400"></i>
-                            </div>
-                            <select name="period_type" id="edit_period_type"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                required>
-                                <option value="">Select Period Type</option>
-                                <option value="early" {{ $activeEnrollmentPeriod->period_type == 'early' ? 'selected' : '' }}>Early Enrollment</option>
-                                <option value="regular" {{ $activeEnrollmentPeriod->period_type == 'regular' ? 'selected' : '' }}>Regular Enrollment</option>
-                                <option value="late" {{ $activeEnrollmentPeriod->period_type == 'late' ? 'selected' : '' }}>Late Enrollment</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="flex-1 flex flex-col">
-                        <label for="early_discount_percentage" class="text-sm font-medium text-gray-700 mb-2">Early
-                            Discount Percentage</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fi fi-rr-percentage text-gray-400"></i>
-                            </div>
-                            <input type="number" name="early_discount_percentage" id="edit_early_discount_percentage"
-                                min="0" max="100" step="0.01" placeholder="0.00"
-                                value="{{ $activeEnrollmentPeriod->early_discount_percentage }}"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1" id="discount-help-text">Enter discount percentage for early
-                            enrollment (0-100)</p>
-                    </div>
-                </div>
-            </div>
-        </form>
 
-        <x-slot name="modal_buttons">
-            <button id="ep-cancel-btn"
-                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
-                Cancel
-            </button>
-            <button type="submit" form="enrollment-period-form"
-                class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                Create Period
-            </button>
-        </x-slot>
-    </x-modal>
     @if ($activeEnrollmentPeriod)
-        <x-modal modal_id="edit-period-modal" modal_name="Edit Enrollment Period" close_btn_id="edit-enrollment-close-btn"
-            modal_container_id="modal-container-edit-period">
+        <x-modal modal_id="edit-period-modal" modal_name="Edit Enrollment Period"
+            close_btn_id="edit-enrollment-close-btn" modal_container_id="modal-container-edit-period">
             <x-slot name="modal_icon">
                 <i class='fi fi-rr-edit flex justify-center items-center text-blue-500'></i>
             </x-slot>
 
-            <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST" id="edit-enrollment-period-form" class="p-6">
+            <form action="/enrollment-period/{{ $activeEnrollmentPeriod->id }}" method="POST"
+                id="edit-enrollment-period-form" class="p-6">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="id" value="{{ $activeEnrollmentPeriod->id }}">
@@ -485,13 +499,13 @@
     @endif
 
     @if ($currentAcadTerm)
-        <x-modal modal_id="end-academic-term" modal_name="Start new academic term"
-            close_btn_id="end-academic-term-close-btn" modal_container_id="modal-container-end-term">
+        <x-modal modal_id="start-academic-term" modal_name="Start new academic term"
+            close_btn_id="start-academic-term-close-btn" modal_container_id="modal-container-start-term">
             <x-slot name="modal_icon">
                 <i class='fi fi-rr-calendar flex justify-center items-center'></i>
             </x-slot>
 
-            <form action="/new-term/{{ $currentAcadTerm->id }}" method="POST" id="end-academic-term-form"
+            <form action="/new-term/{{ $currentAcadTerm->id }}" method="POST" id="start-academic-term-form"
                 class="p-6">
                 @csrf
                 <input type="hidden" name="status" id="ep-status" value="Closed">
@@ -627,11 +641,11 @@
             </form>
 
             <x-slot name="modal_buttons">
-                <button id="end-academic-term-cancel-btn"
+                <button id="start-academic-term-cancel-btn"
                     class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2.5 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                     Cancel
                 </button>
-                <button type="submit" form="end-academic-term-form" id="end-academic-term-confirmation"
+                <button type="submit" form="start-academic-term-form" id="start-academic-term-confirmation"
                     data-id="{{ $currentAcadTerm->id }}"
                     class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                     Start New Term
@@ -1221,8 +1235,8 @@
                 'modal-container-2');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn', 'modal-container-3');
-            initModal('end-academic-term', 'end-term-btn', 'end-enrollment-close-btn',
-                'end-enrollment-cancel-btn', 'modal-container-end-term');
+            initModal('start-academic-term', 'end-term-btn', 'start-academic-term-close-btn',
+                'start-academic-term-cancel-btn', 'modal-container-start-term');
             initModal('edit-period-modal', 'edit-period-btn', 'edit-enrollment-close-btn',
                 'edit-period-cancel-btn', 'modal-container-edit-period');
 

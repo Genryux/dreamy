@@ -190,11 +190,15 @@ class PaymentPlanService
 
                 return $payment ?? null;
             } else {
-                // Flexible payment (existing logic)
+                // Flexible payment (one-time payment)
+                // For one-time payments, the amount should be the discounted amount
+                $totalDiscount = ($paymentData['total_discount'] ?? 0);
+                $discountedAmount = $amount - $totalDiscount;
+                
                 $payment = \App\Models\InvoicePayment::create([
                     'invoice_id' => $invoice->id,
                     'academic_term_id' => $activeTerm->id,
-                    'amount' => $amount,
+                    'amount' => $discountedAmount, // Record the actual amount paid after discounts
                     'payment_date' => $paymentData['payment_date'] ?? now(),
                     'method' => $paymentData['method'] ?? null,
                     'type' => $paymentData['type'] ?? null,
@@ -202,7 +206,7 @@ class PaymentPlanService
                     'original_amount' => $paymentData['original_amount'] ?? $amount,
                     'early_discount' => $paymentData['early_discount'] ?? 0,
                     'custom_discounts' => $paymentData['custom_discounts'] ?? 0,
-                    'total_discount' => $paymentData['total_discount'] ?? 0,
+                    'total_discount' => $totalDiscount,
                 ]);
 
                 $invoice->refresh();

@@ -38,7 +38,7 @@ class HeadTeacherController extends Controller
         // Get enrolled students for current academic term
         $enrolledStudents = Student::whereHas('enrollments', function($query) use ($academicTermData) {
             $query->where('academic_term_id', $academicTermData['id'] ?? null);
-        })->with(['user', 'program', 'sections'])->get();
+        })->with(['user', 'program', 'section'])->get();
 
         // Get all teachers/faculty
         $teachers = Teacher::with(['user', 'program'])->get();

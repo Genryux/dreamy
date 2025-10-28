@@ -135,6 +135,9 @@ class SchoolFeeController extends Controller
 
             $schoolFee = SchoolFee::create($validated);
 
+            // Calculate updated total school fees
+            $totalSchoolFees = SchoolFee::sum('amount');
+
             // Log the activity
             activity('financial_management')
                 ->causedBy(auth()->user())
@@ -152,9 +155,6 @@ class SchoolFeeController extends Controller
                     'user_agent' => $request->userAgent()
                 ])
                 ->log('School fee created');
-
-            // Calculate updated total school fees
-            $totalSchoolFees = SchoolFee::sum('amount');
 
             return response()->json([
                 'success' => true,
@@ -182,7 +182,7 @@ class SchoolFeeController extends Controller
     {
         try {
             $schoolFee = SchoolFee::findOrFail($id);
-            
+
             return response()->json([
                 'success' => true,
                 'schoolFee' => [
@@ -227,10 +227,10 @@ class SchoolFeeController extends Controller
             ]);
 
             $schoolFee = SchoolFee::findOrFail($id);
-            
+
             // Store original values for comparison
             $originalValues = $schoolFee->toArray();
-            
+
             $schoolFee->update($validated);
 
             // Log the activity
@@ -279,7 +279,7 @@ class SchoolFeeController extends Controller
     public function destroy($id)
     {
         $schoolFee = SchoolFee::findOrFail($id);
-        
+
         // Check if school fee is referenced in any invoice items
         if ($schoolFee->invoiceItems()->exists()) {
             $invoiceCount = $schoolFee->invoiceItems()->count();
@@ -289,7 +289,7 @@ class SchoolFeeController extends Controller
                 'error' => "Cannot delete school fee '{$schoolFee->name}' because it is currently being used in {$invoiceCount} invoice(s). Please remove it from all invoices first before deleting."
             ], 422);
         }
-        
+
         try {
             // Store school fee details before deletion
             $schoolFeeDetails = [
@@ -300,9 +300,9 @@ class SchoolFeeController extends Controller
                 'program_name' => $schoolFee->program->name ?? 'All Programs',
                 'grade_level' => $schoolFee->grade_level ?? 'All Year Levels'
             ];
-            
+
             $schoolFee->delete();
-            
+
             // Log the activity
             activity('financial_management')
                 ->causedBy(auth()->user())
@@ -318,7 +318,7 @@ class SchoolFeeController extends Controller
                     'user_agent' => request()->userAgent()
                 ])
                 ->log('School fee deleted');
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'School fee deleted successfully'
@@ -330,7 +330,7 @@ class SchoolFeeController extends Controller
                 'user_id' => auth()->user()->id,
                 'ip_address' => request()->ip()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to delete school fee: ' . $th->getMessage()
