@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<x-head></x-head>
+<x-head :title="$title ?? 'Application Form'"></x-head>
 
 <body class="bg-[#1A3165] min-h-screen">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -12,8 +12,8 @@
                 <div
                     class="w-[75%] rounded-tl-xl h-30 bg-gradient-to-r from-[#199BCF] to-[#0D4F69] border border-[#199BCF] text-white flex items-center justify-center [clip-path:polygon(0_0,100%_0,99%_100%,0_100%)] pt-4">
                     <div class="pt-2">
-                        <h1 class="text-[46px] font-bold text-white text-center leading-none">ENROLLMENT FORM</h1>
-                        <p class="text-blue-100 text-center mt-2">Please fill out all required information accurately
+                        <h1 class="text-[24px] md:text-[46px] font-bold text-white text-center leading-none">ENROLLMENT FORM</h1>
+                        <p class="text-blue-100 text-[14px] md:text-[16px] text-center mt-2">Please fill out all required information accurately
                         </p>
                         <div id="auto-save-indicator"
                             class="text-blue-200 text-sm text-center mt-2 opacity-0 transition-opacity duration-300">
@@ -30,7 +30,7 @@
                 <!-- Second container: left edge slants forward "/" -->
                 <div
                     class="w-[25%] h-30 rounded-tr-xl bg-[#0D4F69] border border-[#199BCF] text-white flex items-center justify-center [clip-path:polygon(4%_0,100%_0,100%_100%,0_100%)] p-4">
-                    <img src="{{ asset('images/Dreamy_logo.png') }}" alt="dreamy_logo" class="h-[130px]">
+                    <img src="{{ asset('images/Dreamy_logo.png') }}" alt="dreamy_logo" class="h-[100px] md:h-[130px]">
 
                 </div>
             </div>

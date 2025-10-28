@@ -7,7 +7,7 @@
     <div class="max-w-md w-full space-y-8">
         <div>
             <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#199BCF] to-[#C8A165]">
-                <i class="fi fi-rr-shield-check text-white text-xl"></i>
+                <i class="fi fi-rr-shield-check text-white text-xl flex justify-center items-center"></i>
             </div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
                 Enter Security PIN
@@ -66,7 +66,7 @@
             </div>
         @endif
 
-        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg rounded-xl sm:px-10">
             <form class="space-y-6" method="POST" action="{{ route('auth.pin.verify.store') }}">
                 @csrf
                 
@@ -106,8 +106,8 @@
 
                 <div class="space-y-4">
                     <button type="submit" 
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
-                        <i class="fi fi-rr-shield-check mr-2"></i>
+                            class="w-full flex justify-center py-4 md:py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
+                        <i class="fi fi-rr-shield-check mr-2 flex justify-center items-center"></i>
                         Verify PIN & Continue
                     </button>
 

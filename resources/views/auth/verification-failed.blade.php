@@ -1,11 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'Verification Failed'])
 
 @section('login_page')
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
             <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600">
-                <i class="fi fi-rr-cross-circle text-white text-2xl"></i>
+                <i class="fi fi-rr-cross-circle text-white text-2xl flex justify-center items-center"></i>
             </div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
                 Verification Failed
@@ -27,10 +27,10 @@
             </div>
         @endif
 
-        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg rounded-xl sm:px-10">
             <div class="text-center">
                 <div class="mx-auto h-20 w-20 flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600 mb-6">
-                    <i class="fi fi-rr-exclamation-triangle text-white text-3xl"></i>
+                    <i class="fi fi-rr-exclamation text-white text-3xl flex justify-center items-center"></i>
                 </div>
                 
                 <h3 class="text-lg font-medium text-white mb-2">
@@ -60,7 +60,7 @@
 
                 <div class="space-y-4">
                     <a href="{{ route('login') }}" 
-                       class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[#199BCF] to-[#1A3165] hover:from-[#1A3165] hover:to-[#199BCF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#199BCF] transition duration-150">
+                       class="w-full flex justify-center py-4 md:py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#1A3165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#199BCF] transition duration-150">
                         <i class="fi fi-rr-sign-in mr-2"></i>
                         Sign In to Resend Verification
                     </a>

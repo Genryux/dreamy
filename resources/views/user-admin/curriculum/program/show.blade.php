@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Curriculum'])
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
@@ -1497,7 +1497,6 @@
                                 }
                             })
                             .catch(err => {
-                                console.error("Error fetching subjects:", err);
                                 container.innerHTML =
                                     '<div class="text-center py-4 text-red-500"><p class="text-sm">Failed to load subjects.</p></div>';
                             });
@@ -1658,7 +1657,6 @@
                             document.getElementById('program_status').value = data.status || 'active';
                         })
                         .catch(err => {
-                            console.error('Error fetching program data:', err);
                             showAlert('error', 'Failed to load program data');
                         });
                 });
@@ -1682,13 +1680,10 @@
                             body: formData
                         })
                         .then(response => {
-                            console.log('Response status:', response.status);
                             return response.json();
                         })
                         .then(data => {
                             hideLoader();
-
-                            console.log('Response data:', data);
 
                             if (data.success) {
                                 // Reset form
@@ -1712,7 +1707,6 @@
                         })
                         .catch(err => {
                             hideLoader();
-                            console.error('Error:', err);
                             closeModal('edit-program-modal', 'modal-container-2');
                             showAlert('error', 'Something went wrong while updating the program');
                         });
@@ -1752,7 +1746,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the school fee');
                         });
                 });
@@ -1791,7 +1784,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the school fee');
                         });
                 });
@@ -2018,7 +2010,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while creating the subject');
                             closeModal('create-subject-modal', 'modal-container-subject');
                         });
@@ -2102,7 +2093,6 @@
                         })
                         .catch(err => {
                             hideLoader();
-                            console.error('Error:', err);
                             closeModal('edit-subject-modal', 'modal-container-edit-subject');
                             showAlert('error', 'Something went wrong while updating the subject');
                         });
@@ -2150,7 +2140,6 @@
                             })
                             .catch(error => {
                                 hideLoader();
-                                console.error('Error:', error);
                                 showAlert('error', 'An error occurred while deleting the subject');
                             });
                     });
@@ -2203,7 +2192,6 @@
                                     document.getElementById('edit_subject_semester').value =
                                         subject.semester || '';
 
-                                    console.log('Edit modal opened for subject ID:', subjectId);
                                 } else {
                                     showAlert('error', 'Error loading subject: ' + data
                                         .message);
@@ -2211,7 +2199,6 @@
                             })
                             .catch(error => {
                                 hideLoader();
-                                console.error('Error:', error);
                                 showAlert('error',
                                     'An error occurred while loading the subject');
                             });
@@ -2245,7 +2232,6 @@
                         subjectIdInput.value = subjectId;
                         form.appendChild(subjectIdInput);
 
-                        console.log('Delete modal opened for subject ID:', subjectId);
                     });
                 });
             }

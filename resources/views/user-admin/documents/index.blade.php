@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Documents'])
 
 @section('modal')
     {{-- Create Document Modal --}}
@@ -491,7 +491,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('create-document-modal', 'modal-container-1');
                         showAlert('error', 'Something went wrong while creating the document');
                     });
@@ -554,7 +553,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('edit-document-modal', 'modal-container-2');
                         showAlert('error', 'Something went wrong while updating the document');
                     });
@@ -594,7 +592,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the document');
                         });
                 });
@@ -659,14 +656,12 @@
                                      });
                                  }
 
-                                 console.log('Edit modal opened for document ID:', documentId);
                              } else {
                                  showAlert('error', 'Error loading document: ' + data.error);
                              }
                          })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while loading the document');
                         });
                 });
@@ -699,7 +694,6 @@
                     documentIdInput.value = documentId;
                     form.appendChild(documentIdInput);
 
-                    console.log('Delete modal opened for document ID:', documentId);
                 });
             });
         }

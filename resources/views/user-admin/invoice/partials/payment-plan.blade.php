@@ -400,7 +400,6 @@ document.getElementById('calculate-plan-btn')?.addEventListener('click', async f
 		
 		document.getElementById('calculation-preview').classList.remove('hidden');
 	} catch (error) {
-		console.error('Error calculating payment plan:', error);
 		alert('Error calculating payment plan. Please try again.');
 	}
 });

@@ -43,7 +43,7 @@ use Illuminate\Support\Facades\Route;
 
 // Homepage and Public Pages
 Route::get('/', [WebsiteResourceController::class, 'homepage'])->name('home');
-Route::get('/homepage', [WebsiteResourceController::class, 'index'])->name('homepage');
+// Route::get('/homepage', [WebsiteResourceController::class, 'index'])->name('homepage');
 
 // Public News Routes
 Route::get('/news', [WebsiteResourceController::class, 'news'])->name('public.news.index');
@@ -150,9 +150,6 @@ Route::middleware(['auth', 'pin.security'])->group(function () {
         ->middleware(['permission:submit document', 'verified'])->name('documents.store');
     // Applicant Updates
     Route::patch('/applicants/{applicants}', [ApplicantsController::class, 'update']);
-
-
-
 
     // Invoice Downloads
     Route::get('/invoice/{invoice}/schedule/{schedule}/download', [InvoiceController::class, 'downloadScheduleInvoice'])->name('invoice.schedule.download');
@@ -271,8 +268,6 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::patch('/promote-student/{id}', [StudentsController::class, 'promoteStudent'])->middleware(['permission:promote student']);
     Route::patch('/withdraw-student/{id}', [StudentsController::class, 'withdrawStudent'])->middleware(['permission:withdraw enrollment']);
 
-
-
     // Student Records
     Route::get('/student/{student}', [StudentRecordController::class, 'show'])->middleware(['permission:view student']);
     Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');
@@ -281,18 +276,6 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::put('/students/{student}/academic-info', [StudentRecordController::class, 'updateAcademicInfo'])->middleware(['permission:edit student'])->name('students.academic.info');
     Route::put('/students/{student}/address-info', [StudentRecordController::class, 'updateAddressInfo'])->middleware(['permission:edit student'])->name('students.address.info');
     Route::put('/students/{student}/emergency-info', [StudentRecordController::class, 'updateEmergencyInfo'])->middleware(['permission:edit student'])->name('students.emergency.info');
-
-
-    // // Teacher Management
-    // Route::get('/admin/teachers', [TeacherManagementController::class, 'index'])->name('admin.teachers.index');
-    // Route::get('/admin/teachers/create', [TeacherManagementController::class, 'create'])->name('admin.teachers.create');
-    // Route::post('/admin/teachers', [TeacherManagementController::class, 'store'])->name('admin.teachers.store');
-    // Route::get('/admin/teachers/{teacher}', [TeacherManagementController::class, 'show'])->name('admin.teachers.show');
-    // Route::get('/admin/teachers/{teacher}/edit', [TeacherManagementController::class, 'edit'])->name('admin.teachers.edit');
-    // Route::put('/admin/teachers/{teacher}', [TeacherManagementController::class, 'update'])->name('admin.teachers.update');
-    // Route::delete('/admin/teachers/{teacher}', [TeacherManagementController::class, 'destroy'])->name('admin.teachers.destroy');
-    // Route::patch('/admin/teachers/{teacher}/toggle-status', [TeacherManagementController::class, 'toggleStatus'])->name('admin.teachers.toggle-status');
-    // Route::get('/admin/getTeachers', [TeacherManagementController::class, 'getTeachers'])->name('admin.getTeachers');
 
     // User Management
     Route::get('/admin/users', [UserInvitationController::class, 'index'])->middleware(['permission:view users'])->name('admin.users.index');
@@ -532,198 +515,4 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| TEST ROUTES
-|--------------------------------------------------------------------------
-| Routes for testing purposes (should be removed in production)
-*/
 
-Route::get('/test', function () {
-    return view('test');
-});
-
-// Debug notification route
-Route::get('/test-notification', function () {
-    $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
-    $teachers = \App\Models\User::role(['head_teacher', 'teacher'])->get();
-    $students = \App\Models\User::role(['student'])->get();
-
-    if ($admins->isEmpty() && $teachers->isEmpty() && $students->isEmpty()) {
-        return response()->json(['error' => 'No admin, teacher, or student users found']);
-    }
-
-    // Send to admin roles
-    if (!$admins->isEmpty()) {
-        Notification::send($admins, new \App\Notifications\QueuedNotification(
-            "Test Admin Notification",
-            "This is a test notification for admin roles!",
-            url('/admin/users')
-        ));
-
-        Notification::route('broadcast', 'admins')
-            ->notify(new \App\Notifications\ImmediateNotification(
-                "Test Admin Notification",
-                "This is a test notification for admin roles!",
-                url('/admin/users')
-            ));
-    }
-
-    // Send to teacher roles
-    if (!$teachers->isEmpty()) {
-        Notification::send($teachers, new \App\Notifications\QueuedNotification(
-            "Test Teacher Notification",
-            "This is a test notification for teacher roles!",
-            url('/enrolled-students')
-        ));
-
-        Notification::route('broadcast', 'teachers')
-            ->notify(new \App\Notifications\ImmediateNotification(
-                "Test Teacher Notification",
-                "This is a test notification for teacher roles!",
-                url('/enrolled-students')
-            ));
-    }
-
-    // Send to student roles (for mobile app testing)
-    if (!$students->isEmpty()) {
-        // Generate a shared ID for both queued and immediate notifications
-        $sharedNotificationId = 'test-student-' . time() . '-' . uniqid();
-
-        // Database notification (queued)
-        Notification::send($students, new \App\Notifications\QueuedNotification(
-            "Test Student Notification",
-            "This is a test notification for student mobile app!",
-            null, // No URL needed for mobile
-            $sharedNotificationId // Shared ID for mobile app matching
-        ));
-
-        // Real-time broadcast (immediate)
-        Notification::route('broadcast', 'students')
-            ->notify(new \App\Notifications\ImmediateNotification(
-                "Test Student Notification",
-                "This is a test notification for student mobile app!",
-                null, // No URL needed for mobile
-                $sharedNotificationId // Same shared ID for matching
-            ));
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Test notifications sent to ' . $admins->count() . ' admin(s), ' . $teachers->count() . ' teacher(s), and ' . $students->count() . ' student(s)',
-        'admins' => $admins->pluck('email'),
-        'teachers' => $teachers->pluck('email'),
-        'students' => $students->pluck('email')
-    ]);
-});
-
-// Debug notification API route
-Route::get('/debug-notifications', function () {
-    $user = auth()->user();
-    if (!$user) {
-        return response()->json(['error' => 'Not authenticated']);
-    }
-
-    $notifications = $user->notifications()->latest()->take(20)->get();
-
-    return response()->json([
-        'user' => $user->email,
-        'user_roles' => $user->roles->pluck('name'),
-        'notifications_count' => $notifications->count(),
-        'unread_count' => $user->unreadNotifications()->count(),
-        'notifications' => $notifications
-    ]);
-});
-
-// Test notification creation directly
-Route::get('/test-notification-direct', function () {
-    $user = auth()->user();
-    if (!$user) {
-        return response()->json(['error' => 'Not authenticated']);
-    }
-
-    try {
-        $user->notify(new \App\Notifications\QueuedNotification(
-            "Direct Test Notification",
-            "This notification was created directly to test the system.",
-            url('/admin/users')
-        ));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Notification sent successfully',
-            'user' => $user->email,
-            'notifications_count' => $user->notifications()->count()
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Failed to create notification',
-            'message' => $e->getMessage()
-        ]);
-    }
-});
-
-// Comprehensive notification test
-Route::get('/test-notification-comprehensive', function () {
-    try {
-        // Test 1: Check if admin users exist
-        $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
-
-        if ($admins->isEmpty()) {
-            return response()->json(['error' => 'No admin users found']);
-        }
-
-        $results = [];
-
-        // Test 2: Try to create notification for each admin
-        foreach ($admins as $admin) {
-            try {
-                $beforeCount = $admin->notifications()->count();
-
-                $admin->notify(new \App\Notifications\QueuedNotification(
-                    "Comprehensive Test Notification",
-                    "This is a comprehensive test of the notification system.",
-                    url('/admin/users')
-                ));
-
-                $afterCount = $admin->notifications()->count();
-
-                $results[] = [
-                    'admin_email' => $admin->email,
-                    'before_count' => $beforeCount,
-                    'after_count' => $afterCount,
-                    'success' => $afterCount > $beforeCount,
-                    'error' => null
-                ];
-            } catch (\Exception $e) {
-                $results[] = [
-                    'admin_email' => $admin->email,
-                    'success' => false,
-                    'error' => $e->getMessage()
-                ];
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Comprehensive test completed',
-            'admin_count' => $admins->count(),
-            'results' => $results
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Comprehensive test failed',
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-    }
-});
-
-// Private notification test routes
-Route::post('/test-private-notification', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendPrivateNotification']);
-Route::post('/test-invoice-reminder', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendInvoiceReminder']);
-Route::post('/test-enrollment-confirmation', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendEnrollmentConfirmation']);
-Route::post('/test-grade-notification', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendGradeNotification']);
-Route::post('/test-bulk-private-notifications', [App\Http\Controllers\PrivateNotificationExampleController::class, 'sendBulkPrivateNotifications']);
-
-Route::post('/test/{id}', [StudentRecordController::class, 'store']);

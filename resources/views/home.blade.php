@@ -1,11 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'Dreamy School'])
 
 @section('section_1')
-    <div class="relative h-screen w-screen overflow-hidden flex flex-col justify-center items-center">
+    <div
+        class="relative h-[600px] md:h-screen w-screen overflow-hidden flex flex-col justify-center items-center pb-16 md:pb-[20px]">
 
         <div class="w-full h-full">
             {{-- Hard-coded video background to prevent corruption --}}
-            <video autoplay muted loop playsinline class="background absolute inset-0 w-full h-full object-cover -z-20">
+            <video autoplay muted loop playsinline class="pointer-events-none background absolute inset-0 w-full h-full object-cover object-center -z-20">
                 <source src="{{ asset('storage/background/background.mp4') }}" type="video/mp4">
             </video>
         </div>
@@ -26,25 +27,25 @@
         @endif --}}
 
         <div
-            class="absolute inset-0 h-full w-full bg-gradient-to-b from-[#1A3165]/80 from-5% via-[#1A3165]/40 via-70% to-[#1A3165] to-90% -z-10">
+            class="absolute inset-0 h-full w-full bg-gradient-to-b from-[#1A3165]/80 from-5% via-[#1A3165]/40 via-70% to-[#1A3165] to-95% -z-10">
             {{-- gradient filter on top of the video --}}
         </div>
 
-        <div class="self-center flex flex-col justify-center items-center mb-24">
-            <p class="relative z-10 text-white font-nunito text-[80px] font-black tracking-[8px] [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)]"
+        <div class="self-center flex flex-col justify-center items-center mb-20 md:mb-24 ">
+
+            <p class="relative z-10 font-nunito text-[45px] md:text-[80px] font-black tracking-[8px] [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)] text-white"
                 data-aos="fade-up" data-aos-duration="1000">
                 Dreamy School
             </p>
 
-            <p class="text-[40px] text-white tracking-[3px] leading-sm [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)]"
+            <p class="text-[24px] md:text-[40px] text-white tracking-[3px] leading-sm [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)]"
                 data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
                 Philippines</p>
-
 
         </div>
 
         {{-- line --}}
-        <div class="absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 flex flex-row items-center justify-center">
+        <div class="hidden absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 md:flex flex-row items-center justify-center">
             <svg class="h-[60px] w-[1px] text-white flex flex-row justify-center items-center" viewBox="0 0 1 60"
                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
                 <!-- sharp top -->
@@ -60,15 +61,16 @@
 
 @section('section_2')
     <div id="section2"
-        class="relative bg-[#1A3165] h-screen w-screen flex flex-row justify-between items-center overflow-hidden px-[120px]">
+        class="relative bg-[#1A3165] h-1/2 md:h-screen w-screen flex flex-col md:flex-row justify-center md:justify-between items-center overflow-hidden gap-10 px-[20px] md:px-[120px]">
 
 
-        <div class="flex-1 h-full w-full flex flex-col justify-center items-start gap-4">
-            <div data-aos="fade-right" data-aos-duration="800" data-aos-delay="150">
+        <div class="md:flex-1 w-full flex flex-col justify-start items-center md:items-start gap-4">
+            <div data-aos="fade-right" class="space-y-2" data-aos-duration="800" data-aos-delay="150">
                 <h2 class="font-bold text-[32px] text-white">About us</h2>
-                <div class="bg-[#C8A165] w-[100%] h-[5%]"></div>
+                <div class="bg-[#C8A165] w-[100%] h-[5px]"></div>
             </div>
-            <p class="text-[18px] pr-16 text-white" data-aos="fade-right" data-aos-duration="800" data-aos-delay="350">Lorem
+            <p class="text-[18px] md:pr-16 text-center md:text-start text-white" data-aos="fade-right"
+                data-aos-duration="800" data-aos-delay="350">Lorem
                 ipsum
                 dolor sit amet consectetur adipisicing elit. Voluptatibus placeat quas
                 perferendis
@@ -79,24 +81,22 @@
 
         {{-- also line --}}
         <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-            <span class="block border-l border-white h-full w-[1px]"></span>
+            <span class="hidden md:block border-l border-white h-full w-[1px]"></span>
         </div>
 
-        <div class="flex-1 h-[500px] w-[500px] flex justify-center items-center pl-16" data-aos="fade-left"
-            data-aos-duration="800" data-aos-delay="150">
-            <div class="bg-white h-[90%] w-full rounded-xl shadow-xl overflow-hidden">
-                <img src="{{ asset('images/ab.jpg') }}" class="w-full h-full object-cover" alt="">
-            </div>
+        <div class="md:flex-1 flex justify-center rounded-xl overflow-hidden items-center md:ml-20 mb-20"
+            data-aos="fade-left" data-aos-duration="800" data-aos-delay="150">
+            <img src="{{ asset('images/ab.jpg') }}" class="w-full h-full object-contain" alt="">
         </div>
 
     </div>
 @endsection
 
 @section('section_3')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[120px]">
+    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[48px] text-[#1A3165] mb-4">Latest News & Announcements</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">Latest News & Announcements</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
                 <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Stay updated with the latest news and announcements
                     from Dreamy School</p>
@@ -151,10 +151,10 @@
 @endsection
 
 @section('section_4')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[120px]">
+    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[48px] text-[#1A3165] mb-4">Academic Programs</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">Academic Programs</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
                 <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Discover our comprehensive academic programs designed
                     to prepare students for success</p>
@@ -195,7 +195,7 @@
                         @endif
                         <a href="#"
                             class="inline-flex items-center {{ $isGoldTrack ? 'text-white hover:text-[#1A3165]' : 'text-[#C8A165] hover:text-white' }} font-semibold transition-colors duration-200">
-                            Learn More <i class="fi fi-rr-arrow-right ml-2"></i>
+                            Learn More <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                         </a>
                     </div>
                 @empty
@@ -212,12 +212,12 @@
                 @if ($programs->count() > 0)
                     <a href="/portal/login"
                         class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
-                        Explore All {{ $programs->count() }} Programs <i class="fi fi-rr-arrow-right ml-2"></i>
+                        Explore All {{ $programs->count() }} Programs <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                     </a>
                 @else
                     <a href="/portal/register"
                         class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
-                        Apply Now <i class="fi fi-rr-arrow-right ml-2"></i>
+                        Apply Now <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                     </a>
                 @endif
             </div>
@@ -226,10 +226,10 @@
 @endsection
 
 @section('section_5')
-    <div class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[120px]">
+    <div class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[48px] text-white mb-4">Why Choose Dreamy School?</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4">Why Choose Dreamy School?</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
                 <p class="text-[18px] text-white/80 max-w-2xl mx-auto">Discover what makes us the preferred choice for
                     quality education</p>
@@ -331,7 +331,7 @@
 @endsection
 
 @section('section_6')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[120px]">
+    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
 
             <div class="w-full h-full">
@@ -345,7 +345,7 @@
             </div>
 
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[48px] text-white mb-4 z-10">Student Life & Achievements</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4 z-10">Student Life & Achievements</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
                 <p class="text-[18px] text-gray-400 max-w-2xl mx-auto">See what makes our school community special</p>
             </div>
@@ -441,10 +441,10 @@
 @endsection
 
 @section('section_7')
-    <div id="section7" class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[120px] scroll-smooth">
+    <div id="section7" class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px] scroll-smooth">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[48px] text-white mb-4">Ready to Start Your Journey?</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4">Ready to Start Your Journey?</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
                 <p class="text-[18px] text-white/80 max-w-2xl mx-auto">Join Dreamy School and be part of our community of
                     learners and achievers</p>
@@ -457,7 +457,7 @@
                     <div class="space-y-6">
                         <div class="flex items-start">
                             <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">
+                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
                                 1</div>
                             <div>
                                 <h4 class="font-semibold text-white mb-2">Submit Application</h4>
@@ -466,7 +466,7 @@
                         </div>
                         <div class="flex items-start">
                             <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">
+                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
                                 2</div>
                             <div>
                                 <h4 class="font-semibold text-white mb-2">Document Review</h4>
@@ -475,7 +475,7 @@
                         </div>
                         <div class="flex items-start">
                             <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">
+                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
                                 3</div>
                             <div>
                                 <h4 class="font-semibold text-white mb-2">Admission & Assessment</h4>
@@ -484,7 +484,7 @@
                         </div>
                         <div class="flex items-start">
                             <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1">
+                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
                                 4</div>
                             <div>
                                 <h4 class="font-semibold text-white mb-2">Enrollment</h4>
@@ -498,8 +498,8 @@
                 <div data-aos="fade-left" data-aos-duration="800">
                     <h3 class="text-3xl font-bold text-white mb-8">Get in Touch</h3>
                     <div class="space-y-6">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center mr-4">
+                        <div class="flex flex-row justify-center items-center">
+                            <div class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
                                 <i class="fi fi-rr-marker text-white text-xl"></i>
                             </div>
                             <div>
@@ -534,12 +534,12 @@
             <div class="text-center space-y-4" data-aos="fade-up" data-aos-duration="800">
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="/portal/register"
-                        class="inline-flex items-center bg-[#C8A165] text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-[#1A3165] transition-all duration-300 text-lg">
-                        Apply Now <i class="fi fi-rr-arrow-right ml-2"></i>
+                        class="inline-flex items-center justify-center bg-[#C8A165] text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-[#1A3165] transition-all duration-300 text-lg">
+                        Apply Now <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                     </a>
                     <a href="/portal/login"
-                        class="inline-flex items-center border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-[#1A3165] transition-all duration-300 text-lg">
-                        Student Portal <i class="fi fi-rr-user ml-2"></i>
+                        class="inline-flex items-center justify-center border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-[#1A3165] transition-all duration-300 text-lg">
+                        Student Portal <i class="fi fi-rr-user ml-2 flex justify-center items-center"></i>
                     </a>
                 </div>
                 <p class="text-white/60 text-sm">Have questions? Contact our admissions office for assistance</p>

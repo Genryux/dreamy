@@ -5,6 +5,9 @@ export default defineConfig({
     optimizeDeps: {
         include: ['datatables.net-dt'],
     },
+    build: {
+        chunkSizeWarningLimit: 1000,
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],

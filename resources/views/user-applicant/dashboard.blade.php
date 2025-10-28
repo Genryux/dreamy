@@ -1,4 +1,4 @@
-@extends('layouts.admission')
+@extends('layouts.admission', ['title' => 'Applicant Dashboard'])
 
 @section('alert')
     <x-alert />
@@ -798,7 +798,7 @@
                         class="w-full md:w-[70%] border border-[#1e1e1e]/10 px-3 md:px-2 py-3 md:py-4 rounded-xl bg-[#E3ECFF]/20">
 
                         <div class="flex flex-row justify-center items-center gap-2 mb-3 md:mb-4">
-                            <p class="font-semibold text-[16px] md:text-[18px] text-gray-800">Interview Details</p>
+                            <p class="font-semibold text-[16px] md:text-[18px] text-gray-800">Admission Exam Details</p>
                         </div>
                         {{-- applicant id --}}
                         <div class="pb-2 px-1 md:px-2">
@@ -1350,8 +1350,6 @@
 
             let applicant = @json($applicant ?? null);
 
-            console.log(applicant.application_status)
-
             const btn = document.getElementById('upload-btn');
             const input = document.getElementById('fileInput');
             const doc_option = document.getElementById('document-option');
@@ -1364,10 +1362,6 @@
 
                 let submittedDocs = @json($applicant->submissions ?? null);
 
-                // console.log(submittedDocs);
-
-
-
                 let requiredDocs = @json($assignedDocuments ?? null);
 
                 // convert objects into array
@@ -1379,15 +1373,9 @@
                         item
                         .status));
 
-                console.log(submittedDocsWithStatus);
-
                 let submittedDocsId = new Set(submittedDocs.map(item => item.documents_id));
 
-
-
                 const matchedItems = submittedDocsWithStatus.filter(item => submittedDocsId.has(item.documents_id));
-
-                console.log(matchedItems);
 
                 // Only process if doc_option exists (upload section is visible)
                 if (doc_option) {
@@ -1457,8 +1445,6 @@
                             });
                         });
 
-                        console.log(uploadedFiles)
-
                         updateUploadedFilesList()
                         updateButton()
 
@@ -1514,7 +1500,6 @@
                                 </div>
                         `;
                             container.appendChild(item);
-                            console.log(uploadedFiles)
 
                         });
                     }
@@ -1548,7 +1533,6 @@
                         let optionId = doc_option.options[doc_option.selectedIndex].value;
                         uploadedFiles = uploadedFiles.filter(doc => doc.assignedTo !== docId);
                         attachedFiles = attachedFiles.filter(doc => doc.docId !== docId);
-                        console.log(uploadedFiles)
                         updateUploadedFilesList()
                         updateButton()
                         enableSelection(docId)
@@ -1646,8 +1630,6 @@
 
                         const formData = new FormData();
 
-                        console.log(files)
-
                         uploadedFiles.forEach((item, i) => {
                             // Add the file
                             formData.append(`documents[${i}]`, item.file);
@@ -1655,8 +1637,6 @@
                             // Add the assigned option (or use files_assigned[i] = ...)
                             formData.append(`documents_id[${i}]`, item.assignedTo);
                         });
-
-                        console.log(formData)
 
                         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute(
                             'content');
@@ -1685,7 +1665,6 @@
                                 }
                             })
                             .catch(error => {
-                                console.error('Upload failed:', error.response?.data || error.message);
                                 const errorMessage = error.response?.data?.message ||
                                     'An error occurred while submitting the document';
                                 showAlert('error', errorMessage);
@@ -1702,7 +1681,6 @@
             if (applicant.application_status === null) {
                 window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                     event) => {
-                    console.log('Enrollment period status updated:', event.enrollmentPeriod.status);
                     const status = event.enrollmentPeriod.status;
                     const dbText = document.getElementById('db-text');
                     const epstatus = document.getElementById('ep-status');
@@ -1848,13 +1826,11 @@
                                     `${data.summary.acceptance_rate || 0}% Acceptance rate`;
                             }
                         } else {
-                            console.error('Failed to load application summary:', data.message);
                             // Set default values on error
                             setDefaultSummaryValues();
                         }
                     })
                     .catch(error => {
-                        console.error('Error loading application summary:', error);
                         // Set default values on error
                         setDefaultSummaryValues();
                     });
@@ -1904,7 +1880,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error loading file restrictions:', error);
                         // Fallback to default restrictions
                         const fileInput = document.getElementById('fileInput');
                         const restrictionsText = document.getElementById('fileRestrictions');

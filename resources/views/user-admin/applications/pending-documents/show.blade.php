@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Applications'])
 
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="mb-4 mt-2">
@@ -738,13 +738,7 @@
             let submittedDocs = @json($submittedDocuments);
             let submittedDocsArr = Object.values(requiredDocs)
 
-            console.log(requiredDocs);
-            console.log(submittedDocs);
-
             const approvedCount = submittedDocsArr.filter(doc => doc.status === "Verified").length;
-
-            console.log(`Approved Count: ${approvedCount}`)
-            console.log(`Required Count: ${requiredDocs.length}`)
 
             let enrollMsg = document.querySelector('#enroll-msg')
 
@@ -787,7 +781,6 @@
                     input.name = "document_id";
                     form.appendChild(input);
 
-                    console.log('Verify modal opened for document ID:', documentId);
                 })
 
             })
@@ -813,7 +806,6 @@
                     input.name = "document_id";
                     form.appendChild(input);
 
-                    console.log('Reject modal opened for document ID:', documentId);
                 })
 
             })
@@ -870,7 +862,6 @@
                         throw new Error('Unsupported file type');
                     }
                 } catch (error) {
-                    console.error('Error loading document:', error);
                     loadingIndicator.classList.add('hidden');
                     errorMessage.classList.remove('hidden');
                 }
@@ -886,7 +877,10 @@
                 const nextBtn = document.getElementById('next-page-btn');
 
                 try {
-                    // Check if PDF.js is available (it should be from app.js)
+                    // Lazy load PDF.js library
+                    await window.loadPDFLibrary();
+                    
+                    // Check if PDF.js is available
                     if (typeof window.pdfjsLib === 'undefined') {
                         throw new Error('PDF.js library not loaded');
                     }
@@ -923,12 +917,10 @@
                             }
                         };
                     }).catch(function(error) {
-                        console.error('Error loading PDF:', error);
                         loadingIndicator.classList.add('hidden');
                         document.getElementById('error-message').classList.remove('hidden');
                     });
                 } catch (error) {
-                    console.error('Error initializing PDF viewer:', error);
                     loadingIndicator.classList.add('hidden');
                     document.getElementById('error-message').classList.remove('hidden');
                 }
@@ -1037,10 +1029,6 @@
                 // Add auto-assign checkbox value to form data
                 formData.append('auto_assign', autoAssign ? '1' : '0');
 
-                // Debug: Log the checkbox value
-                console.log('Auto-assign checkbox checked:', autoAssign);
-                console.log('Form data auto_assign value:', autoAssign ? '1' : '0');
-
                 // Show appropriate loader message based on checkbox state
                 const loaderMessage = autoAssign ? 'Enrolling student with auto-assigned fees...' :
                     'Enrolling student...';
@@ -1091,7 +1079,6 @@
                     // Hide loader
                     hideLoader();
 
-                    console.error('Enrollment error:', error);
                     showAlert('error',
                         'An error occurred while enrolling the student. Please try again.');
                 }

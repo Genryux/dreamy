@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Applications'])
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="mb-4 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
@@ -615,14 +615,12 @@
                             }, 1000);
 
                         } else {
-                            console.error('Error:', data.message);
                             closeModal('accept-application-modal', 'modal-container-1');
                             showAlert('error', data.message);
                         }
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('accept-application-modal', 'modal-container-1');
                         showAlert('error', 'Something went wrong while scheduling the admission exam');
                     });
@@ -672,7 +670,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('reject-application-modal', 'modal-container-2');
                         showAlert('error', err);
                     });
@@ -716,14 +713,12 @@
                             }, 1000);
 
                         } else {
-                            console.error('Error:', data.message);
                             closeModal('accept-only-modal', 'modal-container-3');
                             showAlert('error', data.message);
                         }
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('accept-only-modal', 'modal-container-3');
                         showAlert('error', 'Something went wrong while accepting the application');
                     });

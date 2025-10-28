@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'Login'])
 
 @section('login_page')
     <div class="relative w-screen h-screen ">
@@ -13,8 +13,8 @@
         </div>
 
 
-        <div class=" h-full flex flex-col md:flex-row justify-center items-center text-white">
-            <div class="flex-1 w-full h-full flex flex-col justify-center items-center space-y-4">
+        <div class=" h-full flex flex-col md:flex-row justify-center items-center text-white gap-16">
+            <div class="w-full flex flex-col justify-center items-center space-y-4">
                 <div class="flex flex-col justify-center items-center">
                     <p class="text-[18px] md:text-[24px]" data-aos="fade-up" data-aos-duration="800">Welcome to Dreamy
                         School</p>
@@ -24,7 +24,7 @@
                 <img src="{{ asset('images/Dreamy_logo.png') }}" data-aos="fade-up" data-aos-duration="1000"
                     class="h-1/3 w-1/3 hidden md:block" alt="Dreamy School logo">
             </div>
-            <div class="flex-1  w-full h-full flex flex-col justify-center items-center">
+            <div class="w-full flex flex-col justify-center items-center">
 
                 <form action="/session" method="post" class="w-full md:w-1/2 max-w-md px-4 space-y-4">
                     @csrf
@@ -62,7 +62,7 @@
                                         <div
                                             class="flex items-center rounded-md bg-transparent pl-3 border-2 border-white/60">
                                             <input type="email" name="email" id="email"
-                                                class="block min-w-0 grow mb-1 py-1.5 pr-3 pl-1 text-base text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none sm:text-sm/6 bg-transparent text-white"
+                                                class="block min-w-0 grow py-2.5 md:py-1.5 pr-3 px-1 text-base text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none sm:text-sm/6 bg-transparent text-white"
                                                 placeholder="Enter your email..." value="{{ old('email') }}"
                                                 autocomplete="email" autofocus @error('email') aria-invalid="true" @enderror
                                                 required>
@@ -83,7 +83,7 @@
                                         <div
                                             class="flex items-center rounded-md bg-transparent pl-3 border-2 border-white/60">
                                             <input type="password" name="password" id="password"
-                                                class="block min-w-0 grow mb-1 py-1.5 pr-3 pl-1 text-base text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none sm:text-sm/6 bg-transparent text-white"
+                                                class="block min-w-0 grow py-2.5 md:py-1.5 pr-3 px-1 text-base text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none sm:text-sm/6 bg-transparent text-white"
                                                 placeholder="Enter your password..." autocomplete="current-password"
                                                 @error('password') aria-invalid="true" @enderror required>
                                         </div>
@@ -109,7 +109,7 @@
                         @endif
                         <div class="flex flex-col justify-center items-center gap-y-6 w-full">
                             <button type="submit"
-                                class="rounded-xl bg-[#199BCF] px-3 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full shadow-xl"
+                                class="rounded-xl bg-[#199BCF] px-3 py-4 text-[18px] md:py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full shadow-xl"
                                 data-aos="fade-up" data-aos-duration="1000">Login</button>
 
                         </div>

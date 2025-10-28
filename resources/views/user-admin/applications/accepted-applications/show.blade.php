@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Applications'])
 
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="mb-4 mt-2">
@@ -881,10 +881,6 @@
 
         const applicantId = @json($applicant->id);
         const interviewId = @json($interview_details->id ?? null);
-        console.log('Interview ID:', interviewId);
-        console.log('Applicant ID:', applicantId);
-
-
 
         document.addEventListener("DOMContentLoaded", function() {
             initModal('update-status-modal', 'update-status-btn', 'update-status-close-btn', 'cancel-btn',
@@ -935,16 +931,13 @@
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
-                                console.log('Success:', data.message);
                             } else {
-                                console.error('Error:', data.message);
                                 closeModal('schedule-admission-modal', 'modal-container-1');
                                 showAlert('error', data.message);
                             }
                         })
                         .catch(err => {
                             hideLoader();
-                            console.error('Error:', err);
                             closeModal('schedule-admission-modal', 'modal-container-1');
                             showAlert('error',
                                 'Something went wrong while scheduling the admission exam');
@@ -989,16 +982,13 @@
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
-                                console.log('Success:', data.message);
                             } else {
-                                console.error('Error:', data.message);
                                 closeModal('edit-schedule-modal', 'modal-container-3');
                                 showAlert('error', data.message);
                             }
                         })
                         .catch(err => {
                             hideLoader();
-                            console.error('Error:', err);
                             closeModal('schedule-admission-modal', 'modal-container-3');
                             showAlert('error',
                                 'Something went wrong while scheduling the admission exam');
@@ -1047,16 +1037,13 @@
                                 setTimeout(() => {
                                     window.location.href = '/applications/accepted';
                                 }, 1500);
-                                console.log('Success:', data.message);
                             } else {
-                                console.error('Error:', data.message);
                                 closeModal('record-interview-modal', 'modal-container-2');
                                 showAlert('error', data.message);
                             }
                         })
                         .catch(err => {
                             hideLoader();
-                            console.error('Error:', err);
                             closeModal('record-interview-modal', 'modal-container-2');
                             showAlert('error',
                                 err);
@@ -1104,14 +1091,12 @@
                                 }, 1000);
 
                             } else {
-                                console.error('Error:', data.message);
                                 closeModal('update-status-modal', 'modal-container-4');
                                 showAlert('error', data.message);
                             }
                         })
                         .catch(err => {
                             hideLoader();
-                            console.error('Error:', err);
                             closeModal('update-status-modal', 'modal-container-4');
                             showAlert('error', 'Something went wrong while accepting the application');
                         });

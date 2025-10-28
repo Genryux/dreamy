@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'School Settings'])
 
 @section('content')
     <div class="p-6">
@@ -463,7 +463,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error loading activities:', error);
                         showError('Error loading activity log');
                     });
             }

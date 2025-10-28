@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Sections'])
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
@@ -1187,7 +1187,7 @@
                         studentListContainer.appendChild(emptyState);
                     }
                 } catch (error) {
-                    console.error('Error refreshing student list:', error);
+                    console.error('Error refreshing student list');
                 }
             }
 
@@ -1301,7 +1301,7 @@
 
                     // Teachers are now loaded from the blade template
                 } catch (error) {
-                    console.error('Error loading subjects and teachers:', error);
+                    console.error('Error loading subjects and teachers');
                 }
             }
 
@@ -1398,7 +1398,7 @@
                         document.getElementById('modal-content').classList.add('max-h-96');
                     }
                 } catch (error) {
-                    console.error('Error checking schedule conflict:', error);
+                    console.error('Error checking schedule conflict');
                 }
             }
 
@@ -1566,7 +1566,6 @@
                         showAlert('error', result.error || 'Failed to assign subject');
                     }
                 } catch (error) {
-                    console.error('Error assigning subject:', error);
                     showAlert('error', 'Something went wrong');
                 }
             });
@@ -1631,12 +1630,10 @@
                         // Set the section subject ID
                         document.getElementById('edit-section-subject-id').value = sectionSubjectId;
 
-                        console.log('Edit form populated with current data:', sectionSubject);
                     } else {
                         throw new Error('No subject data received from server');
                     }
                 } catch (error) {
-                    console.error('Error populating edit form:', error);
                     showAlert('error', 'Failed to load subject data. Please try again.');
                 }
             }
@@ -1747,7 +1744,7 @@
                         document.getElementById('modal-content').classList.add('max-h-96');
                     }
                 } catch (error) {
-                    console.error('Error checking edit schedule conflict:', error);
+                    console.error('Error checking edit schedule conflict');
                 }
             }
 
@@ -1899,7 +1896,6 @@
                         return;
                     }
                 } catch (error) {
-                    console.error('Error checking conflicts:', error);
                     showAlert('error', 'Failed to check for conflicts');
                     return;
                 }
@@ -1934,7 +1930,6 @@
                     }
                 } catch (error) {
                     hideLoader();
-                    console.error('Error updating subject:', error);
                     showAlert('error', 'Something went wrong');
                 }
             });
@@ -1965,7 +1960,6 @@
                         studentIdInput.value = studentId;
                         form.appendChild(studentIdInput);
 
-                        console.log('Delete modal opened for student ID:', studentId);
                     });
                 });
             }
@@ -1997,8 +1991,6 @@
                         sectionSubjectIdInput.value = sectionSubjectId;
                         form.appendChild(sectionSubjectIdInput);
 
-                        console.log('Delete modal opened for section subject ID:',
-                            sectionSubjectId);
                     });
                 });
             }
@@ -2043,7 +2035,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while removing the subject');
                         });
                 });
@@ -2090,7 +2081,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while removing the student');
                         });
                 });
@@ -2129,7 +2119,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the section');
                         });
                 });

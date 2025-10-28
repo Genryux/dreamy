@@ -1,16 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => $news->title])
 
 @section('section_1')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[120px]">
+    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-4xl mx-auto">
-            <!-- Back Button -->
-            <div class="mb-8" data-aos="fade-right" data-aos-duration="600">
-                <a href="{{ route('public.news.index') }}" 
-                   class="inline-flex items-center text-[#1A3165] hover:text-[#C8A165] transition-colors duration-200">
-                    <i class="fi fi-rr-arrow-left mr-2"></i>
-                    Back to News
-                </a>
-            </div>
 
             <!-- Article Header -->
             <div class="mb-8" data-aos="fade-up" data-aos-duration="800">
@@ -24,7 +16,7 @@
                         {{ $news->published_at->diffForHumans() }}
                     </div>
                 </div>
-                <h1 class="text-4xl font-bold text-[#1A3165] mb-6 leading-tight">
+                <h1 class="text-[28px] md:text-[48px] font-bold text-[#1A3165] mb-6 leading-tight">
                     {{ $news->title }}
                 </h1>
                 <div class="bg-[#C8A165] w-[100px] h-[4px]"></div>
@@ -45,8 +37,8 @@
                     </div>
                     <div class="flex items-center space-x-4">
                         <a href="{{ route('public.news.index') }}" 
-                           class="inline-flex items-center text-[#1A3165] hover:text-[#C8A165] transition-colors duration-200">
-                            <i class="fi fi-rr-arrow-left mr-2"></i>
+                           class="inline-flex items-center text-[#1A3165] hover:text-[#C8A165] transition-colors duration-200 truncate">
+                            <i class="fi fi-rr-arrow-left mr-2 flex justify-center items-center"></i>
                             Back to News
                         </a>
                     </div>

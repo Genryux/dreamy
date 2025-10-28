@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<x-head></x-head>
+<x-head :title="$title ?? 'Dashboard'"></x-head>
 
 @php
     // Platform detection helper (temporarily disabled for testing)
@@ -469,7 +469,6 @@
             let isUserDropdownOpen = false;
 
 
-            console.log('Simple Laravel notification system loaded - v2.0');
             let isDropdownOpen = false;
 
             if (notificationBell) {
@@ -509,7 +508,6 @@
                             updateBadge(data.notifications);
                         }
                     } catch (error) {
-                        console.error('Error loading notifications:', error);
                         notificationList.innerHTML =
                             '<div class="p-4 text-center text-gray-500">Error loading notifications</div>';
                     }
@@ -625,12 +623,9 @@
 
                 // Listen to admins channel (registrar, super_admin)
                 if (userRoles.some(role => ['registrar', 'super_admin'].includes(role))) {
-                    console.log('Setting up admin notification listener');
-                    console.log('Connecting to admins channel...');
 
                     window.Echo.channel('admins')
                         .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
-                            console.log('Admin notification received:', e);
                             loadNotifications();
 
                             if (Notification.permission === 'granted') {
@@ -650,12 +645,9 @@
 
                 // Listen to teachers channel (head_teacher, teacher)
                 if (userRoles.some(role => ['head_teacher', 'teacher'].includes(role))) {
-                    console.log('Setting up teacher notification listener');
-                    console.log('Connecting to teachers channel...');
 
                     window.Echo.channel('teachers')
                         .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
-                            console.log('Teacher notification received:', e);
                             loadNotifications();
 
                             if (Notification.permission === 'granted') {
@@ -675,7 +667,6 @@
 
                 if (!userRoles.some(role => ['registrar', 'super_admin', 'head_teacher', 'teacher'].includes(
                         role))) {
-                    console.log('User does not have admin or teacher role, skipping Echo setup');
                 }
 
                 // Request notification permission
@@ -690,9 +681,6 @@
                 window.handleNotificationClick = handleNotificationClick;
 
                 // Debug: Check Echo connection
-                console.log('Echo instance:', window.Echo);
-                console.log('Laravel user:', window.Laravel?.user);
-                console.log('User roles:', window.Laravel?.user?.roles);
             }
 
             // User dropdown functionality

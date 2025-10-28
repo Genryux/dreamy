@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Students'])
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="mb-4 mt-2">
         <ol class="flex items-center gap-1 text-sm text-gray-700">
@@ -1453,7 +1453,6 @@
                         element.classList.toggle('pointer-events-none');
                         element.classList.toggle('scale-90');
 
-                        console.log(element)
                     });
 
 
@@ -1491,7 +1490,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
                         showAlert('error', 'An error occurred while updating personal information');
                     });
             });
@@ -1524,7 +1522,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
                         showAlert('error', 'An error occurred while updating academic information');
                     });
             });
@@ -1557,7 +1554,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
                         showAlert('error', 'An error occurred while updating address information');
                     });
             });
@@ -1591,7 +1587,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
                         showAlert('error',
                             'An error occurred while updating emergency contact information');
                     });

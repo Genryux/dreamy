@@ -1,10 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'News'])
 
 @section('section_1')
-    <div class="relative bg-[#1A3165] min-h-screen w-screen py-40 px-[120px]">
+    <div class="relative bg-[#1A3165] min-h-screen w-screen py-40 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h1 class="font-bold text-[48px] text-white mb-4">News & Announcements</h1>
+                <h1 class="font-bold text-[32px] md:text-[48px] text-white mb-4">News & Announcements</h1>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
                 <p class="text-[18px] text-white/80 max-w-2xl mx-auto">Stay updated with the latest news and announcements from Dreamy School</p>
             </div>
@@ -15,11 +15,11 @@
                          data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 }}">
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center text-sm text-white/70">
+                                <div class="flex items-center text-sm text-gray-500">
                                     <i class="fi fi-rr-calendar mr-2"></i>
                                     {{ $article->published_at->format('M d, Y') }}
                                 </div>
-                                <div class="flex items-center text-sm text-white/70">
+                                <div class="flex items-center text-sm text-gray-500">
                                     <i class="fi fi-rr-clock mr-2"></i>
                                     {{ $article->published_at->diffForHumans() }}
                                 </div>
@@ -33,7 +33,7 @@
                             <a href="{{ route('public.news.show', $article) }}" 
                                class="inline-flex items-center text-[#1A3165] font-semibold hover:text-[#C8A165] transition-colors duration-200">
                                 Read More
-                                <i class="fi fi-rr-arrow-right ml-2"></i>
+                                <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                             </a>
                         </div>
                     </div>

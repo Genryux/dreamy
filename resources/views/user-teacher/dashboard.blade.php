@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Teacher Dashboard'])
 
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
@@ -516,7 +516,7 @@
 
                     renderCards(data.data, page, window.totalPages);
                 } catch (error) {
-                    console.error('Error fetching sections:', error);
+                    console.error('Error fetching sections');
                 }
             }
 

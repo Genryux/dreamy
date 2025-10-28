@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Students'])
 
 {{-- @section('skeleton')
     <div id="skeleton" class="fixed inset-0 bg-white flex flex-col justify-center items-center z-50">
@@ -445,7 +445,7 @@
                     updateEnrollmentChart(enrolled, pending);
                 })
                 .catch(error => {
-                    console.error('Error loading enrollment stats:', error);
+                    console.error('Error loading enrollment stats');
                 });
         }
 
@@ -478,7 +478,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading enrollment analytics:', error);
+                    console.error('Error loading enrollment analytics');
                 });
         }
 
@@ -1178,7 +1178,6 @@
 
                 table1.page.len(selectedPageLength).draw();
 
-                //console.log(id);
             })
 
             gradeSelection.addEventListener('change', (e) => {
@@ -1289,8 +1288,6 @@
                     .then(data => {
                         hideLoader();
 
-                        console.log(data)
-
                         if (data.success) {
 
                             showAlert('success', data.success);
@@ -1303,9 +1300,7 @@
                             }, 500); // Small delay to ensure data is processed
 
                         } else if (data.error) {
-
                             showAlert('error', data.error);
-                            console.log(data.error)
                         }
                     })
                     .catch(err => {
@@ -1315,11 +1310,13 @@
             });
 
 
-            const totalChartCtx = document.getElementById('total_chart').getContext('2d');
-            const gradeLevelChartCtx = document.getElementById('grade_level_chart').getContext('2d');
-            const programChartCtx = document.getElementById('program_chart').getContext('2d');
+            // Wait for Chart library to load
+            window.loadChartLibrary().then(() => {
+                const totalChartCtx = document.getElementById('total_chart').getContext('2d');
+                const gradeLevelChartCtx = document.getElementById('grade_level_chart').getContext('2d');
+                const programChartCtx = document.getElementById('program_chart').getContext('2d');
 
-            window.gradeLevelChart = new Chart(gradeLevelChartCtx, {
+                window.gradeLevelChart = new Chart(gradeLevelChartCtx, {
                 type: 'doughnut',
                 data: {
                     labels: [], // Will be populated dynamically
@@ -1370,9 +1367,9 @@
                         intersect: false
                     }
                 }
-            });
+                });
 
-            window.programChart = new Chart(programChartCtx, {
+                window.programChart = new Chart(programChartCtx, {
                 type: 'doughnut',
                 data: {
                     labels: [], // Will be populated dynamically
@@ -1423,9 +1420,9 @@
                         intersect: false
                     }
                 }
-            });
+                });
 
-            window.totalChart = new Chart(totalChartCtx, {
+                window.totalChart = new Chart(totalChartCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Enrolled', 'Pending'],
@@ -1481,8 +1478,9 @@
                 }
             });
 
-            // Load analytics after charts are initialized
-            loadEnrollmentAnalytics();
+                // Load analytics after charts are initialized
+                loadEnrollmentAnalytics();
+            });
 
             function closeModal() {
 

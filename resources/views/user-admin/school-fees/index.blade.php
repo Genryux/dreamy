@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'School Fees'])
 @section('modal')
     {{-- invoice settings --}}
     <x-modal modal_id="set-down-payment-modal" modal_name="Set Down Payment" close_btn_id="set-down-payment-close-btn"
@@ -867,11 +867,11 @@
                     </div>
                 </div>
 
-                    <button id="create-discount-btn"
-                        class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                        <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
-                        Add Discount
-                    </button>
+                <button id="create-discount-btn"
+                    class="self-end flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                    <i class="fi fi-sr-square-plus opacity-70 flex justify-center items-center text-[18px]"></i>
+                    Add Discount
+                </button>
             </div>
 
             <div class="w-full">
@@ -1469,14 +1469,12 @@
                                 document.getElementById('edit-school-fee-modal-form').querySelector(
                                     'input[name="amount"]').value = schoolFee.amount || '';
 
-                                console.log('Edit modal opened for school fee ID:', schoolFeeId);
                             } else {
                                 showAlert('error', 'Error loading school fee: ' + data.error);
                             }
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while loading the school fee');
                         });
                 });
@@ -1509,7 +1507,6 @@
                     schoolFeeIdInput.value = schoolFeeId;
                     form.appendChild(schoolFeeIdInput);
 
-                    console.log('Delete modal opened for school fee ID:', schoolFeeId);
                 });
             });
         }
@@ -1655,13 +1652,10 @@
                         }
                     })
                     .then(response => {
-                        console.log('Response status:', response.status);
                         return response.json();
                     })
                     .then(data => {
                         hideLoader();
-
-                        console.log('Response data:', data);
 
                         if (data.id && data.success) {
                             // Reset form
@@ -1696,7 +1690,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('create-school-fee-modal', 'modal-container-1');
                         showAlert('error', 'Something went wrong while creating the school fee');
                     });
@@ -1740,13 +1733,10 @@
                         }
                     })
                     .then(response => {
-                        console.log('Response status:', response.status);
                         return response.json();
                     })
                     .then(data => {
                         hideLoader();
-
-                        console.log('Response data:', data);
 
                         if (data.success) {
                             // Reset form
@@ -1787,7 +1777,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('edit-school-fee-modal', 'modal-container-5');
                         showAlert('error', 'Something went wrong while updating the school fee');
                     });
@@ -1850,7 +1839,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the school fee');
                         });
                 });
@@ -2318,7 +2306,6 @@
 
                         feesmsg.innerHTML = 'Error searching for student. Please try again.';
                         feesmsg.classList.remove('hidden');
-                        console.error(err);
                     });
             });
 
@@ -2460,7 +2447,6 @@
                         } else {
                             showAlert('error', data.error ||
                                 'Failed to create invoice. Please try again.');
-                            console.log(data.error)
                         }
                     })
                     .catch(err => {
@@ -2469,7 +2455,6 @@
                         submitBtn.disabled = false;
 
                         showAlert('error', 'Something went wrong. Please try again.');
-                        console.error(err);
                     });
             });
 
@@ -2659,7 +2644,7 @@
             clearSearch('clear-btn', 'payment-history-search', paymentHistory)
         }
 
-         function initializeDiscountTab() {
+        function initializeDiscountTab() {
             // Initialize discount table
             let discountTable = initCustomDataTable(
                 'discount-table',
@@ -2878,7 +2863,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while creating the discount');
                         });
                 });
@@ -2917,7 +2901,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while updating the discount');
                         });
                 });
@@ -2952,7 +2935,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the discount');
                         });
                 });
@@ -2987,7 +2969,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while toggling the discount');
                         });
                 });
@@ -3108,12 +3089,9 @@
                     }
                 })
                 .then(res => {
-                    console.log('Response status:', res.status);
-                    console.log('Response headers:', res.headers);
                     return res.json();
                 })
                 .then((data) => {
-                    console.log('Response data:', data);
                     hideLoader();
 
                     if (data.success === true) {

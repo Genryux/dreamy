@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'User Management'])
 
 @section('modal')
     @if (Route::is('admin.users.roles'))
@@ -849,11 +849,11 @@
                         }
 
                     } else {
-                        console.error('Error loading analytics:', data.error);
+                        console.error('Error loading analytics');
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading analytics:', error);
+                    console.error('Error loading analytics');
                 });
         }
 
@@ -1168,7 +1168,7 @@
 
                     renderCards(data.data, page, window.totalPages);
                 } catch (error) {
-                    console.error('Error fetching users:', error);
+                    console.error('Error fetching users');
                 }
             }
 
@@ -1378,7 +1378,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('create-user-modal', 'modal-container-create-user');
                         showAlert('error', 'Something went wrong while creating the user');
                     });
@@ -1427,7 +1426,6 @@
 
                             // Refresh table
                             if (typeof usersTable !== 'undefined') {
-                                console.log('Refreshing users table after update...');
                                 usersTable.draw();
                             } else {
                                 console.error('usersTable is not defined');
@@ -1450,7 +1448,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('edit-user-modal', 'modal-container-edit-user');
                         showAlert('error', 'Something went wrong while updating the user');
                     });
@@ -1478,7 +1475,6 @@
                             hideLoader();
                             if (data.success === true) {
                                 showAlert('success', data.message);
-                                console.log('Refreshing users table after delete...');
                                 usersTable.draw(); // Refresh the table
 
                                 // Refresh card layout if currently in card view
@@ -1496,7 +1492,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the user');
                         });
                 });
@@ -1526,7 +1521,6 @@
                     })
                     .catch(error => {
                         hideLoader();
-                        console.error('Error:', error);
                         showAlert('error', 'An error occurred while resending the invitation');
                     });
             }
@@ -1554,7 +1548,6 @@
                     })
                     .catch(error => {
                         hideLoader();
-                        console.error('Error:', error);
                         showAlert('error', 'An error occurred while cancelling the invitation');
                     });
             }
@@ -1623,8 +1616,6 @@
                                     programSelect.value = '';
                                 }
 
-                                console.log('Edit modal opened for user ID:', userId);
-
                                 // Open the modal after data is loaded
                                 const modal = document.getElementById('edit-user-modal');
                                 const modalContainer = document.getElementById(
@@ -1642,7 +1633,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while loading the user');
                         });
                 });
@@ -1674,8 +1664,6 @@
                     userIdInput.name = 'user_id';
                     userIdInput.value = userId;
                     form.appendChild(userIdInput);
-
-                    console.log('Delete modal opened for user ID:', userId);
 
                     // Open the modal after form is set up
                     const modal = document.getElementById('delete-user-modal');
@@ -1717,7 +1705,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading programs:', error);
+                    console.error('Error loading programs');
                 });
         }
 
@@ -1880,7 +1868,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while creating the role');
                         });
                 });
@@ -1932,7 +1919,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while updating the role');
                         });
                 });
@@ -1969,7 +1955,6 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while deleting the role');
                         });
                 });
@@ -2006,7 +1991,6 @@
                     roleIdInput.value = roleId;
                     form.appendChild(roleIdInput);
 
-                    console.log('Delete modal opened for role ID:', roleId);
                 });
             });
         }
@@ -2048,14 +2032,12 @@
                                 // Load permissions for this role
                                 loadPermissionsForEditRole(data.role.permissions);
 
-                                console.log('Edit modal opened for role ID:', roleId);
                             } else {
                                 showAlert('error', 'Error loading role: ' + data.error);
                             }
                         })
                         .catch(error => {
                             hideLoader();
-                            console.error('Error:', error);
                             showAlert('error', 'An error occurred while loading the role');
                         });
                 });
@@ -2120,7 +2102,6 @@
                 })
                 .catch(error => {
                     hideLoader();
-                    console.error('Error:', error);
                     showAlert('error', 'An error occurred while loading the role');
                 });
         };
@@ -2153,7 +2134,6 @@
                 })
                 .catch(error => {
                     hideLoader();
-                    console.error('Error:', error);
                     showAlert('error', 'An error occurred while loading the role');
                 });
         };
@@ -2170,7 +2150,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading permissions:', error);
                     document.getElementById('role-permissions-container').innerHTML =
                         '<div class="text-center text-red-500 py-4"><p>Error loading permissions</p></div>';
                 });
@@ -2235,7 +2214,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading permissions:', error);
                     document.getElementById('edit-role-permissions-container').innerHTML =
                         '<div class="text-center text-red-500 py-4"><p>Error loading permissions</p></div>';
                 });
@@ -2302,7 +2280,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading permissions:', error);
                     document.getElementById('permission-categories').innerHTML =
                         '<div class="text-center text-red-500 py-4"><p>Error loading permissions</p></div>';
                 });
@@ -2454,7 +2431,6 @@
                 })
                 .catch(error => {
                     hideLoader();
-                    console.error('Error:', error);
                     showAlert('error', 'An error occurred while saving permissions');
                 });
         }

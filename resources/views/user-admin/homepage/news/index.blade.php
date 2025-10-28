@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Manage News'])
 
 @section('header')
     <div class="flex flex-row justify-between items-start text-start px-[14px] py-2">
@@ -175,17 +175,14 @@
         let selectedStatus = '';
 
         document.addEventListener("DOMContentLoaded", function() {
-            console.log('Initializing modal...');
             initModal('news-modal', 'create-news-modal-btn', 'news-modal-close-btn', 'news-modal-cancel-btn',
                 'news-modal-container');
 
             // Debug: Check if modal button exists
             const modalBtn = document.getElementById('create-news-modal-btn');
-            console.log('Modal button found:', modalBtn);
 
             if (modalBtn) {
                 modalBtn.addEventListener('click', function() {
-                    console.log('Modal button clicked');
                     // Reset form when opening modal
                     document.getElementById('news-form').reset();
                     document.getElementById('news_id').value = '';
@@ -370,16 +367,6 @@
                     return;
                 }
 
-                // Debug: Log form data
-                console.log('Form data:', {
-                    title: title,
-                    content: content,
-                    status: status,
-                    visibility: visibility,
-                    is_announcement: formData.get('is_announcement'),
-                    news_id: newsId,
-                    isEdit: isEdit
-                });
 
                 showLoader(isEdit ? "Updating..." : "Creating...");
 
@@ -394,11 +381,9 @@
                         }
                     })
                     .then(response => {
-                        console.log('Response status:', response.status);
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Response data:', data);
                         hideLoader();
 
                         if (data.success) {
@@ -412,7 +397,6 @@
                         }
                     })
                     .catch(err => {
-                        console.error('Error:', err);
                         hideLoader();
                         showAlert('error', 'Something went wrong: ' + err.message);
                     });

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Invoice'])
 @section('modal')
     <x-modal modal_id="record-payment-modal" modal_name="Record Payment" close_btn_id="record-payment-modal-close-btn"
         modal_container_id="modal-container-1">
@@ -685,8 +685,6 @@
                     let itemId = button.getAttribute('data-invoice-item-id');
                     let buttonId = `open-delete-invoice-item-btn-${itemId}`;
 
-                    console.log('Initializing modal for button:', buttonId);
-
                     // Initialize modal for this specific button
                     initModal('delete-invoice-item-modal', buttonId,
                         'delete-invoice-item-close-btn',
@@ -699,13 +697,6 @@
                         const invoiceIdAttr = button.getAttribute('data-invoice-id');
                         const schoolFeeId = button.getAttribute('data-school-fee-id');
 
-                        console.log('Delete button clicked:', {
-                            itemId,
-                            itemName,
-                            invoiceId: invoiceIdAttr,
-                            schoolFeeId
-                        });
-
                         // Store current item info
                         currentItemId = itemId;
                         currentInvoiceId = invoiceIdAttr;
@@ -717,7 +708,6 @@
                             itemTextElement.innerHTML = `Item: ${itemName}`;
                         }
 
-                        console.log('Modal should open now for item:', itemId);
                     });
                 });
             }
@@ -829,23 +819,14 @@
                 deleteInvoiceItemForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
-                    console.log('Form submitted:', {
-                        currentItemId,
-                        currentInvoiceId,
-                        currentSchoolFeeId
-                    }); // Debug log
-
                     if (!currentItemId) {
                         alert('No item selected for deletion');
                         return;
                     }
 
                     const deleteUrl = `/invoice/${currentInvoiceId}/item/${currentItemId}`;
-                    console.log('Making DELETE request to:', deleteUrl); // Debug log
-
 
                     showLoader();
-
 
                     fetch(deleteUrl, {
                             method: 'DELETE',
@@ -855,11 +836,9 @@
                             }
                         })
                         .then(response => {
-                            console.log('Response status:', response.status); // Debug log
                             return response.json();
                         })
                         .then(data => {
-                            console.log('Response data:', data); // Debug log
 
                             hideLoader();
 
@@ -903,7 +882,6 @@
                             if (typeof hideLoader === 'function') {
                                 hideLoader();
                             }
-                            console.error('Fetch error:', error);
                             if (typeof showAlert === 'function') {
                                 showAlert('error', 'An error occurred while deleting the invoice item');
                             } else {
@@ -961,14 +939,7 @@
                         formData.append('selected_discounts[]', discountId);
                     });
                 }
-                
-                // Debug logging
-                console.log('Payment data being sent:', {
-                    amount: paymentData.amount,
-                    remaining_balance: paymentData.remaining_balance,
-                    custom_discount_enabled: paymentData.custom_discount_enabled,
-                    selected_discounts: paymentData.selected_discounts
-                });
+
 
                 fetch(`/invoice/${invoiceId}/payments`, {
                         method: 'POST',
@@ -1013,7 +984,6 @@
                     })
                     .catch(error => {
                         hideLoader();
-                        console.error('Payment error:', error);
                         showAlert('error', error.message || 'An error occurred while recording the payment.');
                     });
             }

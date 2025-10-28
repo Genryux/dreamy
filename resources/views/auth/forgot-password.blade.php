@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'Forgot Password'])
 
 @section('login_page')
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -33,16 +33,16 @@
             </div>
         @endif
 
-        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg rounded-xl sm:px-10">
             <form class="space-y-6" method="POST" action="{{ route('password.email') }}">
                 @csrf
                 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-white mb-2">
+                    <label for="email" class="block text-[16px] font-medium text-white mb-2">
                         Email Address
                     </label>
                     <input id="email" name="email" type="email" autocomplete="email" required 
-                           class="w-full px-3 py-2 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#199BCF] focus:border-transparent @error('email') border-red-400 @enderror"
+                           class="w-full px-3 py-4 md:py-2.5 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#199BCF] focus:border-transparent transition duration-200 @error('email') border-red-400 @enderror"
                            placeholder="Enter your email address"
                            value="{{ old('email') }}">
                     @error('email')
@@ -72,15 +72,15 @@
 
                 <div class="space-y-4">
                     <button type="submit" 
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
+                            class="w-full flex justify-center py-4 md:py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
                         <i class="fi fi-rr-envelope mr-2"></i>
                         Send Password Reset Link
                     </button>
 
                     <div class="text-center">
                         <a href="{{ route('login') }}" 
-                           class="text-sm text-gray-300 hover:text-white transition duration-150">
-                            <i class="fi fi-rr-arrow-left mr-1"></i>
+                           class="text-sm text-gray-300 hover:text-white transition duration-150 flex flex-row justify-center items-center gap-2">
+                            <i class="fi fi-rr-arrow-left mr-1 flex justify-center items-center"></i>
                             Back to Login
                         </a>
                     </div>

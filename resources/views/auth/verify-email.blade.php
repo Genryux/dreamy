@@ -1,11 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'Verify Email'])
 
 @section('login_page')
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
             <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#199BCF] to-[#C8A165]">
-                <i class="fi fi-rr-envelope text-white text-xl"></i>
+                <i class="fi fi-rr-envelope text-white text-xl flex justify-center items-center"></i>
             </div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
                 Verify Your Email Address
@@ -45,10 +45,10 @@
             </div>
         @endif
 
-        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 py-8 px-4 shadow-lg rounded-xl sm:px-10">
             <div class="text-center">
                 <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gradient-to-br from-[#199BCF] to-[#C8A165] mb-4">
-                    <i class="fi fi-rr-envelope-open text-white text-2xl"></i>
+                    <i class="fi fi-rr-envelope-open text-white text-2xl flex justify-center items-center"></i>
                 </div>
                 
                 <h3 class="text-lg font-medium text-white mb-2">
@@ -85,8 +85,8 @@
                         <form method="POST" action="{{ route('verification.send') }}">
                             @csrf
                             <button type="submit" 
-                                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
-                                <i class="fi fi-rr-refresh mr-2"></i>
+                                    class="w-full flex justify-center py-4 md:py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-[#199BCF] hover:bg-[#C8A165] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C8A165] transition duration-200">
+                                <i class="fi fi-rr-refresh mr-2 flex justify-center items-center"></i>
                                 Resend Verification Email
                             </button>
                         </form>

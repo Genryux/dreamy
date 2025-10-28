@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Dashboard'])
 
 @section('modal')
     {{-- academic term modal --}}
@@ -1139,17 +1139,14 @@
 
 
             @if (session('success'))
-                console.log('Showing success alert:', '{{ session('success') }}');
                 showAlert('success', '{{ session('success') }}');
             @endif
 
             @if (session('error'))
-                console.log('Showing error alert:', '{{ session('error') }}');
                 showAlert('error', '{{ session('error') }}');
             @endif
 
             @if ($errors->any())
-                console.log('Showing validation errors:', '{{ $errors->first() }}');
                 showAlert('error', '{{ $errors->first() }}');
             @endif
             // Load program analytics
@@ -1344,19 +1341,13 @@
                 });
             }
 
-            console.log(window.Echo);
-
             // Restrict fetching-recent-applications channel to super_admin and admin only
             const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
 
             if (userRoles.some(role => ['super_admin', 'admin'].includes(role))) {
-                console.log('Setting up recent applications listener for admin users');
 
                 window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (
                     event) => {
-                    console.log('New application received:', event);
-                    console.log('Total applications:', event.total_applications);
-                    console.log('Application data:', event.application);
 
                     // Update total applications counter
                     if (totalApplications) {
@@ -1365,7 +1356,6 @@
 
                     // Reload the table to show new data
                     recentApplicationTable.ajax.reload(function() {
-                        console.log('Table reloaded with new application data');
 
                         // Highlight the first row (newest application) after reload
                         setTimeout(() => {
@@ -1438,7 +1428,6 @@
 
             window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                 event) => {
-                console.log(event.enrollmentPeriod.status);
                 let statusSpan = document.querySelector('#status-span');
 
                 if (event.enrollmentPeriod.status == 'Paused') {
@@ -1540,12 +1529,10 @@
                     } else if (result.message && result.message.includes('No active enrollment period')) {
                         displayNoActiveEnrollmentPeriodState();
                     } else {
-                        console.error('Failed to load analytics:', result.error || result.message);
                         displayAnalyticsError(result.error || result.message || 'Failed to load analytics');
                     }
                 }
             } catch (error) {
-                console.error('Error loading analytics:', error);
                 displayAnalyticsError('Network error occurred');
             }
         }

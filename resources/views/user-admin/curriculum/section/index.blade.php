@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Sections'])
 
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
@@ -505,7 +505,6 @@
                             }
                         })
                         .catch(err => {
-                            console.error("Error fetching subjects:", err);
                             container.innerHTML =
                                 '<div class="text-center py-4 text-red-500"><p class="text-sm">Failed to load subjects.</p></div>';
                         });
@@ -581,7 +580,6 @@
                     })
                     .catch(error => {
                         hideLoader();
-                        console.error('Error:', error);
                         showAlert('error', 'An error occurred while deleting the school fee');
                     });
             });
@@ -619,7 +617,6 @@
                     handleClearProgramFilter();
                 }
 
-                //console.log(id);
             })
 
             pageLengthSelection.addEventListener('change', (e) => {
@@ -629,7 +626,6 @@
                 window.selectedPageLength = selectedPageLength; // Set global variable for DataTable
                 sectionsTable.page.len(selectedPageLength).draw();
 
-                //console.log(id);
             })
 
             gradeSelection.addEventListener('change', (e) => {

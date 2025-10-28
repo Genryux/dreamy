@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['title' => 'Curriculum'])
 @section('modal')
     <x-modal modal_id="edit-track-modal" modal_name="Edit Track" close_btn_id="edit-track-modal-close-btn"
         modal_container_id="modal-container-1">
@@ -495,9 +495,6 @@
 
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Initialize the page
-            console.log('Academic Tracks page loaded');
-
 
             const editBtns = document.querySelectorAll('.edit-track-btns');
             const createBtns = document.querySelectorAll('.create-program-btns');
@@ -506,7 +503,6 @@
 
             editBtns.forEach(button => {
                 let trackId = button.getAttribute('data-id');
-                console.log('Setting up edit button for track ID:', trackId);
 
                 initModal('edit-track-modal', `edit-track-btn-${trackId}`, 'edit-track-modal-close-btn',
                     'cancel-btn',
@@ -514,7 +510,6 @@
 
                 button.addEventListener('click', () => {
                     currentTrackId = button.getAttribute('data-id');
-                    console.log('Edit button clicked for track ID:', currentTrackId);
 
                     // Fetch track data and populate the form
                     fetch(`/tracks/${trackId}`, {
@@ -525,7 +520,6 @@
                         })
                         .then(response => response.json())
                         .then(data => {
-                            console.log('Fetched track data:', data);
                             if (data.success && data.data) {
                                 const track = data.data;
 
@@ -538,14 +532,9 @@
                                     .description || '';
                                 document.getElementById('edit_track_status').value = track
                                     .status || 'active';
-
-                                console.log('Form populated with real data');
-                                console.log('Name field value after real data:', document
-                                    .getElementById('edit_track_name').value);
                             }
                         })
                         .catch(err => {
-                            console.error('Error fetching track data:', err);
                             showAlert('error', 'Failed to load track data');
                         });
                 });
@@ -621,7 +610,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('edit-track-modal', 'modal-container-1');
                         showAlert('error', 'Something went wrong while updating the track');
                     });
@@ -654,8 +642,6 @@
                     code: document.getElementById('program_code').value
                 };
 
-                console.log('Creating program with data:', formData);
-
                 // Show loader
                 showLoader("Creating program...");
 
@@ -669,13 +655,10 @@
                         }
                     })
                     .then(response => {
-                        console.log('Response status:', response.status);
                         return response.json();
                     })
                     .then(data => {
                         hideLoader();
-
-                        console.log('Response data:', data);
 
                         if (data.success) {
 
@@ -699,7 +682,6 @@
                     })
                     .catch(err => {
                         hideLoader();
-                        console.error('Error:', err);
                         closeModal('create-program-modal', 'modal-container-1');
                         showAlert('error', 'Something went wrong while creating the program');
                     });
