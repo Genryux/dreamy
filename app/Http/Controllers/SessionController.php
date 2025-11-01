@@ -70,8 +70,18 @@ class SessionController extends Controller
         } elseif ($user->hasRole('student')) {
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
-            // Temporary: Allow admin access from both platforms
-            return redirect()->route('admin');
+            // Platform-based redirect for admin users
+            $userAgent = request()->header('User-Agent');
+            $isDesktop = str_contains($userAgent, 'Electron') || 
+                         str_contains($userAgent, 'DreamyDesktopApp') ||
+                         request()->hasHeader('X-Electron-App');
+            
+            if ($isDesktop) {
+                return redirect()->route('admin'); // Desktop: Full admin access
+            } else {
+                // Web: Redirect to a web-appropriate page or show message
+                return redirect()->route('web.admin.message');
+            }
         }
 
         // Default redirect if no specific role is matched

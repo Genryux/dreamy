@@ -3,7 +3,7 @@
 <x-head :title="$title ?? 'Dashboard'"></x-head>
 
 @php
-    // Platform detection helper (temporarily disabled for testing)
+    // Platform detection helper
     $userAgent = request()->header('User-Agent');
     $isDesktop =
         str_contains($userAgent, 'Electron') ||
