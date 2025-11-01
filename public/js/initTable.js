@@ -10,6 +10,28 @@ export function initCustomDataTable(tableId, ajaxUrl, columns, order, searchInpu
         scrollCollapse: false,
         ajax: {
             url: ajaxUrl,
+            type: 'GET',
+            beforeSend: function(xhr) {
+                // Add CSRF token header
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                if (csrfToken) {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                }
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            },
+            xhrFields: {
+                withCredentials: true
+            },
+            error: function(xhr, error, thrown) {
+                console.error('DataTable AJAX Error:', {
+                    url: ajaxUrl,
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    error: error,
+                    thrown: thrown,
+                    response: xhr.responseText
+                });
+            },
             data: function (d) {
                 // Always read latest values at request time
                 
