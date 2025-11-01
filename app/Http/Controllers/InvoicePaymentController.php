@@ -99,11 +99,25 @@ class InvoicePaymentController extends Controller
         $remainingBalance = $validated['remaining_balance'] ?? $originalAmount; // Remaining balance for installment calculation
         
         // Calculate discount breakdown for record keeping
+        // Only applies to students who actually went through the enrollment process for THIS invoice's academic term
         $earlyDiscount = 0;
-        if ($invoice->student && $invoice->student->enrollmentPeriod) {
-            $enrollmentPeriod = $invoice->student->enrollmentPeriod;
-            if ($enrollmentPeriod->isEarlyEnrollment()) {
-                $earlyDiscount = $enrollmentPeriod->calculateEarlyDiscount($invoice->total_amount);
+        if ($invoice->student && $invoice->academicTerm) {
+            // Get enrollment periods for the invoice's academic term
+            $enrollmentPeriods = \App\Models\EnrollmentPeriod::where('academic_terms_id', $invoice->academic_term_id)
+                ->where('period_type', 'early')
+                ->where('early_discount_percentage', '>', 0)
+                ->get();
+            
+            // Check if student has an Applicant record for any early enrollment period of this academic term
+            foreach ($enrollmentPeriods as $enrollmentPeriod) {
+                $hasApplicantRecord = \App\Models\Applicants::where('user_id', $invoice->student->user_id)
+                    ->where('enrollment_period_id', $enrollmentPeriod->id)
+                    ->exists();
+                
+                if ($hasApplicantRecord) {
+                    $earlyDiscount = $enrollmentPeriod->calculateEarlyDiscount($invoice->total_amount);
+                    break; // Use the first matching enrollment period
+                }
             }
         }
         

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\SchoolSetting;
 use App\Models\Student;
 use App\Models\User;
 use App\Notifications\ImmediateNotification;
@@ -27,7 +28,7 @@ class SendMonthlyReminder extends Command
      *
      * @var string
      */
-    protected $description = 'Send monthly reminder to all students with an unpaid invoices';
+    protected $description = 'Send monthly reminder to all students with unpaid invoices on the configured due day';
 
     /**
      * Execute the console command.
@@ -35,6 +36,20 @@ class SendMonthlyReminder extends Command
     public function handle()
     {
         $now = Carbon::now();
+        
+        // Get the configured due day from school settings
+        $dueDayOfMonth = SchoolSetting::value('due_day_of_month') ?? 10;
+        $useLastDayIfShorter = SchoolSetting::value('use_last_day_if_shorter') ?? false;
+        
+        // Check if today is the due day for monthly reminders
+        $shouldSendReminder = $this->shouldSendReminderToday($now, $dueDayOfMonth, $useLastDayIfShorter);
+        
+        if (!$shouldSendReminder) {
+            $this->info("Today is not the configured due day ({$dueDayOfMonth}). Skipping monthly reminders.");
+            return Command::SUCCESS;
+        }
+        
+        $this->info("Today is the due day ({$dueDayOfMonth}). Sending monthly reminders...");
 
         // Find students with unpaid invoices
         $students = User::role('student')->whereHas('student.invoices', function ($q) {
@@ -88,11 +103,11 @@ class SendMonthlyReminder extends Command
                     $schoolYearText = 'multiple academic years (' . $schoolYears->implode(', ') . ')';
                 }
 
-                // Create personalized message
-                $message = "Hi! Our records show you still have an outstanding balance of {$formattedBalance} for {$schoolYearText}. Please visit the admin office to settle it at your convenience, either in full or partially. Thank you!";
+                // Create personalized message with due day context
+                $message = "Hi! Our records show you still have an outstanding balance of {$formattedBalance} for {$schoolYearText}. Please check your email for the details and visit the admin office to settle it. Thank you!";
 
                 $student->notify(new PrivateQueuedNotification(
-                    "Invoice Reminder",
+                    "Monthly Payment Reminder",
                     $message,
                     null,
                     $sharedNotificationId
@@ -100,7 +115,7 @@ class SendMonthlyReminder extends Command
 
                 Notification::route('broadcast', 'user.' . $student->id)
                     ->notify(new PrivateImmediateNotification(
-                        "Invoice Reminder",
+                        "Monthly Payment Reminder",
                         $message,
                         null,
                         $sharedNotificationId,
@@ -108,9 +123,33 @@ class SendMonthlyReminder extends Command
                     ));
             }
 
-            $this->info("Monthly reminder notifications sent for day {$now}.");
+            $this->info("Monthly reminder notifications sent to {$students->count()} students on {$now->format('Y-m-d')} (due day: {$dueDayOfMonth}).");
         } else {
             $this->info("No students with unpaid invoices found.");
         }
+        
+        return Command::SUCCESS;
+    }
+    
+    /**
+     * Determine if reminders should be sent today based on the configured due day
+     *
+     * @param Carbon $today
+     * @param int $dueDayOfMonth
+     * @param bool $useLastDayIfShorter
+     * @return bool
+     */
+    private function shouldSendReminderToday(Carbon $today, int $dueDayOfMonth, bool $useLastDayIfShorter): bool
+    {
+        $currentDay = $today->day;
+        $daysInMonth = $today->daysInMonth;
+        
+        // If the month is shorter than the due day and we should use the last day
+        if ($useLastDayIfShorter && $dueDayOfMonth > $daysInMonth) {
+            return $currentDay === $daysInMonth;
+        }
+        
+        // Otherwise, check if today matches the due day
+        return $currentDay === $dueDayOfMonth;
     }
 }

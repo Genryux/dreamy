@@ -6,8 +6,11 @@
 
         <div class="w-full h-full">
             {{-- Hard-coded video background to prevent corruption --}}
-            <video autoplay muted loop playsinline class="pointer-events-none background absolute inset-0 w-full h-full object-cover object-center -z-20">
-                <source src="{{ asset('storage/background/background.mp4') }}" type="video/mp4">
+            <video autoplay muted loop playsinline
+                class="pointer-events-none background absolute inset-0 w-full h-full object-cover object-center -z-20">
+                {{-- <source src="{{ asset('storage/background/background.mp4') }}" type="video/mp4"> --}}
+                <source src="{{ asset('storage/background/Dreamy Bg-1.mp4') }}" type="video/mp4">
+                <source src="{{ asset('storage/background/Dreamy Bg-1.webm') }}" type="video/webm">
             </video>
         </div>
 
@@ -45,7 +48,8 @@
         </div>
 
         {{-- line --}}
-        <div class="hidden absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 md:flex flex-row items-center justify-center">
+        <div
+            class="hidden absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 md:flex flex-row items-center justify-center">
             <svg class="h-[60px] w-[1px] text-white flex flex-row justify-center items-center" viewBox="0 0 1 60"
                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
                 <!-- sharp top -->
@@ -212,7 +216,8 @@
                 @if ($programs->count() > 0)
                     <a href="/portal/login"
                         class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
-                        Explore All {{ $programs->count() }} Programs <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
+                        Explore All {{ $programs->count() }} Programs <i
+                            class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                     </a>
                 @else
                     <a href="/portal/register"
@@ -499,7 +504,8 @@
                     <h3 class="text-3xl font-bold text-white mb-8">Get in Touch</h3>
                     <div class="space-y-6">
                         <div class="flex flex-row justify-center items-center">
-                            <div class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                            <div
+                                class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
                                 <i class="fi fi-rr-marker text-white text-xl"></i>
                             </div>
                             <div>

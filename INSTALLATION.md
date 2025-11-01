@@ -34,6 +34,66 @@ The Dreamy School Management System is a comprehensive web application built wit
 - **NPM**: Comes with Node.js
 - **Git**: For cloning the repository
 
+### Installing Prerequisites
+
+#### Install PHP (if not already installed)
+
+**Windows:**
+- Download PHP from https://windows.php.net/download/
+- Or use XAMPP/WAMP which includes PHP
+- Or use Laravel Herd (recommended for Laravel development)
+
+**macOS:**
+```bash
+# Using Homebrew
+brew install php
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install php php-cli php-mbstring php-xml php-zip php-curl php-bcmath php-pdo php-sqlite3
+```
+
+#### Install Composer
+
+**Windows:**
+1. Download Composer-Setup.exe from https://getcomposer.org/download/
+2. Run the installer
+3. **Important**: Check "Add to PATH" during installation
+4. Restart your terminal after installation
+
+**macOS/Linux:**
+```bash
+# Download and install Composer
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php
+sudo mv composer.phar /usr/local/bin/composer
+sudo chmod +x /usr/local/bin/composer
+```
+
+#### Install Node.js
+
+1. Download Node.js LTS from https://nodejs.org/
+2. Run the installer
+3. Verify installation:
+   ```bash
+   node --version
+   npm --version
+   ```
+
+#### Verify All Prerequisites
+
+Run these commands to verify everything is installed:
+
+```bash
+php --version
+composer --version
+node --version
+npm --version
+git --version
+```
+
 ### Database Options
 
 - **SQLite**: Default, no additional setup required
@@ -86,9 +146,16 @@ This installs frontend dependencies including:
 
 #### Create Environment File
 
+**Important**: You must create a `.env` file before running `php artisan key:generate`.
+
 ```bash
 # Copy the example environment file
 cp .env.example .env
+```
+
+**For Windows PowerShell:**
+```powershell
+copy .env.example .env
 ```
 
 If `.env.example` doesn't exist, create a new `.env` file with the following content:
@@ -169,6 +236,14 @@ php artisan key:generate
 
 #### Configure Database
 
+**Check your existing database configuration:**
+```bash
+# Check what database is configured in your .env file
+grep "DB_CONNECTION" .env
+```
+
+**If you need to configure a new database:**
+
 **For SQLite (Default - Recommended for Development):**
 ```bash
 # Create SQLite database file
@@ -196,6 +271,8 @@ DB_DATABASE=dreamy_school
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
+
+**Important**: If you already have a database configured in your `.env` file, skip this step and proceed to the next section.
 
 #### Configure Mail Settings
 

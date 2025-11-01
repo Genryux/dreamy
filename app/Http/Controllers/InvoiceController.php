@@ -321,14 +321,28 @@ class InvoiceController extends Controller
         $availableDiscounts = \App\Models\Discount::active()->get();
 
         // Check if student is early enrollee
+        // Only applies to students who actually went through the enrollment process for THIS invoice's academic term
         $isEarlyEnrollee = false;
         $earlyDiscountPercentage = 0;
         
-        if ($invoice->student && $invoice->student->enrollmentPeriod) {
-            $enrollmentPeriod = $invoice->student->enrollmentPeriod;
-            if ($enrollmentPeriod->isEarlyEnrollment()) {
-                $isEarlyEnrollee = true;
-                $earlyDiscountPercentage = $enrollmentPeriod->early_discount_percentage;
+        if ($invoice->student && $invoice->academicTerm) {
+            // Get enrollment periods for the invoice's academic term
+            $enrollmentPeriods = \App\Models\EnrollmentPeriod::where('academic_terms_id', $invoice->academic_term_id)
+                ->where('period_type', 'early')
+                ->where('early_discount_percentage', '>', 0)
+                ->get();
+            
+            // Check if student has an Applicant record for any early enrollment period of this academic term
+            foreach ($enrollmentPeriods as $enrollmentPeriod) {
+                $hasApplicantRecord = \App\Models\Applicants::where('user_id', $invoice->student->user_id)
+                    ->where('enrollment_period_id', $enrollmentPeriod->id)
+                    ->exists();
+                
+                if ($hasApplicantRecord) {
+                    $isEarlyEnrollee = true;
+                    $earlyDiscountPercentage = $enrollmentPeriod->early_discount_percentage;
+                    break; // Use the first matching enrollment period
+                }
             }
         }
 

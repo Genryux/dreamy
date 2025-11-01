@@ -38,29 +38,9 @@ class FinancialController extends Controller
             }
         }
 
-        // Check if student was enrolled in the selected term
-        $enrollment = StudentEnrollment::where('student_id', $user->student->id)
-            ->where('academic_term_id', $selectedTerm->id)
-            ->first();
-
-        if (!$enrollment) {
-            // Return empty data instead of 404 for terms student wasn't enrolled in
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'academic_term' => $selectedTerm->getFullNameAttribute(),
-                    'academic_term_id' => $selectedTerm->id,
-                    'invoices' => [],
-                    'summary' => [
-                        'total_invoices' => 0,
-                        'total_amount' => 0,
-                        'total_paid' => 0,
-                        'total_balance' => 0,
-                    ]
-                ]
-            ]);
-        }
-
+        // Query invoices directly for the selected term
+        // Note: We check invoices regardless of enrollment status, as invoices should be visible
+        // even if enrollment records don't exist or were deleted
         $invoices = Invoice::withTrashed()->with([
             'items.fee',
             'payments',
@@ -171,28 +151,9 @@ class FinancialController extends Controller
             }
         }
 
-        // Check if student was enrolled in the selected term
-        $enrollment = StudentEnrollment::where('student_id', $user->student->id)
-            ->where('academic_term_id', $selectedTerm->id)
-            ->first();
-
-        if (!$enrollment) {
-            // Return empty data instead of 404 for terms student wasn't enrolled in
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'academic_term' => $selectedTerm->getFullNameAttribute(),
-                    'academic_term_id' => $selectedTerm->id,
-                    'payments' => [],
-                    'summary' => [
-                        'total_payments' => 0,
-                        'total_amount' => 0,
-                        'status' => 'No payments',
-                    ]
-                ]
-            ]);
-        }
-
+        // Query payments directly for the selected term
+        // Note: We check payments regardless of enrollment status, as payments should be visible
+        // even if enrollment records don't exist or were deleted
         // Get payments for selected term (including soft deleted invoices)
         $payments = InvoicePayment::with([
             'invoice' => function ($query) {
