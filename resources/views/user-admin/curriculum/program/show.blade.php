@@ -1068,24 +1068,24 @@
     <script type="module">
         import {
             dropDown
-        } from "{{ asset('js/dropDown.js') }}";
+        } from "/js/dropdown.js";
         import {
             clearSearch
-        } from "{{ asset('js/clearSearch.js') }}"
+        } from "/js/clearSearch.js"
         import {
             initModal
-        } from "{{ asset('js/modal.js') }}";
+        } from "/js/modal.js";
         import {
             showAlert
-        } from "{{ asset('js/alert.js') }}";
+        } from "/js/alert.js";
         import {
             initCustomDataTable
-        } from "{{ asset('js/initTable.js') }}";
+        } from "/js/initTable.js";
 
         import {
             showLoader,
             hideLoader
-        } from "{{ asset('js/loader.js') }}";
+        } from "/js/loader.js";
 
         let table1;
         window.selectedGrade = '';

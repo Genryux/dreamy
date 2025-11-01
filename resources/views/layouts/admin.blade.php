@@ -37,7 +37,7 @@
                                     <span class="flex flex-row justify-between items-center space-x-4 w-full">
                                         <div class="flex flex-row justify-between items-center space-x-4">
                                             <i class="fi fi-rr-chart-simple text-[20px] flex-shrink-0"></i>
-                                            <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
                                         </div>
 
                                         @php
@@ -414,18 +414,18 @@
                 @yield('docs_submission_progress')
 
                 @hasanyrole('super_admin|registrar')
-                    @php
-                        $academicTermService = app(\App\Services\AcademicTermService::class);
-                        $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
-                    @endphp
+                @php
+                    $academicTermService = app(\App\Services\AcademicTermService::class);
+                    $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
+                @endphp
 
-                    @if (!$currentAcadTerm)
-                        <div
-                            class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
-                            <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
-                            No active academic term, some features might not work properly
-                        </div>
-                    @endif
+                @if (!$currentAcadTerm)
+                    <div
+                        class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
+                        <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
+                        No active academic term, some features might not work properly
+                    </div>
+                @endif
                 @endhasanyrole
 
 

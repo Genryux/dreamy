@@ -262,13 +262,13 @@
     <script type="module">
         import {
             dropDown
-        } from "{{ asset('js/dropDown.js') }}";
+        } from "/js/dropdown.js";
         import {
             clearSearch
-        } from "{{ asset('js/clearSearch.js') }}"
+        } from "/js/clearSearch.js"
         import {
             initCustomDataTable
-        } from "{{ asset('js/initTable.js') }}";
+        } from "/js/initTable.js";
 
         let teacherSectionsTable;
         window.selectedGrade = '';

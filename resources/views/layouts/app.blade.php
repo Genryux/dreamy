@@ -70,7 +70,7 @@
                     <a href="#about" class="hover:text-[#C8A165] transition-colors duration-200">About</a>
                     @auth
                     @else
-                        <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                    <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
                     @endauth
                     <a href="/news" class="hover:text-[#C8A165] transition-colors duration-200">News</a>
                     <a href="#contact" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
@@ -126,14 +126,14 @@
         @yield('section_6')
         @yield('section_7')
     </main>
-
+    
     <style>
         /* Header scroll animation styles */
         #header {
             backdrop-filter: blur(0px);
             background: transparent;
         }
-
+        
         #header.scrolled {
             background: linear-gradient(0deg, rgba(42, 123, 155, 0) 0%, rgba(26, 49, 101, 1) 100%);
             padding: 0.5rem 7.5rem;
@@ -141,20 +141,20 @@
             height: auto;
             /* Allow height to adjust with padding */
         }
-
+        
         #logo {
             transform: scale(1);
         }
-
+        
         #logo.scrolled {
             transform: scale(0.7);
         }
-
+        
         #nav-links {
             font-size: 1.25rem;
             /* text-[20px] - keep consistent */
         }
-
+        
         /* Smooth transitions for header and logo only */
         #header,
         #logo {
@@ -188,20 +188,20 @@
             transform: translateX(0);
         }
     </style>
-
+    
     <script>
         // Header scroll animation
         document.addEventListener('DOMContentLoaded', function() {
             const header = document.getElementById('header');
             const logo = document.getElementById('logo');
             const navLinks = document.getElementById('nav-links');
-
+            
             let lastScrollTop = 0;
             let ticking = false;
-
+            
             function updateHeader() {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
+                
                 if (scrollTop > 100) {
                     // Scrolled down - add compact styles
                     header.classList.add('scrolled');
@@ -211,23 +211,23 @@
                     header.classList.remove('scrolled');
                     logo.classList.remove('scrolled');
                 }
-
+                
                 lastScrollTop = scrollTop;
                 ticking = false;
             }
-
+            
             function requestTick() {
                 if (!ticking) {
                     requestAnimationFrame(updateHeader);
                     ticking = true;
                 }
             }
-
+            
             // Listen for scroll events
             window.addEventListener('scroll', requestTick, {
                 passive: true
             });
-
+            
             // Initial check
             updateHeader();
 
