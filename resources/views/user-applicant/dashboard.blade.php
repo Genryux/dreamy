@@ -1341,7 +1341,7 @@
         } from '/js/modal.js';
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
 
         document.addEventListener('DOMContentLoaded', function() {
 

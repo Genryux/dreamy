@@ -292,20 +292,20 @@
     <script type="module">
         import {
             initModal
-        } from "/js/modal.js";
+        } from "{{ asset('js/modal.js') }}";
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
         import {
             initCustomDataTable
-        } from "/js/initTable.js";
+        } from "{{ asset('js/initTable.js') }}";
         import {
             showLoader,
             hideLoader
-        } from "/js/loader.js";
+        } from "{{ asset('js/loader.js') }}";
         import {
             clearSearch
-        } from "/js/clearSearch.js";
+        } from "{{ asset('js/clearSearch.js') }}";
 
         let documentsTable;
         let selectedPageLength = '';

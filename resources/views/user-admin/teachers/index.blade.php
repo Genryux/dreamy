@@ -180,7 +180,7 @@
     <script type="module">
         import {
             clearSearch
-        } from "/js/clearSearch.js";
+        } from "{{ asset('js/clearSearch.js') }}";
 
         let teachersTable;
         window.selectedStatus = '';

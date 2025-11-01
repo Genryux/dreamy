@@ -626,14 +626,14 @@
     <script type="module">
         import {
             initModal
-        } from "/js/modal.js";
+        } from "{{ asset('js/modal.js') }}";
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
         import {
             showLoader,
             hideLoader
-        } from "/js/loader.js";
+        } from "{{ asset('js/loader.js') }}";
 
         initModal('enroll-student-modal', 'open-enroll-student-modal-btn', 'enroll-student-close-btn',
             'putanginamo_cancel-btn', 'modal-container-2');

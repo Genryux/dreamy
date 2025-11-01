@@ -558,11 +558,11 @@
         } from '/js/modal.js';
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
         import {
             showLoader,
             hideLoader
-        } from "/js/loader.js";
+        } from "{{ asset('js/loader.js') }}";
 
         const applicantId = @json($applicant->id)
 

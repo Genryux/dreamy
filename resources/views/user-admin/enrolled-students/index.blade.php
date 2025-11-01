@@ -384,17 +384,17 @@
     <script type="module">
         import {
             clearSearch
-        } from "/js/clearSearch.js"
+        } from "{{ asset('js/clearSearch.js') }}"
         import {
             initModal
-        } from "/js/modal.js";
+        } from "{{ asset('js/modal.js') }}";
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
         import {
             showLoader,
             hideLoader
-        } from "/js/loader.js";
+        } from "{{ asset('js/loader.js') }}";
 
         let table1;
         let selectedGrade = '';

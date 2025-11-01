@@ -918,11 +918,11 @@
     <script type="module">
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
         import {
             showLoader,
             hideLoader
-        } from "/js/loader.js";
+        } from "{{ asset('js/loader.js') }}";
 
         // Make functions globally available
         window.showAlert = showAlert;

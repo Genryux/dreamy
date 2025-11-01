@@ -870,14 +870,14 @@
     <script type="module">
         import {
             initModal
-        } from "/js/modal.js";
+        } from "{{ asset('js/modal.js') }}";
         import {
             showLoader,
             hideLoader
-        } from "/js/loader.js";
+        } from "{{ asset('js/loader.js') }}";
         import {
             showAlert
-        } from "/js/alert.js";
+        } from "{{ asset('js/alert.js') }}";
 
         const applicantId = @json($applicant->id);
         const interviewId = @json($interview_details->id ?? null);
