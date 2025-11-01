@@ -5,6 +5,10 @@
         "build": "vite build",
         "dev": "vite"
     },
+    "win": {
+        "target": "portable",
+        "icon": "build/icon.ico"
+      },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
         "autoprefixer": "^10.4.16",

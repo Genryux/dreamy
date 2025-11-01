@@ -21,6 +21,12 @@ class DesktopOnly
                 ], 403);
             }
             
+            // Redirect authenticated admin users to web-admin-message page
+            if (auth()->check() && auth()->user()->hasRole(['registrar', 'super_admin'])) {
+                return redirect()->route('web.admin.message');
+            }
+            
+            // For non-authenticated or other users, show error page
             return response()->view('errors.desktop-only', [
                 'message' => 'This feature is only available on the desktop application.',
                 'suggestion' => 'Please download and install the Dreamy School Management desktop app to access administrative features.'

@@ -41,8 +41,8 @@ use Illuminate\Support\Facades\Route;
 | Routes accessible to all users (guests and authenticated)
 */
 
-// Homepage and Public Pages
-Route::get('/', [WebsiteResourceController::class, 'homepage'])->name('home');
+// Homepage and Public Pages (blocked for desktop app users)
+Route::get('/', [WebsiteResourceController::class, 'homepage'])->middleware('block.desktop.homepage')->name('home');
 // Route::get('/homepage', [WebsiteResourceController::class, 'index'])->name('homepage');
 
 // Public News Routes

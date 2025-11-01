@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'detect.platform' => \App\Http\Middleware\DetectPlatform::class,
             'desktop.only'   => \App\Http\Middleware\DesktopOnly::class,
             'web.only'       => \App\Http\Middleware\WebOnly::class,
+            'block.desktop.homepage' => \App\Http\Middleware\BlockDesktopFromHomepage::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
