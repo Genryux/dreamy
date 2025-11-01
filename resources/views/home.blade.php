@@ -36,7 +36,7 @@
 
         <div class="self-center flex flex-col justify-center items-center mb-20 md:mb-24 ">
 
-            <p class="relative z-10 font-nunito text-[45px] md:text-[80px] font-black tracking-[8px] [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)] text-white"
+            <p class="relative z-10 font-nunito text-[42px] self-center text-center md:text-[80px] font-black tracking-[8px] [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)] text-white"
                 data-aos="fade-up" data-aos-duration="1000">
                 Dreamy School
             </p>
@@ -64,7 +64,7 @@
 @endsection
 
 @section('section_2')
-    <div id="section2"
+    <div id="about"
         class="relative bg-[#1A3165] h-1/2 md:h-screen w-screen flex flex-col md:flex-row justify-center md:justify-between items-center overflow-hidden gap-10 px-[20px] md:px-[120px]">
 
 
@@ -446,7 +446,7 @@
 @endsection
 
 @section('section_7')
-    <div id="section7" class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px] scroll-smooth">
+    <div id="contact" class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px] scroll-smooth">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
                 <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4">Ready to Start Your Journey?</h2>

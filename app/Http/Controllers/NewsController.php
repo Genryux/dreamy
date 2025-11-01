@@ -231,44 +231,28 @@ class NewsController extends Controller
             }
 
             $students = \App\Models\User::role(['student'])->get();
-            $admins = \App\Models\User::role(['registrar', 'super_admin'])->get();
 
-            if (!$admins->isEmpty()) {
-                Notification::send($admins, new \App\Notifications\QueuedNotification(
+            if (!$students->isEmpty()) {
+                // Generate a shared ID for both queued and immediate notifications
+                $sharedNotificationId = 'test-student-' . time() . '-' . uniqid();
+
+                // Database notification (queued)
+                Notification::send($students, new QueuedNotification(
                     "News & Announcement",
                     "A new announcement has been posted. Check your dashboard page for details.!",
-                    url('/admin/users')
+                    null, // No URL needed for mobile
+                    $sharedNotificationId // Shared ID for mobile app matching
                 ));
 
-                Notification::route('broadcast', 'admins')
-                    ->notify(new \App\Notifications\ImmediateNotification(
+                // Real-time broadcast (immediate)
+                Notification::route('broadcast', 'students')
+                    ->notify(new ImmediateNotification(
                         "News & Announcement",
                         "A new announcement has been posted. Check your dashboard page for details.!",
-                        url('/admin/users')
+                        null, // No URL needed for mobile
+                        $sharedNotificationId // Same shared ID for matching
                     ));
             }
-
-            // if (!$students->isEmpty()) {
-            //     // Generate a shared ID for both queued and immediate notifications
-            //     $sharedNotificationId = 'test-student-' . time() . '-' . uniqid();
-
-            //     // Database notification (queued)
-            //     Notification::send($students, new QueuedNotification(
-            //         "News & Announcement",
-            //         "A new announcement has been posted. Check your dashboard page for details.!",
-            //         null, // No URL needed for mobile
-            //         $sharedNotificationId // Shared ID for mobile app matching
-            //     ));
-
-            //     // Real-time broadcast (immediate)
-            //     Notification::route('broadcast', 'students')
-            //         ->notify(new ImmediateNotification(
-            //             "News & Announcement",
-            //             "A new announcement has been posted. Check your dashboard page for details.!",
-            //             null, // No URL needed for mobile
-            //             $sharedNotificationId // Same shared ID for matching
-            //         ));
-            // }
 
             return response()->json([
                 'success' => $message,

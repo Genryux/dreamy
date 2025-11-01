@@ -234,7 +234,7 @@
     <x-alert />
     <div class="bg-[#1A3165] absolute inset-0 flex flex-col justify-center items-center">
         <div class="bg-white w-11/12 md:w-4/5 max-h-[95%] rounded-xl shadow-lg overflow-auto">
-            <div class="p-8">
+            <div class="relative px-8 pt-8 pb-6">
                 <!-- Header Section -->
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center gap-4">
@@ -439,10 +439,10 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+                <div id="bottom-nav" class="sticky bottom-4 left-0 w-full flex items-center justify-between mt-8 pt-6 px-6 pb-6 rounded-xl transition-all duration-500 ease-in-out">
                     <a href="/school-fees/invoices"
                         class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition">
-                        <i class="fi fi-rr-arrow-small-left text-[16px]"></i>
+                        <i class="fi fi-rr-arrow-small-left text-[16px] flex justify-center items-center"></i>
                         Back to Invoices
                     </a>
                     @can('record payment')
@@ -1189,5 +1189,68 @@
         // Initialize form clearing and total calculation on page load
         clearForm();
         updateTotal();
+    </script>
+
+    <style>
+        /* Bottom navigation scroll animation styles */
+        #bottom-nav {
+            background: rgba(26, 49, 101, 0.9);
+            backdrop-filter: blur(16px);
+        }
+
+        #bottom-nav.at-bottom {
+            background: transparent;
+            backdrop-filter: blur(0px);
+        }
+    </style>
+
+    <script>
+        // Bottom navigation scroll animation (reverse of header behavior)
+        document.addEventListener('DOMContentLoaded', function() {
+            const bottomNav = document.getElementById('bottom-nav');
+            
+            if (!bottomNav) return;
+
+            // Find the scrollable container (the white modal with overflow-auto)
+            const scrollContainer = bottomNav.closest('.overflow-auto');
+            
+            if (!scrollContainer) return;
+
+            let ticking = false;
+
+            function updateBottomNav() {
+                const scrollTop = scrollContainer.scrollTop;
+                const containerHeight = scrollContainer.clientHeight;
+                const scrollHeight = scrollContainer.scrollHeight;
+                
+                // Calculate distance from bottom (reverse of scrollTop)
+                const scrollBottom = scrollHeight - (scrollTop + containerHeight);
+
+                if (scrollBottom < 100) {
+                    // Near bottom - make transparent
+                    bottomNav.classList.add('at-bottom');
+                } else {
+                    // Not at bottom - show background
+                    bottomNav.classList.remove('at-bottom');
+                }
+
+                ticking = false;
+            }
+
+            function requestTick() {
+                if (!ticking) {
+                    requestAnimationFrame(updateBottomNav);
+                    ticking = true;
+                }
+            }
+
+            // Listen for scroll events on the CONTAINER, not window
+            scrollContainer.addEventListener('scroll', requestTick, {
+                passive: true
+            });
+
+            // Initial check
+            updateBottomNav();
+        });
     </script>
 @endpush

@@ -1009,10 +1009,6 @@
                 <div class="space-y-2">
                     <div class="flex flex-row justify-between items-center">
                         <h2 class="font-bold opacity-90">Other informations</h2>
-                        <button id="edit-emergency-info-btn"
-                            class="edit-btn opacity-0 pointer-events-none text-[14px] font-semibold text-blue-500 hover:text-blue-600 transition duration-150">
-                            Edit
-                        </button>
                     </div>
                     <div class="flex flex-col justify-center items-start w-full gap-1">
                         <div class="flex flex-row justify-start items-start gap-2 w-full">

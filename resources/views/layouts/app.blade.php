@@ -67,13 +67,13 @@
                 <div id="nav-links"
                     class="hidden md:flex flex-row justify-evenly items-center text-[20px] gap-16 text-white font-bold">
                     <a href="/" class="hover:text-[#C8A165] transition-colors duration-200">Home</a>
-                    <a href="#section2" class="hover:text-[#C8A165] transition-colors duration-200">About</a>
+                    <a href="#about" class="hover:text-[#C8A165] transition-colors duration-200">About</a>
                     @auth
                     @else
                         <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
                     @endauth
                     <a href="/news" class="hover:text-[#C8A165] transition-colors duration-200">News</a>
-                    <a href="#section7" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
+                    <a href="#contact" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
                 </div>
 
                 <!-- Mobile Menu Button -->
