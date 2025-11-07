@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Homepage and Public Pages (blocked for desktop app users)
-Route::get('/', [WebsiteResourceController::class, 'homepage'])->middleware('block.desktop.homepage')->name('home');
+Route::get('/', [WebsiteResourceController::class, 'homepage'])->name('home');
 // Route::get('/homepage', [WebsiteResourceController::class, 'index'])->name('homepage');
 
 // Public News Routes
@@ -98,7 +98,7 @@ Route::get('/web-admin-message', function () {
 | Routes that require user authentication
 */
 
-Route::middleware(['role:applicant|student', 'auth', 'pin.security', 'detect.platform', 'web.only'])->group(function () {
+Route::middleware(['role:applicant|student', 'auth', 'pin.security'])->group(function () {
     Route::get('/admission/application-form', [ApplicationFormController::class, 'create'])->name('admission.form.get');
     Route::post('/admission/application-form', [ApplicationFormController::class, 'store'])->name('admission.form.post');
     // Applicant Dashboard and Status - WEB ONLY
@@ -167,7 +167,7 @@ Route::middleware(['auth', 'pin.security'])->group(function () {
 | Routes accessible only to super_admin and registrar roles
 */
 
-Route::middleware(['auth', 'pin.security', 'exclude.applicant', 'detect.platform', 'desktop.only'])->group(function () {
+Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function () {
 
     // Admin Dashboard - DESKTOP ONLY
     Route::get('/admin', [ApplicationFormController::class, 'index'])->middleware(['permission:view enrollment dashboard page'])->name('admin');
