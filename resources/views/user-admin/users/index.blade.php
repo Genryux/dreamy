@@ -1,5 +1,9 @@
 @extends('layouts.admin', ['title' => 'User Management'])
 
+@php
+    $rolesCollection = collect($roles ?? []);
+@endphp
+
 @section('modal')
     @if (Route::is('admin.users.roles'))
         <!-- Create Role Modal -->
@@ -190,9 +194,9 @@
                     <select name="role" id="create_role" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
-                        <option value="teacher">Teacher</option>
-                        <option value="registrar">Registrar</option>
-                        <option value="head_teacher">Head Teacher</option>
+                        @foreach ($rolesCollection as $role)
+                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -301,9 +305,9 @@
                     <select name="role" id="edit_role" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
-                        <option value="teacher">Teacher</option>
-                        <option value="registrar">Registrar</option>
-                        <option value="head_teacher">Head Teacher</option>
+                        @foreach ($rolesCollection as $role)
+                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -540,12 +544,9 @@
                                 <select name="role_selection" id="role_selection"
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option value="" disabled selected>Role</option>
-                                    <option value="super_admin">Super Admin</option>
-                                    <option value="registrar">Registrar</option>
-                                    <option value="teacher">Teacher</option>
-                                    <option value="head_teacher">Head Teacher</option>
-                                    <option value="student">Student</option>
-                                    <option value="applicant">Applicant</option>
+                                    @foreach ($rolesCollection as $role)
+                                        <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                                    @endforeach
                                 </select>
                                 <i id="clear-role-filter-btn"
                                     class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>

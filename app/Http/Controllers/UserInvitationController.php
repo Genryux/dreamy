@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Permission\Models\Role;
 
 class UserInvitationController extends Controller
 {
@@ -62,7 +64,9 @@ class UserInvitationController extends Controller
      */
     public function index()
     {
-        return view('user-admin.users.index');
+        return view('user-admin.users.index', [
+            'roles' => $this->getAssignableRoles(),
+        ]);
     }
 
     /**
@@ -104,7 +108,7 @@ class UserInvitationController extends Controller
                 'last_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
                 'contact_number' => 'nullable|string|max:20',
-                'role' => 'required|in:teacher,registrar,head_teacher',
+                'role' => ['required', Rule::exists('roles', 'name')],
                 'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
                 'specialization' => 'nullable|string|max:255'
             ]);
@@ -228,7 +232,7 @@ class UserInvitationController extends Controller
                 'middle_name' => 'nullable|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'contact_number' => 'nullable|string|max:20',
-                'role' => 'required|in:teacher,registrar,head_teacher',
+                'role' => ['required', Rule::exists('roles', 'name')],
                 'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
             ]);
 
@@ -473,7 +477,17 @@ class UserInvitationController extends Controller
      */
     public function roles()
     {
-        return view('user-admin.users.index');
+        return view('user-admin.users.index', [
+            'roles' => $this->getAssignableRoles(),
+        ]);
+    }
+
+    /**
+     * Get assignable roles for user management views
+     */
+    private function getAssignableRoles()
+    {
+        return Role::orderBy('name')->get();
     }
 
     /**
