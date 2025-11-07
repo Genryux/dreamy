@@ -35,10 +35,10 @@ class PrivateImmediateNotification extends Notification
     /**
      * Get the channels the event should broadcast on.
      */
-    public function broadcastOn()
+    public function broadcastOn($notifiable = null)
     {
         // Ensure we always have a valid channel name
-        $channelName = $this->broadcastChannel ?? 'user.1';
+        $channelName = $this->broadcastChannel ?? ($notifiable ? 'user.' . $notifiable->id : 'user.1');
         return new \Illuminate\Broadcasting\Channel($channelName);
     }
 

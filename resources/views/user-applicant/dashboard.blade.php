@@ -1304,7 +1304,7 @@
                                 mobile app using the link below to choose your preferred payment plan <br> and settle your
                                 fees at school.</p>
 
-                            <a href='{{ asset('apk/application-58037538-41e4-4fa5-b8a3-1e4ad7dc311b.apk') }}' download 
+                            <a href='{{ asset('apk/application-b15a21c4-5380-4e8d-aa42-c9cfaa2e76cc.apk') }}' download 
                                 class="w-auto flex flex-row justify-start items-center rounded-full px-4 py-2.5 text-start bg-[#199BCF] text-white shadow-[#199BCF]/40 gap-1 shadow-xl transition hover:translate-x-2 hover:bg-[#C8A165] hover:shadow-[#C8A165]/40 duration-200 mb-6">
                                 <p class="font-medium">Download App</p><i
                                     class="fi fi-rr-arrow-small-right flex justify-center items-center text-[24px] pt-0.5"></i>
