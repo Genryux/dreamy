@@ -61,14 +61,7 @@
 
                 <!-- Action Buttons -->
                 <div class="space-y-3">
-                    <a href="{{ route('home') }}" 
-                        class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                        Visit Website
-                    </a>
-                    
+
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         @method('DELETE')
