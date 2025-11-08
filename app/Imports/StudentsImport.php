@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Mail\StudentAccountCreatedMail;
 use App\Models\Documents;
 use App\Models\Student;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -37,7 +39,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
 
     public function __construct()
     {
-        $this->defaultPassword = Hash::make('default_password');
+        // $this->defaultPassword = Hash::make('default_password');
     }
 
 
@@ -102,18 +104,38 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
             $track = Track::find($program->id);
         }
 
+        $plainPassword = $this->generateStrongPassword(8);
+
         $user = User::firstOrCreate(
             ['email' => $row['email_address']],
             [
                 'first_name' => (string) $row['first_name'],
                 'last_name' => (string) $row['last_name'],
                 'email' => (string) $row['email_address'],
-                'password' => $this->defaultPassword,
+                'password' => Hash::make($plainPassword),
             ]
         );
 
         if (! $user->hasRole('student')) {
             $user->assignRole('student');
+        }
+
+        // Send email notification to student after account creation (only for newly created users)
+        if (
+            $user->wasRecentlyCreated &&
+            !empty($row['email_address']) &&
+            filter_var($row['email_address'], FILTER_VALIDATE_EMAIL) &&
+            !empty($user->first_name)
+        ) {
+            try {
+                Mail::to($user->email)->queue(new StudentAccountCreatedMail($user, $plainPassword));
+            } catch (\Exception $e) {
+                Log::error('Failed to send student account creation email', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
 
         $students = $user->student()->updateOrCreate(
@@ -207,6 +229,28 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         }
 
         return $students;
+    }
+
+    protected function generateStrongPassword($length = 10)
+    {
+        $upper   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lower   = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers = '0123456789';
+        $symbols = '!@#$%^&*';
+
+        $all = $upper . $lower . $numbers . $symbols;
+
+        // Guarantee at least one of each type
+        $password = substr(str_shuffle($upper), 0, 1) .
+            substr(str_shuffle($lower), 0, 1) .
+            substr(str_shuffle($numbers), 0, 1) .
+            substr(str_shuffle($symbols), 0, 1);
+
+        // Fill the rest randomly
+        $remaining = $length - strlen($password);
+        $password .= substr(str_shuffle(str_repeat($all, $remaining)), 0, $remaining);
+
+        return str_shuffle($password);
     }
 
     public function chunkSize(): int
