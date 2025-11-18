@@ -23,12 +23,12 @@
                 </div>
                 <img src="{{ asset('images/Dreamy_logo.png') }}" data-aos="fade-up" data-aos-duration="1000"
                     class="h-1/3 w-1/3 hidden md:block" alt="Dreamy School logo">
-                <p class="px-16 text-center text-[14px] text-gray-400" data-aos="fade-up" data-aos-duration="1000">Account registration is exclusively for applicants or enrollees. For assistance with non-applicant or non-enrollee accounts, please contact the admin.</p>
+                <p class="px-4 text-center text-[14px] text-gray-400 " data-aos="fade-up" data-aos-duration="1000">Account registration is exclusively for applicants or enrollees. For assistance with non-applicant or non-enrollee accounts, please contact the admin.</p>
             </div>
             <div class="h-full w-full flex flex-col justify-center items-center ">
 
                 <form method="POST" action="/register"
-                    class="flex flex-col justify-center items-start h-full w-full md:w-1/2 max-w-md px-4 space-y-4">
+                    class="flex flex-col justify-start md:justify-center items-start h-full w-full md:w-1/2 max-w-md px-4 space-y-4">
                     @csrf
                     <div class="flex flex-col justify-center items-start gap-4">
 
