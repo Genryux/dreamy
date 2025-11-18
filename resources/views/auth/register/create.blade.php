@@ -23,7 +23,7 @@
                 </div>
                 <img src="{{ asset('images/Dreamy_logo.png') }}" data-aos="fade-up" data-aos-duration="1000"
                     class="h-1/3 w-1/3 hidden md:block" alt="Dreamy School logo">
-                <p class="px-4 text-center text-[14px] text-gray-400 " data-aos="fade-up" data-aos-duration="1000">Account registration is exclusively for applicants or enrollees. For assistance with non-applicant or non-enrollee accounts, please contact the admin.</p>
+                <p class="px-4 md:px-16 text-center text-[14px] text-gray-400 " data-aos="fade-up" data-aos-duration="1000">Account registration is exclusively for applicants or enrollees. For assistance with non-applicant or non-enrollee accounts, please contact the admin.</p>
             </div>
             <div class="h-full w-full flex flex-col justify-center items-center ">
 
