@@ -1,4 +1,4 @@
-# School Payment System - Complete Structure Analysis
+# School Payment System
 
 ## Overview
 The school payment system is a comprehensive financial management solution that handles invoices, payment plans, installments, discounts, and various payment methods. It supports both flexible payments and structured installment plans with early enrollment discounts.
@@ -138,7 +138,7 @@ Student Promotion → InvoiceService.assignInvoiceAfterPromotion()
 
 ### 2. **Payment Plan Creation**
 ```
-Admin Creates Payment Plan → PaymentPlanController.store()
+Student Confirms Payment Plan → PaymentPlanController.store()
 ├── Validate down payment and installment months
 ├── PaymentPlanService.createInstallmentPlan()
 │   ├── Calculate payment plan using PaymentPlan::calculate()
@@ -179,7 +179,6 @@ $remaining = $discountedTotal - $downPayment;
 $monthlyAmount = round($remaining / $installmentMonths, 2);
 $totalMonthly = $monthlyAmount * $installmentMonths;
 $difference = $remaining - $totalMonthly;
-$firstMonthAmount = $monthlyAmount + $difference;
 ```
 
 ## Controllers and Services
@@ -199,9 +198,8 @@ $firstMonthAmount = $monthlyAmount + $difference;
 ## Key Features
 
 ### **Payment Modes:**
-1. **Flexible** - No payment plan, pay any amount anytime
-2. **Installment** - Structured payment plan with down payment + monthly installments
-3. **Full** - One-time payment of full amount
+1. **Installment** - Structured payment plan with down payment + monthly installments
+2. **Full** - One-time payment of full amount
 
 ### **Security Features:**
 - PIN verification for payment recording
@@ -218,7 +216,6 @@ $firstMonthAmount = $monthlyAmount + $difference;
 ### **PDF Generation:**
 - Invoice PDFs (one-time and schedule-based)
 - Receipt PDFs (one-time and schedule-based)
-- Custom templates with school branding
 
 ## Business Rules
 
@@ -232,7 +229,7 @@ $firstMonthAmount = $monthlyAmount + $difference;
 
 ## Integration Points
 
-- **Student Management**: Links to student records and academic information
+- **Student Mobile Application**: Links to student mobile application for payment method selection
 - **Academic Terms**: All financial records tied to academic terms
 - **User System**: Notifications sent to student's user account
 - **Activity Logging**: All operations logged for audit trail
