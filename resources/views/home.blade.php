@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Dreamy School'])
 
 @section('section_1')
-    <div
+    <div id="home"
         class="relative h-[600px] md:h-screen w-screen overflow-hidden flex flex-col justify-center items-center pb-16 md:pb-[20px]">
 
         <div class="w-full h-full">
@@ -74,13 +74,9 @@
                 <div class="bg-[#C8A165] w-[100%] h-[5px]"></div>
             </div>
             <p class="text-[18px] md:pr-16 text-center md:text-start text-white" data-aos="fade-right"
-                data-aos-duration="800" data-aos-delay="350">Lorem
-                ipsum
-                dolor sit amet consectetur adipisicing elit. Voluptatibus placeat quas
-                perferendis
-                repellendus
-                eligendi porro ipsa commodi dicta veniam asperiores fugit quo in fugiat numquam rerum vel, reiciendis, sunt
-                inventore!</p>
+                data-aos-duration="800" data-aos-delay="350">Founded by Dreamy School Korea, a prestigious Christian
+                institution, we instill timeless faith values in our students during a rapidly changing era, nurturing
+                innovative and creative talents poised to lead the Philippines and Asia.</p>
         </div>
 
         {{-- also line --}}
@@ -552,4 +548,88 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('footer')
+    <footer class="bg-gray-100 w-screen flex flex-col justify-center items-center">
+        <div class="mx-auto max-w-5xl px-4 pt-16 sm:px-6 lg:px-8 w-full">
+            <div class="flex justify-center text-teal-600">
+                <img src="{{ asset('images/Dreamy_logo.png') }}" alt=""
+                    class="h-[80px] w-[80px] sm:h-[100px] sm:w-[100px]">
+            </div>
+
+            <p class="mx-auto mt-6 max-w-md text-center leading-relaxed text-gray-500 text-sm sm:text-base px-4">
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt consequuntur amet culpa
+                cum itaque neque.
+            </p>
+
+            <ul class="mt-8 sm:mt-12 flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 text-sm sm:text-base">
+                <li>
+                    <a class="text-gray-700 transition hover:text-gray-700/75" href="#home"> Home </a>
+                </li>
+
+                <li>
+                    <a class="text-gray-700 transition hover:text-gray-700/75" href="#about"> About </a>
+                </li>
+
+                <li>
+                    <a class="text-gray-700 transition hover:text-gray-700/75" href="{{ route('public.news.index') }}">
+                        News </a>
+                </li>
+
+                <li>
+                    <a class="text-gray-700 transition hover:text-gray-700/75" href="#contact"> Contact </a>
+                </li>
+
+                <li>
+                    <a class="text-gray-700 transition hover:text-gray-700/75" href="{{ route('login') }}"> Login </a>
+                </li>
+            </ul>
+
+            <ul class="mt-8 sm:mt-12 flex justify-center gap-6 md:gap-8">
+                <li>
+                    <a href="https://www.facebook.com/dreamyschoolph" rel="noreferrer" target="_blank"
+                        class="text-gray-700 transition hover:text-gray-700/75">
+                        <span class="sr-only">Facebook</span>
+                        <svg class="size-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://www.instagram.com/dreamyschoolph/" rel="noreferrer" target="_blank"
+                        class="text-gray-700 transition hover:text-gray-700/75">
+                        <span class="sr-only">Instagram</span>
+                        <svg class="size-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+        <div
+            class="flex flex-col items-center justify-center w-full max-w-[800px] gap-4 sm:gap-6 mt-4 px-4 pb-12 sm:pb-16 pt-8 sm:px-6 lg:px-8 border-t border-gray-300">
+            <p class="text-gray-500 text-sm sm:text-base">Download the App</p>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full px-2">
+                <a href='{{ asset('apk/application-e7b64287-1960-4774-a106-378d55079c78.apk') }}' download
+                    class="flex flex-row justify-center items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-[#199BCF] shadow-[#199BCF]/40 shadow-xl text-white w-full sm:w-auto max-w-xs">
+                    <span><i class="fi fi-brands-android flex justify-center items-center"></i></span>
+                    <p class="text-sm sm:text-[16px] font-medium">For Dreamy Students</p>
+                </a>
+                <a href="https://drive.google.com/uc?export=download&id=1bSJ2VhFjTgndlDbhIt8ur-DoxH1xJEOO"
+                    class="flex flex-row justify-center items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-[#199BCF] shadow-[#199BCF]/40 shadow-xl text-white w-full sm:w-auto max-w-xs">
+                    <span><i class="fi fi-brands-windows flex justify-center items-center"></i></span>
+                    <p class="text-sm sm:text-[16px] font-medium">For administrative staff</p>
+                </a>
+            </div>
+        </div>
+        <p class="pt-8 sm:pt-10 pb-4 text-xs sm:text-[14px] text-gray-500 text-center px-4">© Dreamy School Philippines
+            2025</p>
+    </footer>
 @endsection

@@ -55,7 +55,8 @@
                                 class="hidden md:block text-white text-[20px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admin
                                 Portal</a>
                         @else
-                            <a href="/admission" class="hidden md:block text-white text-[20px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                            <a href="/admission"
+                                class="hidden md:block text-white text-[20px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admission</a>
                         @endif
                     @endauth
                 </div>
@@ -70,14 +71,15 @@
                     <a href="#about" class="hover:text-[#C8A165] transition-colors duration-200">About</a>
                     @auth
                     @else
-                    <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                        <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
                     @endauth
                     <a href="/news" class="hover:text-[#C8A165] transition-colors duration-200">News</a>
                     <a href="#contact" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button id="mobile-menu-button" class="md:hidden flex flex-col justify-center items-center w-8 h-8 text-white">
+                <button id="mobile-menu-button"
+                    class="md:hidden flex flex-col justify-center items-center w-8 h-8 text-white">
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
@@ -85,33 +87,43 @@
             </div>
 
             <!-- Mobile Navigation Menu -->
-            <div id="mobile-menu" class="fixed top-0 left-0 w-full h-full bg-[#1A3165] z-30 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+            <div id="mobile-menu"
+                class="fixed top-0 left-0 w-full h-full bg-[#1A3165] z-30 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
                 <!-- Close Button -->
                 <div class="flex justify-end p-6">
-                    <button id="mobile-menu-close" class="text-white text-3xl font-bold hover:text-[#C8A165] transition-colors duration-200">
+                    <button id="mobile-menu-close"
+                        class="text-white text-3xl font-bold hover:text-[#C8A165] transition-colors duration-200">
                         ×
                     </button>
                 </div>
-                
+
                 <div class="flex flex-col justify-start items-center px-8">
                     <!-- Mobile Logo -->
                     <img src="{{ asset('images/Dreamy_logo.png') }}" class="size-[100px] mb-8" alt="">
-                    
+
                     <!-- Mobile Navigation Links -->
                     <div class="flex flex-col space-y-6 text-center">
-                        <a href="/" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Home</a>
-                        <a href="#section2" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">About</a>
+                        <a href="/"
+                            class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Home</a>
+                        <a href="#section2"
+                            class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">About</a>
                         @auth
                             @if (auth()->user()->hasRole(['registrar', 'super_admin']))
-                                <a href="/admin" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admin Portal</a>
+                                <a href="/admin"
+                                    class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admin
+                                    Portal</a>
                             @else
-                                <a href="/admission" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                                <a href="/admission"
+                                    class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admission</a>
                             @endif
                         @else
-                            <a href="/portal/login" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                            <a href="/portal/login"
+                                class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Admission</a>
                         @endauth
-                        <a href="/news" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">News</a>
-                        <a href="#section7" class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Contact</a>
+                        <a href="/news"
+                            class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">News</a>
+                        <a href="#section7"
+                            class="text-white text-[24px] font-bold hover:text-[#C8A165] transition-colors duration-200">Contact</a>
                     </div>
                 </div>
             </div>
@@ -125,15 +137,17 @@
         @yield('section_5')
         @yield('section_6')
         @yield('section_7')
+        @yield('footer')
+
     </main>
-    
+
     <style>
         /* Header scroll animation styles */
         #header {
             backdrop-filter: blur(0px);
             background: transparent;
         }
-        
+
         #header.scrolled {
             background: linear-gradient(0deg, rgba(42, 123, 155, 0) 0%, rgba(26, 49, 101, 1) 100%);
             padding: 0.5rem 7.5rem;
@@ -141,20 +155,20 @@
             height: auto;
             /* Allow height to adjust with padding */
         }
-        
+
         #logo {
             transform: scale(1);
         }
-        
+
         #logo.scrolled {
             transform: scale(0.7);
         }
-        
+
         #nav-links {
             font-size: 1.25rem;
             /* text-[20px] - keep consistent */
         }
-        
+
         /* Smooth transitions for header and logo only */
         #header,
         #logo {
@@ -188,20 +202,20 @@
             transform: translateX(0);
         }
     </style>
-    
+
     <script>
         // Header scroll animation
         document.addEventListener('DOMContentLoaded', function() {
             const header = document.getElementById('header');
             const logo = document.getElementById('logo');
             const navLinks = document.getElementById('nav-links');
-            
+
             let lastScrollTop = 0;
             let ticking = false;
-            
+
             function updateHeader() {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
+
                 if (scrollTop > 100) {
                     // Scrolled down - add compact styles
                     header.classList.add('scrolled');
@@ -211,23 +225,23 @@
                     header.classList.remove('scrolled');
                     logo.classList.remove('scrolled');
                 }
-                
+
                 lastScrollTop = scrollTop;
                 ticking = false;
             }
-            
+
             function requestTick() {
                 if (!ticking) {
                     requestAnimationFrame(updateHeader);
                     ticking = true;
                 }
             }
-            
+
             // Listen for scroll events
             window.addEventListener('scroll', requestTick, {
                 passive: true
             });
-            
+
             // Initial check
             updateHeader();
 
