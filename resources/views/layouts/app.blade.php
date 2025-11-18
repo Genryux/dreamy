@@ -71,7 +71,7 @@
                     <a href="#about" class="hover:text-[#C8A165] transition-colors duration-200">About</a>
                     @auth
                     @else
-                        <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Admission</a>
+                        <a href="/portal/login" class="hover:text-[#C8A165] transition-colors duration-200">Portal</a>
                     @endauth
                     <a href="/news" class="hover:text-[#C8A165] transition-colors duration-200">News</a>
                     <a href="#contact" class="hover:text-[#C8A165] transition-colors duration-200">Contact</a>
