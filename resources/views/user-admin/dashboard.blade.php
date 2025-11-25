@@ -814,10 +814,12 @@
                         <div class="space-y-2">
                             <div class="w-full">
                                 <div class="bg-[#d9d9d9] h-2 rounded-full w-full overflow-hidden">
-                                    <div class="bg-blue-500 h-2" style="width: {{ $percent }}%"></div>
+                                    <div class="bg-blue-500 h-2" id="progress-bar" style="width: {{ $percent }}%">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="text-[13px] md:text-[12px] text-gray-500 text-center">{{ $percent }}% of max
+                            <div id="percent-text" class="text-[13px] md:text-[12px] text-gray-500 text-center">
+                                {{ $percent }}% of max
                                 applications</div>
                         </div>
                     </div>
@@ -1356,7 +1358,28 @@
                         const currentValue = parseInt(currentCountEl.textContent, 10) || 0;
                         const incrementValue = parseInt(event.total_applications, 10) || 0;
 
-                        currentCountEl.textContent = currentValue + incrementValue;
+                        // Update the count
+                        const newTotal = currentValue + incrementValue;
+                        currentCountEl.textContent = newTotal;
+
+                        // Compute percentage
+                        const maxApplicants = parseInt("{{ $maxApplicants }}", 10) || 0;
+                        let percent = 0;
+
+                        if (maxApplicants > 0) {
+                            percent = Math.round((newTotal / maxApplicants) * 100);
+                            percent = Math.min(percent, 100); // cap at 100%
+                        }
+
+                        // Update progress bar width
+                        if (progressBar) {
+                            progressBar.style.width = percent + "%";
+                        }
+
+                        // Update text (e.g. 55% of max applications)
+                        if (percentText) {
+                            percentText.textContent = percent;
+                        }
                     }
 
                     // Reload the table to show new data
