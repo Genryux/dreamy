@@ -195,7 +195,8 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
                         @foreach ($rolesCollection as $role)
-                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -306,7 +307,8 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
                         @foreach ($rolesCollection as $role)
-                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -545,7 +547,8 @@
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option value="" disabled selected>Role</option>
                                     @foreach ($rolesCollection as $role)
-                                        <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                                        <option value="{{ $role->name }}">
+                                            {{ \Illuminate\Support\Str::headline($role->name) }}</option>
                                     @endforeach
                                 </select>
                                 <i id="clear-role-filter-btn"
@@ -814,18 +817,27 @@
                     if (data.success) {
                         const analytics = data.analytics;
 
-                        // Update stat section elements
-                        document.getElementById('total-users').textContent = analytics.total_users;
-                        document.getElementById('active-users').textContent = analytics.active_users;
-                        document.getElementById('new-users-this-week').textContent = analytics.new_users_this_week;
-                        document.getElementById('pending-invitations').textContent = analytics.pending_invitations;
-                        document.getElementById('expired-invitations').textContent = analytics.expired_invitations;
+                        const analyticsFields = {
+                            total_users: 'total-users',
+                            active_users: 'active-users',
+                            new_users_this_week: 'new-users-this-week',
+                            pending_invitations: 'pending-invitations',
+                            expired_invitations: 'expired-invitations',
+                            total_teachers: 'total-teachers',
+                            total_students: 'total-students',
+                            total_registrars: 'total-registrars',
+                            total_head_teachers: 'total-head-teachers'
+                        };
 
-                        // Update role distribution
-                        document.getElementById('total-teachers').textContent = analytics.total_teachers;
-                        document.getElementById('total-students').textContent = analytics.total_students;
-                        document.getElementById('total-registrars').textContent = analytics.total_registrars;
-                        document.getElementById('total-head-teachers').textContent = analytics.total_head_teachers;
+                        // Update elements safely
+                        for (const [key, id] of Object.entries(analyticsFields)) {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.textContent = analytics[key];
+                            } else {
+                                console.warn(`Element with id "${id}" not found`);
+                            }
+                        }
 
                         // Reset all card backgrounds to default first
                         const allCards = document.querySelectorAll('.analytics-card');
@@ -854,7 +866,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading analytics');
+                    console.error('Error loading analytics', error);
                 });
         }
 
@@ -1071,38 +1083,38 @@
                             <!-- Action Buttons -->
                             <div class="pt-2 border-t border-gray-100">
                                 ${user.status === 'Invited' ? `
-                                                                                            <div class="flex gap-2">
-                                                                                                <button onclick="resendInvitation(${user.id})" 
-                                                                                                    class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
-                                                                                                    <i class="fi fi-rr-envelope text-sm"></i>
-                                                                                                    Resend
-                                                                                                </button>
-                                                                                                <button onclick="cancelInvitation(${user.id})" 
-                                                                                                    class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                                                                                    <i class="fi fi-rr-cross text-sm"></i>
-                                                                                                    Cancel
-                                                                                                </button>
-                                                                        </div>
-                                    ` : (user.status === 'Registered' || user.status === 'Active') ? `
-                                        <div class="flex gap-2">
-                                            <button type="button" id="open-edit-user-modal-btn-${user.id}"
-                                                data-user-id="${user.id}"
-                                                class="edit-user-btn flex-1 flex justify-center items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-150">
-                                                <i class="fi fi-rr-edit text-sm"></i>
-                                                Edit
-                                            </button>
-                                            <button type="button" id="open-delete-user-modal-btn-${user.id}"
-                                                data-user-id="${user.id}"
-                                                class="delete-user-btn flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
-                                                <i class="fi fi-rr-trash text-sm"></i>
-                                                Delete
-                                            </button>
-                                        </div>
-                                                                                        ` : `
-                                                                                            <div class="text-center text-sm text-gray-500 py-2">
-                                                                                                No actions available
-                                                                                            </div>
-                                                                                        `}
+                                                                                                <div class="flex gap-2">
+                                                                                                    <button onclick="resendInvitation(${user.id})" 
+                                                                                                        class="flex-1 flex justify-center items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors duration-150">
+                                                                                                        <i class="fi fi-rr-envelope text-sm"></i>
+                                                                                                        Resend
+                                                                                                    </button>
+                                                                                                    <button onclick="cancelInvitation(${user.id})" 
+                                                                                                        class="flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                                                                        <i class="fi fi-rr-cross text-sm"></i>
+                                                                                                        Cancel
+                                                                                                    </button>
+                                                                            </div>
+                                        ` : (user.status === 'Registered' || user.status === 'Active') ? `
+                                            <div class="flex gap-2">
+                                                <button type="button" id="open-edit-user-modal-btn-${user.id}"
+                                                    data-user-id="${user.id}"
+                                                    class="edit-user-btn flex-1 flex justify-center items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-150">
+                                                    <i class="fi fi-rr-edit text-sm"></i>
+                                                    Edit
+                                                </button>
+                                                <button type="button" id="open-delete-user-modal-btn-${user.id}"
+                                                    data-user-id="${user.id}"
+                                                    class="delete-user-btn flex-1 flex justify-center items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-150">
+                                                    <i class="fi fi-rr-trash text-sm"></i>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                                                                            ` : `
+                                                                                                <div class="text-center text-sm text-gray-500 py-2">
+                                                                                                    No actions available
+                                                                                                </div>
+                                                                                            `}
                             </div>
                         </div>
                     </div>
@@ -1593,7 +1605,7 @@
 
                                 // Populate form fields
                                 document.getElementById('edit_first_name').value = user.first_name ||
-                                '';
+                                    '';
                                 document.getElementById('edit_last_name').value = user.last_name || '';
                                 document.getElementById('edit_middle_name').value = user.middle_name ||
                                     '';
