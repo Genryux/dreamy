@@ -1351,7 +1351,7 @@
 
                     // Update total applications counter
                     if (totalApplications) {
-                        totalApplications.innerHTML = event.total_applications;
+                        totalApplications.innerHTML = `${event.total_applications}<span class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span>`;
                     }
 
                     // Reload the table to show new data
