@@ -805,9 +805,10 @@
                     {{-- KPI card --}}
                     <div class="flex flex-col justify-between bg-[#E3ECFF]/40 rounded-xl p-4">
                         <div class="flex flex-col items-center justify-center py-4">
-                            <span id="total-application"
-                                class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
-                                    class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
+                            <span id="total-application" class="text-[36px] md:text-[40px] font-extrabold">
+                                <span id="current-count">{{ $currentCount }}</span>
+                                <span class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span>
+                            </span>
                             <span class="font-medium text-[14px] text-gray-600">Total Applications</span>
                         </div>
                         <div class="space-y-2">
@@ -1349,9 +1350,13 @@
                 window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (
                     event) => {
 
-                    // Update total applications counter
-                    if (totalApplications) {
-                        totalApplications.innerHTML = `${event.total_applications}<span class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span>`;
+                    const currentCountEl = document.getElementById('current-count');
+
+                    if (currentCountEl) {
+                        const currentValue = parseInt(currentCountEl.textContent, 10) || 0;
+                        const incrementValue = parseInt(event.total_applications, 10) || 0;
+
+                        currentCountEl.textContent = currentValue + incrementValue;
                     }
 
                     // Reload the table to show new data
