@@ -501,7 +501,7 @@
                 'modal-container-1');
 
             // Initialize PIN Verification modal
-            initModal('pin-verification-modal', true, 'pin-verification-modal-close-btn',
+            initModal('pin-verification-modal', null, 'pin-verification-modal-close-btn',
                 'pin-verification-modal-cancel-btn',
                 'modal-container-3');
 
