@@ -501,7 +501,7 @@
                 'modal-container-1');
 
             // Initialize PIN Verification modal
-            initModal('pin-verification-modal', null, 'pin-verification-modal-close-btn',
+            const pinModalFunctions = initModal('pin-verification-modal', null, 'pin-verification-modal-close-btn',
                 'pin-verification-modal-cancel-btn',
                 'modal-container-3');
 
@@ -746,15 +746,16 @@
                     // Close payment modal and open PIN verification
                     closeModal('record-payment-modal', 'modal-container-1');
 
+                    pinModalFunctions.openModal();
                     // Open PIN verification modal
-                    const pinModal = document.querySelector('#pin-verification-modal');
-                    const pinContainer = document.querySelector('#modal-container-3');
-                    if (pinModal && pinContainer) {
-                        pinModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-                        pinModal.classList.add('opacity-100', 'scale-100');
-                        pinContainer.classList.remove('opacity-0', 'pointer-events-none');
-                        pinContainer.classList.add('opacity-100');
-                    }
+                    // const pinModal = document.querySelector('#pin-verification-modal');
+                    // const pinContainer = document.querySelector('#modal-container-3');
+                    // if (pinModal && pinContainer) {
+                    //     pinModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                    //     pinModal.classList.add('opacity-100', 'scale-100');
+                    //     pinContainer.classList.remove('opacity-0', 'pointer-events-none');
+                    //     pinContainer.classList.add('opacity-100');
+                    // }
 
                     // Focus on PIN input and add enhanced input handling
                     setTimeout(() => {
