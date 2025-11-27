@@ -1,6 +1,6 @@
 export function initModal(modalId, openButtonId, closeButtonId, cancelButtonId, modalContainerId) {
     let modal = document.querySelector(`#${modalId}`);
-    let openButton = document.querySelector(`#${openButtonId}`);
+    let openButton = openButtonId ? document.querySelector(`#${openButtonId}`) : null;
     let closeButton = document.querySelector(`#${closeButtonId}`);
     let cancelButton = document.querySelector(`#${cancelButtonId}`);
     let body = document.querySelector(`#${modalContainerId}`);
@@ -21,16 +21,13 @@ export function initModal(modalId, openButtonId, closeButtonId, cancelButtonId, 
         body.classList.add('opacity-0', 'pointer-events-none');
     };
 
-    // 🔵 Only attach this if the open button exists
     if (openButton) {
         openButton.addEventListener('click', openModal);
     }
 
-    // 🔴 Close modal buttons will ALWAYS work
     if (closeButton) closeButton.addEventListener('click', closeModal);
     if (cancelButton) cancelButton.addEventListener('click', closeModal);
 
-    // 🔴 Clicking outside closes modal too
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     });
