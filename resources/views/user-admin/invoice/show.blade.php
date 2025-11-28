@@ -176,29 +176,29 @@
             </div>
         </div>
 
+        <x-slot name="modal_info">
+            <form id="force-delete-invoice-item-form" class="inline w-full">
+                @csrf
+                <button type="submit" id="force-delete-invoice-item-submit-btn" form="force-delete-invoice-item-form"
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                    Force Delete Item
+                </button>
+            </form>
+        </x-slot>
+
         <x-slot name="modal_buttons">
-            <div class="flex flex-row justify-between items-center w-full">
-                <form id="force-delete-invoice-item-form" class="inline">
-                    @csrf
-                    <button type="submit" id="force-delete-invoice-item-submit-btn" form="force-delete-invoice-item-form"
-                        class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
-                        Force Delete Item
-                    </button>
-                </form>
-                <div>
-                    <button id="delete-invoice-item-cancel-btn"
-                        class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
-                        Cancel
-                    </button>
-                    <form id="delete-invoice-item-form" class="inline">
-                        @csrf
-                        <button type="submit" id="delete-invoice-item-submit-btn" form="delete-invoice-item-form"
-                            class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
-                            Delete Item
-                        </button>
-                    </form>
-                </div>
-            </div>
+
+            <button id="delete-invoice-item-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <form id="delete-invoice-item-form" class="inline">
+                @csrf
+                <button type="submit" id="delete-invoice-item-submit-btn" form="delete-invoice-item-form"
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                    Delete Item
+                </button>
+            </form>
 
         </x-slot>
 
@@ -984,7 +984,8 @@
                                 hideLoader();
                             }
                             if (typeof showAlert === 'function') {
-                                showAlert('error', `An error occurred while deleting the invoice item: ${error}`);
+                                showAlert('error',
+                                    `An error occurred while deleting the invoice item: ${error}`);
                             } else {
                                 alert('An error occurred while deleting the invoice item');
                             }
