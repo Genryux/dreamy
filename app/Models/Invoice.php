@@ -84,17 +84,17 @@ class Invoice extends Model
     public function getBalanceAttribute()
     {
         // // For installment plans, use the discounted total if payment plan exists
-        // if ($this->has_payment_plan && $this->paymentPlan) {
-        //     $discountedTotal = $this->paymentPlan->discounted_total ?? $this->total_amount;
-        //     $balance = $discountedTotal - $this->paid_amount;
-        // } else {
-        //     // For flexible/one-time payments, calculate balance based on discounted total
-        //     $totalDiscounts = $this->payments->sum('total_discount');
-        //     $discountedTotal = $this->total_amount - $totalDiscounts;
-        //     $balance = $discountedTotal - $this->paid_amount;
-        // }
+        if ($this->paymentPlan) {
+            $discountedTotal = $this->paymentPlan->discounted_total ?? $this->total_amount;
+            $balance = $discountedTotal - $this->paid_amount;
+        } else {
+            // For flexible/one-time payments, calculate balance based on discounted total
+            $totalDiscounts = $this->payments->sum('total_discount');
+            $discountedTotal = $this->total_amount - $totalDiscounts;
+            $balance = $discountedTotal - $this->paid_amount;
+        }
 
-        $balance = $this->total_amount - $this->paid_amount;
+        // $balance = $this->total_amount - $this->paid_amount;
 
         // Round to 2 decimal places to avoid floating-point precision issues
         return round($balance, 2);

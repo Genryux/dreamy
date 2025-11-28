@@ -140,9 +140,9 @@
                         <i class="fi fi-rr-usd-circle mr-2"></i>
                         Amount <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="amount" id="amount" required min="0" step="0.01"
-                        placeholder="0.00"
+                    <input type="text" id="amount-input" required placeholder="0.00"
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                    <input type="hidden" name="amount" id="amount-hidden">
                 </div>
             </div>
 
@@ -334,13 +334,13 @@
                 </div>
 
                 <div class="w-full">
-                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="edit-amount-input" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fi fi-rr-usd-circle mr-2"></i>
                         Amount <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="amount" id="amount" required min="0" step="0.01"
-                        placeholder="0.00"
+                    <input type="text" name="amount" id="edit-amount-input" required placeholder="0.00"
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                    <input type="hidden" name="amount" id="edit-amount-hidden">
                 </div>
             </div>
 
@@ -1466,8 +1466,24 @@
                                 document.getElementById('edit-school-fee-modal-form').querySelector(
                                         'select[name="grade_level"]').value = schoolFee.grade_level ||
                                     '';
-                                document.getElementById('edit-school-fee-modal-form').querySelector(
-                                    'input[name="amount"]').value = schoolFee.amount || '';
+                                // Populate and format amount
+                                const amountInput = document.getElementById('edit-amount-input');
+                                const hiddenInput = document.getElementById('edit-amount-hidden');
+
+                                if (amountInput && hiddenInput) {
+                                    const rawAmount = (schoolFee.amount || '').toString();
+
+                                    // Split integer and decimal parts
+                                    const [integerPart, decimalPart] = rawAmount.split('.');
+                                    const formattedInt = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g,
+                                        ',');
+                                    const formattedValue = decimalPart !== undefined ?
+                                        `₱${formattedInt}.${decimalPart}` :
+                                        `₱${formattedInt}`;
+
+                                    amountInput.value = formattedValue;
+                                    hiddenInput.value = rawAmount; // raw number for backend
+                                }
 
                             } else {
                                 showAlert('error', 'Error loading school fee: ' + data.error);
@@ -1475,7 +1491,8 @@
                         })
                         .catch(error => {
                             hideLoader();
-                            showAlert('error', 'An error occurred while loading the school fee');
+                            showAlert('error', 'An error occurred while loading the school fee' +
+                                error);
                         });
                 });
             });
@@ -1522,6 +1539,63 @@
                 'edit-school-fee-modal-cancel-btn',
                 'modal-container-5');
 
+            function setupCurrencyInput(options) {
+                const {
+                    inputSelector,
+                    hiddenSelector,
+                    currencySign = '₱',
+                    formSelector
+                } = options;
+
+                const input = document.querySelector(inputSelector);
+                const hidden = document.querySelector(hiddenSelector);
+                const form = formSelector ? document.querySelector(formSelector) : null;
+
+                if (!input || !hidden) return;
+
+                const format = (value) => {
+                    // Remove non-digit characters
+                    const raw = value.replace(/\D/g, '');
+                    // Format with commas
+                    const formatted = raw ? currencySign + raw.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '';
+                    return {
+                        raw,
+                        formatted
+                    };
+                };
+
+                input.addEventListener('input', () => {
+                    const {
+                        raw,
+                        formatted
+                    } = format(input.value);
+                    input.value = formatted;
+                    hidden.value = raw;
+                });
+
+                if (form) {
+                    form.addEventListener('submit', () => {
+                        const {
+                            raw
+                        } = format(input.value);
+                        hidden.value = raw;
+                    });
+                }
+            }
+
+            setupCurrencyInput({
+                inputSelector: '#amount-input',
+                hiddenSelector: '#amount-hidden',
+                currencySign: '₱',
+                formSelector: '#create-school-fee-modal-form' // optional
+            });
+
+            setupCurrencyInput({
+                inputSelector: '#edit-amount-input',
+                hiddenSelector: '#edit-amount-hidden',
+                currencySign: '₱',
+                formSelector: '#create-school-fee-modal-form' // optional
+            });
 
 
             let schoolfeeTable = initCustomDataTable(
@@ -2975,9 +3049,10 @@
             }
         }
 
-        // =========================
-        // Down Payment Auto-Format
-        // =========================
+
+        // ========================= 
+        // Down Payment Auto-Format 
+        // ========================= 
         (function setupDownPaymentFormatter() {
             const input = document.getElementById('down_payment');
             const form = document.getElementById('set-down-payment-modal-form');
@@ -2993,24 +3068,44 @@
             };
 
             const onInput = () => {
-                const selectionStart = input.selectionStart;
+                if (!input.isConnected) return;
+
                 const before = input.value;
                 const formatted = formatNumber(before);
-                input.value = formatted;
-                // Try to keep caret towards end after reformat
-                requestAnimationFrame(() => {
-                    input.setSelectionRange(input.value.length, input.value.length);
-                });
+
+                if (before !== formatted) {
+                    input.value = formatted;
+
+                    try {
+                        requestAnimationFrame(() => {
+                            if (input.isConnected && document.activeElement === input) {
+                                input.setSelectionRange(input.value.length, input.value.length);
+                            }
+                        });
+                    } catch (err) {
+                        // Ignore
+                    }
+                }
+            };
+
+            const onBlur = () => {
+                if (input.isConnected) {
+                    const formatted = formatNumber(input.value);
+                    if (input.value !== formatted) {
+                        input.value = formatted;
+                    }
+                }
             };
 
             input.addEventListener('input', onInput);
-            input.addEventListener('blur', onInput);
+            input.addEventListener('blur', onBlur);
 
             if (form) {
                 form.addEventListener('submit', function() {
-                    // strip formatting before submit so backend gets a clean number
-                    const raw = (input.value || '').replace(/[^\d]/g, '');
-                    input.value = raw;
+                    if (input.isConnected) {
+                        const raw = (input.value || '').replace(/[^\d]/g, '');
+                        input.value = raw || '0';
+                    }
                 });
             }
         })();

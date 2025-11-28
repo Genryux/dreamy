@@ -101,10 +101,11 @@
                 </div>
 
                 {{-- Discount Section (conditional display) --}}
-                <div id="discount-section" class="space-y-2 w-full" style="display: {{ $invoice->has_payment_plan ? 'none' : 'block' }};">
+                <div id="discount-section" class="space-y-2 w-full"
+                    style="display: {{ $invoice->has_payment_plan ? 'none' : 'block' }};">
                     <div class="flex flex-row justify-between items-center">
                         <h4 class="italic text-sm font-medium text-gray-600 flex flex-row gap-1">
-                            @if($isEarlyEnrollee && $earlyDiscountPercentage > 0)
+                            @if ($isEarlyEnrollee && $earlyDiscountPercentage > 0)
                                 Early enrollee discount is taking effect
                                 <i class="fi fi-bs-check text-sm flex justify-center items-center text-green-600"></i>
                             @else
@@ -117,17 +118,21 @@
                             discount?
                         </label>
                     </div>
-                    
+
                     {{-- Custom discount options (hidden by default) --}}
-                    <div id="custom-discount-options" class="flex flex-col justify-start items-center px-4 space-y-2 max-h-[150px] overflow-y-scroll" style="display: none;">
-                        @foreach($availableDiscounts as $discount)
-                            <label for="discount-{{ $discount->id }}" class="flex flex-row justify-between items-center gap-2 w-full text-sm">
-                            <div class="flex flex-row justify-center items-center gap-2">
-                                    <input type="checkbox" name="selected_discounts[]" value="{{ $discount->id }}" id="discount-{{ $discount->id }}" class="discount-checkbox">
+                    <div id="custom-discount-options"
+                        class="flex flex-col justify-start items-center px-4 space-y-2 max-h-[150px] overflow-y-scroll"
+                        style="display: none;">
+                        @foreach ($availableDiscounts as $discount)
+                            <label for="discount-{{ $discount->id }}"
+                                class="flex flex-row justify-between items-center gap-2 w-full text-sm">
+                                <div class="flex flex-row justify-center items-center gap-2">
+                                    <input type="checkbox" name="selected_discounts[]" value="{{ $discount->id }}"
+                                        id="discount-{{ $discount->id }}" class="discount-checkbox">
                                     {{ $discount->name }}
-                            </div>
+                                </div>
                                 <h4>Amount: {{ $discount->getFormattedValue() }}</h4>
-                        </label>
+                            </label>
                         @endforeach
                     </div>
                 </div>
@@ -172,17 +177,29 @@
         </div>
 
         <x-slot name="modal_buttons">
-            <button id="delete-invoice-item-cancel-btn"
-                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
-                Cancel
-            </button>
-            <form id="delete-invoice-item-form" class="inline">
-                @csrf
-                <button type="submit" id="delete-invoice-item-submit-btn"
-                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
-                    Delete Item
-                </button>
-            </form>
+            <div class="flex flex-row justify-between items-center w-full">
+                <form id="force-delete-invoice-item-form" class="inline">
+                    @csrf
+                    <button type="submit" id="force-delete-invoice-item-submit-btn" form="force-delete-invoice-item-form"
+                        class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                        Force Delete Item
+                    </button>
+                </form>
+                <div>
+                    <button id="delete-invoice-item-cancel-btn"
+                        class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                        Cancel
+                    </button>
+                    <form id="delete-invoice-item-form" class="inline">
+                        @csrf
+                        <button type="submit" id="delete-invoice-item-submit-btn" form="delete-invoice-item-form"
+                            class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
+                            Delete Item
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </x-slot>
 
     </x-modal>
@@ -332,18 +349,18 @@
                                     <span
                                         class="font-semibold text-gray-900">₱{{ number_format($invoice->total_amount, 2) }}</span>
                                 </div>
-                                @if($invoice->has_payment_plan && $invoice->paymentPlan && $invoice->paymentPlan->total_discount > 0)
-                                <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                                    <span class="text-sm text-gray-600">Total Discount</span>
-                                    <span
-                                        class="font-semibold text-red-600">-₱{{ number_format($invoice->paymentPlan->total_discount, 2) }}</span>
-                                </div>
+                                @if ($invoice->has_payment_plan && $invoice->paymentPlan && $invoice->paymentPlan->total_discount > 0)
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                        <span class="text-sm text-gray-600">Total Discount</span>
+                                        <span
+                                            class="font-semibold text-red-600">-₱{{ number_format($invoice->paymentPlan->total_discount, 2) }}</span>
+                                    </div>
                                 @elseif(!$invoice->has_payment_plan && $invoice->payments->sum('total_discount') > 0)
-                                <div class="flex justify-between items-center py-2 border-b border-gray-200">
-                                    <span class="text-sm text-gray-600">Total Discount</span>
-                                    <span
-                                        class="font-semibold text-red-600">-₱{{ number_format($invoice->payments->sum('total_discount'), 2) }}</span>
-                                </div>
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                        <span class="text-sm text-gray-600">Total Discount</span>
+                                        <span
+                                            class="font-semibold text-red-600">-₱{{ number_format($invoice->payments->sum('total_discount'), 2) }}</span>
+                                    </div>
                                 @endif
                                 <div class="flex justify-between items-center py-2 border-b border-gray-200">
                                     <span class="text-sm text-gray-600">Paid</span>
@@ -403,18 +420,22 @@
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        @if($payment->paymentSchedule)
-                                                            @if($payment->paymentSchedule->installment_number === 0)
-                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        @if ($payment->paymentSchedule)
+                                                            @if ($payment->paymentSchedule->installment_number === 0)
+                                                                <span
+                                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                                     Down Payment
                                                                 </span>
                                                             @else
-                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                                    Installment #{{ $payment->paymentSchedule->installment_number }}
+                                                                <span
+                                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                                    Installment
+                                                                    #{{ $payment->paymentSchedule->installment_number }}
                                                                 </span>
                                                             @endif
                                                         @else
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                            <span
+                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                                                 One-time Payment
                                                             </span>
                                                         @endif
@@ -439,7 +460,8 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div id="bottom-nav" class="sticky bottom-4 left-0 w-full flex items-center justify-between mt-8 pt-6 px-6 pb-6 rounded-xl transition-all duration-500 ease-in-out">
+                <div id="bottom-nav"
+                    class="sticky bottom-4 left-0 w-full flex items-center justify-between mt-8 pt-6 px-6 pb-6 rounded-xl transition-all duration-500 ease-in-out">
                     <a href="/school-fees/invoices"
                         class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition">
                         <i class="fi fi-rr-arrow-small-left text-[16px] flex justify-center items-center"></i>
@@ -639,7 +661,7 @@
                     const remaining = opt ? opt.getAttribute('data-balance') : null;
                     const installment = opt ? opt.getAttribute('data-installment') : null;
                     const isDownPayment = installment === '0' || installment === 'Down';
-                    
+
                     // Only lock for months 1..9; allow flexible DP (installment 0)
                     if (remaining && installment !== null && parseInt(installment) > 0) {
                         applyAmountLock(remaining);
@@ -650,7 +672,7 @@
                     // Show/hide discount section based on payment mode and schedule selection
                     if (discountSection) {
                         const hasPaymentPlan = {{ $invoice->has_payment_plan ? 'true' : 'false' }};
-                        
+
                         if (hasPaymentPlan) {
                             // For installment plans: only show for down payment
                             if (isDownPayment) {
@@ -733,7 +755,8 @@
                     const formData = new FormData(this);
                     pendingPaymentData = {
                         amount: formData.get('amount'),
-                        remaining_balance: formData.get('final_amount'), // This now contains the remaining balance
+                        remaining_balance: formData.get(
+                            'final_amount'), // This now contains the remaining balance
                         payment_date: formData.get('payment_date'),
                         method: formData.get('method'),
                         type: formData.get('type'),
@@ -892,6 +915,83 @@
                 });
             }
 
+            const forceDeleteInvoiceItemForm = document.getElementById('force-delete-invoice-item-form');
+            if (forceDeleteInvoiceItemForm) {
+                forceDeleteInvoiceItemForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    if (!currentItemId) {
+                        alert('No item selected for deletion');
+                        return;
+                    }
+
+                    const deleteUrl = `/force/invoice/${currentInvoiceId}/item/${currentItemId}`;
+
+                    showLoader();
+
+                    fetch(deleteUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            return response.json();
+                        })
+                        .then(data => {
+
+                            hideLoader();
+
+                            if (data.success === false && data.is_paid === false) {
+
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+                                showAlert('error', data.message);
+
+                            } else if (data.success === false && data.has_payment_plans === true) {
+
+                                showAlert('success', data.message);
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+
+                            } else if (data.success === false && data.has_payments === true) {
+
+                                showAlert('error', data.message);
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+
+                            } else if (data.success === true && data.is_invoice_empty === false) {
+
+                                showAlert('success', data.message);
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+                                setTimeout(() => {
+                                    window.location.reload()
+                                }, 2000);
+
+                            } else if (data.success === true && data.is_invoice_empty === true) {
+
+                                showAlert('success', data.message || 'Unknown error occurred');
+                                closeModal('delete-invoice-item-modal', 'modal_container_2')
+
+                                setTimeout(() => {
+                                    window.location.href = '/school-fees/invoices'
+                                }, 2000);
+
+                            } else {
+                                showAlert('error', data.message || 'Unknown error occurred');
+                            }
+                        })
+                        .catch(error => {
+                            if (typeof hideLoader === 'function') {
+                                hideLoader();
+                            }
+                            if (typeof showAlert === 'function') {
+                                showAlert('error', `An error occurred while deleting the invoice item: ${error}`);
+                            } else {
+                                alert('An error occurred while deleting the invoice item');
+                            }
+                        });
+                });
+            }
+
 
             function closeModal(modalId, modalContainerId) {
 
@@ -930,7 +1030,7 @@
                 formData.append('payment_schedule_id', paymentData.payment_schedule_id || '');
                 formData.append('pin', paymentData.pin);
                 formData.append('_token', '{{ csrf_token() }}');
-                
+
                 // Add discount data
                 if (paymentData.custom_discount_enabled) {
                     formData.append('custom_discount_enabled', '1');
@@ -1000,18 +1100,18 @@
         const discountCheckboxes = document.querySelectorAll('.discount-checkbox');
         const scheduleSelect = document.getElementById('payment_schedule_id');
         const discountSection = document.getElementById('discount-section');
-        
+
         // Early enrollment data from backend
         const isEarlyEnrollee = @json($isEarlyEnrollee);
         const earlyDiscountPercentage = @json($earlyDiscountPercentage);
-        
+
         // Update total when amount input changes
         if (amountInput) {
             amountInput.addEventListener('input', function() {
                 updateTotal();
             });
         }
-        
+
         // Toggle custom discount options
         if (customDiscountCheckbox) {
             customDiscountCheckbox.addEventListener('change', function() {
@@ -1025,19 +1125,19 @@
                 }
             });
         }
-        
+
         // Update total when discount checkboxes change
         discountCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', updateTotal);
         });
-        
+
         function updateTotal() {
             let baseAmount = parseFloat(amountInput.value) || 0;
-            
+
             // Check if this is a down payment schedule in an installment plan
             let isDownPayment = false;
             const hasPaymentPlan = {{ $invoice->has_payment_plan ? 'true' : 'false' }};
-            
+
             if (hasPaymentPlan && scheduleSelect && scheduleSelect.selectedIndex >= 0) {
                 const selectedSchedule = scheduleSelect.options[scheduleSelect.selectedIndex];
                 const installment = selectedSchedule ? selectedSchedule.getAttribute('data-installment') : null;
@@ -1046,19 +1146,19 @@
                 // For one-time payments, never do live calculation
                 isDownPayment = false;
             }
-            
+
             // Calculate discounts for both down payments and one-time payments
             let totalDiscount = 0;
             let earlyDiscount = 0;
             let customDiscounts = 0;
-            
+
             // Calculate early enrollment discount (always applied to total invoice amount)
             if (isEarlyEnrollee && earlyDiscountPercentage > 0) {
                 const totalInvoiceAmount = {{ $invoice->total_amount }};
                 earlyDiscount = totalInvoiceAmount * (earlyDiscountPercentage / 100);
                 totalDiscount += earlyDiscount;
             }
-            
+
             // Calculate custom discounts (applied to total invoice amount)
             if (isDownPayment || !hasPaymentPlan) {
                 const totalInvoiceAmount = {{ $invoice->total_amount }};
@@ -1070,20 +1170,23 @@
                     }
                 });
             }
-            
+
             // Calculate final amount after discounts
             const finalAmount = baseAmount - customDiscounts; // Only subtract custom discounts from payment amount
-            
+
             if (isDownPayment) {
                 // For down payments in installment plans: show live calculation following backend formula
                 // Formula: Monthly = (Total Invoice Amount - Early Discount - Down Payment - Custom Discounts) / months
                 const totalInvoiceAmount = {{ $invoice->total_amount }};
-                const discountedTotal = totalInvoiceAmount - earlyDiscount; // Only subtract early discount from invoice total
-                const remainingBalance = discountedTotal - baseAmount - customDiscounts; // Subtract down payment and custom discounts
+                const discountedTotal = totalInvoiceAmount -
+                    earlyDiscount; // Only subtract early discount from invoice total
+                const remainingBalance = discountedTotal - baseAmount -
+                    customDiscounts; // Subtract down payment and custom discounts
                 const monthlyAmount = remainingBalance / 9; // 9 months installment
-                
+
                 if (totalDisplay) {
-                    totalDisplay.textContent = `Remaining: ₱${remainingBalance.toFixed(2)} / 9 months = ₱${monthlyAmount.toFixed(2)}`;
+                    totalDisplay.textContent =
+                        `Remaining: ₱${remainingBalance.toFixed(2)} / 9 months = ₱${monthlyAmount.toFixed(2)}`;
                 }
                 if (finalAmountInput) {
                     finalAmountInput.value = remainingBalance; // Store remaining balance for backend (preview only)
@@ -1107,7 +1210,7 @@
                 }
             }
         }
-        
+
         function getDiscountAmount(discountId, baseAmount = null) {
             // Get discount amount from the label
             const label = document.querySelector(`label[for="discount-${discountId}"]`);
@@ -1128,11 +1231,11 @@
             }
             return 0;
         }
-        
+
         // Clear form fields on page load/refresh
         function clearForm() {
             const hasPaymentPlan = {{ $invoice->has_payment_plan ? 'true' : 'false' }};
-            
+
             // For one-time payments, set the amount to total invoice amount and lock it
             if (!hasPaymentPlan && amountInput) {
                 const totalAmount = {{ $invoice->total_amount }};
@@ -1142,29 +1245,29 @@
                 // For installment plans, clear the amount
                 amountInput.value = '';
             }
-            
+
             // Clear method and type inputs
             const methodInput = document.querySelector('input[name="method"]');
             const typeInput = document.querySelector('input[name="type"]');
             if (methodInput) methodInput.value = '';
             if (typeInput) typeInput.value = '';
-            
+
             // Clear reference number
             const referenceInput = document.querySelector('input[name="reference_no"]');
             if (referenceInput) referenceInput.value = '';
-            
+
             // Reset payment date to today
             const paymentDateInput = document.querySelector('input[name="payment_date"]');
             if (paymentDateInput) {
                 const today = new Date().toISOString().split('T')[0];
                 paymentDateInput.value = today;
             }
-            
+
             // Reset schedule selection to first option
             if (scheduleSelect) {
                 scheduleSelect.selectedIndex = 0;
             }
-            
+
             // Clear discount selections
             if (customDiscountCheckbox) {
                 customDiscountCheckbox.checked = false;
@@ -1175,18 +1278,18 @@
             discountCheckboxes.forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
+
             // Clear final amount input
             if (finalAmountInput) {
                 finalAmountInput.value = '0';
             }
-            
+
             // Reset total display
             if (totalDisplay) {
                 totalDisplay.textContent = 'Total: ₱0.00';
             }
         }
-        
+
         // Initialize form clearing and total calculation on page load
         clearForm();
         updateTotal();
@@ -1209,12 +1312,12 @@
         // Bottom navigation scroll animation (reverse of header behavior)
         document.addEventListener('DOMContentLoaded', function() {
             const bottomNav = document.getElementById('bottom-nav');
-            
+
             if (!bottomNav) return;
 
             // Find the scrollable container (the white modal with overflow-auto)
             const scrollContainer = bottomNav.closest('.overflow-auto');
-            
+
             if (!scrollContainer) return;
 
             let ticking = false;
@@ -1223,7 +1326,7 @@
                 const scrollTop = scrollContainer.scrollTop;
                 const containerHeight = scrollContainer.clientHeight;
                 const scrollHeight = scrollContainer.scrollHeight;
-                
+
                 // Calculate distance from bottom (reverse of scrollTop)
                 const scrollBottom = scrollHeight - (scrollTop + containerHeight);
 
