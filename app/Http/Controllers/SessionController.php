@@ -72,13 +72,6 @@ class SessionController extends Controller
         } elseif ($user->hasRole('student')) {
             // Platform-based redirect for students
             return redirect()->route('admission.dashboard');
-
-            // if ($isDesktop) {
-            //     // Desktop: Redirect to message page
-            //     return redirect()->route('desktop.student.message');
-            // } else {
-            //     // Web: Redirect to admission dashboard
-            // }
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             // Temporarily disabled platform restrictions - always redirect to admin
             return redirect()->route('admin');
@@ -300,37 +293,40 @@ class SessionController extends Controller
     {
         $user = Auth::user();
 
-        // Detect platform (desktop vs web)
-        $userAgent = request()->header('User-Agent');
-        $isDesktop = str_contains($userAgent, 'Electron') ||
-            str_contains($userAgent, 'DreamyDesktopApp') ||
-            request()->hasHeader('X-Electron-App');
+        // // Detect platform (desktop vs web)
+        // $userAgent = request()->header('User-Agent');
+        // $isDesktop = str_contains($userAgent, 'Electron') ||
+        //     str_contains($userAgent, 'DreamyDesktopApp') ||
+        //     request()->hasHeader('X-Electron-App');
 
         if ($user->hasRole('teacher')) {
             return redirect()->route('teacher.dashboard');
         } elseif ($user->hasRole('head_teacher')) {
             return redirect()->route('head-teacher.dashboard');
         } elseif ($user->hasRole('applicant')) {
-            // Platform-based redirect for applicants
-            if ($isDesktop) {
-                return redirect()->route('desktop.student.message');
-            } else {
-                return redirect()->route('admission.dashboard');
-            }
+            // // Platform-based redirect for applicants
+            // if ($isDesktop) {
+            //     return redirect()->route('desktop.student.message');
+            // } else {
+            //     return redirect()->route('admission.dashboard');
+            // }
+            return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole('student')) {
-            // Platform-based redirect for students
-            if ($isDesktop) {
-                return redirect()->route('desktop.student.message');
-            } else {
-                return redirect()->route('admission.dashboard');
-            }
+            // // Platform-based redirect for students
+            // if ($isDesktop) {
+            //     return redirect()->route('desktop.student.message');
+            // } else {
+            //     return redirect()->route('admission.dashboard');
+            // }
+            return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             // Platform-based redirect for admin users
-            if ($isDesktop) {
-                return redirect()->route('admin');
-            } else {
-                return redirect()->route('web.admin.message');
-            }
+            // if ($isDesktop) {
+            //     return redirect()->route('admin');
+            // } else {
+            //     return redirect()->route('web.admin.message');
+            // }
+            return redirect()->route('admin');
         }
 
         // Default redirect if no specific role is matched

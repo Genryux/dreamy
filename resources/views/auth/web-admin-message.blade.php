@@ -26,7 +26,7 @@
                 <!-- Message -->
                 <div class="mb-8">
                     <p class="text-gray-700 leading-relaxed mb-4">
-                        You're logged in as an administrator, but administrative features are only available through the
+                        You're logged in as an adminiasdasdasdasstrator, but administrative features are only available through the
                         <strong>Desktop Application</strong>.
                     </p>
                     <p class="text-sm text-gray-500">
