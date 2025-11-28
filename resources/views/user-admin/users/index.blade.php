@@ -4,6 +4,10 @@
     $rolesCollection = collect($roles ?? []);
 @endphp
 
+@php
+    $rolesCollection = collect($roles ?? []);
+@endphp
+
 @section('modal')
     @if (Route::is('admin.users.roles'))
         <!-- Create Role Modal -->
@@ -195,8 +199,7 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
                         @foreach ($rolesCollection as $role)
-                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}
-                            </option>
+                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -307,8 +310,7 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
                         @foreach ($rolesCollection as $role)
-                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}
-                            </option>
+                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -547,8 +549,7 @@
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option value="" disabled selected>Role</option>
                                     @foreach ($rolesCollection as $role)
-                                        <option value="{{ $role->name }}">
-                                            {{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                                        <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
                                     @endforeach
                                 </select>
                                 <i id="clear-role-filter-btn"

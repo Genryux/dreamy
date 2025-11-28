@@ -54,12 +54,6 @@ class SessionController extends Controller
         // Mark PIN as verified since it's disabled
         request()->session()->put('pin_verified', true);
 
-        // // Detect platform (desktop vs web)
-        // $userAgent = request()->header('User-Agent');
-        // $isDesktop = str_contains($userAgent, 'Electron') || 
-        //              str_contains($userAgent, 'DreamyDesktopApp') ||
-        //              request()->hasHeader('X-Electron-App');
-
         // Check roles and redirect accordingly
         if ($user->hasRole('teacher')) {
             return redirect()->route('teacher.dashboard');
@@ -86,20 +80,8 @@ class SessionController extends Controller
             //     // Web: Redirect to admission dashboard
             // }
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
-            // Platform-based redirect for admin users
-            // $userAgent = request()->header('User-Agent');
-            // $isDesktop = str_contains($userAgent, 'Electron') ||
-            //     str_contains($userAgent, 'DreamyDesktopApp') ||
-            //     request()->hasHeader('X-Electron-App');
-
-            // if ($isDesktop) {
-            //     return redirect()->route('admin'); // Desktop: Full admin access
-            // } else {
-            //     // Web: Redirect to a web-appropriate page or show message
-            //     return redirect()->route('web.admin.message');
-            // }
-
-            return redirect()->route('admin'); // Desktop: Full admin access
+            // Temporarily disabled platform restrictions - always redirect to admin
+            return redirect()->route('admin');
         }
 
         // Default redirect if no specific role is matched
