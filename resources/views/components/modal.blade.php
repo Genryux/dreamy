@@ -24,10 +24,10 @@
 
                 <div class="flex flex-row justify-between items-center px-6 py-4 space-x-1">
 
-                    <div class="text-[14px] flex flex-row justify-center items-center gap-2 transition duration-150">
+                    <div class="text-[14px] flex flex-row justify-center items-center gap-2 transition duration-150 w-1/2">
                         {{ $modal_info ?? '' }}
                     </div>
-                    <div class="flex flex-row justify-center items-center gap-2 w-full">
+                    <div class="flex flex-row justify-end items-center gap-2 w-1/2">
                         {{ $modal_buttons }}
 
                     </div>
