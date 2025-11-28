@@ -1053,7 +1053,10 @@
 
         <div class="flex flex-row w-full h-auto gap-4">
             <div class="flex flex-col w-[70%] h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
-                <span class="text-[16px] text-gray-800 font-bold">Recent Applications</span>
+                <div class="flex flex-row justify-between items-center">
+                    <span class="text-[16px] text-gray-800 font-bold">Recent Applications</span>
+                    <a href="{{route('applications.pending')}}" class="font-medium text-[14px] text-gray-500 hover:text-blue-300 hover:underline transition duration-150">View all</a>
+                </div>
 
 
                 <div class="flex flex-col items-center flex-grow space-y-2">
