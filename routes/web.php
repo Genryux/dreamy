@@ -55,7 +55,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/portal/register', [RegistrationController::class, 'create'])->middleware('block.desktop.homepage')->name('register');
     Route::post('/session', [SessionController::class, 'store']);
     Route::post('/register', [RegistrationController::class, 'store'])->middleware('block.desktop.homepage');
-    
+
     // Password Reset Routes
     Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
@@ -346,8 +346,11 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/invoice/{id}', [InvoiceController::class, 'show'])->middleware(['permission:view invoice records']);
     Route::post('/invoice', [InvoiceController::class, 'store'])->middleware(['permission:create invoice', 'throttle:20,1']); // 20 requests per minute
     Route::get('/getInvoiceItems/{invoice}', [InvoiceItemController::class, 'getInvoiceItems']);
+    Route::delete('/force/invoice/{invoice}/item/{item}', [InvoiceController::class, 'forceRemoveInvoiceItem'])->name('invoice.item.force.remove')
+        ->middleware(['permission:remove invoice item', 'throttle:10,1']);
     Route::delete('/invoice/{invoice}/item/{item}', [InvoiceController::class, 'removeInvoiceItem'])->name('invoice.item.remove')
         ->middleware(['permission:remove invoice item', 'throttle:10,1']);
+
 
     // Invoice History
     Route::get('/getPayments', [InvoicePaymentController::class, 'getPayments']);
@@ -519,5 +522,3 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
         return response()->json(['success' => true]);
     });
 });
-
-

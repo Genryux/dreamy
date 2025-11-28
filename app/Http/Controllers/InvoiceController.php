@@ -324,20 +324,20 @@ class InvoiceController extends Controller
         // Only applies to students who actually went through the enrollment process for THIS invoice's academic term
         $isEarlyEnrollee = false;
         $earlyDiscountPercentage = 0;
-        
+
         if ($invoice->student && $invoice->academicTerm) {
             // Get enrollment periods for the invoice's academic term
             $enrollmentPeriods = \App\Models\EnrollmentPeriod::where('academic_terms_id', $invoice->academic_term_id)
                 ->where('period_type', 'early')
                 ->where('early_discount_percentage', '>', 0)
                 ->get();
-            
+
             // Check if student has an Applicant record for any early enrollment period of this academic term
             foreach ($enrollmentPeriods as $enrollmentPeriod) {
                 $hasApplicantRecord = \App\Models\Applicants::where('user_id', $invoice->student->user_id)
                     ->where('enrollment_period_id', $enrollmentPeriod->id)
                     ->exists();
-                
+
                 if ($hasApplicantRecord) {
                     $isEarlyEnrollee = true;
                     $earlyDiscountPercentage = $enrollmentPeriod->early_discount_percentage;
@@ -566,7 +566,7 @@ class InvoiceController extends Controller
                 return response()->json([
                     'success' => false,
                     'has_payment_plan' => true,
-                    'message' => 'Cannot remove invoice item. Student has already selected a payment plan. Please contact the student to modify their payment plan first.'
+                    'message' => 'Cannot remove invoice item. Student has already selected a payment plan.'
                 ], 422);
             }
             // check if payments exist
@@ -574,9 +574,100 @@ class InvoiceController extends Controller
                 return response()->json([
                     'success' => false,
                     'has_paymens' => true,
-                    'message' => 'Cannot remove invoice item. Payments have already been made for this invoice. Please process a refund first if needed.'
+                    'message' => 'Cannot remove invoice item. Payments have already been made for this invoice.'
                 ], 422);
             }
+
+            // Find the invoice item with fee relationship
+            $invoiceItem = InvoiceItem::with('fee')->find($item);
+
+            if (!$invoiceItem) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice item not found.'
+                ], 404);
+            }
+
+            // Verify the item belongs to this invoice
+            if ($invoiceItem->invoice_id !== $invoice->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice item does not belong to this invoice.'
+                ], 403);
+            }
+
+            // Store item details for response
+            $itemName = $invoiceItem->fee ? $invoiceItem->fee->name : 'Unknown Fee';
+            $itemAmount = $invoiceItem->amount;
+
+            // Delete the invoice item
+            $invoiceItem->delete();
+
+            // Recalculate invoice totals
+            $invoice->refresh();
+            $totalAmount = $invoice->items()->sum('amount');
+            $invoice->update([
+                'total_amount' => $totalAmount,
+                'balance' => $totalAmount - $invoice->paid_amount
+            ]);
+
+            if ($invoice->items()->count() > 0) {
+                return response()->json([
+                    'success' => true,
+                    'is_invoice_empty' => false,
+                    'message' => "Invoice item '{$itemName}' (₱" . number_format($itemAmount, 2) . ") has been successfully removed."
+                ]);
+            }
+
+            if ($invoice->items()->count() === 0) {
+
+                $invoice->forceDelete();
+
+                return response()->json([
+                    'success' => true,
+                    'is_invoice_empty' => true,
+                    'message' => "All items have been successfully removed. This invoice will be deleted shortly."
+                ]);
+            }
+
+            // Log the activity
+            activity('financial_management')
+                ->causedBy(auth()->user())
+                ->performedOn($invoice)
+                ->withProperties([
+                    'action' => 'removed_invoice_item',
+                    'invoice_id' => $invoice->id,
+                    'invoice_number' => $invoice->invoice_number,
+                    'student_id' => $invoice->student_id,
+                    'student_name' => $invoice->student->user->first_name . ' ' . $invoice->student->user->last_name,
+                    'item_id' => $item,
+                    'fee_name' => $itemName,
+                    'removed_amount' => $itemAmount,
+                    'new_total_amount' => $invoice->fresh()->total_amount,
+                    'remaining_items_count' => $invoice->items()->count(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Invoice item removed');
+        } catch (Throwable $e) {
+            \Log::error('Invoice item removal failed', [
+                'error' => $e->getMessage(),
+                'invoice_id' => $invoice->id,
+                'item_id' => $item,
+                'user_id' => auth()->user()->id,
+                'ip_address' => request()->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to remove invoice item: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function forceRemoveInvoiceItem(Invoice $invoice, $item, Request $request)
+    {
+        try {
 
             // Find the invoice item with fee relationship
             $invoiceItem = InvoiceItem::with('fee')->find($item);

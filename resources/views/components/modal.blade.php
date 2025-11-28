@@ -27,7 +27,7 @@
                     <div class="text-[14px] flex flex-row justify-center items-center gap-2 transition duration-150">
                         {{ $modal_info ?? '' }}
                     </div>
-                    <div class="flex flex-row justify-center items-center gap-2">
+                    <div class="flex flex-row justify-center items-center gap-2 w-full">
                         {{ $modal_buttons }}
 
                     </div>
