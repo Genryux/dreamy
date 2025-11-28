@@ -1355,19 +1355,19 @@
                     const currentCountEl = document.getElementById('current-count');
 
                     if (currentCountEl) {
-                        const currentValue = parseInt(currentCountEl.textContent, 10) || 0;
+                        // const currentValue = parseInt(currentCountEl.textContent, 10) || 0;
                         const incrementValue = parseInt(event.total_applications, 10) || 0;
+                        const progressBar = document.getElementById('progress-bar');
+                        const percentText = document.getElementById('percent-text');
 
-                        // Update the count
-                        const newTotal = currentValue + incrementValue;
-                        currentCountEl.textContent = newTotal;
+                        currentCountEl.textContent = incrementValue;
 
                         // Compute percentage
                         const maxApplicants = parseInt("{{ $maxApplicants }}", 10) || 0;
                         let percent = 0;
 
                         if (maxApplicants > 0) {
-                            percent = Math.round((newTotal / maxApplicants) * 100);
+                            percent = Math.round((incrementValue / maxApplicants) * 100);
                             percent = Math.min(percent, 100); // cap at 100%
                         }
 
@@ -1378,7 +1378,7 @@
 
                         // Update text (e.g. 55% of max applications)
                         if (percentText) {
-                            percentText.textContent = percent;
+                            percentText.textContent = `${percent}% of max applications`;
                         }
                     }
 

@@ -809,7 +809,7 @@ class ApplicationFormController extends Controller
                     ->log('Application submitted');
 
                 // Get total applications count for the current academic term
-                $totalApplications = Applicants::where('application_status', 'Pending')
+                $totalApplications = Applicants::whereIn('application_status', ['Pending', 'Accepted', 'Pending-Documents', 'Rejected'])
                     ->where('enrollment_period_id', $activeEnrollmentPeriod->id)->count();
 
                 // Dispatch event for real-time dashboard updates
