@@ -775,7 +775,7 @@
                                     <i class="fi fi-sr-user text-gray-500 text-sm"></i>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Instructor</p>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Teacher</p>
                                     <p class="text-sm font-semibold text-gray-900">
                                         {{ $sectionSubject->teacher ? $sectionSubject->teacher->getFullNameAttribute() : 'Not assigned' }}
                                     </p>
@@ -818,16 +818,6 @@
                                 </div>
                             </div>
                         @endif
-
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 bg-gray-50 rounded-lg flex items-center justify-center">
-                                    <i class="fi fi-sr-users text-gray-500 text-xs"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">{{ $sectionSubject->students()->count() }} students enrolled</span>
-                            </div>
-                        </div>
 
                         <!-- Action Buttons -->
                         <div class="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-100">

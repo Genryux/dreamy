@@ -52,9 +52,9 @@ Route::get('/news/{news}', [WebsiteResourceController::class, 'showNews'])->name
 // Authentication Routes (Guest Only)
 Route::middleware('guest')->group(function () {
     Route::get('/portal/login', [SessionController::class, 'create'])->name('login');
-    Route::get('/portal/register', [RegistrationController::class, 'create'])->name('register');
+    Route::get('/portal/register', [RegistrationController::class, 'create'])->middleware('block.desktop.homepage')->name('register');
     Route::post('/session', [SessionController::class, 'store']);
-    Route::post('/register', [RegistrationController::class, 'store']);
+    Route::post('/register', [RegistrationController::class, 'store'])->middleware('block.desktop.homepage');
     
     // Password Reset Routes
     Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
@@ -90,6 +90,11 @@ Route::post('/upload-background', [WebsiteResourceController::class, 'UploadMain
 Route::get('/web-admin-message', function () {
     return view('auth.web-admin-message');
 })->name('web.admin.message');
+
+// Desktop Student/Applicant Message (for students/applicants accessing via desktop app)
+Route::get('/desktop-student-message', function () {
+    return view('auth.desktop-student-message');
+})->middleware('auth')->name('desktop.student.message');
 
 /*
 |--------------------------------------------------------------------------

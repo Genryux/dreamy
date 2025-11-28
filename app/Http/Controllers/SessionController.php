@@ -60,9 +60,25 @@ class SessionController extends Controller
         } elseif ($user->hasRole('head_teacher')) {
             return redirect()->route('head-teacher.dashboard');
         } elseif ($user->hasRole('applicant')) {
+            // // Platform-based redirect for applicants
+            // if ($isDesktop) {
+            //     // Desktop: Redirect to message page
+            //     return redirect()->route('desktop.student.message');
+            // } else {
+            //     // Web: Redirect to admission dashboard
+            //     return redirect()->route('admission.dashboard');
+            // }
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole('student')) {
+            // Platform-based redirect for students
             return redirect()->route('admission.dashboard');
+
+            // if ($isDesktop) {
+            //     // Desktop: Redirect to message page
+            //     return redirect()->route('desktop.student.message');
+            // } else {
+            //     // Web: Redirect to admission dashboard
+            // }
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             // Temporarily disabled platform restrictions - always redirect to admin
             return redirect()->route('admin');
@@ -85,13 +101,13 @@ class SessionController extends Controller
 
         // Invalidate the session
         Auth::logout();
-        
+
         // Regenerate session ID to prevent session fixation attacks
         $request->session()->invalidate();
-        
+
         // Regenerate CSRF token
         $request->session()->regenerateToken();
-        
+
         // Clear any cached user data
         $request->session()->flush();
 
@@ -102,7 +118,7 @@ class SessionController extends Controller
     public function showPinSetup()
     {
         $user = Auth::user();
-        
+
         // If user already has a PIN, redirect to dashboard
         if ($user->pin) {
             return redirect()->route('dashboard');
@@ -150,7 +166,7 @@ class SessionController extends Controller
     public function showPinVerification()
     {
         $user = Auth::user();
-        
+
         // If user doesn't have a PIN or PIN is disabled, redirect to setup
         if (!$user->pin || !$user->pin_enabled) {
             return redirect()->route('auth.pin.setup');
@@ -169,12 +185,12 @@ class SessionController extends Controller
         $user = Auth::user();
         $ipAddress = $request->ip();
         $userAgent = $request->userAgent();
-        
+
         // Enhanced rate limiting
         $rateLimitKey = "pin_verify_{$user->id}_{$ipAddress}";
         if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
             $seconds = RateLimiter::availableIn($rateLimitKey);
-            
+
             \Log::warning('PIN verification rate limit exceeded', [
                 'user_id' => $user->id,
                 'ip_address' => $ipAddress,
@@ -182,7 +198,7 @@ class SessionController extends Controller
                 'seconds_remaining' => $seconds,
                 'timestamp' => now()
             ]);
-            
+
             return back()->withErrors(['pin' => "Too many attempts. Please try again in {$seconds} seconds."]);
         }
 
@@ -195,7 +211,7 @@ class SessionController extends Controller
                 'user_agent' => $userAgent,
                 'timestamp' => now()
             ]);
-            
+
             return back()->withErrors(['pin' => 'Too many failed attempts. Please log out and try again.']);
         }
 
@@ -208,7 +224,7 @@ class SessionController extends Controller
             $attempts++;
             session(['pin_attempts' => $attempts]);
             RateLimiter::hit($rateLimitKey, 300); // 5 minutes
-            
+
             \Log::warning('Failed PIN verification attempt', [
                 'user_id' => $user->id,
                 'user_email' => $user->email,
@@ -226,7 +242,7 @@ class SessionController extends Controller
         RateLimiter::clear($rateLimitKey);
         $request->session()->put('pin_verified', true);
         $request->session()->put('pin_verified_at', now());
-        
+
         // Regenerate session ID for additional security
         $request->session()->regenerate();
 
@@ -248,12 +264,32 @@ class SessionController extends Controller
     private function isWeakPin(string $pin): bool
     {
         $weakPins = [
-            '000000', '111111', '222222', '333333', '444444', '555555',
-            '666666', '777777', '888888', '999999', '123456', '654321',
-            '012345', '543210', '111222', '222333', '333444', '444555',
-            '555666', '666777', '777888', '888999', '999000', '000111'
+            '000000',
+            '111111',
+            '222222',
+            '333333',
+            '444444',
+            '555555',
+            '666666',
+            '777777',
+            '888888',
+            '999999',
+            '123456',
+            '654321',
+            '012345',
+            '543210',
+            '111222',
+            '222333',
+            '333444',
+            '444555',
+            '555666',
+            '666777',
+            '777888',
+            '888999',
+            '999000',
+            '000111'
         ];
-        
+
         return in_array($pin, $weakPins);
     }
 
@@ -264,16 +300,37 @@ class SessionController extends Controller
     {
         $user = Auth::user();
 
+        // Detect platform (desktop vs web)
+        $userAgent = request()->header('User-Agent');
+        $isDesktop = str_contains($userAgent, 'Electron') ||
+            str_contains($userAgent, 'DreamyDesktopApp') ||
+            request()->hasHeader('X-Electron-App');
+
         if ($user->hasRole('teacher')) {
             return redirect()->route('teacher.dashboard');
         } elseif ($user->hasRole('head_teacher')) {
             return redirect()->route('head-teacher.dashboard');
         } elseif ($user->hasRole('applicant')) {
-            return redirect()->route('admission.dashboard');
+            // Platform-based redirect for applicants
+            if ($isDesktop) {
+                return redirect()->route('desktop.student.message');
+            } else {
+                return redirect()->route('admission.dashboard');
+            }
         } elseif ($user->hasRole('student')) {
-            return redirect()->route('admission.dashboard');
+            // Platform-based redirect for students
+            if ($isDesktop) {
+                return redirect()->route('desktop.student.message');
+            } else {
+                return redirect()->route('admission.dashboard');
+            }
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
-            return redirect()->route('admin');
+            // Platform-based redirect for admin users
+            if ($isDesktop) {
+                return redirect()->route('admin');
+            } else {
+                return redirect()->route('web.admin.message');
+            }
         }
 
         // Default redirect if no specific role is matched

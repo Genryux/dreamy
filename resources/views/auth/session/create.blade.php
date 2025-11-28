@@ -44,7 +44,7 @@
                         @endif
 
                         <p class="text-gray-400 font-medium text-[14px]" data-aos="fade-up" data-aos-duration="800">Don't
-                            have an account yet?
+                            have an enrollee account yet?
                             @if (Route::has('register'))
                                 <a href="{{ route('register') }}" class="text-[#C8A165] ">Sign Up here</a>
                             @endif
@@ -86,6 +86,9 @@
                                                 class="block min-w-0 grow py-2.5 md:py-1.5 pr-3 px-1 text-base text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none sm:text-sm/6 bg-transparent text-white"
                                                 placeholder="Enter your password..." autocomplete="current-password"
                                                 @error('password') aria-invalid="true" @enderror required>
+                                            <button type="button" id="togglePassword" class="pr-3 focus:outline-none">
+                                                <i id="eyeIcon" class="fi fi-rr-eye text-white/60 hover:text-white transition duration-200 flex justify-center items-center text-[18px]"></i>
+                                            </button>
                                         </div>
 
                                     </div>
@@ -134,4 +137,25 @@
 
 
     </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function () {
+            // Toggle the type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle the eye icon
+            if (type === 'password') {
+                eyeIcon.classList.remove('fi-rr-eye-crossed');
+                eyeIcon.classList.add('fi-rr-eye');
+            } else {
+                eyeIcon.classList.remove('fi-rr-eye');
+                eyeIcon.classList.add('fi-rr-eye-crossed');
+            }
+        });
+    </script>
 @endsection

@@ -805,18 +805,21 @@
                     {{-- KPI card --}}
                     <div class="flex flex-col justify-between bg-[#E3ECFF]/40 rounded-xl p-4">
                         <div class="flex flex-col items-center justify-center py-4">
-                            <span id="total-application"
-                                class="text-[36px] md:text-[40px] font-extrabold">{{ $currentCount }}<span
-                                    class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span></span>
+                            <span id="total-application" class="text-[36px] md:text-[40px] font-extrabold">
+                                <span id="current-count">{{ $currentCount }}</span>
+                                <span class="text-[18px] md:text-[20px] opacity-60">/{{ $maxApplicants ?: '-' }}</span>
+                            </span>
                             <span class="font-medium text-[14px] text-gray-600">Total Applications</span>
                         </div>
                         <div class="space-y-2">
                             <div class="w-full">
                                 <div class="bg-[#d9d9d9] h-2 rounded-full w-full overflow-hidden">
-                                    <div class="bg-blue-500 h-2" style="width: {{ $percent }}%"></div>
+                                    <div class="bg-blue-500 h-2" id="progress-bar" style="width: {{ $percent }}%">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="text-[13px] md:text-[12px] text-gray-500 text-center">{{ $percent }}% of max
+                            <div id="percent-text" class="text-[13px] md:text-[12px] text-gray-500 text-center">
+                                {{ $percent }}% of max
                                 applications</div>
                         </div>
                     </div>
@@ -1349,9 +1352,34 @@
                 window.Echo.channel('fetching-recent-applications').listen('RecentApplicationTableUpdated', (
                     event) => {
 
-                    // Update total applications counter
-                    if (totalApplications) {
-                        totalApplications.innerHTML = event.total_applications;
+                    const currentCountEl = document.getElementById('current-count');
+
+                    if (currentCountEl) {
+                        const currentValue = parseInt(currentCountEl.textContent, 10) || 0;
+                        const incrementValue = parseInt(event.total_applications, 10) || 0;
+
+                        // Update the count
+                        const newTotal = currentValue + incrementValue;
+                        currentCountEl.textContent = newTotal;
+
+                        // Compute percentage
+                        const maxApplicants = parseInt("{{ $maxApplicants }}", 10) || 0;
+                        let percent = 0;
+
+                        if (maxApplicants > 0) {
+                            percent = Math.round((newTotal / maxApplicants) * 100);
+                            percent = Math.min(percent, 100); // cap at 100%
+                        }
+
+                        // Update progress bar width
+                        if (progressBar) {
+                            progressBar.style.width = percent + "%";
+                        }
+
+                        // Update text (e.g. 55% of max applications)
+                        if (percentText) {
+                            percentText.textContent = percent;
+                        }
                     }
 
                     // Reload the table to show new data
