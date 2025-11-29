@@ -2209,7 +2209,7 @@
                                     .trim() || '-' :
                                     'Student name not available';
                                 lrn.innerHTML = data.data.lrn || '-';
-                                program.innerHTML = data.data.program || '-';
+                                program.innerHTML = data.data.program.code || '-';
                                 level.innerHTML = data.data.grade_level || '-';
                                 studentId.value = data.data.id;
 

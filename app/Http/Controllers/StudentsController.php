@@ -30,11 +30,6 @@ class StudentsController extends Controller
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('lrn', 'like', "%{$search}%")
-                        ->orWhere('grade_level', 'like', "%{$search}%")
-                        ->orWhereHas('program', function ($programQuery) use ($search) {
-                            $programQuery->where('code', 'like', "%{$search}%")
-                                ->orWhere('name', 'like', "%{$search}%");
-                        })
                         ->orWhereHas('user', function ($userQuery) use ($search) {
                             $userQuery->where('first_name', 'like', "%{$search}%")
                                 ->orWhere('last_name', 'like', "%{$search}%")
