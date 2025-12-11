@@ -52,16 +52,26 @@ class ApplicationFormService
 
     public function fetchApplicationWithAnyStatus(array $status)
     {
-        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
-        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+        // Get any active enrollment period (supports early enrollment for future terms)
+        $enrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+
+        if (!$enrollmentPeriod) {
+            // Return empty query if no active enrollment period
+            return Applicants::whereRaw('1 = 0'); // Returns empty collection
+        }
 
         return Applicants::withAnyStatus($status)->where('enrollment_period_id', $enrollmentPeriod->id);
     }
 
     public function fetchApplicationWithStatus(string $status)
     {
-        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
-        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+        // Get any active enrollment period (supports early enrollment for future terms)
+        $enrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+
+        if (!$enrollmentPeriod) {
+            // Return empty query if no active enrollment period
+            return Applicants::whereRaw('1 = 0'); // Returns empty collection
+        }
 
         return Applicants::withStatus($status)->where('enrollment_period_id', $enrollmentPeriod->id);
     }

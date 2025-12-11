@@ -61,10 +61,27 @@ class AcademicTermController extends Controller
             $validated = $request->validate([
                 'year' => 'required|string|max:255',
                 'semester' => 'required|string|max:255',
-                'start_date' => 'required|date',
+                'start_date' => 'required|date|after_or_equal:today',
                 'end_date' => 'required|date|after:start_date',
                 'is_active' => 'required|boolean'
             ]);
+
+            // Check for overlapping academic terms
+            $overlapping = AcademicTerms::where(function ($query) use ($validated) {
+                    $query->whereBetween('start_date', [$validated['start_date'], $validated['end_date']])
+                        ->orWhereBetween('end_date', [$validated['start_date'], $validated['end_date']])
+                        ->orWhere(function ($q) use ($validated) {
+                            $q->where('start_date', '<=', $validated['start_date'])
+                              ->where('end_date', '>=', $validated['end_date']);
+                        });
+                })
+                ->exists();
+
+            if ($overlapping) {
+                return redirect()->back()
+                    ->withErrors(['start_date' => 'This academic term overlaps with an existing term.'])
+                    ->withInput();
+            }
 
             $newTerm = AcademicTerms::create($validated);
 

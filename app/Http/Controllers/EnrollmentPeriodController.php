@@ -33,16 +33,38 @@ class EnrollmentPeriodController extends Controller
             'academic_terms_id' => 'required|exists:academic_terms,id',
             'name' => 'required|string|max:255',
             'max_applicants' => 'required|integer|min:1',
-            'application_start_date' => 'required|date',
+            'application_start_date' => 'required|date|after_or_equal:today',
             'application_end_date' => 'required|date|after:application_start_date',
             'period_type' => 'required|in:early,regular,late',
             'early_discount_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
+        // Check for overlapping enrollment periods for the same academic term
+        $overlapping = EnrollmentPeriod::where('academic_terms_id', $validated['academic_terms_id'])
+            ->where(function ($query) use ($validated) {
+                $query->whereBetween('application_start_date', [$validated['application_start_date'], $validated['application_end_date']])
+                    ->orWhereBetween('application_end_date', [$validated['application_start_date'], $validated['application_end_date']])
+                    ->orWhere(function ($q) use ($validated) {
+                        $q->where('application_start_date', '<=', $validated['application_start_date'])
+                          ->where('application_end_date', '>=', $validated['application_end_date']);
+                    });
+            })
+            ->exists();
+
+        if ($overlapping) {
+            return redirect()->back()
+                ->withErrors(['application_start_date' => 'This enrollment period overlaps with an existing period for the selected academic term.'])
+                ->withInput();
+        }
+
         // Set default values
         $validated['early_discount_percentage'] = $validated['early_discount_percentage'] ?? 0.00;
         $validated['status'] = 'Ongoing';
         $validated['active'] = true;
+
+        // Constraint: Only one active enrollment period at a time
+        // Deactivate any currently active enrollment periods
+        EnrollmentPeriod::where('active', true)->update(['active' => false]);
 
         $enrollmentPeriod = EnrollmentPeriod::create($validated);
 
@@ -75,6 +97,25 @@ class EnrollmentPeriodController extends Controller
         ]);
 
         $enrollmentPeriod = EnrollmentPeriod::findOrFail($validated['id']);
+
+        // Check for overlapping enrollment periods (excluding current period)
+        $overlapping = EnrollmentPeriod::where('academic_terms_id', $validated['academic_terms_id'])
+            ->where('id', '!=', $validated['id'])
+            ->where(function ($query) use ($validated) {
+                $query->whereBetween('application_start_date', [$validated['application_start_date'], $validated['application_end_date']])
+                    ->orWhereBetween('application_end_date', [$validated['application_start_date'], $validated['application_end_date']])
+                    ->orWhere(function ($q) use ($validated) {
+                        $q->where('application_start_date', '<=', $validated['application_start_date'])
+                          ->where('application_end_date', '>=', $validated['application_end_date']);
+                    });
+            })
+            ->exists();
+
+        if ($overlapping) {
+            return redirect()->back()
+                ->withErrors(['application_start_date' => 'This enrollment period overlaps with an existing period for the selected academic term.'])
+                ->withInput();
+        }
         
         // Store original values for comparison
         $originalValues = $enrollmentPeriod->toArray();

@@ -59,7 +59,15 @@
 #selectedTable_info,
 #ongoingTable_info,
 #enrolledStudents_info,
-#sections_info {
+#sections_info,
+#pending-table_info,
+#accepted-table_info,
+#pending-documents-table_info,
+#rejected-table_info,
+#discount-table_info,
+#school-fee-table_info,
+#invoices_info,
+#payments_info {
     font-size: 14px;
     counter-reset: #0f111c;
     opacity: 80%;

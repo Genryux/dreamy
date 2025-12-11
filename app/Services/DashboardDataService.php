@@ -31,7 +31,9 @@ class DashboardDataService
             ];
         }
 
-        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
+        // Get ANY active enrollment period (not just current term)
+        // This supports early enrollment for future terms
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
         if (!$activeEnrollmentPeriod) {
 
@@ -86,15 +88,8 @@ class DashboardDataService
 
             $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
-            if (!$currentAcadTerm) {
-                return [
-                    'currentAcadTerm' => null,
-                    'activeEnrollmentPeriod' => null,
-                    'applicant' => $applicant
-                ];
-            }
-
-            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($currentAcadTerm->id);
+            // Get ANY active enrollment period (supports early enrollment for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
             if (!$activeEnrollmentPeriod) {
                 return [
@@ -103,6 +98,10 @@ class DashboardDataService
                     'applicant' => $applicant
                 ];
             }
+
+            // Get the academic term that this enrollment period belongs to
+            // This ensures we show the correct term (e.g., 2025-2026 for early enrollment)
+            $enrollmentAcadTerm = $activeEnrollmentPeriod->academicTerms;
 
             // Get assigned documents (already eager loaded)
             $assignedDocuments = $applicant->assignedDocuments()->get();
@@ -113,7 +112,7 @@ class DashboardDataService
             $documents = Documents::whereIn('id', $assignedDocumentIds)->get();
 
             return [
-                'currentAcadTerm' => $currentAcadTerm ?? null,
+                'currentAcadTerm' => $enrollmentAcadTerm ?? $currentAcadTerm, // Show enrollment's term, fallback to current
                 'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
                 'applicant' => $applicant,
                 'assignedDocuments' => $assignedDocuments,
@@ -134,10 +133,11 @@ class DashboardDataService
         }
 
         // If no specific enrollment period ID provided, get the most recent completed one
+        // Changed to look across ALL terms (not just current) to support early enrollment
+        // Order by updated_at to get the most recently CLOSED period (not just latest end date)
         if (!$enrollmentPeriodId) {
-            $enrollmentPeriod = \App\Models\EnrollmentPeriod::where('academic_terms_id', $currentAcadTerm->id)
-                ->where('status', 'Closed')
-                ->orderBy('application_end_date', 'desc')
+            $enrollmentPeriod = \App\Models\EnrollmentPeriod::where('status', 'Closed')
+                ->orderBy('updated_at', 'desc')
                 ->first();
         } else {
             $enrollmentPeriod = \App\Models\EnrollmentPeriod::find($enrollmentPeriodId);

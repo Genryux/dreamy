@@ -10,6 +10,17 @@
 
         <form action="/academic-terms" method="POST" id="academic-term-form" class="p-6">
             @csrf
+            @if($currentAcadTerm)
+                <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div class="flex items-start">
+                        <i class="fi fi-rr-info text-blue-500 mr-2 mt-0.5"></i>
+                        <div class="text-sm text-blue-800">
+                            <p class="font-medium">Creating a Future Term</p>
+                            <p class="text-blue-700 mt-1">To create a term for early enrollment without affecting the current term, select <strong>"No - Keep Inactive"</strong> for the status below.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
             <div class="space-y-4">
                 <!-- Period and Semester Row -->
                 <div class="flex flex-row gap-4">
@@ -206,8 +217,30 @@
 
             <form action="/enrollment-period" method="POST" id="enrollment-period-form" class="p-6">
                 @csrf
-                <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
+                @php
+                    $availableTerms = \App\Models\AcademicTerms::orderBy('year', 'desc')
+                        ->orderBy('semester', 'desc')
+                        ->get();
+                @endphp
                 <div class="space-y-4">
+                    {{-- Academic Term Selection --}}
+                    <div class="flex flex-col">
+                        <label for="ep_academic_terms_id" class="text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-calendar text-gray-400 mr-1"></i>
+                            For Academic Term <span class="text-red-500">*</span>
+                        </label>
+                        <select name="academic_terms_id" id="ep_academic_terms_id" required
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                            @foreach($availableTerms as $term)
+                                <option value="{{ $term->id }}" {{ $term->id == $currentAcadTerm?->id ? 'selected' : '' }}>
+                                    {{ $term->getFullNameAttribute() }}
+                                    @if($term->is_active) (Current) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Select the academic term this enrollment period is for</p>
+                    </div>
+
                     <!-- Name and Max Applicants Row -->
                     <div class="flex flex-row gap-4">
                         <div class="flex-1 flex flex-col">
@@ -334,8 +367,30 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="id" value="{{ $activeEnrollmentPeriod->id }}">
-                <input type="hidden" name="academic_terms_id" value="{{ $currentAcadTerm->id ?? '' }}">
+                @php
+                    $editAvailableTerms = \App\Models\AcademicTerms::orderBy('year', 'desc')
+                        ->orderBy('semester', 'desc')
+                        ->get();
+                @endphp
                 <div class="space-y-4">
+                    {{-- Academic Term Selection --}}
+                    <div class="flex flex-col">
+                        <label for="edit_academic_terms_id" class="text-sm font-medium text-gray-700 mb-2">
+                            <i class="fi fi-rr-calendar text-gray-400 mr-1"></i>
+                            For Academic Term <span class="text-red-500">*</span>
+                        </label>
+                        <select name="academic_terms_id" id="edit_academic_terms_id" required
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                            @foreach($editAvailableTerms as $term)
+                                <option value="{{ $term->id }}" {{ $term->id == $activeEnrollmentPeriod->academic_terms_id ? 'selected' : '' }}>
+                                    {{ $term->getFullNameAttribute() }}
+                                    @if($term->is_active) (Current) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Select the academic term this enrollment period is for</p>
+                    </div>
+
                     <!-- Name and Max Applicants Row -->
                     <div class="flex flex-row gap-4">
                         <div class="flex-1 flex flex-col">
@@ -695,8 +750,16 @@
                         </button>
                     @endif
                 </div>
-                <div>
+                <div class="flex flex-col gap-2">
                     @if ($currentAcadTerm)
+                        {{-- Button to add future term (inactive) --}}
+                        <button id="acad-term-btn"
+                            class="self-center flex flex-row justify-center items-center bg-white border border-[#199BCF] py-2.5 px-3 rounded-xl text-[14px] font-semibold gap-2 text-[#199BCF] hover:bg-[#199BCF]/10 hover:scale-95 transition duration-200 truncate"
+                            title="Create a future academic term without ending the current one">
+                            <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[16px]"></i>
+                            Add Future Term
+                        </button>
+                        {{-- Button to end current and start new term --}}
                         <button id="end-term-btn"
                             class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
                             <i
@@ -721,6 +784,13 @@
                                 class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 cursor-pointer">
                                 <span class="font-bold text-[16px] text-gray-800">
                                     {{ $activeEnrollmentPeriod->name }}
+                                </span>
+                                {{-- Show which academic term this enrollment is for --}}
+                                <span class="text-[12px] text-gray-600 font-medium">
+                                    For {{ $activeEnrollmentPeriod->academicTerms->getFullNameAttribute() }}
+                                    @if($activeEnrollmentPeriod->academic_terms_id != $currentAcadTerm->id)
+                                        <span class="text-blue-600 font-semibold">(Early Enrollment)</span>
+                                    @endif
                                 </span>
                                 <span class="font-semibold text-[14px] text-gray-700">
                                     {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('M. d') . ' - ' . \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('M. d') }}
@@ -1366,7 +1436,7 @@
                         currentCountEl.textContent = incrementValue;
 
                         // Compute percentage
-                        const maxApplicants = parseInt("{{ $maxApplicants }}", 10) || 0;
+                        const maxApplicants = parseInt("{{ $maxApplicants ?? 0 }}", 10) || 0;
                         let percent = 0;
 
                         if (maxApplicants > 0) {

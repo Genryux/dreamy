@@ -14,6 +14,13 @@ class AcademicTerms extends Model
         'year', 'semester', 'start_date', 'end_date', 'is_active'
     ];
 
+    // Cast dates to proper date objects
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_active' => 'boolean',
+    ];
+
     public function getFullNameAttribute() {
         if (!$this->year || !$this->semester) {
             return 'No Academic Term';

@@ -130,14 +130,13 @@ class ApplicationFormController extends Controller
         try {
             $query = Applicants::withStatus('Pending')->with(['applicationForm', 'program']);
 
-            // Filter by current academic term if feature is enabled
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
-                }
+            // Filter by active enrollment period (supports early enrollment for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+            if ($activeEnrollmentPeriod) {
+                $query->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } else {
+                // No active enrollment period - return empty results
+                $query->whereRaw('1 = 0');
             }
             // Search filter
             if ($search = $request->input('search.value')) {
@@ -249,14 +248,13 @@ class ApplicationFormController extends Controller
         try {
             $query = Applicants::withStatus('Accepted')->with(['applicationForm', 'program']);
 
-            // Filter by current academic term if feature is enabled
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
-                }
+            // Filter by active enrollment period (supports early enrollment for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+            if ($activeEnrollmentPeriod) {
+                $query->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } else {
+                // No active enrollment period - return empty results
+                $query->whereRaw('1 = 0');
             }
 
             // Search filter
@@ -392,14 +390,13 @@ class ApplicationFormController extends Controller
         try {
             $query = Applicants::withStatus('Pending-Documents')->with(['assignedDocuments', 'applicationForm', 'program']);
 
-            // Filter by current academic term if feature is enabled
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
-                }
+            // Filter by active enrollment period (supports early enrollment for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+            if ($activeEnrollmentPeriod) {
+                $query->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } else {
+                // No active enrollment period - return empty results
+                $query->whereRaw('1 = 0');
             }
 
             // Search filter
@@ -631,62 +628,15 @@ class ApplicationFormController extends Controller
             return null;
         }
 
-        // Handle route-based tab detection for applications
-        // if (request()->routeIs('applications.pending')) {
-        //     $query = Applicants::withStatus('Pending');
-
-        //     // Filter by current academic term if feature is enabled
-        //     if (config('app.use_term_enrollments')) {
-        //         $activeTerm = AcademicTerms::where('is_active', true)->first();
-        //         if ($activeTerm) {
-        //             $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-        //                 $q->where('academic_terms_id', $activeTerm->id);
-        //             });
-        //         }
-        //     }
-
-        //     $pending_applicants = $query->get();
-
-        //     return view('user-admin.applications.index', [
-        //         'pending_applicants' => $pending_applicants
-        //     ]);
-        // } else if (request()->routeIs('applications.approved')) {
-        //     $applicants = Applicants::with('interview')->get();
-
-        //     $query = Applicants::where('application_status', 'Selected');
-
-        //     // Filter by current academic term if feature is enabled
-        //     if (config('app.use_term_enrollments')) {
-        //         $activeTerm = AcademicTerms::where('is_active', true)->first();
-        //         if ($activeTerm) {
-        //             $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-        //                 $q->where('academic_terms_id', $activeTerm->id);
-        //             });
-        //         }
-        //     }
-
-        //     $selected_applicants = $query->get();
-
-        //     return view('user-admin.applications.index', [
-        //         'selected_applicants' => $selected_applicants,
-        //         'applicants' => $applicants
-        //     ]);
-        // } else if (request()->routeIs('applications.pending-documents')) {
-        //     $pending_documents = Applicants::where('application_status', 'Pending-Documents')->get();
-
-        //     return view('user-admin.applications.index', [
-        //         'pending_documents' => $pending_documents
-        //     ]);
-        // } else if (request()->routeIs('applications.rejected')) {
-        //     $rejected_applicants = Applicants::where('application_status', 'Rejected')->get();
-
-        //     return view('user-admin.applications.index', [
-        //         'rejected_applicants' => $rejected_applicants
-        //     ]);
-        // }
+        // Pass enrollment period context to applications pages
+        $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
         // Default fallback
-        return view('user-admin.applications.index');
+        return view('user-admin.applications.index', [
+            'currentAcadTerm' => $currentAcadTerm,
+            'activeEnrollmentPeriod' => $activeEnrollmentPeriod
+        ]);
     }
 
     /**
@@ -874,14 +824,13 @@ class ApplicationFormController extends Controller
         try {
             $query = Applicants::where('application_status', 'Rejected')->with(['applicationForm', 'program']);
 
-            // Filter by current academic term if feature is enabled
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $query->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
-                }
+            // Filter by active enrollment period (supports early enrollment for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+            if ($activeEnrollmentPeriod) {
+                $query->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } else {
+                // No active enrollment period - return empty results
+                $query->whereRaw('1 = 0');
             }
 
             // Search filter
@@ -1067,16 +1016,26 @@ class ApplicationFormController extends Controller
     public function getApplicationStatistics()
     {
         try {
-            // Get base query with academic term filtering if enabled
-            $baseQuery = Applicants::query();
+            // Get active enrollment period (supports early enrollment for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $baseQuery->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
-                }
+            // Base query filters by active enrollment period
+            $baseQuery = Applicants::query();
+            
+            if ($activeEnrollmentPeriod) {
+                $baseQuery->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } else {
+                // If no active enrollment period, return empty counts
+                return response()->json([
+                    'success' => true,
+                    'statistics' => [
+                        'total' => 0,
+                        'pending' => 0,
+                        'accepted' => 0,
+                        'pending_documents' => 0,
+                        'rejected' => 0,
+                    ]
+                ]);
             }
 
             // Define the statuses to include in the total count

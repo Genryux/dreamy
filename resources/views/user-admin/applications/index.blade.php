@@ -42,6 +42,36 @@
             </p>
         </div>
     </div>
+    
+    {{-- Enrollment Period Context Indicator --}}
+    @if($activeEnrollmentPeriod)
+        <div class="mx-[14px] mt-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex flex-row items-center gap-2">
+                <i class="fi fi-rr-info flex justify-center items-center text-blue-600"></i>
+                <div class="flex flex-col">
+                    <span class="text-[13px] font-semibold text-blue-900">
+                        Showing applications for: {{ $activeEnrollmentPeriod->name }}
+                    </span>
+                    <span class="text-[12px] text-blue-700">
+                        Academic Term: {{ $activeEnrollmentPeriod->academicTerms->getFullNameAttribute() }}
+                        @if($currentAcadTerm && $activeEnrollmentPeriod->academic_terms_id != $currentAcadTerm->id)
+                            <span class="text-blue-600 font-semibold">(Early Enrollment)</span>
+                        @endif
+                        • {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('M d') }} - {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('M d, Y') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="mx-[14px] mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <div class="flex flex-row items-center gap-2">
+                <i class="fi fi-rr-exclamation flex justify-center items-center text-gray-600"></i>
+                <span class="text-[13px] font-medium text-gray-700">
+                    No active enrollment period. Create an enrollment period to start accepting applications.
+                </span>
+            </div>
+        </div>
+    @endif
 @endsection
 @section('stat')
     <div class="flex justify-center items-center">
