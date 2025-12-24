@@ -216,4 +216,18 @@ class AcademicTermService
           ->orderBy('semester', 'desc')
           ->get();
     }
+
+    /**
+     * Get all inactive academic terms.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function fetchInactiveTerms()
+    {
+        return AcademicTerms::where('end_date', '>=', today())
+            ->where('is_active', false)
+            ->orderBy('year', 'desc')
+            ->orderBy('semester', 'desc')
+            ->get();
+    }
 }

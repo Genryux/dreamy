@@ -10,13 +10,14 @@
 
         <form action="/academic-terms" method="POST" id="academic-term-form" class="p-6">
             @csrf
-            @if($currentAcadTerm)
+            @if ($currentAcadTerm)
                 <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <div class="flex items-start">
                         <i class="fi fi-rr-info text-blue-500 mr-2 mt-0.5"></i>
                         <div class="text-sm text-blue-800">
                             <p class="font-medium">Creating a Future Term</p>
-                            <p class="text-blue-700 mt-1">To create a term for early enrollment without affecting the current term, select <strong>"No - Keep Inactive"</strong> for the status below.</p>
+                            <p class="text-blue-700 mt-1">To create a term for early enrollment without affecting the
+                                current term, select <strong>"No - Keep Inactive"</strong> for the status below.</p>
                         </div>
                     </div>
                 </div>
@@ -231,10 +232,13 @@
                         </label>
                         <select name="academic_terms_id" id="ep_academic_terms_id" required
                             class="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
-                            @foreach($availableTerms as $term)
-                                <option value="{{ $term->id }}" {{ $term->id == $currentAcadTerm?->id ? 'selected' : '' }}>
+                            @foreach ($availableTerms as $term)
+                                <option value="{{ $term->id }}"
+                                    {{ $term->id == $currentAcadTerm?->id ? 'selected' : '' }}>
                                     {{ $term->getFullNameAttribute() }}
-                                    @if($term->is_active) (Current) @endif
+                                    @if ($term->is_active)
+                                        (Current)
+                                    @endif
                                 </option>
                             @endforeach
                         </select>
@@ -381,10 +385,13 @@
                         </label>
                         <select name="academic_terms_id" id="edit_academic_terms_id" required
                             class="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
-                            @foreach($editAvailableTerms as $term)
-                                <option value="{{ $term->id }}" {{ $term->id == $activeEnrollmentPeriod->academic_terms_id ? 'selected' : '' }}>
+                            @foreach ($editAvailableTerms as $term)
+                                <option value="{{ $term->id }}"
+                                    {{ $term->id == $activeEnrollmentPeriod->academic_terms_id ? 'selected' : '' }}>
                                     {{ $term->getFullNameAttribute() }}
-                                    @if($term->is_active) (Current) @endif
+                                    @if ($term->is_active)
+                                        (Current)
+                                    @endif
                                 </option>
                             @endforeach
                         </select>
@@ -750,31 +757,122 @@
                         </button>
                     @endif
                 </div>
-                <div class="flex flex-col gap-2">
-                    @if ($currentAcadTerm)
-                        {{-- Button to add future term (inactive) --}}
-                        <button id="acad-term-btn"
-                            class="self-center flex flex-row justify-center items-center bg-white border border-[#199BCF] py-2.5 px-3 rounded-xl text-[14px] font-semibold gap-2 text-[#199BCF] hover:bg-[#199BCF]/10 hover:scale-95 transition duration-200 truncate"
-                            title="Create a future academic term without ending the current one">
-                            <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[16px]"></i>
-                            Add Future Term
-                        </button>
-                        {{-- Button to end current and start new term --}}
-                        <button id="end-term-btn"
-                            class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                <div class="flex flex-col gap-2 relative">
+                    {{-- Settings Dropdown --}}
+                    <div id="term_dropdown_btn" class="relative">
+                        <button id="term_settings_dropdown_trigger"
+                            class="flex flex-row justify-center items-center bg-white border border-[#1e1e1e]/15 py-2 px-3 rounded-lg text-[14px] font-semibold gap-2 text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition duration-200 shadow-sm">
                             <i
-                                class="fi fi-sr-calendar-xmark flex justify-center opacity-70 items-center text-[16px] "></i>
-                            End & Start New Term
+                                class="fi fi-rr-settings-sliders flex justify-center opacity-70 items-center text-[16px]"></i>
+                            Term Settings
                         </button>
-                    @else
-                        <button id="acad-term-btn"
-                            class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[16px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                            <i class="fi fi-sr-square-plus flex justify-center opacity-70 items-center text-[18px] "></i>
-                            Add new term
-                        </button>
-                    @endif
+
+                        <div id="term_dropdown_menu"
+                            class="absolute top-full right-0 mt-2 w-64 z-20 bg-white flex-col justify-center items-center gap-1 rounded-lg shadow-lg border border-[#1e1e1e]/10 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out transform origin-top-right">
+
+                            @if ($currentAcadTerm)
+                                {{-- Add Future Term --}}
+                                <button id="acad-term-btn"
+                                    class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-gray-700 hover:bg-blue-50 hover:text-[#199BCF] rounded-md transition-colors duration-150 text-left">
+                                    <i class="fi fi-sr-square-plus text-[16px]"></i>
+                                    Add Future Term
+                                </button>
+
+                                {{-- Switch to Existing Term --}}
+                                <button id="switch-term-btn"
+                                    class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-gray-700 hover:bg-blue-50 hover:text-[#199BCF] rounded-md transition-colors duration-150 text-left">
+                                    <i class="fi fi-rr-exchange text-[16px]"></i>
+                                    Switch to Existing Term
+                                </button>
+
+                                <div class="my-1 border-t border-gray-100"></div>
+
+                                {{-- End & Start New Term --}}
+                                <button id="end-term-btn"
+                                    class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150 text-left">
+                                    <i class="fi fi-sr-calendar-xmark text-[16px]"></i>
+                                    End & Start New Term
+                                </button>
+                            @else
+                                <button id="acad-term-btn"
+                                    class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-[#199BCF] hover:bg-blue-50 rounded-md transition-colors duration-150 text-left">
+                                    <i class="fi fi-sr-square-plus text-[16px]"></i>
+                                    Add New Term
+                                </button>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
+            {{-- Switch Term Modal --}}
+            <x-modal modal_id="switch-term-modal" modal_name="Switch Academic Term" close_btn_id="switch-term-close-btn"
+                modal_container_id="modal-container-switch-term">
+                <x-slot name="modal_icon">
+                    <i class='fi fi-rr-exchange flex justify-center items-center'></i>
+                </x-slot>
+
+                <form action="/academic-terms/switch" method="POST" id="switch-term-form" class="p-6">
+                    @csrf
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-rr-info text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-blue-800">Term Switching</h3>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <p>This will deactivate the current term and activate the selected term.</p>
+                                        <ul class="list-disc list-inside mt-1">
+                                            <li>Students will be promoted/enrolled in the new term</li>
+                                            <li>Invoices will be generated for new enrollments</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <label for="term_id" class="text-sm font-medium text-gray-700 mb-2">Select Target
+                                Term</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fi fi-rr-calendar-clock text-gray-400"></i>
+                                </div>
+                                <select name="term_id" id="term_id" required
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                                    <option value="">Select a term...</option>
+                                    @if (isset($inactiveTerms))
+                                        @foreach ($inactiveTerms as $term)
+                                            <option value="{{ $term->id }}">
+                                                {{ $term->full_name }}
+                                                ({{ \Carbon\Carbon::parse($term->start_date)->format('M Y') }} -
+                                                {{ \Carbon\Carbon::parse($term->end_date)->format('M Y') }})
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-red-100 border border-red-400 rounded-md flex flex-col justify-center items-center gap-2">
+                            <h4 class="text-sm font-bold text-red-500 flex justify-center items-center gap-2"><i class="fi fi-br-triangle-warning flex items-center justify-center"></i> Critical Warning</h4>
+                            <p class="text-sm text-center text-red-500">Please avoid switching terms <strong>prematurely or carelessly</strong>. Doing so <strong>will trigger the automated task mentioned above</strong> and may result in <strong>unintended or irreversible consequences</strong>.</p>
+                        </div>
+                    </div>
+                </form>
+
+                <x-slot name="modal_buttons">
+                    <button id="switch-term-cancel-btn"
+                        class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                        Cancel
+                    </button>
+                    <button type="submit" form="switch-term-form"
+                        class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#1580aa] hover:scale-95 transition duration-200 shadow-lg truncate">
+                        Confirm Switch
+                    </button>
+                </x-slot>
+            </x-modal>
+
             @if ($activeEnrollmentPeriod)
                 <div id="enrollment-cont"
                     class="flex-1 w-full flex flex-row items-center {{ $activeEnrollmentPeriod->status == 'Ongoing' ? 'bg-green-50' : 'bg-red-50' }} bg-blue-50 rounded-xl justify-between p-6">
@@ -788,7 +886,7 @@
                                 {{-- Show which academic term this enrollment is for --}}
                                 <span class="text-[12px] text-gray-600 font-medium">
                                     For {{ $activeEnrollmentPeriod->academicTerms->getFullNameAttribute() }}
-                                    @if($activeEnrollmentPeriod->academic_terms_id != $currentAcadTerm->id)
+                                    @if ($activeEnrollmentPeriod->academic_terms_id != $currentAcadTerm->id)
                                         <span class="text-blue-600 font-semibold">(Early Enrollment)</span>
                                     @endif
                                 </span>
@@ -1125,7 +1223,9 @@
             <div class="flex flex-col w-[70%] h-auto bg-white rounded-xl border shadow-sm border-[#1e1e1e]/10 p-6 gap-4">
                 <div class="flex flex-row justify-between items-center">
                     <span class="text-[16px] text-gray-800 font-bold">Recent Applications</span>
-                    <a href="{{route('applications.pending')}}" class="font-medium text-[14px] text-gray-500 hover:text-blue-300 hover:underline transition duration-150">View all</a>
+                    <a href="{{ route('applications.pending') }}"
+                        class="font-medium text-[14px] text-gray-500 hover:text-blue-300 hover:underline transition duration-150">View
+                        all</a>
                 </div>
 
 
@@ -1203,8 +1303,10 @@
         } from "{{ asset('js/alert.js') }}";
         import {
             showLoader,
-            hideLoader
         } from "{{ asset('js/loader.js') }}";
+        import {
+            dropDown
+        } from "{{ asset('js/dropdown.js') }}";
 
         let table;
         let totalApplications = document.querySelector('#total-application');
@@ -1212,6 +1314,21 @@
         let toggle = document.querySelector('#toggleEnrollmentPeriod');
 
         document.addEventListener("DOMContentLoaded", function() {
+
+            // Initialize term settings dropdown
+            dropDown('term_settings_dropdown_trigger', 'term_dropdown_menu');
+
+            // Close dropdown when an option is clicked
+            const termDropdownMenu = document.getElementById('term_dropdown_menu');
+            if (termDropdownMenu) {
+                const buttons = termDropdownMenu.querySelectorAll('button');
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        termDropdownMenu.classList.add('opacity-0', 'scale-95',
+                            'pointer-events-none', 'translate-y-1');
+                    });
+                });
+            }
 
 
             @if (session('success'))
@@ -1312,6 +1429,8 @@
                 'start-academic-term-cancel-btn', 'modal-container-start-term');
             initModal('edit-period-modal', 'edit-period-btn', 'edit-enrollment-close-btn',
                 'edit-period-cancel-btn', 'modal-container-edit-period');
+            initModal('switch-term-modal', 'switch-term-btn', 'switch-term-close-btn',
+                'switch-term-cancel-btn', 'modal-container-switch-term');
 
             // Enrollment Period Type Logic
             const periodTypeSelect = document.getElementById('period_type');

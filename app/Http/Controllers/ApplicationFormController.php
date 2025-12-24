@@ -49,26 +49,18 @@ class ApplicationFormController extends Controller
 
     public function getRecentApplications(Request $request)
     {
-        $activeTerm = AcademicTerms::where('is_active', true)->first();
-
         try {
             $query = null;
 
-            if ($activeTerm) {
-                $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+            // Use ANY active enrollment period (even for future terms)
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
-                if ($activeEnrollmentPeriod) {
-                    $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
-                        ->where('application_status', 'Pending')
-                        ->where('enrollment_period_id', $activeEnrollmentPeriod->id);
-                } else {
-                    // No active enrollment period - return empty results
-                    $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
-                        ->where('application_status', 'Pending')
-                        ->where('id', -1); // This will return no results
-                }
+            if ($activeEnrollmentPeriod) {
+                $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
+                    ->where('application_status', 'Pending')
+                    ->where('enrollment_period_id', $activeEnrollmentPeriod->id);
             } else {
-                // No active academic term - return empty results
+                // No active enrollment period - return empty results
                 $query = Applicants::with(['applicationForm', 'program', 'enrollmentPeriod'])
                     ->where('application_status', 'Pending')
                     ->where('id', -1); // This will return no results
@@ -621,7 +613,8 @@ class ApplicationFormController extends Controller
                     'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
                     'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null,
                     'enrollmentSummary' => $enrollmentSummary,
-                    'countStudentStatuses' => $this->studentService->countStudentStatuses()
+                    'countStudentStatuses' => $this->studentService->countStudentStatuses(),
+                    'inactiveTerms' => $data['inactiveTerms'] ?? collect()
                 ]);
             }
 
@@ -644,11 +637,11 @@ class ApplicationFormController extends Controller
      */
     public function create()
     {
-        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
-        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+        // Allow application if there is ANY active enrollment period (even for future terms)
+        $enrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
-        if (!$activeTerm || !$enrollmentPeriod || $enrollmentPeriod->status === 'Paused') {
-            return redirect()->back();
+        if (!$enrollmentPeriod || $enrollmentPeriod->status === 'Paused') {
+            return redirect()->back()->with('error', 'No active enrollment period found.');
         }
 
         $user = $this->userService->fetchAuthenticatedUser();
@@ -734,7 +727,12 @@ class ApplicationFormController extends Controller
         ]);
 
         $applicant = Applicants::where('user_id', $user->id)->first();
-        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($this->academicTermService->fetchCurrentAcademicTerm()->id);
+        // Use ANY active enrollment period (even for future terms) to link this application
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+
+        if (!$activeEnrollmentPeriod) {
+            return redirect()->back()->with('error', 'No active enrollment period found. Application cannot be processed.');
+        }
 
         try {
 
@@ -780,7 +778,6 @@ class ApplicationFormController extends Controller
                         "A user just submitted an application. Please review the submission at your earliest convenience.",
                         url('/applications/pending')
                     ));
-
             });
 
             return response()->json([
@@ -1021,7 +1018,7 @@ class ApplicationFormController extends Controller
 
             // Base query filters by active enrollment period
             $baseQuery = Applicants::query();
-            
+
             if ($activeEnrollmentPeriod) {
                 $baseQuery->where('enrollment_period_id', $activeEnrollmentPeriod->id);
             } else {
@@ -1072,13 +1069,23 @@ class ApplicationFormController extends Controller
             // Get base query with academic term filtering if enabled
             $baseQuery = Applicants::query();
 
-            if (config('app.use_term_enrollments')) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $baseQuery->whereHas('applicationForm', function ($q) use ($activeTerm) {
-                        $q->where('academic_terms_id', $activeTerm->id);
-                    });
-                }
+            // Get base query with active enrollment period filtering if enabled
+            $baseQuery = Applicants::query();
+
+            // Find ANY active enrollment period (even for future terms)
+            $activeEnrollmentPeriod = app(\App\Services\EnrollmentPeriodService::class)->getAnyActiveEnrollmentPeriod();
+
+            if (config('app.use_term_enrollments') && $activeEnrollmentPeriod) {
+                // Filter applicants by the active enrollment period
+                $baseQuery->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } elseif (config('app.use_term_enrollments')) {
+                // If usage of terms is enabled but no period is active, arguably we show 0 or previous.
+                // But typically we want to show 'current active' context. 
+                // If nothing is active, let's look for the *latest* closed one or just return 0.
+                // For now, let's strict filter to nothing if no active period found to match 'dashboard' behavior
+                // actually, let's try to match active term if no active period found as fallback?
+                // No, sticking to "Active Enrollment Period" is cleaner.
+                $baseQuery->whereRaw('0 = 1'); // Return 0 results if no active period
             }
 
             // Get total registrations (all applications regardless of status)

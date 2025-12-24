@@ -238,6 +238,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     // Academic Terms
     Route::post('/academic-terms', [AcademicTermController::class, 'store'])->middleware(['permission:create new term'])->name('academic-terms.post');
     Route::post('/new-term/{id}', [AcademicTermController::class, 'startNewTerm'])->middleware(['permission:create new term'])->name('new-term');
+    Route::post('/academic-terms/switch', [AcademicTermController::class, 'switchTerm'])->middleware(['permission:create new term'])->name('academic-terms.switch');
     Route::put('/academic-terms/{id}', [AcademicTermController::class, 'update'])->middleware(['permission:edit term'])->name('academic-terms.update');
 
     // Enrollment Period

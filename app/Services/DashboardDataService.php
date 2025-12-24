@@ -18,6 +18,7 @@ class DashboardDataService
     public function getAdminDashboardData()
     {
         $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        $inactiveTerms = $this->academicTermService->fetchInactiveTerms();
 
         if (!$currentAcadTerm) {
 
@@ -27,7 +28,8 @@ class DashboardDataService
                 'totalAcceptedApplications' => null,
                 'totalPendingDocumentApplications' => null,
                 'currentAcadTerm' => null,
-                'activeEnrollmentPeriod' => null
+                'activeEnrollmentPeriod' => null,
+                'inactiveTerms' => $inactiveTerms
             ];
         }
 
@@ -43,7 +45,8 @@ class DashboardDataService
                 'totalPendingApplications' => null,
                 'totalAcceptedApplications' => null,
                 'totalPendingDocumentApplications' => null,
-                'activeEnrollmentPeriod' => null
+                'activeEnrollmentPeriod' => null,
+                'inactiveTerms' => $inactiveTerms
             ];
         }
 
@@ -62,7 +65,8 @@ class DashboardDataService
             'currentAcadTerm' => $currentAcadTerm,
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
             'totalEnrolledApplications' => $totalEnrolledApplications,
-            'totalPendingDocumentsApplications' => $totalPendingDocumentsApplications
+            'totalPendingDocumentsApplications' => $totalPendingDocumentsApplications,
+            'inactiveTerms' => $inactiveTerms
         ];
     }
 

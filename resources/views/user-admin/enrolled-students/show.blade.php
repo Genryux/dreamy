@@ -877,7 +877,7 @@
                                 <span>Semester</span>
                             </div>
                             <p class="font-semibold opacity-85">
-                                {{ $student->record?->acad_term_applied ?? $acadTerm->semester }}</p>
+                                {{ $student->record?->semester_applied ?? $acadTerm->semester }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">

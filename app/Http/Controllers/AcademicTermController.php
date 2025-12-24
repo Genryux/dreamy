@@ -42,69 +42,71 @@ class AcademicTermController extends Controller
     {
 
         try {
-            $existingTerm = AcademicTerms::where('year', $request->year)
-                ->where('semester', $request->semester)
-                ->first();
+
+            DB::transaction(function () use ($request) {
+                $existingTerm = AcademicTerms::where('year', $request->year)
+                    ->where('semester', $request->semester)
+                    ->first();
 
 
-            if ($existingTerm) {
-                return redirect()->back()->with('error', 'Academic term already exists.');
-            }
-
-            if ($request->is_active) {
-                $activeTerm = AcademicTerms::where('is_active', true)->first();
-                if ($activeTerm) {
-                    $activeTerm->update(['is_active' => false]);
+                if ($existingTerm) {
+                    return redirect()->back()->with('error', 'Academic term already exists.');
                 }
-            }
 
-            $validated = $request->validate([
-                'year' => 'required|string|max:255',
-                'semester' => 'required|string|max:255',
-                'start_date' => 'required|date|after_or_equal:today',
-                'end_date' => 'required|date|after:start_date',
-                'is_active' => 'required|boolean'
-            ]);
+                if ($request->is_active) {
+                    $activeTerm = AcademicTerms::where('is_active', true)->first();
+                    if ($activeTerm) {
+                        $activeTerm->update(['is_active' => false]);
+                    }
+                }
 
-            // Check for overlapping academic terms
-            $overlapping = AcademicTerms::where(function ($query) use ($validated) {
+                $validated = $request->validate([
+                    'year' => 'required|string|max:255',
+                    'semester' => 'required|string|max:255',
+                    'start_date' => 'required|date|after_or_equal:today',
+                    'end_date' => 'required|date|after:start_date',
+                    'is_active' => 'required|boolean'
+                ]);
+
+                // Check for overlapping academic terms
+                $overlapping = AcademicTerms::where(function ($query) use ($validated) {
                     $query->whereBetween('start_date', [$validated['start_date'], $validated['end_date']])
                         ->orWhereBetween('end_date', [$validated['start_date'], $validated['end_date']])
                         ->orWhere(function ($q) use ($validated) {
                             $q->where('start_date', '<=', $validated['start_date'])
-                              ->where('end_date', '>=', $validated['end_date']);
+                                ->where('end_date', '>=', $validated['end_date']);
                         });
                 })
-                ->exists();
+                    ->exists();
 
-            if ($overlapping) {
-                return redirect()->back()
-                    ->withErrors(['start_date' => 'This academic term overlaps with an existing term.'])
-                    ->withInput();
-            }
+                if ($overlapping) {
+                    return redirect()->back()
+                        ->withErrors(['start_date' => 'This academic term overlaps with an existing term.'])
+                        ->withInput();
+                }
 
-            $newTerm = AcademicTerms::create($validated);
+                $newTerm = AcademicTerms::create($validated);
 
-            // Log the activity
-            activity('academic_term')
-                ->causedBy(auth()->user())
-                ->performedOn($newTerm)
-                ->withProperties([
-                    'action' => 'created',
-                    'term_details' => $validated,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ])
-                ->log('Academic term created');
+                // Log the activity
+                activity('academic_term')
+                    ->causedBy(auth()->user())
+                    ->performedOn($newTerm)
+                    ->withProperties([
+                        'action' => 'created',
+                        'term_details' => $validated,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('Academic term created');
 
-            // Auto-seed enrollments if this is the new active term
-            if ($newTerm->is_active) {
-                \Artisan::call('db:seed', ['--class' => 'StudentEnrollmentSeeder']);
-            }
-
+                // Auto-seed enrollments if this is the new active term
+                if ($newTerm->is_active) {
+                    \Artisan::call('db:seed', ['--class' => 'StudentEnrollmentSeeder']);
+                }
+            });
             return redirect()->back()->with('success', 'Academic term created successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error checking existing terms: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Creating new term failed: ' . $e->getMessage());
         }
     }
 
@@ -166,7 +168,7 @@ class AcademicTermController extends Controller
                     'user_agent' => $request->userAgent()
                 ])
                 ->log('New academic term started and students promoted');
-            
+
             //get all school fees
             $schoolFees = SchoolFee::all();
             \Log::info('School fees found:', ['count' => $schoolFees->count()]);
@@ -198,7 +200,7 @@ class AcademicTermController extends Controller
 
             \Log::info('Session before redirect:', session()->all());
             \Log::info('About to redirect with success message');
-            
+
             return redirect()->back()->with('success', 'New academic term started successfully!');
         } catch (\Throwable $th) {
             \Log::error('Exception occurred:', [
@@ -207,10 +209,88 @@ class AcademicTermController extends Controller
                 'line' => $th->getLine(),
                 'trace' => $th->getTraceAsString()
             ]);
-            
+
             DB::rollBack();
             \Log::info('About to redirect with error message');
             return redirect()->back()->with('error', "An unexpected error occurred while starting the new term.{$th}");
+        }
+    }
+
+    public function switchTerm(Request $request)
+    {
+        $validated = $request->validate([
+            'term_id' => 'required|exists:academic_terms,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $newTerm = AcademicTerms::findOrFail($validated['term_id']);
+
+            if ($newTerm->is_active) {
+                return redirect()->back()->with('error', 'Selected term is already active.');
+            }
+
+            // Deactivate current active term
+            $activeTerm = AcademicTerms::where('is_active', true)->first();
+            if ($activeTerm) {
+                $activeTerm->update(['is_active' => false]);
+            }
+
+            // Activate new term
+            $newTerm->update(['is_active' => true]);
+
+            //promote students to next term
+            $continuingStudents = collect($this->studentService->promoteStudents($newTerm));
+            \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
+
+            // Log the activity for switching term
+            activity('academic_term')
+                ->causedBy(auth()->user())
+                ->performedOn($newTerm)
+                ->withProperties([
+                    'action' => 'switched_term',
+                    'new_term_details' => $newTerm->toArray(),
+                    'previous_term_id' => $activeTerm ? $activeTerm->id : null,
+                    'students_promoted_count' => $continuingStudents->count(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('Switched to existing academic term and students promoted');
+
+            //get all school fees
+            $schoolFees = SchoolFee::all();
+
+            $continuingStudents->chunk(100)->each(function ($studentsChunk) use ($schoolFees, $newTerm) {
+                foreach ($studentsChunk as $student) {
+                    // Check if invoice already exists for this term to avoid duplicates
+                    $existingInvoice = $student->invoices()->where('academic_term_id', $newTerm->id)->exists();
+
+                    if (!$existingInvoice) {
+                        // Create new invoice
+                        $invoice = $student->invoices()->create([
+                            'academic_term_id' => $newTerm->id,
+                            'status' => 'unpaid'
+                        ]);
+
+                        foreach ($schoolFees as $fee) {
+                            $invoice->items()->create(
+                                [
+                                    'school_fee_id' => $fee->id,
+                                    'academic_term_id' => $newTerm->id,
+                                    'amount' => $fee->amount
+                                ]
+                            );
+                        }
+                    }
+                }
+            });
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Switched to academic term successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error switching term: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to switch term: ' . $e->getMessage());
         }
     }
 
@@ -265,7 +345,7 @@ class AcademicTermController extends Controller
 
             // Store original values for comparison
             $originalValues = $academicTerm->toArray();
-            
+
             $academicTerm->update($validated);
 
             // Log the activity

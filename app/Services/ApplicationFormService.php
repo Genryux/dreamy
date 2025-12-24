@@ -108,22 +108,25 @@ class ApplicationFormService
         return $this->saveApplication($data);
     }
 
+
     public function createApplication(Applicants $applicant, array $form)
     {
-
-        $activeTerm = $this->academic_term_service->fetchCurrentAcademicTerm();
-
-        if (!$activeTerm) {
-            throw new \InvalidArgumentException('No active academic term found. Please activate an academic term first.');
-        }
-
-        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriod($activeTerm->id);
+        // Change: Instead of fetching current term first, fetch the active enrollment period
+        // This supports future terms that have active enrollment periods
+        $enrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
         if (!$enrollmentPeriod) {
-            throw new \InvalidArgumentException('No enrollment period found. Please setup an enrollment period first.');
+            throw new \InvalidArgumentException('No active enrollment period found. Please setup an enrollment period first.');
         }
 
-        return DB::transaction(function () use ($applicant, $activeTerm, $enrollmentPeriod, $form) {
+        // Get the academic term associated with this enrollment period
+        $termForApplication = $enrollmentPeriod->academicTerms;
+
+        if (!$termForApplication) {
+             throw new \InvalidArgumentException('The active enrollment period is not linked to a valid academic term.');
+        }
+
+        return DB::transaction(function () use ($applicant, $termForApplication, $enrollmentPeriod, $form) {
 
             //update the applicant
             $applicant->update([
@@ -135,15 +138,15 @@ class ApplicationFormService
 
             //create the application form
             $applicant->applicationForm()->create([
-                'academic_terms_id'          => $activeTerm->id,
+                'academic_terms_id'          => $termForApplication->id,
                 'enrollment_period_id'       => $enrollmentPeriod->id,
 
                 'preferred_sched'            => $form['preferred_sched'],
                 'is_returning'               => $form['is_returning'],
                 'lrn'                        => $form['lrn'],
                 'grade_level'                => $form['grade_level'],
-                'acad_term_applied'          => $activeTerm->year,
-                'semester_applied'           => $activeTerm->semester,
+                'acad_term_applied'          => $termForApplication->year,
+                'semester_applied'           => $termForApplication->semester,
                 'admission_date'             => Carbon::now(),
 
                 'last_name'                  => $form['last_name'],

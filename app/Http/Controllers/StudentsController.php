@@ -468,28 +468,14 @@ class StudentsController extends Controller
     public function getApplicationAnalytics(Request $request)
     {
         try {
-            // Get selected term from URL parameter or default to active term
-            $termId = $request->get('term_id');
-            $selectedTerm = $termId
-                ? AcademicTerms::find($termId)
-                : AcademicTerms::where('is_active', true)->first();
-
-            if (!$selectedTerm) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No academic term found'
-                ]);
-            }
-
-            // Get active enrollment period for the selected term
-            $activeEnrollmentPeriod = \App\Services\EnrollmentPeriodService::class;
-            $enrollmentPeriodService = app($activeEnrollmentPeriod);
-            $enrollmentPeriod = $enrollmentPeriodService->getActiveEnrollmentPeriod($selectedTerm->id);
+            // Get ANY active enrollment period (regardless of academic term)
+            $enrollmentPeriodService = app(\App\Services\EnrollmentPeriodService::class);
+            $enrollmentPeriod = $enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
 
             if (!$enrollmentPeriod) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No active enrollment period found for the selected academic term'
+                    'message' => 'No active enrollment period'
                 ]);
             }
 
