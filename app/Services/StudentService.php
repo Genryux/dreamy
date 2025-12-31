@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\EnrollmentPeriod;
 use App\Models\Student;
 use App\Notifications\PrivateImmediateNotification;
 use App\Notifications\PrivateQueuedNotification;
@@ -18,10 +19,23 @@ class StudentService
 
     public function enrollStudent($applicant)
     {
-        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        // Get the intended academic term from the applicant's enrollment period
+        // This ensures students are enrolled in the term they applied for (current or future)
+        $enrollmentPeriod = $applicant->enrollmentPeriod;
+        
+        if (!$enrollmentPeriod) {
+            throw new \InvalidArgumentException('No enrollment period found for applicant.');
+        }
 
-        if (!$activeTerm) {
-            throw new \InvalidArgumentException('No active academic term found. Please activate an academic term first.');
+        $intendedTerm = $enrollmentPeriod->academicTerms;
+
+        if (!$intendedTerm) {
+            // Fallback to current active term if enrollment period has no academic term
+            $intendedTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        }
+
+        if (!$intendedTerm) {
+            throw new \InvalidArgumentException('No academic term found. Please ensure the enrollment period is linked to an academic term.');
         }
 
         $form = $applicant->applicationForm;
@@ -37,7 +51,7 @@ class StudentService
         }
 
 
-        return DB::transaction(function () use ($form, $user, $applicant, $activeTerm) {
+        return DB::transaction(function () use ($form, $user, $applicant, $intendedTerm) {
             $student = Student::firstOrCreate(
                 [
                     'user_id'         => $user->id,
@@ -112,7 +126,7 @@ class StudentService
             $student->enrollments()->firstOrCreate(
                 [
                     'student_id' => $student->id,
-                    'academic_term_id' => $activeTerm->id,
+                    'academic_term_id' => $intendedTerm->id,
                 ],
                 [
                     'status' => 'enrolled',
@@ -126,11 +140,23 @@ class StudentService
         });
     }
 
-    public function promoteStudents($academicTerm)
+    public function promoteStudents($previousTerm, $newTerm)
     {
         $continuingStudents = collect();
 
-        Student::chunk(500, function ($students) use (&$continuingStudents, $academicTerm) {
+        // Create an enrollment period exclusively for continuing/old students
+        $continuingEnrollmentPeriod = $this->createContinuingStudentEnrollmentPeriod($newTerm);
+
+        // Filter students who were enrolled in the PREVIOUS term (the one being ended)
+        // These are the students who need to be promoted to the new term
+        $studentQuery = Student::with(['enrollments' => function($q) use ($previousTerm) {
+            $q->where('academic_term_id', $previousTerm->id);
+        }])
+        ->whereHas('enrollments', function ($q) use ($previousTerm) {
+            $q->where('academic_term_id', $previousTerm->id);
+        });
+
+        $studentQuery->chunk(500, function ($students) use (&$continuingStudents, $newTerm, $continuingEnrollmentPeriod) {
 
             foreach ($students as $student) {
 
@@ -142,21 +168,21 @@ class StudentService
                         'academic_status' => null // cleared for the next term
                     ]);
 
-                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod);
                     $continuingStudents->push($student);
                 } else if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Failed') {
                     $student->update([
                         'academic_status' => null
                     ]);
 
-                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod);
                     $continuingStudents->push($student);
                 } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Failed') {
                     $student->update([
                         'academic_status' => null
                     ]);
 
-                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod);
                     $continuingStudents->push($student);
                 } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Completed') {
                     $student->update([
@@ -182,7 +208,7 @@ class StudentService
                         'academic_status' => null // cleared for the next term
                     ]);
 
-                    $this->updateOrCreateEnrollment($student, $academicTerm);
+                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod);
                     $continuingStudents->push($student);
                 }
             }
@@ -196,22 +222,58 @@ class StudentService
         return $continuingStudents;
     }
 
-    private function updateOrCreateEnrollment($student, $academicTerm)
+    /**
+     * Create an enrollment period for continuing/old students
+     * This period is used to control when old students can confirm their re-enrollment
+     */
+    private function createContinuingStudentEnrollmentPeriod($newTerm)
+    {
+        // Check if an enrollment period for old students already exists for this term
+        $existingPeriod = EnrollmentPeriod::where('academic_terms_id', $newTerm->id)
+            ->where('period_for', 'old')
+            ->first();
+
+        if ($existingPeriod) {
+            // Reactivate if it exists but is inactive
+            if (!$existingPeriod->active) {
+                $existingPeriod->update([
+                    'active' => true,
+                    'status' => 'Ongoing'
+                ]);
+            }
+            return $existingPeriod;
+        }
+
+        // Create a new enrollment period for continuing students
+        return EnrollmentPeriod::create([
+            'academic_terms_id' => $newTerm->id,
+            'name' => "Re-enrollment for Continuing Students",
+            'application_start_date' => Carbon::now(),
+            'application_end_date' => Carbon::now()->addDays(30), // Default 30 days, admin can adjust
+            'max_applicants' => null, // No limit for re-enrollment
+            'status' => 'Ongoing',
+            'active' => true,
+            'period_type' => 'regular',
+            'period_for' => 'old', // This marks it as for continuing students
+            'early_discount_percentage' => 0,
+        ]);
+    }
+
+    private function updateOrCreateEnrollment($student, $academicTerm, $enrollmentPeriod = null)
     {
         $latestEnrollment = $student->enrollments()->latest()->first();
 
+        $enrollmentData = [
+            'academic_term_id' => $academicTerm->id,
+            'enrollment_period_id' => $enrollmentPeriod?->id,
+            'status' => 'pending_confirmation',
+            'enrolled_at' => null,
+        ];
+
         if ($latestEnrollment) {
-            $latestEnrollment->update([
-                'academic_term_id' => $academicTerm->id,
-                'status' => 'pending_confirmation',
-                'enrolled_at' => null,
-            ]);
+            $latestEnrollment->update($enrollmentData);
         } else {
-            $student->enrollments()->create([
-                'academic_term_id' => $academicTerm->id,
-                'status' => 'pending_confirmation',
-                'enrolled_at' => null,
-            ]);
+            $student->enrollments()->create($enrollmentData);
         }
 
         $user = $student->user;

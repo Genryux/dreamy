@@ -111,12 +111,12 @@ class ApplicationFormService
 
     public function createApplication(Applicants $applicant, array $form)
     {
-        // Change: Instead of fetching current term first, fetch the active enrollment period
-        // This supports future terms that have active enrollment periods
-        $enrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+        // Get active enrollment period for NEW applicants only
+        // This ensures applications are created under the correct period type
+        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriodForNewApplicants();
 
         if (!$enrollmentPeriod) {
-            throw new \InvalidArgumentException('No active enrollment period found. Please setup an enrollment period first.');
+            throw new \InvalidArgumentException('No active enrollment period for new applicants found. Please setup an enrollment period first.');
         }
 
         // Get the academic term associated with this enrollment period

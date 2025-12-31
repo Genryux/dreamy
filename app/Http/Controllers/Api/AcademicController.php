@@ -163,13 +163,18 @@ class AcademicController extends Controller
             $subject = $sectionSubject->subject;
             $teacher = $sectionSubject->teacher;
             
-            // Format schedule
+            // Format schedule with readable time (12-hour format with AM/PM)
             $schedule = '';
             if ($sectionSubject->days_of_week && $sectionSubject->start_time && $sectionSubject->end_time) {
                 $days = is_array($sectionSubject->days_of_week) 
                     ? implode(', ', $sectionSubject->days_of_week)
                     : $sectionSubject->days_of_week;
-                $schedule = $days . ' ' . $sectionSubject->start_time . '-' . $sectionSubject->end_time;
+                
+                // Format times to 12-hour format with AM/PM
+                $startTime = \Carbon\Carbon::parse($sectionSubject->start_time)->format('g:i A');
+                $endTime = \Carbon\Carbon::parse($sectionSubject->end_time)->format('g:i A');
+                
+                $schedule = $days . ' ' . $startTime . ' - ' . $endTime;
             }
 
             return [

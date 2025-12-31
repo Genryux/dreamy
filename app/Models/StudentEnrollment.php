@@ -12,6 +12,7 @@ class StudentEnrollment extends Model
     protected $fillable = [
         'student_id',
         'academic_term_id',
+        'enrollment_period_id',
         'program_id',
         'section_id',
         'status',
@@ -34,6 +35,11 @@ class StudentEnrollment extends Model
     public function academicTerm()
     {
         return $this->belongsTo(AcademicTerms::class, 'academic_term_id');
+    }
+
+    public function enrollmentPeriod()
+    {
+        return $this->belongsTo(EnrollmentPeriod::class);
     }
 
     public function program()

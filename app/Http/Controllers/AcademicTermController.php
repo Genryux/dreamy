@@ -151,8 +151,10 @@ class AcademicTermController extends Controller
             $newTerm = AcademicTerms::create(array_merge($validated, ['is_active' => true]));
             \Log::info('New term created:', ['term_id' => $newTerm->id]);
 
-            //promote students to next term
-            $continuingStudents = collect($this->studentService->promoteStudents($newTerm));
+            //promote students from previous term to the new term
+            $continuingStudents = $activeTerm 
+                ? collect($this->studentService->promoteStudents($activeTerm, $newTerm))
+                : collect();
             \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
 
             // Log the activity for starting new term
@@ -239,8 +241,10 @@ class AcademicTermController extends Controller
             // Activate new term
             $newTerm->update(['is_active' => true]);
 
-            //promote students to next term
-            $continuingStudents = collect($this->studentService->promoteStudents($newTerm));
+            //promote students from previous term to the new term
+            $continuingStudents = $activeTerm 
+                ? collect($this->studentService->promoteStudents($activeTerm, $newTerm))
+                : collect();
             \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
 
             // Log the activity for switching term

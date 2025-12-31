@@ -867,4 +867,82 @@ class StudentsController extends Controller
             return redirect()->back()->withErrors(['error' => "Failed to drop student: {$th->getMessage()}"]);
         }
     }
+
+    public function reenrollStudent(Request $request)
+    {
+        $student = Student::find($request->id);
+
+        if (!$student) {
+            return redirect()->back()->withErrors(['error' => 'Student not found.']);
+        }
+
+        if ($student->status !== 'Dropped') {
+            return redirect()->back()->withErrors(['error' => 'Only dropped students can be re-enrolled.']);
+        }
+
+        try {
+            // Get the current active academic term
+            $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+
+            if (!$activeTerm) {
+                return redirect()->back()->withErrors(['error' => 'No active academic term found. Please activate an academic term first.']);
+            }
+
+            // Check if there's an active enrollment period for continuing students
+            $enrollmentPeriod = \App\Models\EnrollmentPeriod::where('academic_terms_id', $activeTerm->id)
+                ->where('period_for', 'old')
+                ->where('active', true)
+                ->first();
+
+            DB::transaction(function () use ($student, $activeTerm, $enrollmentPeriod) {
+                // Update student status
+                $student->update([
+                    'status' => 'Officially Enrolled'
+                ]);
+
+                // Find the latest enrollment and update it, or create a new one
+                $latestEnrollment = $student->enrollments()->latest()->first();
+
+                if ($latestEnrollment && $latestEnrollment->status === 'withdrawn') {
+                    $latestEnrollment->update([
+                        'academic_term_id' => $activeTerm->id,
+                        'enrollment_period_id' => $enrollmentPeriod?->id,
+                        'status' => 'enrolled',
+                        'enrolled_at' => now(),
+                    ]);
+                } else {
+                    // Create a new enrollment record
+                    $student->enrollments()->create([
+                        'academic_term_id' => $activeTerm->id,
+                        'enrollment_period_id' => $enrollmentPeriod?->id,
+                        'status' => 'enrolled',
+                        'enrolled_at' => now(),
+                    ]);
+                }
+
+                // Log the activity
+                activity('student_management')
+                    ->causedBy(auth()->user())
+                    ->performedOn($student)
+                    ->withProperties([
+                        'action' => 'reenrolled_student',
+                        'student_id' => $student->id,
+                        'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                        'previous_status' => 'Dropped',
+                        'new_status' => 'Officially Enrolled',
+                        'academic_term_id' => $activeTerm->id,
+                        'enrollment_period_id' => $enrollmentPeriod?->id,
+                        'grade_level' => $student->grade_level,
+                        'program_id' => $student->program_id,
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Student re-enrolled in school');
+            });
+
+            return redirect()->back()->with('success', 'Successfully re-enrolled the student');
+        } catch (\Throwable $th) {
+            return redirect()->back()->withErrors(['error' => "Failed to re-enroll student: {$th->getMessage()}"]);
+        }
+    }
 }

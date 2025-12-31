@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->date('application_start_date');
             $table->date('application_end_date');
-            $table->integer('max_applicants');
+            $table->integer('max_applicants')->nullable();
             $table->string('status')->default('Ongoing'); // Ongoing, Paused, Ended
             $table->boolean('active')->default(true);
             $table->timestamps();

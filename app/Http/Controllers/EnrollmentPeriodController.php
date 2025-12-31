@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\EnrollmentPeriodStatusUpdated;
 use App\Models\EnrollmentPeriod;
+use App\Models\StudentEnrollment;
 use Illuminate\Http\Request;
 
 class EnrollmentPeriodController extends Controller
@@ -176,6 +177,11 @@ class EnrollmentPeriodController extends Controller
 
         if ($request->status == 'Closed') {
             $updateData['active'] = false;
+
+            // If this is an enrollment period for continuing students, handle unconfirmed students
+            if ($enrollmentPeriod->period_for === 'old') {
+                $this->handleUnconfirmedStudents($enrollmentPeriod);
+            }
         }
 
         // Store original values for comparison
@@ -215,5 +221,38 @@ class EnrollmentPeriodController extends Controller
     public function destroy(EnrollmentPeriod $enrollmentPeriod)
     {
         //
+    }
+
+    /**
+     * Handle students who didn't confirm their enrollment when the period is closed.
+     * - Updates student_enrollments.status to 'withdrawn'
+     * - Updates students.status to 'Dropped'
+     */
+    private function handleUnconfirmedStudents(EnrollmentPeriod $enrollmentPeriod)
+    {
+        // Get all student enrollments linked to this period that are still pending confirmation
+        $unconfirmedEnrollments = StudentEnrollment::where('enrollment_period_id', $enrollmentPeriod->id)
+            ->where('status', 'pending_confirmation')
+            ->with('student')
+            ->get();
+
+        foreach ($unconfirmedEnrollments as $enrollment) {
+            // Update the enrollment status to withdrawn
+            $enrollment->update([
+                'status' => 'withdrawn',
+            ]);
+
+            // Update the student status to Dropped
+            if ($enrollment->student) {
+                $enrollment->student->update([
+                    'status' => 'Dropped',
+                ]);
+            }
+        }
+
+        \Log::info("Handled unconfirmed students for enrollment period {$enrollmentPeriod->id}", [
+            'period_name' => $enrollmentPeriod->name,
+            'unconfirmed_count' => $unconfirmedEnrollments->count(),
+        ]);
     }
 }

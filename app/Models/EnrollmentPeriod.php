@@ -9,7 +9,7 @@ class EnrollmentPeriod extends Model
     protected $table = 'enrollment_periods';
     protected $fillable = [
         'academic_terms_id', 'name', 'application_start_date', 'application_end_date', 'max_applicants', 'status', 'active',
-        'period_type', 'early_discount_percentage'
+        'period_type', 'early_discount_percentage', 'period_for'
     ];
 
     protected $casts = [
@@ -26,6 +26,26 @@ class EnrollmentPeriod extends Model
 
     public function applicants() {
         return $this->hasMany(Applicants::class);
+    }
+
+    public function studentEnrollments() {
+        return $this->hasMany(StudentEnrollment::class);
+    }
+
+    /**
+     * Check if this period is for new applicants
+     */
+    public function isForNewApplicants()
+    {
+        return $this->period_for === 'new';
+    }
+
+    /**
+     * Check if this period is for continuing/old students
+     */
+    public function isForContinuingStudents()
+    {
+        return $this->period_for === 'old';
     }
 
     /**

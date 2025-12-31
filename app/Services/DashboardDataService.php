@@ -92,8 +92,9 @@ class DashboardDataService
 
             $currentAcadTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
-            // Get ANY active enrollment period (supports early enrollment for future terms)
-            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+            // Get active enrollment period for NEW applicants only
+            // This ensures continuing students' re-enrollment periods are not shown to new applicants
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriodForNewApplicants();
 
             if (!$activeEnrollmentPeriod) {
                 return [

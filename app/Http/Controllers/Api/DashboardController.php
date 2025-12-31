@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\StudentEnrollment;
 use App\Models\AcademicTerms;
+use App\Services\EnrollmentPeriodService;
 use App\Services\StudentDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        protected EnrollmentPeriodService $enrollmentPeriodService
+    ) {}
+
     /**
      * Get dashboard data for authenticated student
      */
@@ -84,14 +89,7 @@ class DashboardController extends Controller
                     'guardian_name' => $studentRecord?->guardian_name,
                     'guardian_contact_number' => $studentRecord?->guardian_contact_number,
                 ],
-                'enrollment' => [
-                    'id' => $currentEnrollment?->id,
-                    'status' => $currentEnrollment ? $currentEnrollment->status : 'not_enrolled',
-                    'term' => $currentEnrollment ? $currentEnrollment->academicTerm->getFullNameAttribute() : null,
-                    'confirmed_at' => $currentEnrollment?->confirmed_at?->format('M j, Y'),
-                    'evaluation_status' => $user->student->academic_status ? strtolower($user->student->academic_status) : null,
-                    'evaluation_notes' => null, // Can be added later if needed
-                ],
+                'enrollment' => $this->getEnrollmentData($currentEnrollment, $user->student),
                 'news' => $news->map(function ($item) {
                     return [
                         'id' => $item->id,
@@ -244,5 +242,49 @@ class DashboardController extends Controller
             
             return 'Not available';
         }
+    }
+
+    /**
+     * Get enrollment data with re-enrollment period status
+     */
+    private function getEnrollmentData($currentEnrollment, $student)
+    {
+        // Check if there's an active re-enrollment period for continuing students
+        $reenrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriodForContinuingStudents();
+        
+        $enrollmentStatus = $currentEnrollment ? $currentEnrollment->status : 'not_enrolled';
+        $isPendingConfirmation = $enrollmentStatus === 'pending_confirmation';
+        $isWithdrawn = $enrollmentStatus === 'withdrawn';
+        
+        // can_confirm is true only if:
+        // 1. Student has pending_confirmation status
+        // 2. There's an active re-enrollment period for continuing students
+        $canConfirm = $isPendingConfirmation && $reenrollmentPeriod !== null;
+        
+        // reenrollment_period_open indicates if the period is currently open
+        $reenrollmentPeriodOpen = $reenrollmentPeriod !== null;
+        
+        // missed_confirmation is true when:
+        // 1. Enrollment status is 'withdrawn' (was pending but period closed)
+        // 2. OR status is 'pending_confirmation' but period is no longer open
+        $missedConfirmation = $isWithdrawn || ($isPendingConfirmation && !$reenrollmentPeriodOpen);
+
+        return [
+            'id' => $currentEnrollment?->id,
+            'status' => $enrollmentStatus,
+            'term' => $currentEnrollment ? $currentEnrollment->academicTerm->getFullNameAttribute() : null,
+            'confirmed_at' => $currentEnrollment?->confirmed_at?->format('M j, Y'),
+            'evaluation_status' => $student->academic_status ? strtolower($student->academic_status) : null,
+            'evaluation_notes' => null,
+            // Re-enrollment status flags
+            'can_confirm' => $canConfirm,
+            'reenrollment_period_open' => $reenrollmentPeriodOpen,
+            'missed_confirmation' => $missedConfirmation,
+            'reenrollment_period' => $reenrollmentPeriod ? [
+                'id' => $reenrollmentPeriod->id,
+                'name' => $reenrollmentPeriod->name,
+                'end_date' => $reenrollmentPeriod->application_end_date,
+            ] : null,
+        ];
     }
 }

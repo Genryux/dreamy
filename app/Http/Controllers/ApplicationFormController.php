@@ -637,8 +637,8 @@ class ApplicationFormController extends Controller
      */
     public function create()
     {
-        // Allow application if there is ANY active enrollment period (even for future terms)
-        $enrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+        // Only allow application if there is an active enrollment period for NEW applicants
+        $enrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriodForNewApplicants();
 
         if (!$enrollmentPeriod || $enrollmentPeriod->status === 'Paused') {
             return redirect()->back()->with('error', 'No active enrollment period found.');
@@ -727,11 +727,11 @@ class ApplicationFormController extends Controller
         ]);
 
         $applicant = Applicants::where('user_id', $user->id)->first();
-        // Use ANY active enrollment period (even for future terms) to link this application
-        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+        // Only use enrollment period for NEW applicants to link this application
+        $activeEnrollmentPeriod = $this->enrollmentPeriodService->getActiveEnrollmentPeriodForNewApplicants();
 
         if (!$activeEnrollmentPeriod) {
-            return redirect()->back()->with('error', 'No active enrollment period found. Application cannot be processed.');
+            return redirect()->back()->with('error', 'No active enrollment period for new applicants found. Application cannot be processed.');
         }
 
         try {

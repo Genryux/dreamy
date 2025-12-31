@@ -273,6 +273,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::patch('/evaluate-student/{id}', [StudentsController::class, 'evaluateStudent'])->middleware(['permission:evaluate student']);
     Route::patch('/promote-student/{id}', [StudentsController::class, 'promoteStudent'])->middleware(['permission:promote student']);
     Route::patch('/withdraw-student/{id}', [StudentsController::class, 'withdrawStudent'])->middleware(['permission:withdraw enrollment']);
+    Route::patch('/reenroll-student/{id}', [StudentsController::class, 'reenrollStudent'])->middleware(['permission:withdraw enrollment']);
 
     // Student Records
     Route::get('/student/{student}', [StudentRecordController::class, 'show'])->middleware(['permission:view student']);

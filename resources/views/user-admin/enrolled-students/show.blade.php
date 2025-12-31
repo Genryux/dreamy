@@ -697,6 +697,51 @@
             </button>
         </x-slot>
     </x-modal>
+
+    {{-- Re-enroll student modal --}}
+    <x-modal modal_id="reenroll-student" modal_name="Re-enroll Student"
+        close_btn_id="reenroll-student-close-btn" modal_container_id="modal-container-reenroll-student">
+
+        <x-slot name="modal_icon">
+            <div class="size-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+                <i class="fi fi-rr-rotate-right"></i>
+            </div>
+        </x-slot>
+
+        <form action="/reenroll-student/{{ $student->id }}" method="POST" id="reenroll-form" class="p-6">
+            @csrf
+            @method('patch')
+
+            <div class="flex flex-col justify-center items-center py-8 px-6 font-regular text-[14px] text-center">
+                <div class="flex justify-center items-center w-auto p-6 bg-green-100 w-[300px] rounded-full">
+                    <i class='fi fi-ss-rotate-right flex justify-center text-[52px] items-center text-green-500'></i>
+                </div>
+                <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
+                    <p class="text-gray-700 text-[16px] font-semibold">
+                        Are you sure you want to re-enroll this student?
+                    </p>
+                    <p class="text-gray-500">
+                        This will restore the student's enrollment and set their status back to "Officially Enrolled".
+                    </p>
+                    <p class="text-gray-500 text-xs mt-4">
+                        Note: A new enrollment record will be created for the current academic term.
+                    </p>
+                </div>
+            </div>
+        </form>
+
+        <x-slot name="modal_info"></x-slot>
+        <x-slot name="modal_buttons">
+            <button type="button" id="reenroll-student-cancel-btn"
+                class="border border-[#1e1e1e]/15 text-[14px] bg-gray-50 px-3 py-2 rounded-xl text-[#0f111c]/80 hover:ring hover:ring-gray-200 hover:bg-gray-100 font-semibold">
+                Cancel
+            </button>
+            <button type="submit" form="reenroll-form"
+                class="flex flex-row justify-center items-center bg-green-600 hover:bg-green-700 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white transition duration-200 shadow-lg">
+                <i class="fi fi-rr-rotate-right mr-1 flex justify-center items-center"></i>Confirm
+            </button>
+        </x-slot>
+    </x-modal>
 @endsection
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
@@ -1210,6 +1255,25 @@
                                 </button>
                             @endif
                         @endhasanyrole
+
+                        @hasanyrole('registrar|super_admin')
+                            <!-- Re-enroll Student (only visible when student is Dropped) -->
+                            @if ($student->status === 'Dropped')
+                                <button id="reenroll-btn"
+                                    class="group relative overflow-hidden bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/25 hover:-translate-y-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-rr-rotate-right flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Re-enroll Student</p>
+                                            <p class="text-xs text-green-100">Restore enrollment</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            @endif
+                        @endhasanyrole
                     </div>
                 </div>
 
@@ -1394,6 +1458,9 @@
 
             initModal('withdraw-student', 'withdraw-btn', 'withdraw-student-close-btn',
                 'withdraw-student-cancel-btn', 'modal-container-withdraw-student');
+
+            initModal('reenroll-student', 'reenroll-btn', 'reenroll-student-close-btn',
+                'reenroll-student-cancel-btn', 'modal-container-reenroll-student');
 
             // Populate forms with current data when edit buttons are clicked
             document.getElementById('edit-personal-info-btn').addEventListener('click', function() {
