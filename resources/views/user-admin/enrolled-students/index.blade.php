@@ -116,6 +116,10 @@
                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <span class="font-medium text-gray-700 text-sm">Pending</span>
                         </div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Inactive/Dropped</span>
+                        </div>
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full bg-gray-500"></div>
                             <span class="font-medium text-gray-700 text-sm">Total</span>
@@ -130,6 +134,11 @@
                         <div class="text-right mb-1">
                             <div id="pending-count" class="font-bold text-sm" style="color: #F59E0B">-</div>
                             <div id="pending-percentage" class="font-medium text-xs" style="color: #F59E0B; opacity: 0.7">-
+                            </div>
+                        </div>
+                        <div class="text-right mb-1">
+                            <div id="dropped-count" class="font-bold text-sm" style="color: #EF4444">-</div>
+                            <div id="dropped-percentage" class="font-medium text-xs" style="color: #EF4444; opacity: 0.7">-
                             </div>
                         </div>
                         <div class="text-right">
@@ -254,6 +263,10 @@
                         <button id="status-pending"
                             class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
                             Pending
+                        </button>
+                        <button id="status-dropped"
+                            class="status-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
+                            Inactive
                         </button>
                     </div>
 
@@ -418,31 +431,37 @@
                 .then(data => {
                     const enrolled = data.enrolled || 0;
                     const pending = data.pending || 0;
+                    const dropped = data.dropped || 0;
                     const total = data.total || 0;
 
                     // Update counts with null checks
                     const enrolledCountEl = document.getElementById('enrolled-count');
                     const pendingCountEl = document.getElementById('pending-count');
+                    const droppedCountEl = document.getElementById('dropped-count');
                     const totalCountEl = document.getElementById('total-count');
 
                     if (enrolledCountEl) enrolledCountEl.textContent = enrolled;
                     if (pendingCountEl) pendingCountEl.textContent = pending;
+                    if (droppedCountEl) droppedCountEl.textContent = dropped;
                     if (totalCountEl) totalCountEl.textContent = total;
 
                     // Update percentages with null checks
                     const enrolledPercentageEl = document.getElementById('enrolled-percentage');
                     const pendingPercentageEl = document.getElementById('pending-percentage');
+                    const droppedPercentageEl = document.getElementById('dropped-percentage');
 
-                    if (enrolledPercentageEl || pendingPercentageEl) {
+                    if (enrolledPercentageEl || pendingPercentageEl || droppedPercentageEl) {
                         const enrolledPercentage = total > 0 ? ((enrolled / total) * 100).toFixed(1) : 0;
                         const pendingPercentage = total > 0 ? ((pending / total) * 100).toFixed(1) : 0;
+                        const droppedPercentage = total > 0 ? ((dropped / total) * 100).toFixed(1) : 0;
 
                         if (enrolledPercentageEl) enrolledPercentageEl.textContent = `${enrolledPercentage}%`;
                         if (pendingPercentageEl) pendingPercentageEl.textContent = `${pendingPercentage}%`;
+                        if (droppedPercentageEl) droppedPercentageEl.textContent = `${droppedPercentage}%`;
                     }
 
                     // Update the chart and legend
-                    updateEnrollmentChart(enrolled, pending);
+                    updateEnrollmentChart(enrolled, pending, dropped);
                 })
                 .catch(error => {
                     console.error('Error loading enrollment stats');
@@ -483,8 +502,8 @@
         }
 
         // Function to update the enrollment chart with smooth animation
-        function updateEnrollmentChart(enrolled, pending) {
-            const total = enrolled + pending;
+        function updateEnrollmentChart(enrolled, pending, dropped = 0) {
+            const total = enrolled + pending + dropped;
             const emptyState = document.getElementById('total_chart_empty');
 
             if (typeof window.totalChart !== 'undefined' && window.totalChart) {
@@ -494,24 +513,24 @@
                         emptyState.classList.remove('opacity-0', 'pointer-events-none');
                         emptyState.classList.add('opacity-100');
                     }
-                    window.totalChart.data.datasets[0].data = [0, 0];
+                    window.totalChart.data.datasets[0].data = [0, 0, 0];
                 } else {
                     // Hide empty state and show chart
                     if (emptyState) {
                         emptyState.classList.add('opacity-0', 'pointer-events-none');
                         emptyState.classList.remove('opacity-100');
                     }
-                    window.totalChart.data.datasets[0].data = [enrolled, pending];
+                    window.totalChart.data.datasets[0].data = [enrolled, pending, dropped];
                 }
                 window.totalChart.update('active'); // Use 'active' animation for smooth transitions
 
                 // Update the total legend
-                updateTotalLegend(enrolled, pending, total);
+                updateTotalLegend(enrolled, pending, dropped, total);
             }
         }
 
         // Function to update total legend
-        function updateTotalLegend(enrolled, pending, total) {
+        function updateTotalLegend(enrolled, pending, dropped, total) {
             const labelsDiv = document.getElementById('total-labels');
             const countsDiv = document.getElementById('total-counts');
 
@@ -531,6 +550,10 @@
                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <span class="font-medium text-gray-700 text-sm">Pending</span>
                         </div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <span class="font-medium text-gray-700 text-sm">Inactive/Dropped</span>
+                        </div>
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full bg-gray-500"></div>
                             <span class="font-medium text-gray-700 text-sm">Total</span>
@@ -539,6 +562,7 @@
 
                     const enrolledPercentage = total > 0 ? ((enrolled / total) * 100).toFixed(1) : 0;
                     const pendingPercentage = total > 0 ? ((pending / total) * 100).toFixed(1) : 0;
+                    const droppedPercentage = total > 0 ? ((dropped / total) * 100).toFixed(1) : 0;
 
                     countsDiv.innerHTML = `
                         <div class="text-right mb-1">
@@ -548,6 +572,10 @@
                         <div class="text-right mb-1">
                             <div class="font-bold text-sm" style="color: #F59E0B">${pending}</div>
                             <div class="font-medium text-xs" style="color: #F59E0B; opacity: 0.7">${pendingPercentage}%</div>
+                        </div>
+                        <div class="text-right mb-1">
+                            <div class="font-bold text-sm" style="color: #EF4444">${dropped}</div>
+                            <div class="font-medium text-xs" style="color: #EF4444; opacity: 0.7">${droppedPercentage}%</div>
                         </div>
                         <div class="text-right">
                             <div class="font-bold text-sm" style="color: #6B7280">${total}</div>
@@ -1025,6 +1053,10 @@
                                     badgeClass = 'bg-yellow-100 text-yellow-800';
                                     badgeText = 'Pending Confirmation';
                                     break;
+                                case 'withdrawn':
+                                    badgeClass = 'bg-red-100 text-red-800';
+                                    badgeText = 'Withdrawn';
+                                    break;
                                 default:
                                     badgeClass = 'bg-gray-200 text-gray-800';
                                     badgeText = 'N/A';
@@ -1125,6 +1157,8 @@
                         selectedStatusFilter = 'enrolled';
                     } else if (this.id === 'status-pending') {
                         selectedStatusFilter = 'pending_confirmation';
+                    } else if (this.id === 'status-dropped') {
+                        selectedStatusFilter = 'withdrawn';
                     }
 
                     // Reload table
@@ -1425,13 +1459,11 @@
                 window.totalChart = new Chart(totalChartCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Enrolled', 'Pending'],
+                    labels: ['Enrolled', 'Pending', 'Inactive/Dropped'],
                     datasets: [{
                         label: 'Students',
-                        data: [0, 0], // Will be updated by loadEnrollmentStats()
-                        backgroundColor: ['#10B981',
-                            '#F59E0B'
-                        ], // Green for enrolled, yellow for pending
+                        data: [0, 0, 0], // Will be updated by loadEnrollmentStats()
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], // Green for enrolled, yellow for pending, red for dropped
                         borderWidth: 3,
                         borderColor: '#ffffff',
                         hoverBorderWidth: 4,

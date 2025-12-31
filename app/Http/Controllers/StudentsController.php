@@ -254,6 +254,7 @@ class StudentsController extends Controller
                 'total' => $total,
                 'enrolled' => $total, // Assume all are enrolled in old system
                 'pending' => 0,
+                'dropped' => 0,
             ]);
         }
 
@@ -268,6 +269,7 @@ class StudentsController extends Controller
                 'total' => 0,
                 'enrolled' => 0,
                 'pending' => 0,
+                'dropped' => 0,
             ]);
         }
 
@@ -275,11 +277,13 @@ class StudentsController extends Controller
         $total = $baseQuery->count();
         $enrolled = StudentEnrollment::where('academic_term_id', $selectedTerm->id)->where('status', 'enrolled')->count();
         $pending = StudentEnrollment::where('academic_term_id', $selectedTerm->id)->where('status', 'pending_confirmation')->count();
+        $dropped = StudentEnrollment::where('academic_term_id', $selectedTerm->id)->where('status', 'withdrawn')->count();
 
         return response()->json([
             'total' => $total,
             'enrolled' => $enrolled,
             'pending' => $pending,
+            'dropped' => $dropped,
             'term_name' => $selectedTerm->getFullNameAttribute(),
         ]);
     }
@@ -385,10 +389,10 @@ class StudentsController extends Controller
 
         // Filter by status if specified
         $statusFilter = $request->input('status_filter');
-        if ($statusFilter && in_array($statusFilter, ['enrolled', 'pending_confirmation'])) {
+        if ($statusFilter && in_array($statusFilter, ['enrolled', 'pending_confirmation', 'withdrawn'])) {
             $query->where('status', $statusFilter);
         }
-        // Default: show all statuses (enrolled + pending)
+        // Default: show all statuses (enrolled + pending + withdrawn)
 
         // Search filter - search within the related student
         if ($search = $request->input('search.value')) {
