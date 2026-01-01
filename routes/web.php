@@ -279,6 +279,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/student/{student}', [StudentRecordController::class, 'show'])->middleware(['permission:view student']);
     Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');
     Route::get('/student-record/{studentRecord}/coe.pdf', [StudentRecordController::class, 'coePdf'])->name('students.coe.pdf');
+    Route::get('/students/{student}/sis', [StudentsController::class, 'generateSIS'])->name('students.sis');
     Route::put('/students/{student}/personal-info', [StudentRecordController::class, 'updatePersonalInfo'])->middleware(['permission:edit student'])->name('students.personal.info');
     Route::put('/students/{student}/academic-info', [StudentRecordController::class, 'updateAcademicInfo'])->middleware(['permission:edit student'])->name('students.academic.info');
     Route::put('/students/{student}/address-info', [StudentRecordController::class, 'updateAddressInfo'])->middleware(['permission:edit student'])->name('students.address.info');

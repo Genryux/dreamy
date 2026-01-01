@@ -1171,7 +1171,7 @@
                         @hasanyrole('registrar|super_admin')
                             <!-- Generate SIS -->
                             @if ($student->status === 'Officially Enrolled')
-                                <button
+                                <a href="{{ route('students.sis', $student->id) }}" target="_blank"
                                     class="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-1">
                                     <div class="flex items-center space-x-3">
                                         <div
@@ -1183,7 +1183,7 @@
                                             <p class="text-xs text-purple-100">Student Information Sheet</p>
                                         </div>
                                     </div>
-                                </button>
+                                </a>
                             @endif
                         @endhasanyrole
 

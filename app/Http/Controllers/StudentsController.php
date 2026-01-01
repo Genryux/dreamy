@@ -949,4 +949,39 @@ class StudentsController extends Controller
             return redirect()->back()->withErrors(['error' => "Failed to re-enroll student: {$th->getMessage()}"]);
         }
     }
+
+    /**
+     * Generate Student Information Sheet (SIS) PDF
+     */
+    public function generateSIS(Student $student)
+    {
+        $school = \App\Models\SchoolSetting::query()->first();
+        $studentRecord = $student->record;
+        
+        // Get current academic term info
+        $currentEnrollment = $student->getCurrentAcademicTerm();
+        $acadTerm = $currentEnrollment ? $currentEnrollment->academicTerm : null;
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.sis', [
+            'student' => $student,
+            'studentRecord' => $studentRecord,
+            'school' => $school,
+            'acadTerm' => $acadTerm,
+        ])->setPaper('letter');
+
+        // Log the activity
+        activity('student_management')
+            ->causedBy(auth()->user())
+            ->performedOn($student)
+            ->withProperties([
+                'action' => 'generated_sis',
+                'student_id' => $student->id,
+                'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ])
+            ->log('Student Information Sheet (SIS) generated');
+
+        return $pdf->stream('SIS-' . $student->id . '.pdf');
+    }
 }
