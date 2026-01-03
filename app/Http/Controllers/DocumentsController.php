@@ -46,14 +46,14 @@ class DocumentsController extends Controller
         $data = $query
             ->offset($start)
             ->limit($length)
-            ->get(['id', 'type', 'description', 'file_type_restriction', 'max_file_size'])
+            ->get(['id', 'type', 'description', 'file_type_restriction', 'document_for'])
             ->map(function ($item, $key) use ($start) {
                 return [
                     'index' => $start + $key + 1,
                     'type' => $item->type ?? '-',
                     'description' => $item->description ?? '-',
                     'file_type_restriction' => implode(', ', $item->file_type_restriction ?? []),
-                    'max_file_size' => ($item->max_file_size ?? 0) . ' KB',
+                    'document_for' => ucfirst($item->document_for ?? 'N/A'),
                     'id' => $item->id
                 ];
             });
@@ -85,14 +85,14 @@ class DocumentsController extends Controller
                 'description' => 'nullable|string',
                 'file-type-option' => 'required|array',
                 'file-type-option.*' => 'in:pdf,jpeg,png',
-                'file-size' => 'required|numeric|min:1|max:10000',
+                'document-for' => 'required|in:regular,transferee,both',
             ]);
 
             $document = Documents::create([
                 'type' => $validated['doc-type'],
                 'description' => $validated['description'],
                 'file_type_restriction' => $validated['file-type-option'],
-                'max_file_size' => $validated['file-size'],
+                'document_for' => $validated['document-for'],
             ]);
 
             // Log the activity
@@ -183,7 +183,7 @@ class DocumentsController extends Controller
                 'description' => 'nullable|string',
                 'file-type-option' => 'required|array',
                 'file-type-option.*' => 'in:pdf,jpeg,png',
-                'file-size' => 'required|numeric|min:1|max:10000',
+                'document-for' => 'required|in:regular,transferee,both',
             ]);
 
             $document = Documents::findOrFail($id);
@@ -195,7 +195,7 @@ class DocumentsController extends Controller
                 'type' => $validated['doc-type'],
                 'description' => $validated['description'],
                 'file_type_restriction' => $validated['file-type-option'],
-                'max_file_size' => $validated['file-size'],
+                'document_for' => $validated['document-for'],
             ]);
 
             // Log the activity

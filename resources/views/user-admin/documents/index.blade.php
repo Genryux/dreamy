@@ -23,14 +23,17 @@
                     </div>
 
                 <div class="w-full">
-                    <label for="file-size" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-file-size mr-2"></i>
-                        Max File Size (KB) <span class="text-red-500">*</span>
+                    <label for="document-for" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-users mr-2"></i>
+                        Document For <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="file-size" id="file-size" required min="1" max="10000"
-                        placeholder="1024"
+                    <select name="document-for" id="document-for" required
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
-                    <p class="text-[12px] mt-1 text-gray-600">Estimated size in MB: <span id="estimated" class="font-bold"></span></p>
+                        <option value="" disabled selected>Select applicant type</option>
+                        <option value="regular">Regular (New Enrollee)</option>
+                        <option value="transferee">Transferee</option>
+                        <option value="both">Both (Regular & Transferee)</option>
+                    </select>
                 </div>
 
                 <div class="w-full">
@@ -103,14 +106,17 @@
                 </div>
 
                 <div class="w-full">
-                    <label for="edit_file-size" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-file-size mr-2"></i>
-                        Max File Size (KB) <span class="text-red-500">*</span>
+                    <label for="edit_document-for" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-users mr-2"></i>
+                        Document For <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="file-size" id="edit_file-size" required min="1" max="10000"
-                        placeholder="1024"
+                    <select name="document-for" id="edit_document-for" required
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
-                    <p class="text-[12px] mt-1 text-gray-600">Estimated size in MB: <span id="edit_estimated" class="font-bold"></span></p>
+                        <option value="" disabled selected>Select applicant type</option>
+                        <option value="regular">Regular (New Enrollee)</option>
+                        <option value="transferee">Transferee</option>
+                        <option value="both">Both (Regular & Transferee)</option>
+                    </select>
                 </div>
 
                 <div class="w-full">
@@ -258,7 +264,7 @@
                             <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
                             </th>
-                            <th class="w-[25%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                            <th class="w-[22%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">Name/Type</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
@@ -270,8 +276,8 @@
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">File Types</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
-                            <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Max Size</span>
+                            <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Type</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
@@ -342,8 +348,17 @@
                         render: DataTable.render.text()
                     },
                     {
-                        data: 'max_file_size',
-                        render: DataTable.render.text()
+                        data: 'document_for',
+                        render: function(data, type, row) {
+                            if (data === 'Regular') {
+                                return `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">${data}</span>`;
+                            } else if (data === 'Transferee') {
+                                return `<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-md text-xs font-medium">${data}</span>`;
+                            } else if (data === 'Both') {
+                                return `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">${data}</span>`;
+                            }
+                            return data;
+                        }
                     },
                     {
                         data: 'id',
@@ -376,7 +391,7 @@
                         className: 'text-center'
                     },
                     {
-                        width: '25%',
+                        width: '22%',
                         targets: 1
                     },
                     {
@@ -388,7 +403,7 @@
                         targets: 3
                     },
                     {
-                        width: '12%',
+                        width: '15%',
                         targets: 4
                     },
                     {
@@ -418,36 +433,6 @@
                 initializeEditDocumentModals();
                 initializeDeleteDocumentModals();
             });
-
-            // File size estimation for create modal
-            let sizeInput = document.getElementById("file-size");
-            let estimatedSize = document.getElementById("estimated");
-
-            if (sizeInput && estimatedSize) {
-            sizeInput.addEventListener("input", function() {
-                let size = parseInt(this.value);
-                if (!isNaN(size)) {
-                    estimatedSize.textContent = (size / 1024).toFixed(2) + " MB";
-                } else {
-                    estimatedSize.textContent = "Invalid size";
-                }
-            });
-            }
-
-            // File size estimation for edit modal
-            let editSizeInput = document.getElementById("edit_file-size");
-            let editEstimatedSize = document.getElementById("edit_estimated");
-
-            if (editSizeInput && editEstimatedSize) {
-                editSizeInput.addEventListener("input", function() {
-                    let size = parseInt(this.value);
-                    if (!isNaN(size)) {
-                        editEstimatedSize.textContent = (size / 1024).toFixed(2) + " MB";
-                    } else {
-                        editEstimatedSize.textContent = "Invalid size";
-                    }
-                });
-            }
 
             // Create Document Form Submission
             document.getElementById('create-document-modal-form').addEventListener('submit', function(e) {
@@ -634,13 +619,7 @@
                                  // Populate form fields
                                  document.getElementById('edit_doc-type').value = docData.type || '';
                                  document.getElementById('edit_description').value = docData.description || '';
-                                 document.getElementById('edit_file-size').value = docData.max_file_size || '';
-
-                                 // Update estimated size
-                                 let size = parseInt(docData.max_file_size);
-                                 if (!isNaN(size)) {
-                                     document.getElementById('edit_estimated').textContent = (size / 1024).toFixed(2) + " MB";
-                                 }
+                                 document.getElementById('edit_document-for').value = docData.document_for || '';
 
                                  // Clear and set file type checkboxes
                                  ['PDF', 'JPEG', 'PNG'].forEach(type => {

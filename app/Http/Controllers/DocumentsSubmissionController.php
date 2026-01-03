@@ -69,16 +69,19 @@ class DocumentsSubmissionController extends Controller
     {
         $documents = Documents::select('id', 'type', 'file_type_restriction', 'max_file_size')
             ->whereNotNull('file_type_restriction')
-            ->whereNotNull('max_file_size')
             ->get();
+
+        $defaultMaxSizeKB = 10240; // 10MB default
 
         $restrictions = [];
         foreach ($documents as $document) {
+            $maxSizeKB = $document->max_file_size ?? $defaultMaxSizeKB;
+            
             $restrictions[$document->id] = [
                 'type' => $document->type,
                 'allowed_types' => $document->file_type_restriction,
-                'max_size_kb' => $document->max_file_size,
-                'max_size_mb' => round($document->max_file_size / 1024, 2),
+                'max_size_kb' => $maxSizeKB,
+                'max_size_mb' => round($maxSizeKB / 1024, 2),
                 'accept_string' => '.' . implode(',.', $document->file_type_restriction)
             ];
         }
@@ -124,9 +127,10 @@ class DocumentsSubmissionController extends Controller
         // Get document restrictions for validation
         $documentRestrictions = Documents::whereIn('id', $documents_id)
             ->whereNotNull('file_type_restriction')
-            ->whereNotNull('max_file_size')
             ->get()
             ->keyBy('id');
+
+        $defaultMaxSizeKB = 10240; // 10MB default
 
         // Add file validation rules for each document
         foreach ($documents as $index => $document) {
@@ -137,8 +141,9 @@ class DocumentsSubmissionController extends Controller
                 // Build mimes rule
                 $mimesRule = 'mimes:' . implode(',', $restriction->file_type_restriction);
 
-                // Build max size rule (convert KB to KB for Laravel validation)
-                $maxSizeRule = 'max:' . $restriction->max_file_size;
+                // Build max size rule (use default if null)
+                $maxSizeKB = $restriction->max_file_size ?? $defaultMaxSizeKB;
+                $maxSizeRule = 'max:' . $maxSizeKB;
 
                 $validationRules["documents.{$index}"] = "file|{$mimesRule}|{$maxSizeRule}";
             } else {

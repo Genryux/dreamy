@@ -14,6 +14,7 @@ class Documents extends Model
         'description',
         'file_type_restriction',
         'max_file_size',
+        'document_for',
     ];
     protected $casts = [
         'max_file_size' => 'integer',

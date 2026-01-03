@@ -361,7 +361,7 @@
                             </thead>
                             <tbody>
                                 <tr class="border-b border-t border-[#1e1e1e]/15 opacity-[0.87]">
-                                    <td class="px-3 md:px-6 py-2 text-[12px] md:text-[14px]">Returning (Balik-Aral):</td>
+                                    <td class="px-3 md:px-6 py-2 text-[12px] md:text-[14px]">Returning/Transferee: <span class="font-bold">{{ $applicant->applicationForm->is_returning == 1 ? 'Yes' : 'No' }}</span></td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td
@@ -453,20 +453,20 @@
                                         Belong to
                                         any IP
                                         community:<span class="font-bold">
-                                            {{ $applicant->applicationForm->belongs_to_ip === 1 ? 'Yes' : 'No' }}</span>
+                                            {{ $applicant->applicationForm->belongs_to_ip == 1 ? 'Yes' : 'No' }}</span>
                                     </td>
                                     <td
                                         class="px-3 md:px-6 py-2 text-[12px] md:text-[14px] border-b border-[#1e1e1e]/15 w-1/2">
                                         Beneficiary of
                                         4Ps:<span class="font-bold">
-                                            {{ $applicant->applicationForm->is_4ps_beneficiary === 1 ? 'Yes' : 'No' }}</span>
+                                            {{ $applicant->applicationForm->is_4ps_beneficiary == 1 ? 'Yes' : 'No' }}</span>
                                     </td>
                                 </tr>
                                 <tr class="opacity-[0.87]">
                                     <td class="px-3 md:px-6 py-2 text-[12px] md:text-[14px] border-r border-[#1e1e1e]/15">
                                         Learner with disability:
                                         <span class="font-bold">
-                                            {{ $applicant->applicationForm->has_special_needs === 1 ? 'Yes' : 'No' }}</span>
+                                            {{ $applicant->applicationForm->has_special_needs == 1 ? 'Yes' : 'No' }}</span>
                                     </td>
                                     <td class="px-3 md:px-6 py-2 text-[12px] md:text-[14px]">Special needs: <span
                                             class="font-bold">

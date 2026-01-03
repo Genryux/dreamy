@@ -297,7 +297,18 @@ class InterviewController extends Controller
                     'application_status' => 'Pending-Documents'
                 ]);
 
-                $required_docs = Documents::all();
+                // Determine applicant type based on is_returning field
+                $isTransferee = $applicant->applicationForm->is_returning ?? false;
+                
+                // Filter documents based on applicant type
+                if ($isTransferee) {
+                    // Transferee: assign documents with 'both' or 'transferee'
+                    $required_docs = Documents::whereIn('document_for', ['both', 'transferee'])->get();
+                } else {
+                    // Regular: assign documents with 'both' or 'regular'
+                    $required_docs = Documents::whereIn('document_for', ['both', 'regular'])->get();
+                }
+
                 $applicant->assignedDocuments()->delete();
                 $applicant->submissions()->delete(); // Clear previous submissions if any
 
@@ -320,6 +331,7 @@ class InterviewController extends Controller
                         'action' => 'exam_result_recorded',
                         'applicant_id' => $applicant->applicant_id,
                         'applicant_name' => $applicant->first_name . ' ' . $applicant->last_name,
+                        'applicant_type' => $isTransferee ? 'Transferee' : 'Regular',
                         'exam_result' => 'Exam-Passed',
                         'recorded_by' => "{$user->first_name} - {$role}",
                         'document_due_date' => $request->input('due-date'),
