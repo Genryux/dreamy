@@ -67,6 +67,123 @@ class DocumentsController extends Controller
     }
 
     /**
+     * Get all submitted documents for DataTables (AJAX endpoint)
+     */
+    public function getSubmittedDocuments(Request $request)
+    {
+        $query = \App\Models\DocumentSubmissions::query()
+            ->with(['documents', 'owner']);
+
+        // Owner type filter (applicant or student)
+        if ($ownerType = $request->input('owner_type')) {
+            if ($ownerType === 'applicant') {
+                $query->where('owner_type', 'App\\Models\\Applicants');
+            } elseif ($ownerType === 'student') {
+                $query->where('owner_type', 'App\\Models\\Student');
+            }
+            // If 'all' or empty, don't add any owner_type filter
+        }
+
+        // Document type filter
+        if ($documentType = $request->input('document_type')) {
+            $query->where('documents_id', $documentType);
+        }
+
+        // Search filter (search by LRN, name, or document type)
+        if ($search = $request->input('search.value')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHasMorph('owner', [\App\Models\Applicants::class, \App\Models\Student::class], function ($subQ, $type) use ($search) {
+                    if ($type === \App\Models\Applicants::class) {
+                        $subQ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhereHas('applicationForm', function ($formQ) use ($search) {
+                                $formQ->where('lrn', 'like', "%{$search}%");
+                            });
+                    } elseif ($type === \App\Models\Student::class) {
+                        $subQ->where('lrn', 'like', "%{$search}%")
+                            ->orWhereHas('user', function ($userQ) use ($search) {
+                                $userQ->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%");
+                            });
+                    }
+                })
+                ->orWhereHas('documents', function ($subQ) use ($search) {
+                    $subQ->where('type', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $total = \App\Models\DocumentSubmissions::count();
+        $filtered = $query->count();
+
+        // Secure pagination with bounds
+        $start = max(0, (int) $request->input('start', 0));
+        $length = (int) $request->input('length', 10);
+        $length = max(10, min($length, 100)); // Clamp to [10, 100] records per page
+
+        // Handle sorting - only submitted_at column is sortable
+        $orderDir = $request->input('order.0.dir', 'desc');
+        $orderDir = in_array($orderDir, ['asc', 'desc']) ? $orderDir : 'desc';
+
+        $data = $query
+            ->orderBy('submitted_at', $orderDir)
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($item, $key) use ($start) {
+                $owner = $item->owner;
+                
+                // Determine if owner is Applicant or Student
+                if ($item->owner_type === 'App\\Models\\Applicants') {
+                    $lrn = $owner?->applicationForm?->lrn ?? 'N/A';
+                    $name = $owner ? ($owner->last_name . ', ' . $owner->first_name) : 'N/A';
+                    $ownerType = 'Applicant';
+                } else if ($item->owner_type === 'App\\Models\\Student') {
+                    $lrn = $owner?->lrn ?? 'N/A';
+                    $name = $owner?->user ? ($owner->user->last_name . ', ' . $owner->user->first_name) : 'N/A';
+                    $ownerType = 'Student';
+                } else {
+                    $lrn = 'N/A';
+                    $name = 'N/A';
+                    $ownerType = 'Unknown';
+                }
+                
+                return [
+                    'index' => $start + $key + 1,
+                    'lrn' => $lrn,
+                    'name' => $name,
+                    'owner_type' => $ownerType,
+                    'document_type' => $item->documents?->type ?? 'Unknown',
+                    'submitted_at' => $item->submitted_at 
+                        ? $item->submitted_at->format('M d, Y h:i A') 
+                        : 'N/A',
+                    'file_path' => $item->file_path,
+                    'id' => $item->id
+                ];
+            });
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $total,
+            'recordsFiltered' => $filtered,
+            'data' => $data,
+        ]);
+    }
+
+    /**
+     * Get all document types for filter dropdown
+     */
+    public function getDocumentTypes()
+    {
+        $documentTypes = Documents::select('id', 'type')->orderBy('type')->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $documentTypes
+        ]);
+    }
+
+    /**
      * Show the form for creating a new document.
      */
     public function create()

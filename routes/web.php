@@ -229,6 +229,8 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
         ->middleware(['permission:view pending-document form'])->name('documents');
     Route::get('/documents', [DocumentsController::class, 'index'])->middleware(['permission:view documents'])->name('documents.index');
     Route::get('/getDocuments', [DocumentsController::class, 'getDocuments']);
+    Route::get('/getSubmittedDocuments', [DocumentsController::class, 'getSubmittedDocuments']);
+    Route::get('/getDocumentTypes', [DocumentsController::class, 'getDocumentTypes']);
     Route::post('/required-docs', [DocumentsController::class, 'store'])->middleware(['permission:create documents'])->name('documents.create');
     Route::get('/required-docs/{id}', [DocumentsController::class, 'show']);
     Route::put('/required-docs/{id}', [DocumentsController::class, 'update'])->middleware(['permission:edit documents']);

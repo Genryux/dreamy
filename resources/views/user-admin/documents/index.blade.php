@@ -202,7 +202,7 @@
     <div class="flex flex-row justify-between items-center space-x-2 text-start px-[14px] py-2">
         <div>
             <h1 class="text-[20px] font-black">Document Management</h1>
-            <p class="text-[14px] text-gray-900/60">View and manage required documents for applications.</p>
+            <p class="text-[14px] text-gray-900/60">View and manage required documents and submitted documents.</p>
         </div>
         <button id="create-document-modal-btn"
             class="text-[16px] px-3 py-2 rounded-xl bg-[#199BCF] text-[#f8f8f8] font-semibold flex flex-row items-center justify-center gap-2 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg">
@@ -281,6 +281,112 @@
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{-- Data will be populated via AJAX --}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Submitted Documents Section --}}
+        <div
+            class="flex flex-col justify-start items-start flex-grow p-6 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-full">
+            <div class="flex flex-row justify-between items-center w-full">
+                <div>
+                    <span class="font-semibold text-[18px]">
+                        Submitted Documents
+                    </span>
+                    <p class="text-[14px] text-gray-500">View all uploaded documents from applicants and students</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-row justify-between items-center w-full h-full py-2">
+                <div class="flex flex-row justify-between w-full items-center gap-4">
+                    <label for="submitted-document-search"
+                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[25%] hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm">
+                        <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                        <input type="search" name="" id="submitted-document-search"
+                            class="submitted-doc-search bg-transparent outline-none text-[14px] w-full peer"
+                            placeholder="Search by LRN, name, or document type">
+                        <button id="submitted-clear-btn"
+                            class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                            <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                        </button>
+                    </label>
+                    
+                    {{-- Owner Type Filter Buttons --}}
+                    <div class="flex flex-row justify-start items-center gap-2">
+                        <button id="owner-all"
+                            class="owner-filter-btn px-3 py-2 bg-[#199BCF] text-white rounded-lg hover:bg-[#33ACD6] transition duration-150 text-[14px] font-medium">
+                            All
+                        </button>
+                        <button id="owner-applicant"
+                            class="owner-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
+                            Applicants
+                        </button>
+                        <button id="owner-student"
+                            class="owner-filter-btn px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-150 text-[14px] font-medium">
+                            Students
+                        </button>
+                    </div>
+                    
+                    <div class="flex flex-row justify-start items-center gap-2">
+                        {{-- Document Type Filter --}}
+                        <div id="document-type-filter-container"
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            <select name="documentTypeFilter" id="document-type-filter"
+                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer min-w-[150px]">
+                                <option value="" selected>All Document Types</option>
+                                {{-- Options will be populated via JS --}}
+                            </select>
+                            <i id="clear-document-type-filter-btn"
+                                class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                        </div>
+                        {{-- Page Length Selection --}}
+                        <div
+                            class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                            <select name="submittedPageLength" id="submitted-page-length-selection"
+                                class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                <option selected disabled>Entries</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <i class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full">
+                <table id="submitted-documents-table" class="w-full table-fixed">
+                    <thead class="text-[14px]">
+                        <tr>
+                            <th class="w-[4%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                <span class="mr-2 font-medium opacity-60">#</span>
+                            </th>
+                            <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60">LRN</span>
+                            </th>
+                            <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60">Name</span>
+                            </th>
+                            <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60">Type</span>
+                            </th>
+                            <th class="w-[17%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60">Document Type</span>
+                            </th>
+                            <th class="w-[18%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Submission Date</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-[15%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
                             </th>
                         </tr>
@@ -423,6 +529,233 @@
                 let selectedPageLength = parseInt(e.target.value, 10);
                 documentsTable.page.len(selectedPageLength).draw();
             });
+
+            // =====================================================
+            // Submitted Documents Table
+            // =====================================================
+            
+            // Initialize document type filter dropdown
+            loadDocumentTypes();
+
+            // Track selected document type filter and owner type
+            window.selectedDocumentType = '';
+            window.selectedOwnerType = '';
+
+            // Initialize Submitted Documents DataTable
+            let submittedDocumentsTable = initCustomDataTable(
+                'submitted-documents-table',
+                `/getSubmittedDocuments`,
+                [{
+                        data: 'index',
+                        orderable: false
+                    },
+                    {
+                        data: 'lrn',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `<span class="font-mono text-sm">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'name',
+                        orderable: false,
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'owner_type',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            if (data === 'Applicant') {
+                                return `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">${data}</span>`;
+                            } else if (data === 'Student') {
+                                return `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">${data}</span>`;
+                            }
+                            return `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'document_type',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'submitted_at',
+                        render: DataTable.render.text()
+                    },
+                    {
+                        data: 'file_path',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return `
+                                <div class='flex flex-row justify-center items-center gap-2'>
+                                    <a href="/storage/${data}" target="_blank"
+                                        class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold p-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150"
+                                        title="View Document">
+                                        <i class="fi fi-rr-eye text-[16px] flex justify-center items-center"></i>
+                                    </a>
+                                    <a href="/storage/${data}" download
+                                        class="group relative inline-flex items-center gap-2 bg-green-100 text-green-500 font-semibold p-2 rounded-xl hover:bg-green-500 hover:ring hover:ring-green-200 hover:text-white transition duration-150"
+                                        title="Download Document">
+                                        <i class="fi fi-rr-download text-[16px] flex justify-center items-center"></i>
+                                    </a>
+                                </div>`;
+                            }
+                            return `<span class="text-gray-400 text-sm">No file</span>`;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                [
+                    [4, 'desc']
+                ],
+                'submitted-document-search',
+                [{
+                        width: '4%',
+                        targets: 0,
+                        className: 'text-center'
+                    },
+                    {
+                        width: '12%',
+                        targets: 1
+                    },
+                    {
+                        width: '20%',
+                        targets: 2
+                    },
+                    {
+                        width: '12%',
+                        targets: 3
+                    },
+                    {
+                        width: '17%',
+                        targets: 4
+                    },
+                    {
+                        width: '18%',
+                        targets: 5
+                    },
+                    {
+                        width: '15%',
+                        targets: 6,
+                        className: 'text-center'
+                    }
+                ]
+            );
+
+            // Clear search for submitted documents table
+            clearSearch('submitted-clear-btn', 'submitted-document-search', submittedDocumentsTable);
+            
+            // Owner type filter buttons
+            document.querySelectorAll('.owner-filter-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.owner-filter-btn').forEach(btn => {
+                        btn.classList.remove('bg-[#199BCF]', 'text-white', 'hover:bg-[#33ACD6]');
+                        btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    });
+
+                    // Add active class to clicked button
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+                    this.classList.add('bg-[#199BCF]', 'text-white', 'hover:bg-[#33ACD6]');
+
+                    // Set filter value
+                    if (this.id === 'owner-all') {
+                        window.selectedOwnerType = '';
+                    } else if (this.id === 'owner-applicant') {
+                        window.selectedOwnerType = 'applicant';
+                    } else if (this.id === 'owner-student') {
+                        window.selectedOwnerType = 'student';
+                    }
+
+                    // Reload table
+                    submittedDocumentsTable.draw();
+                });
+            });
+
+            // Page length selection for submitted documents
+            let submittedPageLengthSelection = document.querySelector('#submitted-page-length-selection');
+            submittedPageLengthSelection.addEventListener('change', (e) => {
+                let selectedPageLength = parseInt(e.target.value, 10);
+                submittedDocumentsTable.page.len(selectedPageLength).draw();
+            });
+
+            // Document type filter handler
+            let documentTypeFilter = document.querySelector('#document-type-filter');
+            let clearDocumentTypeFilterBtn = document.querySelector('#clear-document-type-filter-btn');
+            let documentTypeFilterContainer = document.querySelector('#document-type-filter-container');
+            
+            documentTypeFilter.addEventListener('change', (e) => {
+                let selectedValue = e.target.value;
+                
+                // Only proceed if a valid document type is selected (not the default option)
+                if (selectedValue && selectedValue !== '') {
+                    window.selectedDocumentType = selectedValue;
+                    submittedDocumentsTable.draw();
+
+                    // Update document type filter UI to show active state
+                    let clearFilterRem = ['text-gray-500', 'fi-rr-caret-down'];
+                    let clearFilterAdd = ['fi-bs-cross-small', 'cursor-pointer', 'text-gray-600'];
+                    let filterRem = ['border-[#1e1e1e]/10', 'text-gray-700'];
+                    let filterAdd = ['text-gray-600'];
+                    let containerRem = ['bg-gray-100'];
+                    let containerAdd = ['bg-gray-200', 'border-gray-300', 'hover:bg-gray-300'];
+
+                    clearDocumentTypeFilterBtn.classList.remove(...clearFilterRem);
+                    clearDocumentTypeFilterBtn.classList.add(...clearFilterAdd);
+                    documentTypeFilter.classList.remove(...filterRem);
+                    documentTypeFilter.classList.add(...filterAdd);
+                    documentTypeFilterContainer.classList.remove(...containerRem);
+                    documentTypeFilterContainer.classList.add(...containerAdd);
+
+                    handleClearDocumentTypeFilter();
+                }
+            });
+            
+            function handleClearDocumentTypeFilter() {
+                clearDocumentTypeFilterBtn.addEventListener('click', () => {
+                    // Reset document type filter UI
+                    documentTypeFilterContainer.classList.remove('bg-gray-200', 'border-gray-300', 'hover:bg-gray-300');
+                    documentTypeFilterContainer.classList.add('bg-gray-100');
+
+                    clearDocumentTypeFilterBtn.classList.remove('fi-bs-cross-small', 'cursor-pointer', 'text-gray-600');
+                    clearDocumentTypeFilterBtn.classList.add('fi-rr-caret-down', 'text-gray-500');
+
+                    documentTypeFilter.classList.remove('text-gray-600');
+                    documentTypeFilter.classList.add('text-gray-700');
+
+                    // Reset filter value
+                    documentTypeFilter.selectedIndex = 0;
+                    window.selectedDocumentType = '';
+                    submittedDocumentsTable.draw();
+                });
+            }
+
+            // Function to load document types into filter dropdown
+            function loadDocumentTypes() {
+                fetch('/getDocumentTypes')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            let select = document.querySelector('#document-type-filter');
+                            data.data.forEach(doc => {
+                                let option = document.createElement('option');
+                                option.value = doc.id;
+                                option.textContent = doc.type;
+                                select.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Failed to load document types:', error);
+                    });
+            }
+
+            // =====================================================
+            // End Submitted Documents Table
+            // =====================================================
 
             // Initialize edit and delete modals dynamically
             initializeEditDocumentModals();
