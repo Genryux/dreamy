@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
@@ -107,22 +109,20 @@ class UserInvitationController extends Controller
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
-                'contact_number' => 'nullable|string|max:20',
                 'role' => ['required', Rule::exists('roles', 'name')],
                 'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
-                'specialization' => 'nullable|string|max:255'
             ]);
+
+            // Generate random password
+            $plainPassword = $this->generateStrongPassword(10);
 
             // Create user account
             $user = User::create([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
                 'email' => $validated['email'],
-                'password' => bcrypt('temporary_password'), // Will be changed on first login
+                'password' => bcrypt($plainPassword),
                 'status' => 'Active',
-                'invitation_data' => json_encode([
-                    'contact_number' => $validated['contact_number'],
-                ]),
             ]);
 
             // Assign role
@@ -135,13 +135,22 @@ class UserInvitationController extends Controller
                     'first_name' => $user->first_name,
                     'last_name'  => $user->last_name,
                     'program_id' => $validated['program_id'],
-                    'contact_number' => $validated['contact_number'],
-                    'specialization' => $validated['specialization']
+                ]);
+            }
+
+            // Send email notification with credentials
+            try {
+                Mail::to($user->email)->queue(new \App\Mail\UserAccountCreatedMail($user, $plainPassword));
+            } catch (\Exception $e) {
+                Log::error('Failed to send user account creation email', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage()
                 ]);
             }
 
             // Audit logging
-            \Log::info('User created', [
+            Log::info('User created', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'role' => $validated['role'],
@@ -153,7 +162,7 @@ class UserInvitationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'User created successfully',
+                'message' => 'User created successfully. An email with login credentials has been sent.',
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->first_name . ' ' . $user->last_name,
@@ -162,7 +171,7 @@ class UserInvitationController extends Controller
                 ]
             ], 201);
         } catch (\Throwable $th) {
-            \Log::error('User creation failed', [
+            Log::error('User creation failed', [
                 'error' => $th->getMessage(),
                 'user_id' => auth()->user()->id,
                 'ip_address' => $request->ip()
@@ -229,9 +238,7 @@ class UserInvitationController extends Controller
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
-                'contact_number' => 'nullable|string|max:20',
                 'role' => ['required', Rule::exists('roles', 'name')],
                 'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
             ]);
@@ -240,11 +247,7 @@ class UserInvitationController extends Controller
             $user->update([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
-                'middle_name' => $validated['middle_name'],
                 'email' => $validated['email'],
-                'invitation_data' => json_encode([
-                    'contact_number' => $validated['contact_number'],
-                ]),
             ]);
 
             // Update role
@@ -255,13 +258,11 @@ class UserInvitationController extends Controller
                 if ($user->teacher) {
                     $user->teacher->update([
                         'program_id' => $validated['program_id'],
-                        'contact_number' => $validated['contact_number'],
                     ]);
                 } else {
                     \App\Models\Teacher::create([
                         'user_id' => $user->id,
                         'program_id' => $validated['program_id'],
-                        'contact_number' => $validated['contact_number'],
                     ]);
                 }
             } else {
@@ -902,6 +903,17 @@ class UserInvitationController extends Controller
                 ], 404);
             }
 
+            // Define protected system roles
+            $protectedRoles = ['student', 'applicant', 'head_teacher', 'teacher', 'registrar', 'super_admin'];
+            
+            // Check if role is a protected system role
+            if (in_array($role->name, $protectedRoles)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Cannot delete system role. This role is protected and required for system functionality.'
+                ], 403);
+            }
+
             // Check if role has users
             if ($role->users()->count() > 0) {
                 return response()->json([
@@ -1116,6 +1128,72 @@ class UserInvitationController extends Controller
                 'data' => [],
                 'error' => 'Failed to load users data: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Generate a strong random password
+     */
+    protected function generateStrongPassword($length = 10)
+    {
+        $upper   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lower   = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers = '0123456789';
+        $symbols = '!@#$%^&*';
+
+        $all = $upper . $lower . $numbers . $symbols;
+
+        // Guarantee at least one of each type
+        $password = substr(str_shuffle($upper), 0, 1) .
+            substr(str_shuffle($lower), 0, 1) .
+            substr(str_shuffle($numbers), 0, 1) .
+            substr(str_shuffle($symbols), 0, 1);
+
+        // Fill the rest randomly
+        $remaining = $length - strlen($password);
+        $password .= substr(str_shuffle(str_repeat($all, $remaining)), 0, $remaining);
+
+        return str_shuffle($password);
+    }
+
+    /**
+     * Reset user's PIN to default (000000)
+     */
+    public function resetPin(User $user)
+    {
+        try {
+            // Reset PIN to 000000
+            $user->update([
+                'pin' => '000000',
+                'pin_enabled' => false,
+                'pin_setup_at' => null,
+            ]);
+
+            // Audit logging
+            Log::info('User PIN reset', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'reset_by' => auth()->user()->id,
+                'reset_by_email' => auth()->user()->email,
+                'ip_address' => request()->ip(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'PIN has been reset to 000000. The user will be prompted to set up a new PIN on their next login.'
+            ]);
+        } catch (\Throwable $th) {
+            Log::error('PIN reset failed', [
+                'error' => $th->getMessage(),
+                'user_id' => $user->id,
+                'reset_by' => auth()->user()->id,
+                'ip_address' => request()->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to reset PIN: ' . $th->getMessage()
+            ], 422);
         }
     }
 }

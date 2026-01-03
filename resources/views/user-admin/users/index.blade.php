@@ -117,7 +117,7 @@
         <x-modal modal_id="delete-role-modal" modal_name="Delete Role Confirmation" close_btn_id="delete-role-close-btn"
             modal_container_id="modal-container-delete-role">
             <x-slot name="modal_icon">
-                <i class='fi fi-ss-exclamation flex justify-center items-center text-red-500'></i>
+                <i class='fi fi-rr-trash flex justify-center items-center text-red-500'></i>
             </x-slot>
 
             <form id="delete-role-form" method="post" action="" class="hidden">
@@ -125,16 +125,23 @@
                 @method('DELETE')
             </form>
 
-            <p class="py-8 px-6 space-y-2 font-regular text-[14px]">Are you sure you want to delete this role? This action
-                cannot be undone and will affect all users assigned to this role.</p>
+            <div class="p-6">
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Deletion</h3>
+                        <p class="text-gray-600">Are you sure you want to delete this role? This action cannot be undone and
+                            will permanently remove the role.</p>
+                    </div>
+                </div>
+            </div>
 
             <x-slot name="modal_buttons">
                 <button id="delete-role-cancel-btn"
-                    class="border border-[#1e1e1e]/15 text-[14px] px-2 py-1 rounded-md text-[#0f111c]/80 font-bold">
+                    class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-200">
                     Cancel
                 </button>
                 <button type="submit" form="delete-role-form" name="action" value="delete-role"
-                    class="bg-[#EA4335] text-[14px] px-2 py-1 rounded-md text-[#f8f8f8] font-bold">
+                    class="bg-red-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-red-200 hover:bg-red-400 transition duration-150 shadow-sm hover:scale-95">
                     Delete Role
                 </button>
             </x-slot>
@@ -181,16 +188,6 @@
                 </div>
 
                 <div>
-                    <label for="create_contact_number" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-phone-call mr-2"></i>
-                        Contact Number
-                    </label>
-                    <input type="text" name="contact_number" id="create_contact_number"
-                        placeholder="Enter contact number (optional)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <div>
                     <label for="create_role" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fi fi-rr-shield-check mr-2"></i>
                         Role <span class="text-red-500">*</span>
@@ -199,7 +196,9 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
                         @foreach ($rolesCollection as $role)
-                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                            @if (!in_array($role->name, ['student', 'super_admin']))
+                                <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -214,15 +213,6 @@
                         <option value="">Select a program</option>
                         <!-- Programs will be loaded dynamically -->
                     </select>
-                    <div>
-                        <label for="specialization" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
-                            <i class="fi fi-rr-book mr-2"></i>
-                            Specialization
-                        </label>
-                        <input type="text" name="specialization" id="specialization"
-                            placeholder="Enter Specialization (Optional)"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
                 </div>
 
             </div>
@@ -273,31 +263,11 @@
                 </div>
 
                 <div>
-                    <label for="edit_middle_name" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-user mr-2"></i>
-                        Middle Name
-                    </label>
-                    <input type="text" name="middle_name" id="edit_middle_name"
-                        placeholder="Enter middle name (optional)"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <div>
                     <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fi fi-rr-envelope mr-2"></i>
                         Email Address <span class="text-red-500">*</span>
                     </label>
                     <input type="email" name="email" id="edit_email" required placeholder="Enter email address"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label for="edit_contact_number" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fi fi-rr-phone-call mr-2"></i>
-                        Contact Number
-                    </label>
-                    <input type="text" name="contact_number" id="edit_contact_number"
-                        placeholder="Enter contact number (optional)"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
@@ -310,7 +280,9 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a role</option>
                         @foreach ($rolesCollection as $role)
-                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                            @if (!in_array($role->name, ['student', 'super_admin']))
+                                <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -369,6 +341,33 @@
                     Delete User
                 </button>
             </form>
+        </x-slot>
+    </x-modal>
+    <x-modal modal_id="reset-pin-modal" modal_name="Reset User PIN"
+        close_btn_id="reset-pin-modal-close-btn" modal_container_id="modal-container-reset-pin">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-lock flex justify-center items-center text-yellow-500'></i>
+        </x-slot>
+
+        <div class="p-6">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Reset PIN Confirmation</h3>
+                    <p class="text-gray-600">Are you sure you want to reset this user's PIN to <strong>000000</strong>?</p>
+                    <p class="text-gray-500 text-sm mt-2">The user will need to set up a new PIN on their next login.</p>
+                </div>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="reset-pin-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-200">
+                Cancel
+            </button>
+            <button type="button" id="reset-pin-submit-btn"
+                class="bg-yellow-500 text-[14px] px-3 py-2 rounded-xl text-white font-bold hover:ring hover:ring-yellow-200 hover:bg-yellow-400 transition duration-150 shadow-sm hover:scale-95">
+                Reset PIN
+            </button>
         </x-slot>
     </x-modal>
 @endsection
@@ -549,7 +548,9 @@
                                     class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
                                     <option value="" disabled selected>Role</option>
                                     @foreach ($rolesCollection as $role)
-                                        <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                                        @if (!in_array($role->name, ['student', 'super_admin']))
+                                            <option value="{{ $role->name }}">{{ \Illuminate\Support\Str::headline($role->name) }}</option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 <i id="clear-role-filter-btn"
@@ -957,15 +958,20 @@
                                 actions += `
                                     <button type="button" id="open-edit-user-modal-btn-${data}"
                                         data-user-id="${data}"
-                                        class="edit-user-btn group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 mr-2">
+                                        title="Edit User"
+                                        class="edit-user-btn group relative inline-flex items-center justify-center bg-blue-100 text-blue-500 font-semibold p-2 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 mr-2">
                                         <i class="fi fi-rr-edit text-[16px]"></i>
-                                        Edit
+                                    </button>
+                                    <button type="button" onclick="resetUserPin(${data})"
+                                        title="Reset PIN"
+                                        class="group relative inline-flex items-center justify-center bg-yellow-100 text-yellow-600 font-semibold p-2 rounded-xl hover:bg-yellow-500 hover:ring hover:ring-yellow-200 hover:text-white transition duration-150 mr-2">
+                                        <i class="fi fi-rr-lock text-[16px]"></i>
                                     </button>
                                     <button type="button" id="open-delete-user-modal-btn-${data}"
                                         data-user-id="${data}"
-                                        class="delete-user-btn group relative inline-flex items-center gap-2 bg-red-100 text-red-500 font-semibold px-3 py-1 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
+                                        title="Delete User"
+                                        class="delete-user-btn group relative inline-flex items-center justify-center bg-red-100 text-red-500 font-semibold p-2 rounded-xl hover:bg-red-500 hover:ring hover:ring-red-200 hover:text-white transition duration-150">
                                         <i class="fi fi-rr-trash text-[16px]"></i>
-                                        Delete
                                     </button>
                                 `;
                             } else {
@@ -1103,6 +1109,11 @@
                                                     class="edit-user-btn flex-1 flex justify-center items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-150">
                                                     <i class="fi fi-rr-edit text-sm"></i>
                                                     Edit
+                                                </button>
+                                                <button type="button" onclick="resetUserPin(${user.id})"
+                                                    class="flex-1 flex justify-center items-center gap-2 bg-yellow-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors duration-150">
+                                                    <i class="fi fi-rr-lock text-sm"></i>
+                                                    Reset PIN
                                                 </button>
                                                 <button type="button" id="open-delete-user-modal-btn-${user.id}"
                                                     data-user-id="${user.id}"
@@ -1608,11 +1619,7 @@
                                 document.getElementById('edit_first_name').value = user.first_name ||
                                     '';
                                 document.getElementById('edit_last_name').value = user.last_name || '';
-                                document.getElementById('edit_middle_name').value = user.middle_name ||
-                                    '';
                                 document.getElementById('edit_email').value = user.email || '';
-                                document.getElementById('edit_contact_number').value = user
-                                    .contact_number || '';
                                 document.getElementById('edit_role').value = user.role || '';
 
 
@@ -2467,5 +2474,68 @@
             // Hide action buttons
             document.getElementById('permission-actions').classList.add('hidden');
         }
+
+        // Reset User PIN function
+        let resetPinUserId = null;
+        
+        window.resetUserPin = function(userId) {
+            resetPinUserId = userId;
+            
+            // Open the reset PIN modal
+            const modal = document.getElementById('reset-pin-modal');
+            const modalContainer = document.getElementById('modal-container-reset-pin');
+            if (modal && modalContainer) {
+                modal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                modal.classList.add('opacity-100', 'scale-100');
+                modalContainer.classList.remove('opacity-0', 'pointer-events-none');
+                modalContainer.classList.add('opacity-100');
+            }
+        };
+
+        // Close reset PIN modal function
+        function closeResetPinModal() {
+            const modal = document.getElementById('reset-pin-modal');
+            const modalContainer = document.getElementById('modal-container-reset-pin');
+            if (modal && modalContainer) {
+                modal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                modal.classList.remove('opacity-100', 'scale-100');
+                modalContainer.classList.add('opacity-0', 'pointer-events-none');
+                modalContainer.classList.remove('opacity-100');
+            }
+            resetPinUserId = null;
+        }
+
+        // Reset PIN modal event listeners
+        document.getElementById('reset-pin-modal-close-btn')?.addEventListener('click', closeResetPinModal);
+        document.getElementById('reset-pin-cancel-btn')?.addEventListener('click', closeResetPinModal);
+        
+        document.getElementById('reset-pin-submit-btn')?.addEventListener('click', function() {
+            if (!resetPinUserId) return;
+            
+            showLoader();
+            fetch(`/admin/users/${resetPinUserId}/reset-pin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoader();
+                closeResetPinModal();
+                if (data.success) {
+                    showAlert('success', data.message);
+                } else {
+                    showAlert('error', data.error || 'An error occurred while resetting the PIN');
+                }
+            })
+            .catch(error => {
+                hideLoader();
+                closeResetPinModal();
+                console.error('Error:', error);
+                showAlert('error', 'Failed to reset PIN. Please try again.');
+            });
+        });
     </script>
 @endpush

@@ -300,6 +300,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/admin/users/{user}', [UserInvitationController::class, 'show'])->name('admin.users.show')->middleware('permission:view users');
     Route::put('/admin/users/{user}', [UserInvitationController::class, 'update'])->name('admin.users.update')->middleware('permission:update users');
     Route::delete('/admin/users/{user}', [UserInvitationController::class, 'destroy'])->name('admin.users.destroy')->middleware('permission:delete users');
+    Route::post('/admin/users/{user}/reset-pin', [UserInvitationController::class, 'resetPin'])->name('admin.users.reset-pin')->middleware('permission:update users');
 
     // Get programs for user forms
     Route::get('/admin/programs', [UserInvitationController::class, 'getPrograms'])->name('admin.programs');
