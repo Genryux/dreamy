@@ -219,7 +219,14 @@
         $fullAddress = implode(' ', $addressParts) . (count($cityParts) ? ', ' . implode(', ', $cityParts) : '');
         $contactInfo = implode(' | ', array_filter([$school->phone ?? null, $school->email ?? null]));
         $logoSrc = $school->logo_path ?? public_path('images/Dreamy_logo.png');
-        $asd = $school->logo_path ?? public_path('images/elgato.jpg');
+        
+        // Get student profile picture or fallback to default
+        $studentPhotoPath = null;
+        if ($profilePicture && $profilePicture->file_path) {
+            $studentPhotoPath = public_path('storage/' . $profilePicture->file_path);
+        } else {
+            $studentPhotoPath = public_path('images/business-man.png');
+        }
 
         // Student data
         $user = $student->user;
@@ -229,7 +236,7 @@
         // Calculate age from birthdate
         $age = $record && $record->birthdate ? \Carbon\Carbon::parse($record->birthdate)->age : 'N/A';
         $birthdate =
-            $record && $record->birthdate ? \Carbon\Carbon::parse($record->birthdate)->format('F j, Y') : 'N/A';
+            $record && $record->birthdate ? \Carbon\Carbon::parse($record->birthdate)->format('M. d, Y') : 'N/A';
 
         // Format current address
         $currentAddress = '';
@@ -280,8 +287,8 @@
     <div class="student-info-container">
         <div class="photo-cell">
             <div class="photo-box">
-                @if ($asd)
-                    <img src="{{ $asd }}" alt="Student Photo">
+                @if ($studentPhotoPath && file_exists($studentPhotoPath))
+                    <img src="{{ $studentPhotoPath }}" alt="Student Photo">
                 @else
                     <span style="color: #9ca3af; font-size: 8px;">No Photo</span>
                 @endif
@@ -313,7 +320,7 @@
                 </tr>
                 <tr>
                     <td class="highlight-label">BIRTHDATE:</td>
-                    <td class="highlight-value">{{ strtoupper($birthdate) }}</td>
+                    <td class="highlight-value" style="font-size: 9px;">{{ strtoupper($birthdate) }}</td>
                     <td class="highlight-label">AGE:</td>
                     <td class="highlight-value">{{ $age }}</td>
                     <td class="highlight-label">GENDER:</td>

@@ -123,11 +123,11 @@ class ApplicationForm extends Model
 
     public function currentAddress()
     {
-        return "{$this->house_no} {$this->street}, {$this->barangay}, {$this->city}, {$this->province}, {$this->zip_code}, {$this->country}";
+        return "{$this->cur_house_no} {$this->cur_street}, {$this->cur_barangay}, {$this->cur_city}, {$this->cur_province}, {$this->cur_zip_code}, {$this->cur_country}";
     }
 
     public function permanentAddress()
     {
-        return "{$this->house_no} {$this->street}, {$this->barangay}, {$this->city}, {$this->province}, {$this->zip_code}, {$this->country}";
+        return "{$this->perm_house_no} {$this->perm_street}, {$this->perm_barangay}, {$this->perm_city}, {$this->perm_province}, {$this->perm_zip_code}, {$this->perm_country}";
     }
 }

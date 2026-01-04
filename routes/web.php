@@ -267,6 +267,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::post('/getStudent', [StudentsController::class, 'getStudent']);
     Route::post('/students/import', [StudentRecordController::class, 'import'])->middleware(['permission:import student']);
     Route::get('/students/export/excel', [StudentRecordController::class, 'exportExcel'])->name('students.export.excel');
+    Route::get('/students/export/pdf', [StudentRecordController::class, 'exportPdf'])->name('students.export.pdf');
     Route::post('/student-record/{id}', [StudentRecordController::class, 'store'])->middleware(['permission:enroll student']);
     Route::post('/students/{id}', [StudentRecordController::class, 'store'])
         ->middleware(['permission:enroll student']);

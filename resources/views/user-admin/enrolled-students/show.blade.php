@@ -760,8 +760,13 @@
             <div class="flex-1 flex flex-col gap-4 border-r border-[#1e1e1e]/10 pr-6">
                 {{-- profile --}}
                 <div class="flex flex-row gap-4">
-                    <img src="{{ asset('images/business-man.png') }}" alt=""
-                        class="size-20 rounded-md ring ring-gray-200">
+                    @if($profilePicture && $profilePicture->file_path)
+                        <img src="{{ asset('storage/' . $profilePicture->file_path) }}" alt="Student Profile Picture"
+                            class="size-20 rounded-md ring ring-gray-200 object-cover">
+                    @else
+                        <img src="{{ asset('images/business-man.png') }}" alt="Default Profile Picture"
+                            class="size-20 rounded-md ring ring-gray-200">
+                    @endif
                     <div class="flex flex-col justify-center items-start pt-1">
                         <p class="text-lg font-bold">{{ $student->record->getFullName() ?? 'N/A' }}</p>
                         <p class="text-sm font-medium opacity-60">#{{ $student->lrn ?? 'N/A' }}</p>
@@ -1364,14 +1369,10 @@
                                                             target="_blank"
                                                             class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
                                                             <i class="fi fi-rr-eye mr-1.5"></i>
-                                                            View PDF
+                                                            View
                                                         </a>
                                                     @else
-                                                        <button
-                                                            class="inline-flex items-center px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors">
-                                                            <i class="fi fi-rr-bell mr-1.5"></i>
-                                                            Notify
-                                                        </button>
+
                                                     @endif
                                                 </td>
                                             </tr>
@@ -1387,6 +1388,235 @@
                                                             found</h3>
                                                         <p class="text-sm text-gray-500 mb-4">This student was either imported
                                                             or got promoted without submitting any documents.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endhasanyrole
+
+                @hasanyrole('registrar|super_admin')
+                    <!-- Payment History Section -->
+                    <div class="w-full mt-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Payment History</h2>
+                                <p class="text-sm text-gray-600 mt-1">Recent payment transactions and invoice records</p>
+                            </div>
+                            <a href="{{ route('school-fees.payments') }}" 
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                <i class="fi fi-rr-list mr-2"></i>
+                                View All Payments
+                            </a>
+                        </div>
+
+                        <!-- Payment History Table -->
+                        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                                                #
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Invoice Number
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Academic Term
+                                            </th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Payment Method
+                                            </th>
+                                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Total Amount
+                                            </th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                                Status
+                                            </th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @forelse ($paymentHistory as $invoice)
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <!-- Index -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $loop->iteration }}
+                                                </td>
+
+                                                <!-- Invoice Number -->
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        {{ $invoice->invoice_number }}
+                                                    </div>
+                                                </td>
+
+                                                <!-- Academic Term -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                    {{ $invoice->academicTerm->year ?? 'N/A' }}
+                                                </td>
+
+                                                <!-- Payment Method -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @php
+                                                        $methodColors = [
+                                                            'installment' => 'bg-green-100 text-green-800',
+                                                            'full' => 'bg-yellow-100 text-yellow-800',
+                                                        ];
+                                                        $methodColor = $methodColors[$invoice->payment_mode] ?? 'bg-gray-100 text-gray-800';
+                                                    @endphp
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $methodColor }}">
+                                                        {{ ucfirst($invoice->payment_mode) }}
+                                                    </span>
+                                                </td>
+
+                                                <!-- Total Amount -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
+                                                    ₱{{ number_format($invoice->total_amount, 2) }}
+                                                </td>
+
+                                                <!-- Status -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        Paid
+                                                    </span>
+                                                </td>
+
+                                                <!-- Action -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <a href="/invoice/{{ $invoice->id }}?from=history"
+                                                        class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                                        <i class="fi fi-rr-eye mr-1.5"></i>
+                                                        View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="px-6 py-12 text-center">
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fi fi-rr-receipt text-gray-400 text-2xl"></i>
+                                                        </div>
+                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No payment history</h3>
+                                                        <p class="text-sm text-gray-500">This student hasn't made any payments yet.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        @if ($paymentHistory->count() >= 5)
+                            <div class="mt-4 text-center">
+                                <a href="{{ route('school-fees.payments') }}" 
+                                    class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                    View all payment history
+                                    <i class="fi fi-rr-arrow-right ml-1"></i>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                @endhasanyrole
+
+                @hasanyrole('registrar|super_admin')
+                    <!-- Enrollment History Section -->
+                    <div class="w-full mt-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Enrollment History</h2>
+                                <p class="text-sm text-gray-600 mt-1">Student's enrollment records across different academic terms</p>
+                            </div>
+                        </div>
+
+                        <!-- Enrollment History Table -->
+                        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                                                #
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Academic Term
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Program
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Grade Level
+                                            </th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                                Status
+                                            </th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                Enrolled Date
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @forelse ($enrollmentHistory as $enrollment)
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <!-- Index -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $loop->iteration }}
+                                                </td>
+
+                                                <!-- Academic Term -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $enrollment->academicTerm->year ?? 'N/A' }} - {{ $enrollment->academicTerm->semester ?? '' }}
+                                                </td>
+
+                                                <!-- Program -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                    {{ $enrollment->program->code ?? 'N/A' }}
+                                                </td>
+
+                                                <!-- Grade Level -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                    {{ $enrollment->student->grade_level ?? 'N/A' }}
+                                                </td>
+
+                                                <!-- Status -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @php
+                                                        $statusColors = [
+                                                            'enrolled' => 'bg-green-100 text-green-800',
+                                                            'confirmed' => 'bg-blue-100 text-blue-800',
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'withdrawn' => 'bg-red-100 text-red-800',
+                                                        ];
+                                                        $statusColor = $statusColors[strtolower($enrollment->status)] ?? 'bg-gray-100 text-gray-800';
+                                                    @endphp
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                        {{ ucfirst($enrollment->status) }}
+                                                    </span>
+                                                </td>
+
+                                                <!-- Enrolled Date -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
+                                                    {{ $enrollment->enrolled_at ? $enrollment->enrolled_at->format('M d, Y') : 'N/A' }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="px-6 py-12 text-center">
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fi fi-rr-calendar text-gray-400 text-2xl"></i>
+                                                        </div>
+                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No enrollment history</h3>
+                                                        <p class="text-sm text-gray-500">This student doesn't have any enrollment records yet.</p>
                                                     </div>
                                                 </td>
                                             </tr>

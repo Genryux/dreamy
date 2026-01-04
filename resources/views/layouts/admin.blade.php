@@ -296,29 +296,32 @@
 
                                 {{-- Notification Dropdown --}}
                                 <div id="notification-dropdown"
-                                    class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
-                                    <div class="p-4 border-b border-gray-200">
+                                    class="absolute right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden"
+                                    style="width: 640px; max-width: 90vw;">
+                                    {{-- Header --}}
+                                    <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-[#199BCF]/5 to-[#C8A165]/5">
                                         <div class="flex justify-between items-center">
-                                            <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="text-lg font-bold text-gray-900">Notifications</h3>
+                                            </div>
                                             <button id="mark-all-read"
-                                                class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors hidden">
+                                                class="text-[#199BCF] text-sm font-semibold hover:text-[#C8A165] transition-colors duration-200 hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[#199BCF]/10">
+                                                <i class="fi fi-rr-check-double text-xs"></i>
                                                 Mark all read
                                             </button>
                                         </div>
                                     </div>
-                                    <div id="notification-list" class="max-h-64 overflow-y-auto">
-                                        <div class="p-4 text-center text-gray-500">
-                                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto">
-                                            </div>
-                                            <p class="mt-2">Loading notifications...</p>
+                                    
+                                    {{-- Notification List --}}
+                                    <div id="notification-list" class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                        <div class="p-8 text-center text-gray-400">
+                                            <div class="animate-spin rounded-full h-8 w-8 border-2 border-[#199BCF] border-t-transparent mx-auto mb-3"></div>
+                                            <p class="text-sm font-medium">Loading notifications...</p>
                                         </div>
                                     </div>
-                                    <div class="p-3 border-t border-gray-200 bg-gray-50">
-                                        <a href="#"
-                                            class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors">
-                                            View all notifications
-                                        </a>
-                                    </div>
+                                    
+                                    {{-- Footer --}}
+
                                 </div>
                             </div>
                         @endunlessrole

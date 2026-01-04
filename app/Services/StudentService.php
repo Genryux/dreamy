@@ -130,8 +130,8 @@ class StudentService
                 ],
                 [
                     'status' => 'enrolled',
-                    'program_id' => null, // Can be set later
-                    'section_id' => null, // Can be set later
+                    'program_id' => $applicant->program_id,
+                    'section_id' => $student->section_id,
                     'enrolled_at' => Carbon::now()
                 ]
             );

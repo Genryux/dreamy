@@ -962,11 +962,21 @@ class StudentsController extends Controller
         $currentEnrollment = $student->getCurrentAcademicTerm();
         $acadTerm = $currentEnrollment ? $currentEnrollment->academicTerm : null;
         
+        // Get 2x2 picture submission
+        $profilePicture = \App\Models\DocumentSubmissions::where('owner_id', $student->id)
+            ->where('owner_type', Student::class)
+            ->whereHas('documents', function($query) {
+                $query->where('type', '2x2 Picture');
+            })
+            ->latest('submitted_at')
+            ->first();
+        
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.sis', [
             'student' => $student,
             'studentRecord' => $studentRecord,
             'school' => $school,
             'acadTerm' => $acadTerm,
+            'profilePicture' => $profilePicture,
         ])->setPaper('letter');
 
         // Log the activity

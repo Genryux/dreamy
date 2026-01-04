@@ -53,7 +53,7 @@ class StudentRecordController extends Controller
         //
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
         // Check if there's an active academic term
         $academicTermService = app(AcademicTermService::class);
@@ -64,23 +64,163 @@ class StudentRecordController extends Controller
         }
 
         try {
-            $filename = 'officially_enrolled_students_' . $currentTerm->year . '_' . $currentTerm->semester . '.xlsx';
+            // Get filter parameters
+            $programId = $request->filled('program_id') ? (int) $request->input('program_id') : null;
+            $gradeLevel = $request->filled('grade_level') ? $request->input('grade_level') : null;
+            $status = $request->filled('status') ? $request->input('status') : null;
+
+            // Build filename with filter info
+            $filenameParts = ['officially_enrolled_students', $currentTerm->year, $currentTerm->semester];
+            if ($programId) {
+                $program = \App\Models\Program::find($programId);
+                if ($program) {
+                    $filenameParts[] = $program->code;
+                }
+            }
+            if ($gradeLevel) {
+                $filenameParts[] = str_replace(' ', '_', $gradeLevel);
+            }
+            $filename = implode('_', $filenameParts) . '.xlsx';
 
             // Log the activity
             activity('student_management')
                 ->causedBy(auth()->user())
                 ->withProperties([
-                    'action' => 'exported_students',
+                    'action' => 'exported_students_excel',
                     'academic_term' => $currentTerm->year . ' ' . $currentTerm->semester,
                     'filename' => $filename,
+                    'filters' => [
+                        'program_id' => $programId,
+                        'grade_level' => $gradeLevel,
+                        'status' => $status,
+                    ],
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent()
                 ])
                 ->log('Students data exported to Excel');
 
-            return Excel::download(new StudentsExport, $filename);
+            return Excel::download(new StudentsExport($programId, $gradeLevel, $status), $filename);
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Something went wrong while exporting');
+            \Log::error('Excel export error: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong while exporting: ' . $th->getMessage());
+        }
+    }
+
+    /**
+     * Export students as PDF with filters
+     */
+    public function exportPdf(Request $request)
+    {
+        // Check if there's an active academic term
+        $academicTermService = app(AcademicTermService::class);
+        $currentTerm = $academicTermService->fetchCurrentAcademicTerm();
+
+        if (!$currentTerm) {
+            return redirect()->back()->with('error', 'No active academic term found. Please activate an academic term before exporting students.');
+        }
+
+        try {
+            // Get filter parameters
+            $programId = $request->filled('program_id') ? (int) $request->input('program_id') : null;
+            $gradeLevel = $request->filled('grade_level') ? $request->input('grade_level') : null;
+            $status = $request->filled('status') ? $request->input('status') : null;
+
+            // Build query with filters
+            $query = \App\Models\StudentEnrollment::with([
+                'student.record', 
+                'student.user', 
+                'student.program',
+                'program',
+                'section'
+            ])
+            ->where('academic_term_id', $currentTerm->id);
+
+            // Apply status filter
+            if ($status === 'all') {
+                // No status filter - get all statuses
+            } elseif ($status) {
+                // Specific status provided
+                $query->where('status', $status);
+            } else {
+                // Default to enrolled only
+                $query->where('status', 'enrolled');
+            }
+
+            // Apply program filter
+            if ($programId) {
+                $query->where('program_id', $programId);
+            }
+
+            // Apply grade level filter
+            if ($gradeLevel) {
+                $query->whereHas('student', function ($q) use ($gradeLevel) {
+                    $q->where('grade_level', $gradeLevel);
+                });
+            }
+
+            $students = $query->get();
+
+            // Build filter description
+            $filters = [];
+            if ($programId) {
+                $program = \App\Models\Program::find($programId);
+                $filters[] = 'Program: ' . ($program->code ?? 'Unknown');
+            }
+            if ($gradeLevel) {
+                $filters[] = 'Grade Level: ' . $gradeLevel;
+            }
+            if ($status === 'all') {
+                $filters[] = 'Status: All';
+            } elseif ($status) {
+                $filters[] = 'Status: ' . ucfirst(str_replace('_', ' ', $status));
+            }
+            $filterDescription = empty($filters) ? 'All Enrolled Students' : implode(' | ', $filters);
+
+            // Get school settings
+            $schoolSetting = \App\Models\SchoolSetting::first();
+
+            // Build filename
+            $filenameParts = ['officially_enrolled_students', $currentTerm->year, $currentTerm->semester];
+            if ($programId && isset($program)) {
+                $filenameParts[] = $program->code;
+            }
+            if ($gradeLevel) {
+                $filenameParts[] = str_replace(' ', '_', $gradeLevel);
+            }
+            $filename = implode('_', $filenameParts) . '.pdf';
+
+            // Log the activity
+            activity('student_management')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'action' => 'exported_students_pdf',
+                    'academic_term' => $currentTerm->year . ' ' . $currentTerm->semester,
+                    'filename' => $filename,
+                    'filters' => [
+                        'program_id' => $programId,
+                        'grade_level' => $gradeLevel,
+                        'status' => $status,
+                    ],
+                    'student_count' => $students->count(),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent()
+                ])
+                ->log('Students data exported to PDF');
+
+            $pdf = Pdf::loadView('pdf.enrolled-students', [
+                'students' => $students,
+                'academicTerm' => $currentTerm,
+                'filterDescription' => $filterDescription,
+                'schoolSetting' => $schoolSetting,
+                'exportDate' => now()->format('F j, Y'),
+            ]);
+
+            $pdf->setPaper('A4', 'landscape');
+
+            return $pdf->download($filename);
+        } catch (\Throwable $th) {
+            \Log::error('PDF export error: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong while exporting PDF: ' . $th->getMessage());
         }
     }
 
@@ -334,8 +474,33 @@ class StudentRecordController extends Controller
             $acadTerm = $latestEnrollment ? $latestEnrollment->academicTerm : 'No Academic Term';
         }
 
+        // Get payment history for this student (paid invoices with payments)
+        $paymentHistory = \App\Models\Invoice::withTrashed()
+            ->where('student_id', $student->id)
+            ->where('status', 'paid')
+            ->with(['payments', 'academicTerm'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get enrollment history for this student
+        $enrollmentHistory = $student->enrollments()
+            ->with(['academicTerm', 'program', 'section'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get 2x2 picture submission
+        $profilePicture = DocumentSubmissions::where('owner_id', $student->id)
+            ->where('owner_type', Student::class)
+            ->whereHas('documents', function($query) {
+                $query->where('type', '2x2 Picture');
+            })
+            ->latest('submitted_at')
+            ->first();
+
         // dd($record, $studentRecordId)
-        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm'));
+        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm', 'paymentHistory', 'enrollmentHistory', 'profilePicture'));
     }
 
     /**

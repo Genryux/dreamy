@@ -62,6 +62,87 @@
         </x-slot>
 
     </x-modal>
+
+    {{-- Export Modal with Filters --}}
+    <x-modal modal_id="export-modal" modal_name="Export Students" close_btn_id="export-modal-close-btn"
+        modal_container_id="modal-container-2">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-file-export flex justify-center items-center'></i>
+        </x-slot>
+
+        <form id="export-form" class="p-6 space-y-4">
+            <p class="text-sm text-gray-600 mb-4">Select the filters to apply to your export. Leave blank to export all enrolled students.</p>
+            
+            {{-- Program Filter --}}
+            <div class="flex flex-col gap-2">
+                <label for="export_program" class="text-sm font-medium text-gray-700">Program</label>
+                <select name="program_id" id="export_program"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#199BCF] focus:border-[#199BCF] transition duration-150">
+                    <option value="">All Programs</option>
+                    @foreach ($programs as $program)
+                        <option value="{{ $program->id }}">{{ $program->code }} - {{ $program->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Grade Level Filter --}}
+            <div class="flex flex-col gap-2">
+                <label for="export_grade" class="text-sm font-medium text-gray-700">Grade Level</label>
+                <select name="grade_level" id="export_grade"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#199BCF] focus:border-[#199BCF] transition duration-150">
+                    <option value="">All Grade Levels</option>
+                    <option value="Grade 11">Grade 11</option>
+                    <option value="Grade 12">Grade 12</option>
+                </select>
+            </div>
+
+            {{-- Status Filter --}}
+            <div class="flex flex-col gap-2">
+                <label for="export_status" class="text-sm font-medium text-gray-700">Enrollment Status</label>
+                <select name="status" id="export_status"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#199BCF] focus:border-[#199BCF] transition duration-150">
+                    <option value="">Enrolled Only (Default)</option>
+                    <option value="all">All Statuses</option>
+                    <option value="enrolled">Enrolled</option>
+                    <option value="pending_confirmation">Pending Confirmation</option>
+                    <option value="withdrawn">Withdrawn/Inactive</option>
+                </select>
+            </div>
+
+            {{-- Export Format Selection --}}
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-700">Export Format</label>
+                <div class="flex flex-row gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="export_format" value="excel" checked
+                            class="w-4 h-4 text-[#199BCF] border-gray-300 focus:ring-[#199BCF]">
+                        <span class="flex items-center gap-1 text-sm">
+                            <i class="fi fi-sr-file-excel text-green-600"></i> Excel (.xlsx)
+                        </span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="export_format" value="pdf"
+                            class="w-4 h-4 text-[#199BCF] border-gray-300 focus:ring-[#199BCF]">
+                        <span class="flex items-center gap-1 text-sm">
+                            <i class="fi fi-sr-file-pdf text-red-600"></i> PDF
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="export-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="button" id="export-submit-btn"
+                class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
+                <i class="fi fi-rr-file-export flex justify-center items-center"></i>
+                Export
+            </button>
+        </x-slot>
+    </x-modal>
 @endsection
 
 @section('header')
@@ -334,10 +415,10 @@
                             class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
                             <i class="fi fi-sr-file-import text-[16px]"></i>Import Students
                         </button>
-                        <x-nav-link href="/students/export/excel"
-                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full border-b border-[#1e1e1e]/15 hover:bg-gray-200 truncate">
-                            <i class="fi fi-sr-file-excel text-[16px]"></i>Export As .xlsx
-                        </x-nav-link>
+                        <button id="export-modal-btn"
+                            class="flex-1 flex justify-start items-center px-8 py-2 gap-2 text-[14px] font-medium opacity-80 w-full hover:bg-gray-200 truncate">
+                            <i class="fi fi-sr-file-export text-[16px]"></i>Export Students
+                        </button>
                     </div>
 
                 </div>
@@ -856,6 +937,53 @@
 
             initModal('import-modal', 'import-modal-btn', 'import-modal-close-btn', 'cancel-btn',
                 'modal-container-1');
+
+            // Initialize export modal
+            initModal('export-modal', 'export-modal-btn', 'export-modal-close-btn', 'export-cancel-btn',
+                'modal-container-2');
+
+            // Handle export submit
+            const exportSubmitBtn = document.getElementById('export-submit-btn');
+            if (exportSubmitBtn) {
+                exportSubmitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const form = document.getElementById('export-form');
+                    const formData = new FormData(form);
+                    
+                    // Build URL with query parameters
+                    const params = new URLSearchParams();
+                    
+                    const programId = formData.get('program_id');
+                    const gradeLevel = formData.get('grade_level');
+                    const status = formData.get('status');
+                    const exportFormat = formData.get('export_format');
+                    
+                    if (programId) params.append('program_id', programId);
+                    if (gradeLevel) params.append('grade_level', gradeLevel);
+                    if (status) params.append('status', status);
+                    
+                    // Determine export URL based on format
+                    const baseUrl = exportFormat === 'pdf' ? '/students/export/pdf' : '/students/export/excel';
+                    const exportUrl = baseUrl + (params.toString() ? '?' + params.toString() : '');
+                    
+                    // Close modal first by triggering cancel button
+                    const cancelBtn = document.getElementById('export-cancel-btn');
+                    if (cancelBtn) {
+                        cancelBtn.click();
+                    }
+                    
+                    // Trigger download after modal is closed
+                    setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.href = exportUrl;
+                        link.download = '';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }, 300);
+                });
+            }
 
             const fileInput = document.getElementById('fileInput');
             const fileName = document.getElementById('fileName');

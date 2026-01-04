@@ -18,8 +18,25 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents, WithColumnFormatting
 {
+    protected ?int $programId;
+    protected ?string $gradeLevel;
+    protected ?string $status;
+
     /**
-     * Exported data - Get enrolled students for current academic term
+     * Constructor to accept filter parameters
+     */
+    public function __construct(
+        ?int $programId = null,
+        ?string $gradeLevel = null,
+        ?string $status = null
+    ) {
+        $this->programId = $programId;
+        $this->gradeLevel = $gradeLevel;
+        $this->status = $status;
+    }
+
+    /**
+     * Exported data - Get enrolled students for current academic term with filters
      */
     public function collection()
     {
@@ -32,17 +49,40 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
             return collect([]);
         }
         
-        // Get enrolled students for the current academic term
-        return StudentEnrollment::with([
+        // Build query with filters
+        $query = StudentEnrollment::with([
             'student.record', 
             'student.user', 
             'student.program',
-            'program'
+            'program',
+            'section'
         ])
-        ->where('academic_term_id', $currentTerm->id)
-        ->where('status', 'enrolled')
-        ->get()
-        ->map(function ($enrollment) {
+        ->where('academic_term_id', $currentTerm->id);
+
+        // Apply status filter
+        if ($this->status === 'all') {
+            // No status filter - get all statuses
+        } elseif ($this->status) {
+            // Specific status provided
+            $query->where('status', $this->status);
+        } else {
+            // Default to enrolled only
+            $query->where('status', 'enrolled');
+        }
+
+        // Apply program filter
+        if ($this->programId) {
+            $query->where('program_id', $this->programId);
+        }
+
+        // Apply grade level filter
+        if ($this->gradeLevel) {
+            $query->whereHas('student', function ($q) {
+                $q->where('grade_level', $this->gradeLevel);
+            });
+        }
+
+        return $query->get()->map(function ($enrollment) {
             return [
                 'lrn' => $enrollment->student->lrn ?? '', // Keep as numeric for import validation
                 'first_name' => (string) ($enrollment->student->user->first_name ?? ''),
@@ -72,7 +112,7 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
     }
 
     /**
-     * Make sure headings start on row 6
+     * Start cell for headings (row 6)
      */
     public function startCell(): string
     {
@@ -172,12 +212,10 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
 
                 // Row 3 - Academic Year
                 $sheet->setCellValue('A3', 'Academic Year:');
-                // TODO: Replace with your actual Acad Year fetch
                 $sheet->setCellValue('B3', $academicYear ? $academicYear->year : 'N/A');
 
                 // Row 4 - Semester
                 $sheet->setCellValue('A4', 'Semester:');
-                // TODO: Replace with your actual Semester fetch
                 $sheet->setCellValue('B4', $academicYear ? $academicYear->semester : 'N/A');
 
                 $sheet->getStyle('A1:D1')->applyFromArray([
@@ -206,6 +244,7 @@ class StudentsExport implements FromCollection, WithHeadings, WithCustomStartCel
                         ],
                     ],
                 ]);
+                
                 $lastRow = $sheet->getHighestRow();
                 $sheet->getStyle("A7:A{$lastRow}")->applyFromArray([
                     'alignment' => [
