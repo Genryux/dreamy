@@ -129,75 +129,74 @@
 @endsection
 
 @section('academic_programs')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">Academic Programs</h2>
-                <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
-                <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Discover our comprehensive academic programs
-                    designed
-                    to prepare students for success</p>
-            </div>
+    @if($academicPrograms && $academicPrograms->is_active)
+        <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
+                    <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">{{ $academicPrograms->heading }}</h2>
+                    <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
+                    <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">{{ $academicPrograms->description }}</p>
+                </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                @forelse($programs as $program)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                    @forelse($academicPrograms->items as $program)
+                        <div class="bg-gradient-to-br from-[{{ $program->gradient_from }}] to-[{{ $program->gradient_to }}] rounded-xl p-8 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 relative"
+                            style="background: linear-gradient(to bottom right, {{ $program->gradient_from }}, {{ $program->gradient_to }});"
+                            data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 + 100 }}">
+                            
+                            @if($program->status === 'coming_soon')
+                                <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
+                                    Coming Soon
+                                </div>
+                            @endif
+
+                            <h3 class="text-2xl font-bold mb-4">{{ $program->title }}</h3>
+                            @if($program->track_name)
+                                <p class="text-white/80 mb-2 text-sm font-medium">{{ $program->track_name }} Track</p>
+                            @endif
+                            <p class="text-white/80 mb-6">{{ $program->description }}</p>
+                            
+                            @if($program->status === 'active')
+                                <a href="{{ $program->link_url ?? '#' }}"
+                                    class="inline-flex items-center {{ $program->isGoldTrack() ? 'text-white hover:text-[#1A3165]' : 'text-[#C8A165] hover:text-white' }} font-semibold transition-colors duration-200">
+                                    Learn More <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
+                                </a>
+                            @else
+                                <span class="inline-flex items-center text-white/60 font-semibold">
+                                    Available Soon
+                                </span>
+                            @endif
+                        </div>
+                    @empty
+                        <!-- Fallback content when no programs are available -->
+                        <div class="col-span-full text-center py-12">
+                            <div class="text-6xl text-gray-300 mb-4">📚</div>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">Programs Coming Soon</h3>
+                            <p class="text-gray-500">We're preparing exciting academic programs for you.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <div class="text-center" data-aos="fade-up" data-aos-duration="800">
                     @php
-                        // Use actual track data if available, otherwise show program without track classification
-                        if ($program->track) {
-                            // Use real track data from database
-                            $trackName = $program->track->name;
-                            $trackGradient = $program->getTrackGradient();
-                            $isGoldTrack = $program->isGoldTrack();
-                            $trackDescription = $program->track->description;
-                        } else {
-                            // No track relationship - show program without track classification
-                            $trackName = null;
-                            $trackGradient = 'from-[#1A3165] to-[#2A4A7A]';
-                            $isGoldTrack = false;
-                            $trackDescription = $program->description ?? null;
-                        }
+                        $activeCount = $academicPrograms->items->where('status', 'active')->count();
                     @endphp
-
-                    <div class="bg-gradient-to-br {{ $trackGradient }} rounded-xl p-8 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-                        data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 + 100 }}">
-                        <h3 class="text-2xl font-bold mb-4">{{ $program->name }}</h3>
-                        @if ($trackName)
-                            <p class="text-white/80 mb-2 text-sm font-medium">{{ $trackName }} Track</p>
-                        @endif
-                        @if ($trackDescription)
-                            <p class="text-white/80 mb-6">{{ $trackDescription }}</p>
-                        @endif
-                        <a href="#"
-                            class="inline-flex items-center {{ $isGoldTrack ? 'text-white hover:text-[#1A3165]' : 'text-[#C8A165] hover:text-white' }} font-semibold transition-colors duration-200">
-                            Learn More <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
+                    @if($activeCount > 0)
+                        <a href="/portal/login"
+                            class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
+                            Explore All {{ $activeCount }} Programs <i
+                                class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
                         </a>
-                    </div>
-                @empty
-                    <!-- Fallback content when no programs are available -->
-                    <div class="col-span-full text-center py-12">
-                        <div class="text-6xl text-gray-300 mb-4">📚</div>
-                        <h3 class="text-xl font-semibold text-gray-600 mb-2">Programs Coming Soon</h3>
-                        <p class="text-gray-500">We're preparing exciting academic programs for you.</p>
-                    </div>
-                @endforelse
-            </div>
-
-            <div class="text-center" data-aos="fade-up" data-aos-duration="800">
-                @if ($programs->count() > 0)
-                    <a href="/portal/login"
-                        class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
-                        Explore All {{ $programs->count() }} Programs <i
-                            class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
-                    </a>
-                @else
-                    <a href="/portal/register"
-                        class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
-                        Apply Now <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
-                    </a>
-                @endif
+                    @else
+                        <a href="/portal/register"
+                            class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
+                            Apply Now <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
-    </div>
+    @endif
 @endsection
 
 @section('reason')

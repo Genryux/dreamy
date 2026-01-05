@@ -189,20 +189,20 @@
                 </div>
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-book text-xs mr-2"></i>
-                        <span>Program listings</span>
+                        <i class="fi fi-rr-text text-xs mr-2"></i>
+                        <span>Heading & description</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-picture text-xs mr-2"></i>
-                        <span>6 program images</span>
+                        <i class="fi fi-rr-book text-xs mr-2"></i>
+                        <span>Multiple program items</span>
                     </div>
                 </div>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
-                <button class="w-full mt-2 bg-[#8b5cf6] hover:bg-[#6d28d9] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                <a href="{{ route('admin.homepage.academic-programs.edit') }}" class="block w-full mt-2 bg-[#8b5cf6] hover:bg-[#6d28d9] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
-                </button>
+                </a>
             </div>
         </div>
 

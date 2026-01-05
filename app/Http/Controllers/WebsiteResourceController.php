@@ -10,6 +10,7 @@ use App\Models\HeroSection;
 use App\Models\AboutSection;
 use App\Models\MissionValuesSection;
 use App\Models\SchoolAtGlanceSection;
+use App\Models\AcademicProgramsSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -42,6 +43,9 @@ class WebsiteResourceController extends Controller
         // Get active school at glance section
         $schoolAtGlance = SchoolAtGlanceSection::getActive();
 
+        // Get active academic programs section
+        $academicPrograms = AcademicProgramsSection::getActive();
+
         // Get latest published news for public (limit to 6 for homepage)
         $news = News::published()
             ->forPublic()
@@ -63,7 +67,7 @@ class WebsiteResourceController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('home', compact('background', 'hero', 'about', 'missionValues', 'schoolAtGlance', 'news', 'programs', 'tracks'));
+        return view('home', compact('background', 'hero', 'about', 'missionValues', 'schoolAtGlance', 'academicPrograms', 'news', 'programs', 'tracks'));
     }
 
     public function UploadMainBg(Request $request)

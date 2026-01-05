@@ -8,6 +8,8 @@ use App\Models\MissionValuesSection;
 use App\Models\MissionValuesItem;
 use App\Models\SchoolAtGlanceSection;
 use App\Models\SchoolAtGlanceItem;
+use App\Models\AcademicProgramsSection;
+use App\Models\AcademicProgramsItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -392,6 +394,107 @@ class HomepageController extends Controller
         }
 
         return redirect()->route('admin.homepage.index')->with('success', 'School at a Glance section updated successfully!');
+    }
+
+    /**
+     * Show the form for editing the Academic Programs section
+     */
+    public function editAcademicProgramsSection()
+    {
+        $section = AcademicProgramsSection::with('items')->orderBy('order')->first();
+        
+        if (!$section) {
+            // Create a default section if none exists
+            $section = AcademicProgramsSection::create([
+                'heading' => 'Academic Programs',
+                'description' => 'Discover our comprehensive academic programs designed to prepare students for success',
+                'is_active' => true,
+                'order' => 1,
+            ]);
+        }
+        
+        return view('user-admin.homepage.edit-academic-programs', compact('section'));
+    }
+
+    /**
+     * Update the Academic Programs section
+     */
+    public function updateAcademicProgramsSection(Request $request)
+    {
+        $section = AcademicProgramsSection::orderBy('order')->first();
+        
+        if (!$section) {
+            $section = new AcademicProgramsSection();
+            $section->order = 1;
+        }
+
+        // Validate the request
+        $validated = $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'is_active' => 'boolean',
+            // Validate existing items
+            'items.*.id' => 'nullable|exists:academic_programs_items,id',
+            'items.*.title' => 'required|string|max:255',
+            'items.*.description' => 'required|string',
+            'items.*.track_name' => 'nullable|string|max:255',
+            'items.*.gradient_from' => 'required|string|max:7',
+            'items.*.gradient_to' => 'required|string|max:7',
+            'items.*.link_url' => 'nullable|url|max:255',
+            'items.*.status' => 'required|in:active,coming_soon',
+            'items.*.order' => 'required|integer|min:1',
+        ]);
+
+        // Update section
+        $section->heading = $validated['heading'];
+        $section->description = $validated['description'];
+        $section->is_active = $request->has('is_active');
+        $section->save();
+
+        // Update or create items
+        if (isset($validated['items'])) {
+            $submittedItemIds = [];
+            
+            foreach ($validated['items'] as $itemData) {
+                if (isset($itemData['id']) && $itemData['id']) {
+                    // Update existing item
+                    $item = AcademicProgramsItem::find($itemData['id']);
+                    if ($item) {
+                        $item->update([
+                            'title' => $itemData['title'],
+                            'description' => $itemData['description'],
+                            'track_name' => $itemData['track_name'] ?? null,
+                            'gradient_from' => $itemData['gradient_from'],
+                            'gradient_to' => $itemData['gradient_to'],
+                            'link_url' => $itemData['link_url'] ?? null,
+                            'status' => $itemData['status'],
+                            'order' => $itemData['order'],
+                        ]);
+                        $submittedItemIds[] = $item->id;
+                    }
+                } else {
+                    // Create new item
+                    $newItem = $section->items()->create([
+                        'title' => $itemData['title'],
+                        'description' => $itemData['description'],
+                        'track_name' => $itemData['track_name'] ?? null,
+                        'gradient_from' => $itemData['gradient_from'],
+                        'gradient_to' => $itemData['gradient_to'],
+                        'link_url' => $itemData['link_url'] ?? null,
+                        'status' => $itemData['status'],
+                        'order' => $itemData['order'],
+                    ]);
+                    $submittedItemIds[] = $newItem->id;
+                }
+            }
+            
+            // Delete items that were not submitted (removed by user)
+            AcademicProgramsItem::where('academic_programs_section_id', $section->id)
+                ->whereNotIn('id', $submittedItemIds)
+                ->delete();
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'Academic Programs section updated successfully!');
     }
 
     /**
