@@ -43,6 +43,16 @@
                 Request::is('forgot-password') ||
                 Request::is('reset-password*') ||
                 Request::is('password-reset-success'))
+            <div id="admission-notice" class="fixed top-0 bg-[#C8a165] w-screen h-[30px] flex justify-center items-center z-40 overflow-hidden">
+                <div class="notice-slider w-full h-full flex items-center">
+                    <div class="notice-content whitespace-nowrap text-white font-semibold text-sm md:text-base">
+                        2026th School Year Admission - Enroll Now! | Limited Slots Available | Enroll Today!
+                    </div>
+                </div>
+                <button id="close-notice" class="absolute right-2 text-white hover:text-gray-200 transition-colors duration-200 text-xl font-bold">
+                    ×
+                </button>
+            </div>
             <div id="header"
                 class="fixed top-0 flex flex-row justify-between items-center w-full px-4 md:px-[120px] py-4 z-20 transition-all duration-500 ease-in-out">
                 <!-- Logo and Admin Link -->
@@ -130,18 +140,47 @@
         @endunless
 
         @yield('login_page')
-        @yield('section_1')
-        @yield('section_2')
-        @yield('section_3')
-        @yield('section_4')
-        @yield('section_5')
-        @yield('section_6')
-        @yield('section_7')
+
+        @yield('notice')
+        @yield('hero')
+        @yield('about_us')
+        @yield('mission_values')
+        @yield('glance')
+        @yield('academic_programs')
+        @yield('reason')
+        @yield('alumni')
+        @yield('campus_tour')
+        @yield('how_to_apply')
+        @yield('news_announcement')
         @yield('footer')
 
     </main>
 
     <style>
+        /* Admission Notice Animation */
+        .notice-slider {
+            position: relative;
+        }
+
+        .notice-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 20s linear infinite;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        #admission-notice.hidden {
+            display: none;
+        }
+
         /* Header scroll animation styles */
         #header {
             backdrop-filter: blur(0px);
@@ -204,6 +243,25 @@
     </style>
 
     <script>
+        // Admission Notice Close Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const admissionNotice = document.getElementById('admission-notice');
+            const closeNoticeBtn = document.getElementById('close-notice');
+
+            // Check if notice was closed in this session
+            if (sessionStorage.getItem('noticeHidden') === 'true') {
+                admissionNotice.classList.add('hidden');
+            }
+
+            // Close notice and save state
+            if (closeNoticeBtn) {
+                closeNoticeBtn.addEventListener('click', function() {
+                    admissionNotice.classList.add('hidden');
+                    sessionStorage.setItem('noticeHidden', 'true');
+                });
+            }
+        });
+
         // Header scroll animation
         document.addEventListener('DOMContentLoaded', function() {
             const header = document.getElementById('header');

@@ -218,6 +218,15 @@
                             @endcan
 
                             @can('view site management page')
+                                <x-nav-link href="/admin/homepage" :active="request()->is('admin/homepage*')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rr-home text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Homepage Manager</p>
+                                    </span>
+
+                                </x-nav-link>
+
                                 <x-nav-link href="/admin/news" :active="request()->is('admin/news')">
 
                                     <span class="flex flex-row items-center space-x-4">

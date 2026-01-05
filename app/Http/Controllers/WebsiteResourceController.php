@@ -6,6 +6,9 @@ use App\Models\WebBackground;
 use App\Models\News;
 use App\Models\Program;
 use App\Models\Track;
+use App\Models\HeroSection;
+use App\Models\AboutSection;
+use App\Models\MissionValuesSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -25,6 +28,15 @@ class WebsiteResourceController extends Controller
                 $background = null;
             }
         }
+
+        // Get active hero section
+        $hero = HeroSection::getActive();
+
+        // Get active about section
+        $about = AboutSection::getActive();
+
+        // Get active mission values section
+        $missionValues = MissionValuesSection::getActive();
 
         // Get latest published news for public (limit to 6 for homepage)
         $news = News::published()
@@ -47,7 +59,7 @@ class WebsiteResourceController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('home', compact('background', 'news', 'programs', 'tracks'));
+        return view('home', compact('background', 'hero', 'about', 'missionValues', 'news', 'programs', 'tracks'));
     }
 
     public function UploadMainBg(Request $request)

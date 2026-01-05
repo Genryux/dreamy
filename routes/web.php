@@ -8,6 +8,7 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\DocumentsSubmissionController;
 use App\Http\Controllers\EnrollmentPeriodController;
+use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoiceItemController;
@@ -184,6 +185,18 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::match(['PUT', 'POST'], '/admin/settings/school/payments', [SchoolSettingController::class, 'updatePayments'])
         ->middleware(['permission:create school fees', 'throttle:10,1']) // 10 requests per minute
         ->name('admin.settings.school.payments.update');
+
+    // Homepage Content Management
+    Route::get('/admin/homepage', [HomepageController::class, 'index'])->middleware(['permission:view site management page'])->name('admin.homepage.index');
+    Route::get('/admin/homepage/hero/edit', [HomepageController::class, 'editHeroSection'])->middleware(['permission:view site management page'])->name('admin.homepage.hero.edit');
+    Route::put('/admin/homepage/hero', [HomepageController::class, 'updateHeroSection'])->middleware(['permission:view site management page'])->name('admin.homepage.hero.update');
+    Route::get('/admin/homepage/about/edit', [HomepageController::class, 'editAboutSection'])->middleware(['permission:view site management page'])->name('admin.homepage.about.edit');
+    Route::put('/admin/homepage/about', [HomepageController::class, 'updateAboutSection'])->middleware(['permission:view site management page'])->name('admin.homepage.about.update');
+    Route::get('/admin/homepage/mission-values/edit', [HomepageController::class, 'editMissionValuesSection'])->middleware(['permission:view site management page'])->name('admin.homepage.mission-values.edit');
+    Route::put('/admin/homepage/mission-values', [HomepageController::class, 'updateMissionValuesSection'])->middleware(['permission:view site management page'])->name('admin.homepage.mission-values.update');
+    Route::delete('/admin/homepage/mission-values/item/{id}', [HomepageController::class, 'deleteMissionValueItem'])->middleware(['permission:view site management page'])->name('admin.homepage.mission-values.item.delete');
+    Route::get('/admin/homepage/{section}/edit', [HomepageController::class, 'editSection'])->middleware(['permission:view site management page'])->name('admin.homepage.edit');
+    Route::put('/admin/homepage/{section}', [HomepageController::class, 'updateSection'])->middleware(['permission:view site management page'])->name('admin.homepage.update');
 
     // Activity Logs
     Route::get('/admin/activity-logs', [ActivityController::class, 'getActivityLogs'])->name('admin.activity-logs');

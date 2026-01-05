@@ -1,162 +1,153 @@
 @extends('layouts.app', ['title' => 'Dreamy School'])
 
-@section('section_1')
-    <div id="home"
-        class="relative h-[600px] md:h-screen w-screen overflow-hidden flex flex-col justify-center items-center pb-16 md:pb-[20px]">
+@section('hero')
+    @if($hero && $hero->is_active)
+        <div id="home"
+            class="relative h-[600px] md:h-screen w-screen overflow-hidden flex flex-col justify-center items-center pb-16 md:pb-[20px]">
 
-        <div class="w-full h-full">
-            {{-- Hard-coded video background to prevent corruption --}}
-            <video autoplay muted loop playsinline
-                class="pointer-events-none background absolute inset-0 w-full h-full object-cover object-center -z-20">
-                {{-- <source src="{{ asset('storage/background/background.mp4') }}" type="video/mp4"> --}}
-                <source src="{{ asset('storage/background/Dreamy Bg-1.mp4') }}" type="video/mp4">
-                <source src="{{ asset('storage/background/Dreamy Bg-1.webm') }}" type="video/webm">
-            </video>
-        </div>
-
-        {{-- @if ($background)
-            @php
-                $url = asset('storage/' . $background);
-                $ext = strtolower(pathinfo($background, PATHINFO_EXTENSION));
-            @endphp
-
-            @if (in_array($ext, ['jpg', 'jpeg', 'png']))
-                <img src="{{ $url }}" class="background absolute inset-0 w-full h-full object-cover -z-20">
-            @elseif(in_array($ext, ['mp4', 'mov']))
-                <video autoplay muted loop playsinline class="background absolute inset-0 w-full h-full object-cover -z-20">
-                    <source src="{{ $url }}" type="video/{{ $ext }}">
-                </video>
-            @endif
-        @endif --}}
-
-        <div
-            class="absolute inset-0 h-full w-full bg-gradient-to-b from-[#1A3165]/80 from-5% via-[#1A3165]/40 via-70% to-[#1A3165] to-95% -z-10">
-            {{-- gradient filter on top of the video --}}
-        </div>
-
-        <div class="self-center flex flex-col justify-center items-center mb-20 md:mb-24 ">
-
-            <p class="relative z-10 font-nunito text-[42px] self-center text-center md:text-[80px] font-black tracking-[8px] [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)] text-white"
-                data-aos="fade-up" data-aos-duration="1000">
-                Dreamy School
-            </p>
-
-            <p class="text-[24px] md:text-[40px] text-white tracking-[3px] leading-sm [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)]"
-                data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-                Philippines</p>
-
-        </div>
-
-        {{-- line --}}
-        <div
-            class="hidden absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 md:flex flex-row items-center justify-center">
-            <svg class="h-[60px] w-[1px] text-white flex flex-row justify-center items-center" viewBox="0 0 1 60"
-                xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
-                <!-- sharp top -->
-                <polygon points="0,8 0.5,0 1,8" fill="currentColor" />
-                <!-- line body -->
-                <rect x="0" y="8" width="1" height="52" fill="currentColor" />
-            </svg>
-        </div>
-
-
-    </div>
-@endsection
-
-@section('section_2')
-    <div id="about"
-        class="relative bg-[#1A3165] h-1/2 md:h-screen w-screen flex flex-col md:flex-row justify-center md:justify-between items-center overflow-hidden gap-10 px-[20px] md:px-[120px]">
-
-
-        <div class="md:flex-1 w-full flex flex-col justify-start items-center md:items-start gap-4">
-            <div data-aos="fade-right" class="space-y-2" data-aos-duration="800" data-aos-delay="150">
-                <h2 class="font-bold text-[32px] text-white">About us</h2>
-                <div class="bg-[#C8A165] w-[100%] h-[5px]"></div>
-            </div>
-            <p class="text-[18px] md:pr-16 text-center md:text-start text-white" data-aos="fade-right"
-                data-aos-duration="800" data-aos-delay="350">Founded by Dreamy School Korea, a prestigious Christian
-                institution, we instill timeless faith values in our students during a rapidly changing era, nurturing
-                innovative and creative talents poised to lead the Philippines and Asia.</p>
-        </div>
-
-        {{-- also line --}}
-        <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-            <span class="hidden md:block border-l border-white h-full w-[1px]"></span>
-        </div>
-
-        <div class="md:flex-1 flex justify-center rounded-xl overflow-hidden items-center md:ml-20 mb-20"
-            data-aos="fade-left" data-aos-duration="800" data-aos-delay="150">
-            <img src="{{ asset('images/ab.jpg') }}" class="w-full h-full object-contain" alt="">
-        </div>
-
-    </div>
-@endsection
-
-@section('section_3')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">Latest News & Announcements</h2>
-                <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
-                <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Stay updated with the latest news and announcements
-                    from Dreamy School</p>
+            <div class="w-full h-full">
+                @if($hero->background_type === 'video' && $hero->background_video_path)
+                    <video autoplay muted loop playsinline
+                        class="pointer-events-none background absolute inset-0 w-full h-full object-cover object-center -z-20">
+                        <source src="{{ asset('storage/' . $hero->background_video_path) }}" type="video/mp4">
+                    </video>
+                @elseif($hero->background_type === 'image' && $hero->background_image_path)
+                    <img src="{{ asset('storage/' . $hero->background_image_path) }}" 
+                        class="background absolute inset-0 w-full h-full object-cover -z-20">
+                @endif
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                @forelse($news ?? [] as $article)
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300"
-                        data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 }}">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fi fi-rr-calendar mr-2"></i>
-                                    {{ $article->published_at->format('M d, Y') }}
-                                </div>
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <i class="fi fi-rr-clock mr-2"></i>
-                                    {{ $article->published_at->diffForHumans() }}
-                                </div>
-                            </div>
-                            <h3 class="text-xl font-bold text-[#1A3165] mb-3 line-clamp-2">
-                                {{ $article->title }}
-                            </h3>
-                            <p class="text-gray-600 mb-4 line-clamp-3">
-                                {{ Str::limit($article->content, 120) }}
-                            </p>
-                            <a href="{{ route('public.news.show', $article) }}"
-                                class="inline-flex items-center text-[#1A3165] font-semibold hover:text-[#C8A165] transition-colors duration-200">
-                                Read More
-                                <i class="fi fi-rr-arrow-right ml-2"></i>
-                            </a>
+            <div
+                class="absolute inset-0 h-full w-full bg-gradient-to-b from-[#1A3165]/80 from-5% via-[#1A3165]/40 via-70% to-[#1A3165] to-95% -z-10">
+                {{-- gradient filter on top of the video --}}
+            </div>
+
+            <div class="self-center flex flex-col justify-center items-center mb-20 md:mb-24 ">
+
+                <p class="relative z-10 font-nunito text-[42px] self-center text-center md:text-[80px] font-black tracking-[8px] [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)] text-white"
+                    data-aos="fade-up" data-aos-duration="1000">
+                    {{ $hero->title }}
+                </p>
+
+                <p class="text-[24px] md:text-[40px] text-white tracking-[3px] leading-sm [text-shadow:2px_2px_8px_rgba(0,0,0,0.5)]"
+                    data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                    {{ $hero->subtitle }}</p>
+
+            </div>
+
+            {{-- line --}}
+            <div
+                class="hidden absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 md:flex flex-row items-center justify-center">
+                <svg class="h-[60px] w-[1px] text-white flex flex-row justify-center items-center" viewBox="0 0 1 60"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                    <!-- sharp top -->
+                    <polygon points="0,8 0.5,0 1,8" fill="currentColor" />
+                    <!-- line body -->
+                    <rect x="0" y="8" width="1" height="52" fill="currentColor" />
+                </svg>
+            </div>
+
+        </div>
+    @endif
+@endsection
+
+@section('about_us')
+    @if($about && $about->is_active)
+        <div id="about"
+            class="relative bg-[#1A3165] h-1/2 md:h-screen w-screen flex flex-col md:flex-row justify-center md:justify-between items-center overflow-hidden gap-10 px-[20px] md:px-[120px]">
+
+
+            <div class="md:flex-1 w-full flex flex-col justify-start items-center md:items-start gap-4">
+                <div data-aos="fade-right" class="space-y-2" data-aos-duration="800" data-aos-delay="150">
+                    <h2 class="font-bold text-[32px] text-white">{{ $about->heading }}</h2>
+                    <div class="bg-[#C8A165] w-[100%] h-[5px]"></div>
+                </div>
+                <p class="text-[18px] md:pr-16 text-center md:text-start text-white" data-aos="fade-right"
+                    data-aos-duration="800" data-aos-delay="350">{{ $about->description }}</p>
+            </div>
+
+            {{-- also line --}}
+            <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                <span class="hidden md:block border-l border-white h-full w-[1px]"></span>
+            </div>
+
+            <div class="md:flex-1 flex justify-center rounded-xl overflow-hidden items-center md:ml-20"
+                data-aos="fade-left" data-aos-duration="800" data-aos-delay="150">
+                <img src="{{ asset('storage/' . $about->image_path) }}" class="w-full max-h-[500px] object-contain" alt="{{ $about->heading }}">
+            </div>
+
+        </div>
+    @endif
+@endsection
+
+@section('mission_values')
+    @if($missionValues && $missionValues->is_active)
+        <!-- Our Mission & Values Section -->
+        <div class="relative bg-[#F8F8F8] w-screen md:h-screen py-16 px-[20px] md:px-[120px]">
+            <div class="h-full w-full mx-auto md:flex md:flex-col md:justify-center md:items-center">
+                <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                    <h2 class="font-bold text-[28px] md:text-[40px] text-[#1A3165] mb-2">{{ $missionValues->heading }}</h2>
+                    <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
+                    <p class="text-[16px] md:text-[20px] text-gray-600 max-w-2xl mx-auto">{{ $missionValues->description }}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    @foreach($missionValues->items as $index => $item)
+                        <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" 
+                            data-aos="fade-up" data-aos-duration="{{ 600 + ($index * 200) }}">
+                            <i class="{{ $item->icon }} text-3xl mb-4" style="color: {{ $item->color }}"></i>
+                            <h3 class="text-lg font-bold mb-2" style="color: {{ $item->color }}">{{ $item->title }}</h3>
+                            <p class="text-gray-600">{{ $item->description }}</p>
                         </div>
-                    </div>
-                @empty
-                    <div class="col-span-full text-center py-12">
-                        <i class="fi fi-rr-newspaper text-6xl text-gray-300 mb-4"></i>
-                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No News Available</h3>
-                        <p class="text-gray-500">Check back later for the latest updates.</p>
-                    </div>
-                @endforelse
+                    @endforeach
+                </div>
             </div>
+        </div>
+    @endif
+@endsection
 
-            <div class="text-center" data-aos="fade-up" data-aos-duration="800">
-                <a href="{{ route('public.news.index') }}"
-                    class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
-                    View All News
-                    <i class="fi fi-rr-arrow-right ml-2"></i>
-                </a>
+@section('glance')
+    <div class="relative bg-[#C8A165] w-screen py-12 px-[20px] md:px-[120px]">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">School at a Glance</h2>
+                <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
+                <p class="text-[16px] md:text-[20px] text-gray-200 max-w-2xl mx-auto">A quick look at what makes Dreamy
+                    School unique and outstanding.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div
+                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#1A3165]/90 rounded-full text-white shadow-lg">
+                    <div class="text-[50px] font-bold mb-2">500+</div>
+                    <div class="text-sm opacity-80">Active Students</div>
+                </div>
+                <div
+                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#f8f8f8]/90 rounded-full text-white shadow-lg">
+                    <div class="text-[50px] font-bold mb-2 text-[#1A3165]">95%</div>
+                    <div class="text-sm opacity-80 text-[#1A3165]">Graduation Rate</div>
+                </div>
+                <div
+                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#1A3165]/90 rounded-full text-white shadow-lg">
+                    <div class="text-[50px] font-bold mb-2">50+</div>
+                    <div class="text-sm opacity-80">Qualified Teachers</div>
+                </div>
+                <div
+                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#f8f8f8]/90 rounded-full text-white shadow-lg">
+                    <div class="text-[50px] font-bold mb-2 text-[#1A3165]">15+</div>
+                    <div class="text-sm opacity-80 text-[#1A3165]">Years of Excellence</div>
+                </div>
             </div>
         </div>
     </div>
 @endsection
 
-@section('section_4')
+@section('academic_programs')
     <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
                 <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">Academic Programs</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
-                <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Discover our comprehensive academic programs designed
+                <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Discover our comprehensive academic programs
+                    designed
                     to prepare students for success</p>
             </div>
 
@@ -181,11 +172,6 @@
 
                     <div class="bg-gradient-to-br {{ $trackGradient }} rounded-xl p-8 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
                         data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 + 100 }}">
-
-
-                        <div class="text-4xl mb-4">
-                            <i class="{{ $program->track ? $program->getTrackIcon() : 'fi fi-rr-book' }}"></i>
-                        </div>
                         <h3 class="text-2xl font-bold mb-4">{{ $program->name }}</h3>
                         @if ($trackName)
                             <p class="text-white/80 mb-2 text-sm font-medium">{{ $trackName }} Track</p>
@@ -226,7 +212,7 @@
     </div>
 @endsection
 
-@section('section_5')
+@section('reason')
     <div class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
@@ -331,220 +317,482 @@
     </div>
 @endsection
 
-@section('section_6')
-    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
-        <div class="max-w-7xl mx-auto">
+@section('alumni')
+    <!-- Success Stories / Alumni Spotlight -->
+    <div class="relative w-screen md:h-screen py-16 px-[20px] md:px-[120px] overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 -z-20">
+            <img src="{{ asset('images/graduate.jpg') }}" class="w-full h-full object-cover" alt="Campus Background">
+        </div>
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-[#C8A165] via-[#C8A165]/70 to-transparent -z-10"></div>
 
-            <div class="w-full h-full">
-                <img src="{{ asset('images/bizm.jpg') }}" class="background absolute inset-0 w-full h-full object-cover"
-                    alt="">
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                <h2 class="font-bold text-[28px] md:text-[40px] text-white mb-2">Alumni Success Stories</h2>
+                <div class="bg-white w-[120px] h-[4px] mx-auto mb-6"></div>
+                <p class="text-[16px] md:text-[20px] text-white max-w-2xl mx-auto">Meet some of our outstanding alumni
+                    and see where their Dreamy School journey has taken them.</p>
             </div>
-
-            <div
-                class="absolute inset-0 h-full w-full bg-gradient-to-b from-[#1A3165] from-5% via-[#1A3165]/40 via-70% to-[#1A3165] to-90%">
-                {{-- gradient filter on top of the video --}}
-            </div>
-
-            <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4 z-10">Student Life & Achievements</h2>
-                <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
-                <p class="text-[18px] text-gray-400 max-w-2xl mx-auto">See what makes our school community special</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-                <!-- Student Testimonials -->
-                <div data-aos="fade-right" data-aos-duration="800">
-                    <h3 class="text-3xl font-bold text-white mb-8">What Our Students Say</h3>
-                    <div class="space-y-6">
-                        <div class="bg-white rounded-xl p-6 backdrop-blur-lg bg-opacity-20">
-                            <div class="flex items-center mb-4">
-                                <div
-                                    class="w-12 h-12 bg-[#1A3165] rounded-full flex items-center justify-center text-white font-bold">
-                                    M</div>
-                                <div class="ml-4">
-                                    <h4 class="font-semibold text-[#1A3165]">Maria Santos</h4>
-                                    <p class="text-gray-300 text-sm">Grade 12 - STEM</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-50 italic">"Dreamy School has provided me with excellent academic
-                                foundation and supportive teachers who believe in my potential."</p>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-xl p-6 backdrop-blur-lg bg-opacity-20">
-                            <div class="flex items-center mb-4">
-                                <div
-                                    class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold">
-                                    J</div>
-                                <div class="ml-4">
-                                    <h4 class="font-semibold text-[#1A3165]">John Dela Cruz</h4>
-                                    <p class="text-gray-300 text-sm">Grade 11 - ABM</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-50 italic">"The modern facilities and technology integration have enhanced
-                                my learning experience significantly."</p>
-                        </div>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
+                    data-aos-duration="800">
+                    <img src="{{ asset('images/alumni1.jpg') }}" class="w-24 h-24 rounded-full mb-4 object-cover"
+                        alt="Alumni 1">
+                    <h3 class="text-xl font-bold text-[#1A3165] mb-1">Anna Reyes</h3>
+                    <p class="text-[#C8A165] text-sm mb-2">Class of 2020 · STEM</p>
+                    <p class="text-gray-600 mb-4">Now a Computer Science scholar at UP Diliman. "Dreamy School gave me the
+                        confidence and skills to pursue my dreams."</p>
                 </div>
-
-                <!-- School Statistics -->
-                <div data-aos="fade-left" data-aos-duration="800">
-                    <h3 class="text-3xl font-bold text-white mb-8">School Statistics</h3>
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="text-center bg-[#1A3165] rounded-xl p-6 text-white">
-                            <div class="text-4xl font-bold mb-2">500+</div>
-                            <div class="text-sm opacity-80">Active Students</div>
-                        </div>
-                        <div class="text-center bg-[#C8A165] rounded-xl p-6 text-white">
-                            <div class="text-4xl font-bold mb-2">95%</div>
-                            <div class="text-sm opacity-80">Graduation Rate</div>
-                        </div>
-                        <div class="text-center bg-[#1A3165] rounded-xl p-6 text-white">
-                            <div class="text-4xl font-bold mb-2">50+</div>
-                            <div class="text-sm opacity-80">Qualified Teachers</div>
-                        </div>
-                        <div class="text-center bg-[#C8A165] rounded-xl p-6 text-white">
-                            <div class="text-4xl font-bold mb-2">15+</div>
-                            <div class="text-sm opacity-80">Years of Excellence</div>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
+                    data-aos-duration="800">
+                    <img src="{{ asset('images/alumni2.jpg') }}" class="w-24 h-24 rounded-full mb-4 object-cover"
+                        alt="Alumni 2">
+                    <h3 class="text-xl font-bold text-[#1A3165] mb-1">Miguel Santos</h3>
+                    <p class="text-[#C8A165] text-sm mb-2">Class of 2019 · ABM</p>
+                    <p class="text-gray-600 mb-4">Now a business owner and entrepreneur. "The values and leadership I
+                        learned at Dreamy School shaped my career."</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
+                    data-aos-duration="800">
+                    <img src="{{ asset('images/alumni3.jpg') }}" class="w-24 h-24 rounded-full mb-4 object-cover"
+                        alt="Alumni 3">
+                    <h3 class="text-xl font-bold text-[#1A3165] mb-1">Sarah Lee</h3>
+                    <p class="text-[#C8A165] text-sm mb-2">Class of 2021 · HUMSS</p>
+                    <p class="text-gray-600 mb-4">Now a published writer and youth advocate. "Dreamy School inspired me to
+                        find my voice and make a difference."</p>
                 </div>
             </div>
-
-            <!-- Extracurricular Activities -->
-            <div class="text-center" data-aos="fade-up" data-aos-duration="800">
-                <h3 class="text-3xl font-bold text-white mb-8">Extracurricular Activities</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div
-                        class="bg-white rounded-xl flex flex-col justify-center items-center gap-4 p-6 transition-all duration-300 backdrop-blur-lg bg-opacity-20">
-                        <img src="{{ asset('images/soccer-ball.png') }}" class="size-14" alt="">
-                        <div class="font-semibold text-gray-50">Sports</div>
-                    </div>
-                    <div
-                        class="bg-white rounded-xl flex flex-col justify-center items-center gap-4 p-6 transition-all duration-300 backdrop-blur-lg bg-opacity-20">
-                        <img src="{{ asset('images/theater.png') }}" class="size-14" alt="">
-                        <div class="font-semibold text-gray-50">Arts & Culture</div>
-                    </div>
-                    <div
-                        class="bg-white rounded-xl flex flex-col justify-center items-center gap-4 p-6 transition-all duration-300 backdrop-blur-lg bg-opacity-20">
-                        <img src="{{ asset('images/microscope.png') }}" class="size-14" alt="">
-                        <div class="font-semibold text-gray-50">Science Club</div>
-                    </div>
-                    <div
-                        class="bg-white rounded-xl flex flex-col justify-center items-center gap-4 p-6 transition-all duration-300 backdrop-blur-lg bg-opacity-20">
-                        <img src="{{ asset('images/book.png') }}" class="size-14" alt="">
-                        <div class="font-semibold text-gray-50">Debate Society</div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 @endsection
 
-@section('section_7')
-    <div id="contact" class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px] scroll-smooth">
+@section('campus_tour')
+    <!-- Virtual Tour / Campus Gallery -->
+    <div class="relative bg-white w-screen py-16 px-[20px] md:px-[120px]">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                <h2 class="font-bold text-[28px] md:text-[40px] text-[#1A3165] mb-2">Virtual Campus Tour</h2>
+                <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
+                <p class="text-[16px] md:text-[20px] text-gray-600 max-w-2xl mx-auto">Explore our modern campus and
+                    facilities from the comfort of your home.</p>
+            </div>
+
+            <!-- Carousel Container -->
+            <div id="campus-tour-carousel" class="relative">
+                <!-- Slides -->
+                <div class="tour-slides relative overflow-hidden rounded-2xl bg-gray-50 shadow-xl">
+                    <!-- Slide 1 -->
+                    <div class="tour-slide active flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
+                                alt="Main Building">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Main Building</h3>
+                            <p class="text-gray-600 text-lg">Our state-of-the-art main building houses modern classrooms,
+                                administrative offices, and student services. Equipped with the latest technology to support
+                                innovative learning.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-marker mr-2"></i>
+                                <span>Located at the heart of campus</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Library">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Learning Resource Center</h3>
+                            <p class="text-gray-600 text-lg">A comprehensive library with over 50,000 books, digital
+                                resources, and quiet study areas. Your gateway to knowledge and research excellence.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-book mr-2"></i>
+                                <span>Open 7 days a week</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Science Lab">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Science Laboratories</h3>
+                            <p class="text-gray-600 text-lg">Fully equipped chemistry, physics, and biology labs for
+                                hands-on experiments. Foster scientific inquiry and innovation with cutting-edge equipment.
+                            </p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-flask mr-2"></i>
+                                <span>3 specialized labs available</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
+                                alt="Computer Lab">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Computer Laboratory</h3>
+                            <p class="text-gray-600 text-lg">High-performance computers with the latest software for
+                                programming, design, and digital learning. Fast internet connectivity ensures seamless
+                                online resources.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-computer mr-2"></i>
+                                <span>100+ workstations</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 5 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
+                                alt="Sports Complex">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Sports Complex</h3>
+                            <p class="text-gray-600 text-lg">Multi-purpose sports facilities including basketball courts,
+                                volleyball courts, and a track and field area. Promoting physical fitness and team spirit.
+                            </p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-basketball mr-2"></i>
+                                <span>Indoor & outdoor facilities</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 6 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1567168539593-59673ababaae?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Cafeteria">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Student Cafeteria</h3>
+                            <p class="text-gray-600 text-lg">Spacious dining area serving nutritious meals and snacks. A
+                                vibrant social hub where students gather, share ideas, and build friendships.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-restaurant mr-2"></i>
+                                <span>Healthy meal options daily</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 7 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Auditorium">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Auditorium & Events Hall</h3>
+                            <p class="text-gray-600 text-lg">A modern 500-seat auditorium for assemblies, performances, and
+                                special events. Equipped with professional sound and lighting systems.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-users mr-2"></i>
+                                <span>Capacity: 500 students</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 8 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Art Studio">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Art & Music Studio</h3>
+                            <p class="text-gray-600 text-lg">Creative spaces for artistic expression. Students explore
+                                painting, sculpture, music, and performing arts under expert guidance.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-palette mr-2"></i>
+                                <span>Nurturing creative talents</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 9 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Chapel">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">School Chapel</h3>
+                            <p class="text-gray-600 text-lg">A peaceful sanctuary for reflection and worship. The chapel
+                                hosts regular services, spiritual guidance, and moments of quiet contemplation.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-cross mr-2"></i>
+                                <span>Open for prayer daily</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 10 -->
+                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                        <div class="w-full md:w-1/2">
+                            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80"
+                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
+                                alt="Campus Garden">
+                        </div>
+                        <div class="w-full md:w-1/2 space-y-4">
+                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Campus Gardens</h3>
+                            <p class="text-gray-600 text-lg">Beautifully landscaped gardens and green spaces throughout
+                                campus. Perfect spots for outdoor classes, study sessions, or simply enjoying nature.</p>
+                            <div class="flex items-center text-[#C8A165] font-semibold">
+                                <i class="fi fi-rr-leaf mr-2"></i>
+                                <span>Eco-friendly campus</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Arrows -->
+                <button type="button" id="tour-prev"
+                    class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-[#1A3165] text-[#1A3165] hover:text-white flex items-center justify-center rounded-full shadow-lg transition-all duration-200 z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button type="button" id="tour-next"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-[#1A3165] text-[#1A3165] hover:text-white flex items-center justify-center rounded-full shadow-lg transition-all duration-200 z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+
+                <!-- Slide Indicators -->
+                <div class="flex justify-center gap-2 mt-8">
+                    <button class="tour-indicator active w-3 h-3 rounded-full bg-[#1A3165] transition-all duration-200"
+                        data-slide="0"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="1"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="2"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="3"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="4"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="5"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="6"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="7"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="8"></button>
+                    <button
+                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
+                        data-slide="9"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .tour-slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .tour-slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .tour-indicator.active {
+            width: 2rem;
+            background-color: #1A3165;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.tour-slide');
+            const indicators = document.querySelectorAll('.tour-indicator');
+            const prevBtn = document.getElementById('tour-prev');
+            const nextBtn = document.getElementById('tour-next');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.remove('active');
+                    if (i === index) slide.classList.add('active');
+                });
+                indicators.forEach((indicator, i) => {
+                    indicator.classList.remove('active');
+                    if (i === index) indicator.classList.add('active');
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
+
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                });
+            });
+
+            // Auto-advance every 5 seconds
+            setInterval(nextSlide, 5000);
+        });
+    </script>
+@endsection
+
+@section('how_to_apply')
+    <!-- How to Apply / Admissions Steps -->
+    <div class="relative bg-[#1A3165] w-screen py-16 px-[20px] md:px-[120px]">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">How to Apply</h2>
+                <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
+                <p class="text-[16px] md:text-[20px] text-gray-500 max-w-2xl mx-auto">Follow these simple steps to start
+                    your Dreamy School journey.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
+                    <div
+                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
+                        1</div>
+                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Submit Application</h3>
+                    <p class="text-gray-600 text-center">Complete the online application form and upload required
+                        documents.</p>
+                </div>
+                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
+                    <div
+                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
+                        2</div>
+                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Document Review</h3>
+                    <p class="text-gray-600 text-center">Our admissions team will review your application and documents.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
+                    <div
+                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
+                        3</div>
+                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Assessment & Interview</h3>
+                    <p class="text-gray-600 text-center">Schedule and complete your assessment and interview with our
+                        academic team.</p>
+                </div>
+                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
+                    <div
+                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
+                        4</div>
+                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Enrollment</h3>
+                    <p class="text-gray-600 text-center">Finish the enrollment process and get ready to start your academic
+                        journey!</p>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <a href="/portal/register"
+                    class="inline-flex items-center bg-[#C8A165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#1A3165] transition-colors duration-200">
+                    Apply Now <i class="fi fi-rr-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('news_announcement')
+    <div class="relative bg-white min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4">Ready to Start Your Journey?</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-[#1A3165] mb-4">Latest News & Announcements</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
-                <p class="text-[18px] text-white/80 max-w-2xl mx-auto">Join Dreamy School and be part of our community of
-                    learners and achievers</p>
+                <p class="text-[18px] text-gray-600 max-w-2xl mx-auto">Stay updated with the latest news and announcements
+                    from Dreamy School</p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-                <!-- Admission Process -->
-                <div data-aos="fade-right" data-aos-duration="800">
-                    <h3 class="text-3xl font-bold text-white mb-8">Admission Process</h3>
-                    <div class="space-y-6">
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
-                                1</div>
-                            <div>
-                                <h4 class="font-semibold text-white mb-2">Submit Application</h4>
-                                <p class="text-white/80">Complete the online application form with required documents</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                @forelse($news ?? [] as $article)
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                        data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fi fi-rr-calendar mr-2"></i>
+                                    {{ $article->published_at->format('M d, Y') }}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fi fi-rr-clock mr-2"></i>
+                                    {{ $article->published_at->diffForHumans() }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
-                                2</div>
-                            <div>
-                                <h4 class="font-semibold text-white mb-2">Document Review</h4>
-                                <p class="text-white/80">Our admissions team will review your application and documents</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
-                                3</div>
-                            <div>
-                                <h4 class="font-semibold text-white mb-2">Admission & Assessment</h4>
-                                <p class="text-white/80">Schedule an Admission and assessment with our academic team</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div
-                                class="w-8 h-8 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 mt-1 flex-shrink-0">
-                                4</div>
-                            <div>
-                                <h4 class="font-semibold text-white mb-2">Enrollment</h4>
-                                <p class="text-white/80">Complete enrollment process and start your academic journey</p>
-                            </div>
+                            <h3 class="text-xl font-bold text-[#1A3165] mb-3 line-clamp-2">
+                                {{ $article->title }}
+                            </h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">
+                                {{ Str::limit($article->content, 120) }}
+                            </p>
+                            <a href="{{ route('public.news.show', $article) }}"
+                                class="inline-flex items-center text-[#1A3165] font-semibold hover:text-[#C8A165] transition-colors duration-200">
+                                Read More
+                                <i class="fi fi-rr-arrow-right ml-2"></i>
+                            </a>
                         </div>
                     </div>
-                </div>
-
-                <!-- Contact Information -->
-                <div data-aos="fade-left" data-aos-duration="800">
-                    <h3 class="text-3xl font-bold text-white mb-8">Get in Touch</h3>
-                    <div class="space-y-6">
-                        <div class="flex flex-row justify-center items-center">
-                            <div
-                                class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
-                                <i class="fi fi-rr-marker text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-white">Address</h4>
-                                <p class="text-white/80">Lot 23 Block 2 PSD 56216 Sitio Tanag, Brgy, San Isidro Rodriguez,
-                                    Rizal, Philippines</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center mr-4">
-                                <i class="fi fi-rr-phone-call text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-white">Phone</h4>
-                                <p class="text-white/80">+63 917 630 0777</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center mr-4">
-                                <i class="fi fi-rr-envelope text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-white">Email</h4>
-                                <p class="text-white/80">ph@dreamyedu.net</p>
-                            </div>
-                        </div>
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <i class="fi fi-rr-newspaper text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No News Available</h3>
+                        <p class="text-gray-500">Check back later for the latest updates.</p>
                     </div>
-                </div>
+                @endforelse
             </div>
 
-            <!-- Call to Action Buttons -->
-            <div class="text-center space-y-4" data-aos="fade-up" data-aos-duration="800">
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/portal/register"
-                        class="inline-flex items-center justify-center bg-[#C8A165] text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-[#1A3165] transition-all duration-300 text-lg">
-                        Apply Now <i class="fi fi-rr-arrow-right ml-2 flex justify-center items-center"></i>
-                    </a>
-                    <a href="/portal/login"
-                        class="inline-flex items-center justify-center border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-[#1A3165] transition-all duration-300 text-lg">
-                        Applicant Portal <i class="fi fi-rr-user ml-2 flex justify-center items-center"></i>
-                    </a>
-                </div>
-                <p class="text-white/60 text-sm">Have questions? Contact our admissions office for assistance</p>
+            <div class="text-center" data-aos="fade-up" data-aos-duration="800">
+                <a href="{{ route('public.news.index') }}"
+                    class="inline-flex items-center bg-[#1A3165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#C8A165] transition-colors duration-200">
+                    View All News
+                    <i class="fi fi-rr-arrow-right ml-2"></i>
+                </a>
             </div>
         </div>
     </div>
