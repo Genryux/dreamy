@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Symfony\Component\HttpKernel\Debug\VirtualRequestStack;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +28,16 @@ class DatabaseSeeder extends Seeder
             SectionSubjectsSeeder::class,
             StudentEnrollmentSeeder::class, // Must be last - depends on students existing
             // ActivityLogSeeder::class, // Add sample activity logs
+            HeroSectionSeeder::class,
+            AboutSectionSeeder::class,
+            MissionValuesSectionSeeder::class,
+            SchoolAtGlanceSectionSeeder::class,
+            AcademicProgramsSectionSeeder::class,
+            ReasonSectionSeeder::class,
+            AlumniSectionSeeder::class,
+            CampusTourSectionSeeder::class,
+            HowToApplySectionSeeder::class
+
         ]);
 
     }

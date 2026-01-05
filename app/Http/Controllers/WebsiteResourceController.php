@@ -11,6 +11,10 @@ use App\Models\AboutSection;
 use App\Models\MissionValuesSection;
 use App\Models\SchoolAtGlanceSection;
 use App\Models\AcademicProgramsSection;
+use App\Models\ReasonSection;
+use App\Models\AlumniSection;
+use App\Models\CampusTourSection;
+use App\Models\HowToApplySection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -46,6 +50,18 @@ class WebsiteResourceController extends Controller
         // Get active academic programs section
         $academicPrograms = AcademicProgramsSection::getActive();
 
+        // Get active reason section
+        $reasonSection = ReasonSection::getActive();
+
+        // Get active alumni section
+        $alumniSection = AlumniSection::getActive();
+
+        // Get active campus tour section
+        $campusTour = CampusTourSection::getActive();
+
+        // Get active how to apply section
+        $howToApply = HowToApplySection::getActive();
+
         // Get latest published news for public (limit to 6 for homepage)
         $news = News::published()
             ->forPublic()
@@ -67,7 +83,7 @@ class WebsiteResourceController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('home', compact('background', 'hero', 'about', 'missionValues', 'schoolAtGlance', 'academicPrograms', 'news', 'programs', 'tracks'));
+        return view('home', compact('background', 'hero', 'about', 'missionValues', 'schoolAtGlance', 'academicPrograms', 'reasonSection', 'alumniSection', 'campusTour', 'howToApply', 'news', 'programs', 'tracks'));
     }
 
     public function UploadMainBg(Request $request)

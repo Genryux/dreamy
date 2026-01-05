@@ -43,16 +43,26 @@
                 Request::is('forgot-password') ||
                 Request::is('reset-password*') ||
                 Request::is('password-reset-success'))
-            <div id="admission-notice" class="fixed top-0 bg-[#C8a165] w-screen h-[30px] flex justify-center items-center z-40 overflow-hidden">
+            @if($homepageNotice ?? false)
+            <div id="admission-notice" class="fixed top-0 w-screen h-[30px] flex justify-center items-center z-40 overflow-hidden" style="background-color: {{ $homepageNotice->bg_color }};">
                 <div class="notice-slider w-full h-full flex items-center">
-                    <div class="notice-content whitespace-nowrap text-white font-semibold text-sm md:text-base">
-                        2026th School Year Admission - Enroll Now! | Limited Slots Available | Enroll Today!
+                    @if($homepageNotice->link_url)
+                    <a href="{{ $homepageNotice->link_url }}" class="notice-content {{ $homepageNotice->is_scrolling ? 'scrolling' : 'static' }} whitespace-nowrap font-semibold text-sm md:text-base hover:underline" style="color: {{ $homepageNotice->text_color }};">
+                        {{ $homepageNotice->message }}
+                    </a>
+                    @else
+                    <div class="notice-content {{ $homepageNotice->is_scrolling ? 'scrolling' : 'static' }} whitespace-nowrap font-semibold text-sm md:text-base" style="color: {{ $homepageNotice->text_color }};">
+                        {{ $homepageNotice->message }}
                     </div>
+                    @endif
                 </div>
-                <button id="close-notice" class="absolute right-2 text-white hover:text-gray-200 transition-colors duration-200 text-xl font-bold">
+                @if($homepageNotice->is_dismissible)
+                <button id="close-notice" class="absolute right-2 hover:opacity-80 transition-colors duration-200 text-xl font-bold" style="color: {{ $homepageNotice->text_color }};">
                     ×
                 </button>
+                @endif
             </div>
+            @endif
             <div id="header"
                 class="fixed top-0 flex flex-row justify-between items-center w-full px-4 md:px-[120px] py-4 z-20 transition-all duration-500 ease-in-out">
                 <!-- Logo and Admin Link -->
@@ -162,10 +172,17 @@
             position: relative;
         }
 
-        .notice-content {
+        .notice-content.scrolling {
             display: inline-block;
             padding-left: 100%;
             animation: scroll-left 20s linear infinite;
+        }
+
+        .notice-content.static {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
 
         @keyframes scroll-left {

@@ -199,6 +199,16 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::put('/admin/homepage/school-at-glance', [HomepageController::class, 'updateSchoolAtGlanceSection'])->middleware(['permission:view site management page'])->name('admin.homepage.school-at-glance.update');
     Route::get('/admin/homepage/academic-programs/edit', [HomepageController::class, 'editAcademicProgramsSection'])->middleware(['permission:view site management page'])->name('admin.homepage.academic-programs.edit');
     Route::put('/admin/homepage/academic-programs', [HomepageController::class, 'updateAcademicProgramsSection'])->middleware(['permission:view site management page'])->name('admin.homepage.academic-programs.update');
+    Route::get('/admin/homepage/reason/edit', [HomepageController::class, 'editReasonSection'])->middleware(['permission:view site management page'])->name('admin.homepage.reason.edit');
+    Route::put('/admin/homepage/reason', [HomepageController::class, 'updateReasonSection'])->middleware(['permission:view site management page'])->name('admin.homepage.reason.update');
+    Route::get('/admin/homepage/alumni/edit', [HomepageController::class, 'editAlumniSection'])->middleware(['permission:view site management page'])->name('admin.homepage.alumni.edit');
+    Route::put('/admin/homepage/alumni', [HomepageController::class, 'updateAlumniSection'])->middleware(['permission:view site management page'])->name('admin.homepage.alumni.update');
+    Route::get('/admin/homepage/campus-tour/edit', [HomepageController::class, 'editCampusTourSection'])->middleware(['permission:view site management page'])->name('admin.homepage.campus-tour.edit');
+    Route::put('/admin/homepage/campus-tour', [HomepageController::class, 'updateCampusTourSection'])->middleware(['permission:view site management page'])->name('admin.homepage.campus-tour.update');
+    Route::get('/admin/homepage/how-to-apply/edit', [HomepageController::class, 'editHowToApplySection'])->middleware(['permission:view site management page'])->name('admin.homepage.how-to-apply.edit');
+    Route::put('/admin/homepage/how-to-apply', [HomepageController::class, 'updateHowToApplySection'])->middleware(['permission:view site management page'])->name('admin.homepage.how-to-apply.update');
+    Route::get('/admin/homepage/notice/edit', [HomepageController::class, 'editNotice'])->middleware(['permission:view site management page'])->name('admin.homepage.notice.edit');
+    Route::put('/admin/homepage/notice', [HomepageController::class, 'updateNotice'])->middleware(['permission:view site management page'])->name('admin.homepage.notice.update');
     Route::get('/admin/homepage/{section}/edit', [HomepageController::class, 'editSection'])->middleware(['permission:view site management page'])->name('admin.homepage.edit');
     Route::put('/admin/homepage/{section}', [HomepageController::class, 'updateSection'])->middleware(['permission:view site management page'])->name('admin.homepage.update');
 

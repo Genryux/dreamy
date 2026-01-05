@@ -107,7 +107,7 @@
 
 @section('glance')
     @if($schoolAtGlance && $schoolAtGlance->is_active)
-        <div class="relative bg-[#C8A165] w-screen py-12 px-[20px] md:px-[120px]">
+        <div id="glance-section" class="relative bg-[#C8A165] w-screen py-12 px-[20px] md:px-[120px]">
             <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
                     <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">{{ $schoolAtGlance->heading }}</h2>
@@ -118,13 +118,63 @@
                     @foreach($schoolAtGlance->items as $item)
                         <div class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center rounded-full shadow-lg"
                             style="background-color: {{ $item->bg_color }}; color: {{ $item->text_color }};">
-                            <div class="text-[50px] font-bold mb-2">{{ $item->value }}</div>
+                            <div class="count-up text-[50px] font-bold mb-2" 
+                                 data-target="{{ preg_replace('/[^0-9]/', '', $item->value) }}"
+                                 data-suffix="{{ preg_replace('/[0-9]/', '', $item->value) }}">0</div>
                             <div class="text-sm opacity-80">{{ $item->label }}</div>
                         </div>
                     @endforeach
                 </div>
             </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const counters = document.querySelectorAll('.count-up');
+                let hasAnimated = false;
+
+                function animateCounters() {
+                    counters.forEach(counter => {
+                        const target = parseInt(counter.getAttribute('data-target')) || 0;
+                        const suffix = counter.getAttribute('data-suffix') || '';
+                        const duration = 2000; // 2 seconds
+                        const steps = 60;
+                        const stepTime = duration / steps;
+                        let current = 0;
+                        const increment = target / steps;
+
+                        const updateCounter = () => {
+                            current += increment;
+                            if (current < target) {
+                                counter.textContent = Math.floor(current) + suffix;
+                                setTimeout(updateCounter, stepTime);
+                            } else {
+                                counter.textContent = target + suffix;
+                            }
+                        };
+
+                        updateCounter();
+                    });
+                }
+
+                // Intersection Observer to trigger animation when section is visible
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !hasAnimated) {
+                            hasAnimated = true;
+                            animateCounters();
+                        }
+                    });
+                }, {
+                    threshold: 0.3 // Trigger when 30% of the section is visible
+                });
+
+                const glanceSection = document.getElementById('glance-section');
+                if (glanceSection) {
+                    observer.observe(glanceSection);
+                }
+            });
+        </script>
     @endif
 @endsection
 
@@ -200,352 +250,141 @@
 @endsection
 
 @section('reason')
+    @if($reasonSection && $reasonSection->is_active)
     <div class="relative bg-[#1A3165] min-h-screen w-screen py-20 px-[50px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4">Why Choose Dreamy School?</h2>
+                <h2 class="font-bold text-[32px] md:text-[48px] text-white mb-4">{{ $reasonSection->heading }}</h2>
                 <div class="bg-[#C8A165] w-[200px] h-[4px] mx-auto mb-8"></div>
-                <p class="text-[18px] text-white/80 max-w-2xl mx-auto">Discover what makes us the preferred choice for
-                    quality education</p>
+                <p class="text-[18px] text-white/80 max-w-2xl mx-auto">{{ $reasonSection->description }}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
-                    data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
-                    <img src="{{ asset('images/grad.jpg') }}"
-                        class="background absolute inset-0 w-full h-full object-cover -z-10" alt="">
+                @php
+                    // Fallback images for items without uploaded images
+                    $fallbackImages = [
+                        'images/grad.jpg',
+                        'images/teaching.jpg',
+                        'images/tech.jpg',
+                        'images/guide.jpg',
+                        'images/support.jpg',
+                        'images/facility.jpg',
+                    ];
+                @endphp
+                @foreach($reasonSection->items as $index => $item)
+                    @php
+                        $imageUrl = $item->image ? asset('storage/' . $item->image) : asset($fallbackImages[$index % count($fallbackImages)]);
+                        $delay = 100 + ($index * 100);
+                    @endphp
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
+                        data-aos="fade-up" data-aos-duration="800" data-aos-delay="{{ $delay }}">
+                        <img src="{{ $imageUrl }}"
+                            class="background absolute inset-0 w-full h-full object-cover -z-10" alt="{{ $item->title }}">
 
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
-                        {{-- gradient filter on top of the video --}}
+                        <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
+                            {{-- gradient filter on top of the image --}}
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">{{ $item->title }}</h3>
+                        <p class="text-white/80">{{ $item->description }}</p>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Academic Excellence</h3>
-                    <p class="text-white/80">Committed to providing world-class education with proven track record of
-                        student success</p>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
-                    data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
-
-
-                    <img src="{{ asset('images/teaching.jpg') }}"
-                        class="background absolute inset-0 w-full h-full object-cover -z-10" alt="">
-
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
-                        {{-- gradient filter on top of the video --}}
-                    </div>
-
-                    <h3 class="text-2xl font-bold mb-4">Experienced Faculty</h3>
-                    <p class="text-white/80">Dedicated and qualified teachers with years of experience in their respective
-                        fields</p>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
-                    data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
-
-                    <img src="{{ asset('images/tech.jpg') }}"
-                        class="background absolute inset-0 w-full h-full object-cover -z-10" alt="">
-
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
-                        {{-- gradient filter on top of the video --}}
-                    </div>
-
-                    <h3 class="text-2xl font-bold mb-4">Modern Technology</h3>
-                    <p class="text-white/80">State-of-the-art facilities and technology integration for 21st-century
-                        learning</p>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
-                    data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
-
-                    <img src="{{ asset('images/guide.jpg') }}"
-                        class="background absolute inset-0 w-full h-full object-cover -z-10" alt="">
-
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
-                        {{-- gradient filter on top of the video --}}
-                    </div>
-
-                    <h3 class="text-2xl font-bold mb-4">Student Support</h3>
-                    <p class="text-white/80">Comprehensive guidance, counseling, and support services for every student</p>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
-                    data-aos="fade-up" data-aos-duration="800" data-aos-delay="500">
-
-                    <img src="{{ asset('images/support.jpg') }}"
-                        class="background absolute inset-0 w-full h-full object-cover -z-10" alt="">
-
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
-                        {{-- gradient filter on top of the video --}}
-                    </div>
-
-                    <h3 class="text-2xl font-bold mb-4">Values & Character</h3>
-                    <p class="text-white/80">Building strong character and values alongside academic achievement</p>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white hover:bg-white/20 transition-all duration-300 overflow-hidden hover:scale-95 hover:-translate-y-2 pt-20"
-                    data-aos="fade-up" data-aos-duration="800" data-aos-delay="600">
-
-
-                    <img src="{{ asset('images/facility.jpg') }}"
-                        class="background absolute inset-0 w-full h-full object-cover -z-10" alt="">
-
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-gray-800 -z-10">
-                        {{-- gradient filter on top of the video --}}
-                    </div>
-
-                    <h3 class="text-2xl font-bold mb-4">Modern Facilities</h3>
-                    <p class="text-white/80">Well-equipped classrooms, laboratories, and learning spaces for optimal
-                        education</p>
-
-
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @section('alumni')
     <!-- Success Stories / Alumni Spotlight -->
-    <div class="relative w-screen md:h-screen py-16 px-[20px] md:px-[120px] overflow-hidden">
+    @if($alumniSection && $alumniSection->is_active)
+    <div class="relative w-screen min-h-screen py-16 px-[20px] md:px-[120px]">
         <!-- Background Image -->
         <div class="absolute inset-0 -z-20">
-            <img src="{{ asset('images/graduate.jpg') }}" class="w-full h-full object-cover" alt="Campus Background">
+            <img src="{{ $alumniSection->getBackgroundImageUrl() }}" class="w-full h-full object-cover" alt="Campus Background">
         </div>
         <!-- Gradient Overlay -->
         <div class="absolute inset-0 bg-gradient-to-b from-[#C8A165] via-[#C8A165]/70 to-transparent -z-10"></div>
 
         <div class="max-w-6xl mx-auto relative z-10">
             <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[28px] md:text-[40px] text-white mb-2">Alumni Success Stories</h2>
+                <h2 class="font-bold text-[28px] md:text-[40px] text-white mb-2">{{ $alumniSection->heading }}</h2>
                 <div class="bg-white w-[120px] h-[4px] mx-auto mb-6"></div>
-                <p class="text-[16px] md:text-[20px] text-white max-w-2xl mx-auto">Meet some of our outstanding alumni
-                    and see where their Dreamy School journey has taken them.</p>
+                <p class="text-[16px] md:text-[20px] text-white max-w-2xl mx-auto">{{ $alumniSection->description }}</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
-                    data-aos-duration="800">
-                    <img src="{{ asset('images/alumni1.jpg') }}" class="w-24 h-24 rounded-full mb-4 object-cover"
-                        alt="Alumni 1">
-                    <h3 class="text-xl font-bold text-[#1A3165] mb-1">Anna Reyes</h3>
-                    <p class="text-[#C8A165] text-sm mb-2">Class of 2020 · STEM</p>
-                    <p class="text-gray-600 mb-4">Now a Computer Science scholar at UP Diliman. "Dreamy School gave me the
-                        confidence and skills to pursue my dreams."</p>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
-                    data-aos-duration="800">
-                    <img src="{{ asset('images/alumni2.jpg') }}" class="w-24 h-24 rounded-full mb-4 object-cover"
-                        alt="Alumni 2">
-                    <h3 class="text-xl font-bold text-[#1A3165] mb-1">Miguel Santos</h3>
-                    <p class="text-[#C8A165] text-sm mb-2">Class of 2019 · ABM</p>
-                    <p class="text-gray-600 mb-4">Now a business owner and entrepreneur. "The values and leadership I
-                        learned at Dreamy School shaped my career."</p>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
-                    data-aos-duration="800">
-                    <img src="{{ asset('images/alumni3.jpg') }}" class="w-24 h-24 rounded-full mb-4 object-cover"
-                        alt="Alumni 3">
-                    <h3 class="text-xl font-bold text-[#1A3165] mb-1">Sarah Lee</h3>
-                    <p class="text-[#C8A165] text-sm mb-2">Class of 2021 · HUMSS</p>
-                    <p class="text-gray-600 mb-4">Now a published writer and youth advocate. "Dreamy School inspired me to
-                        find my voice and make a difference."</p>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @php
+                    $fallbackPhotos = ['images/alumni1.jpg', 'images/alumni2.jpg', 'images/alumni3.jpg'];
+                @endphp
+                @foreach($alumniSection->items as $index => $alumni)
+                    @php
+                        $photoUrl = $alumni->photo ? asset('storage/' . $alumni->photo) : asset($fallbackPhotos[$index % count($fallbackPhotos)]);
+                    @endphp
+                    <div class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center" data-aos="fade-up"
+                        data-aos-duration="800">
+                        <img src="{{ $photoUrl }}" class="w-24 h-24 rounded-full mb-4 object-cover"
+                            alt="{{ $alumni->name }}">
+                        <h3 class="text-xl font-bold text-[#1A3165] mb-1">{{ $alumni->name }}</h3>
+                        <p class="text-[#C8A165] text-sm mb-2">{{ $alumni->getClassInfo() }}</p>
+                        <p class="text-gray-600 mb-4">{{ $alumni->quote }}</p>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @section('campus_tour')
     <!-- Virtual Tour / Campus Gallery -->
+    @if($campusTour && $campusTour->is_active)
     <div class="relative bg-white w-screen py-16 px-[20px] md:px-[120px]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[28px] md:text-[40px] text-[#1A3165] mb-2">Virtual Campus Tour</h2>
+                <h2 class="font-bold text-[28px] md:text-[40px] text-[#1A3165] mb-2">{{ $campusTour->heading }}</h2>
                 <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
-                <p class="text-[16px] md:text-[20px] text-gray-600 max-w-2xl mx-auto">Explore our modern campus and
-                    facilities from the comfort of your home.</p>
+                <p class="text-[16px] md:text-[20px] text-gray-600 max-w-2xl mx-auto">{{ $campusTour->description }}</p>
             </div>
 
             <!-- Carousel Container -->
             <div id="campus-tour-carousel" class="relative">
                 <!-- Slides -->
                 <div class="tour-slides relative overflow-hidden rounded-2xl bg-gray-50 shadow-xl">
-                    <!-- Slide 1 -->
-                    <div class="tour-slide active flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
-                                alt="Main Building">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Main Building</h3>
-                            <p class="text-gray-600 text-lg">Our state-of-the-art main building houses modern classrooms,
-                                administrative offices, and student services. Equipped with the latest technology to support
-                                innovative learning.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-marker mr-2"></i>
-                                <span>Located at the heart of campus</span>
+                    @php
+                        $defaultImages = [
+                            'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1567168539593-59673ababaae?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
+                            'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
+                        ];
+                    @endphp
+                    @foreach($campusTour->items as $index => $item)
+                        @php
+                            $imageUrl = $item->image ? asset('storage/' . $item->image) : ($defaultImages[$index % count($defaultImages)] ?? $defaultImages[0]);
+                        @endphp
+                        <div class="tour-slide {{ $index === 0 ? 'active' : '' }} flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                            <div class="w-full md:w-1/2">
+                                <img src="{{ $imageUrl }}"
+                                    class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
+                                    alt="{{ $item->title }}">
+                            </div>
+                            <div class="w-full md:w-1/2 space-y-4">
+                                <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">{{ $item->title }}</h3>
+                                <p class="text-gray-600 text-lg">{{ $item->description }}</p>
+                                @if($item->highlight)
+                                    <div class="flex items-center text-[#C8A165] font-semibold">
+                                        <i class="fi {{ $item->icon ?? 'fi-rr-marker' }} mr-2"></i>
+                                        <span>{{ $item->highlight }}</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Slide 2 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Library">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Learning Resource Center</h3>
-                            <p class="text-gray-600 text-lg">A comprehensive library with over 50,000 books, digital
-                                resources, and quiet study areas. Your gateway to knowledge and research excellence.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-book mr-2"></i>
-                                <span>Open 7 days a week</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 3 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Science Lab">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Science Laboratories</h3>
-                            <p class="text-gray-600 text-lg">Fully equipped chemistry, physics, and biology labs for
-                                hands-on experiments. Foster scientific inquiry and innovation with cutting-edge equipment.
-                            </p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-flask mr-2"></i>
-                                <span>3 specialized labs available</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 4 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
-                                alt="Computer Lab">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Computer Laboratory</h3>
-                            <p class="text-gray-600 text-lg">High-performance computers with the latest software for
-                                programming, design, and digital learning. Fast internet connectivity ensures seamless
-                                online resources.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-computer mr-2"></i>
-                                <span>100+ workstations</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 5 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
-                                alt="Sports Complex">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Sports Complex</h3>
-                            <p class="text-gray-600 text-lg">Multi-purpose sports facilities including basketball courts,
-                                volleyball courts, and a track and field area. Promoting physical fitness and team spirit.
-                            </p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-basketball mr-2"></i>
-                                <span>Indoor & outdoor facilities</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 6 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1567168539593-59673ababaae?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Cafeteria">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Student Cafeteria</h3>
-                            <p class="text-gray-600 text-lg">Spacious dining area serving nutritious meals and snacks. A
-                                vibrant social hub where students gather, share ideas, and build friendships.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-restaurant mr-2"></i>
-                                <span>Healthy meal options daily</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 7 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Auditorium">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Auditorium & Events Hall</h3>
-                            <p class="text-gray-600 text-lg">A modern 500-seat auditorium for assemblies, performances, and
-                                special events. Equipped with professional sound and lighting systems.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-users mr-2"></i>
-                                <span>Capacity: 500 students</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 8 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Art Studio">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Art & Music Studio</h3>
-                            <p class="text-gray-600 text-lg">Creative spaces for artistic expression. Students explore
-                                painting, sculpture, music, and performing arts under expert guidance.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-palette mr-2"></i>
-                                <span>Nurturing creative talents</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 9 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg" alt="Chapel">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">School Chapel</h3>
-                            <p class="text-gray-600 text-lg">A peaceful sanctuary for reflection and worship. The chapel
-                                hosts regular services, spiritual guidance, and moments of quiet contemplation.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-cross mr-2"></i>
-                                <span>Open for prayer daily</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 10 -->
-                    <div class="tour-slide flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                        <div class="w-full md:w-1/2">
-                            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80"
-                                class="w-full h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
-                                alt="Campus Garden">
-                        </div>
-                        <div class="w-full md:w-1/2 space-y-4">
-                            <h3 class="text-2xl md:text-3xl font-bold text-[#1A3165]">Campus Gardens</h3>
-                            <p class="text-gray-600 text-lg">Beautifully landscaped gardens and green spaces throughout
-                                campus. Perfect spots for outdoor classes, study sessions, or simply enjoying nature.</p>
-                            <div class="flex items-center text-[#C8A165] font-semibold">
-                                <i class="fi fi-rr-leaf mr-2"></i>
-                                <span>Eco-friendly campus</span>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
 
                 <!-- Navigation Arrows -->
@@ -566,39 +405,15 @@
 
                 <!-- Slide Indicators -->
                 <div class="flex justify-center gap-2 mt-8">
-                    <button class="tour-indicator active w-3 h-3 rounded-full bg-[#1A3165] transition-all duration-200"
-                        data-slide="0"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="1"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="2"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="3"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="4"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="5"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="6"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="7"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="8"></button>
-                    <button
-                        class="tour-indicator w-3 h-3 rounded-full bg-gray-300 hover:bg-[#C8A165] transition-all duration-200"
-                        data-slide="9"></button>
+                    @foreach($campusTour->items as $index => $item)
+                    <button class="tour-indicator {{ $index === 0 ? 'active' : '' }} w-3 h-3 rounded-full {{ $index === 0 ? 'bg-[#1A3165]' : 'bg-gray-300 hover:bg-[#C8A165]' }} transition-all duration-200"
+                        data-slide="{{ $index }}"></button>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
+    @endif
 
     <style>
         .tour-slide {
@@ -675,56 +490,34 @@
 
 @section('how_to_apply')
     <!-- How to Apply / Admissions Steps -->
+    @if($howToApply && $howToApply->is_active)
     <div class="relative bg-[#1A3165] w-screen py-16 px-[20px] md:px-[120px]">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">How to Apply</h2>
+                <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">{{ $howToApply->heading }}</h2>
                 <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
-                <p class="text-[16px] md:text-[20px] text-gray-500 max-w-2xl mx-auto">Follow these simple steps to start
-                    your Dreamy School journey.</p>
+                <p class="text-[16px] md:text-[20px] text-gray-500 max-w-2xl mx-auto">{{ $howToApply->description }}</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-{{ min($howToApply->steps->count(), 4) }} gap-8">
+                @foreach($howToApply->steps as $step)
                 <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
                     <div
                         class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
-                        1</div>
-                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Submit Application</h3>
-                    <p class="text-gray-600 text-center">Complete the online application form and upload required
-                        documents.</p>
+                        {{ $step->step_number }}</div>
+                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">{{ $step->title }}</h3>
+                    <p class="text-gray-600 text-center">{{ $step->description }}</p>
                 </div>
-                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
-                    <div
-                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
-                        2</div>
-                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Document Review</h3>
-                    <p class="text-gray-600 text-center">Our admissions team will review your application and documents.
-                    </p>
-                </div>
-                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
-                    <div
-                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
-                        3</div>
-                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Assessment & Interview</h3>
-                    <p class="text-gray-600 text-center">Schedule and complete your assessment and interview with our
-                        academic team.</p>
-                </div>
-                <div class="flex flex-col items-center bg-white rounded-xl shadow-lg p-8">
-                    <div
-                        class="w-12 h-12 bg-[#C8A165] rounded-full flex items-center justify-center text-white font-bold text-lg mb-4">
-                        4</div>
-                    <h3 class="text-lg font-bold text-[#1A3165] mb-2">Enrollment</h3>
-                    <p class="text-gray-600 text-center">Finish the enrollment process and get ready to start your academic
-                        journey!</p>
-                </div>
+                @endforeach
             </div>
             <div class="text-center mt-8">
-                <a href="/portal/register"
+                <a href="{{ $howToApply->button_link }}"
                     class="inline-flex items-center bg-[#C8A165] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#1A3165] transition-colors duration-200">
-                    Apply Now <i class="fi fi-rr-arrow-right ml-2"></i>
+                    {{ $howToApply->button_text }} <i class="fi fi-rr-arrow-right ml-2"></i>
                 </a>
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @section('news_announcement')
@@ -786,85 +579,212 @@
 @endsection
 
 @section('footer')
-    <footer class="bg-gray-100 w-screen flex flex-col justify-center items-center">
-        <div class="mx-auto max-w-5xl px-4 pt-16 sm:px-6 lg:px-8 w-full">
-            <div class="flex justify-center text-teal-600">
-                <img src="{{ asset('images/Dreamy_logo.png') }}" alt=""
-                    class="h-[80px] w-[80px] sm:h-[100px] sm:w-[100px]">
-            </div>
-
-            <p class="mx-auto mt-6 max-w-md text-center leading-relaxed text-gray-500 text-sm sm:text-base px-4">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt consequuntur amet culpa
-                cum itaque neque.
-            </p>
-
-            <ul class="mt-8 sm:mt-12 flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 text-sm sm:text-base">
-                <li>
-                    <a class="text-gray-700 transition hover:text-gray-700/75" href="#home"> Home </a>
-                </li>
-
-                <li>
-                    <a class="text-gray-700 transition hover:text-gray-700/75" href="#about"> About </a>
-                </li>
-
-                <li>
-                    <a class="text-gray-700 transition hover:text-gray-700/75" href="{{ route('public.news.index') }}">
-                        News </a>
-                </li>
-
-                <li>
-                    <a class="text-gray-700 transition hover:text-gray-700/75" href="#contact"> Contact </a>
-                </li>
-
-                <li>
-                    <a class="text-gray-700 transition hover:text-gray-700/75" href="{{ route('login') }}"> Login </a>
-                </li>
-            </ul>
-
-            <ul class="mt-8 sm:mt-12 flex justify-center gap-6 md:gap-8">
-                <li>
-                    <a href="https://www.facebook.com/dreamyschoolph" rel="noreferrer" target="_blank"
-                        class="text-gray-700 transition hover:text-gray-700/75">
-                        <span class="sr-only">Facebook</span>
-                        <svg class="size-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                                clip-rule="evenodd"></path>
-                        </svg>
+    <footer class="bg-[#1A3165] w-screen">
+        <!-- Main Footer Content -->
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                
+                <!-- Left Column: School Info & Quick Links -->
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        
+                        <!-- School Info -->
+                        <div class="md:col-span-1">
+                            <div class="flex items-center gap-3 mb-6">
+                                <img src="{{ asset('images/Dreamy_logo.png') }}" alt="Dreamy School Logo"
+                                    class="h-16 w-16">
+                                <div>
+                                    <h3 class="text-white font-bold text-lg">Dreamy School</h3>
+                                    <p class="text-[#C8A165] text-sm">Philippines</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                                Nurturing minds, building futures. Dreamy School Philippines is committed to providing quality education that empowers students to achieve their dreams.
+                            </p>
+                            <!-- Social Links -->
+                            <div class="flex gap-3">
+                                <a href="https://www.facebook.com/dreamyschoolph" rel="noreferrer" target="_blank"
+                                    class="w-10 h-10 bg-white/10 hover:bg-[#C8A165] rounded-full flex items-center justify-center text-white transition-all duration-300">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path fill-rule="evenodd"
+                                            d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </a>
+                                <a href="https://www.instagram.com/dreamyschoolph/" rel="noreferrer" target="_blank"
+                                    class="w-10 h-10 bg-white/10 hover:bg-[#C8A165] rounded-full flex items-center justify-center text-white transition-all duration-300">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path fill-rule="evenodd"
+                                            d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </a>
+                                <a href="mailto:info@dreamyschool.ph" 
+                                    class="w-10 h-10 bg-white/10 hover:bg-[#C8A165] rounded-full flex items-center justify-center text-white transition-all duration-300">
+                                    <i class="fi fi-rr-envelope flex items-center justify-center"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Links -->
+                        <div>
+                            <h4 class="text-white font-bold text-lg mb-6 flex items-center">
+                                <span class="w-8 h-[2px] bg-[#C8A165] mr-3"></span>
+                                Quick Links
+                            </h4>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="#home" class="text-gray-400 hover:text-[#C8A165] transition-colors duration-200 flex items-center group">
+                                        <i class="fi fi-rr-angle-right text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
+                                        Home
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#about" class="text-gray-400 hover:text-[#C8A165] transition-colors duration-200 flex items-center group">
+                                        <i class="fi fi-rr-angle-right text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
+                                        About Us
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#programs" class="text-gray-400 hover:text-[#C8A165] transition-colors duration-200 flex items-center group">
+                                        <i class="fi fi-rr-angle-right text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
+                                        Programs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('public.news.index') }}" class="text-gray-400 hover:text-[#C8A165] transition-colors duration-200 flex items-center group">
+                                        <i class="fi fi-rr-angle-right text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
+                                        News & Events
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('login') }}" class="text-gray-400 hover:text-[#C8A165] transition-colors duration-200 flex items-center group">
+                                        <i class="fi fi-rr-angle-right text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
+                                        Student Portal
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div>
+                            <h4 class="text-white font-bold text-lg mb-6 flex items-center">
+                                <span class="w-8 h-[2px] bg-[#C8A165] mr-3"></span>
+                                Contact Us
+                            </h4>
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-[#C8A165]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fi fi-rr-marker text-[#C8A165] text-sm flex items-center justify-center"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Address</p>
+                                        <p class="text-gray-400 text-sm">San Jose del Monte, Bulacan, Philippines</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-[#C8A165]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fi fi-rr-phone-call text-[#C8A165] text-sm flex items-center justify-center"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Phone</p>
+                                        <a href="tel:+639123456789" class="text-gray-400 text-sm hover:text-[#C8A165] transition-colors">+63 912 345 6789</a>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-[#C8A165]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fi fi-rr-envelope text-[#C8A165] text-sm flex items-center justify-center"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Email</p>
+                                        <a href="mailto:info@dreamyschool.ph" class="text-gray-400 text-sm hover:text-[#C8A165] transition-colors">info@dreamyschool.ph</a>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-[#C8A165]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fi fi-rr-clock text-[#C8A165] text-sm flex items-center justify-center"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Office Hours</p>
+                                        <p class="text-gray-400 text-sm">Mon - Fri: 7:00 AM - 5:00 PM</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Map -->
+                <div class="lg:col-span-1">
+                    <h4 class="text-white font-bold text-lg mb-6 flex items-center">
+                        <span class="w-8 h-[2px] bg-[#C8A165] mr-3"></span>
+                        Find Us
+                    </h4>
+                    <div class="rounded-xl overflow-hidden shadow-xl border-4 border-white/10">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3913.5198869544997!2d121.1463245!3d14.7544682!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397a500593df367%3A0x6459a4ed7c24d2a3!2sDREAMY%20SCHOOL%20PHILIPPINES!5e1!3m2!1sen!2sph!4v1767610787863!5m2!1sen!2sph" 
+                            width="100%" 
+                            height="280" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            class="w-full">
+                        </iframe>
+                    </div>
+                    <a href="https://maps.google.com/?q=DREAMY+SCHOOL+PHILIPPINES" target="_blank" rel="noopener noreferrer"
+                        class="mt-4 inline-flex items-center justify-center w-full bg-[#C8A165] hover:bg-[#B8915A] text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
+                        <i class="fi fi-rr-marker mr-2 flex items-center justify-center"></i>
+                        Get Directions
                     </a>
-                </li>
-
-                <li>
-                    <a href="https://www.instagram.com/dreamyschoolph/" rel="noreferrer" target="_blank"
-                        class="text-gray-700 transition hover:text-gray-700/75">
-                        <span class="sr-only">Instagram</span>
-                        <svg class="size-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </a>
-                </li>
-
-            </ul>
-        </div>
-        <div
-            class="flex flex-col items-center justify-center w-full max-w-[800px] gap-4 sm:gap-6 mt-4 px-4 pb-12 sm:pb-16 pt-8 sm:px-6 lg:px-8 border-t border-gray-300">
-            <p class="text-gray-500 text-sm sm:text-base">Download the App</p>
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full px-2">
-                <a href='{{ asset('apk/application-e7b64287-1960-4774-a106-378d55079c78.apk') }}' download
-                    class="flex flex-row justify-center items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-[#199BCF] shadow-[#199BCF]/40 shadow-xl text-white w-full sm:w-auto max-w-xs">
-                    <span><i class="fi fi-brands-android flex justify-center items-center"></i></span>
-                    <p class="text-sm sm:text-[16px] font-medium">For Dreamy Students</p>
-                </a>
-                <a href="https://drive.google.com/uc?export=download&id=1bSJ2VhFjTgndlDbhIt8ur-DoxH1xJEOO"
-                    class="flex flex-row justify-center items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl bg-[#199BCF] shadow-[#199BCF]/40 shadow-xl text-white w-full sm:w-auto max-w-xs">
-                    <span><i class="fi fi-brands-windows flex justify-center items-center"></i></span>
-                    <p class="text-sm sm:text-[16px] font-medium">For administrative staff</p>
-                </a>
+                </div>
             </div>
         </div>
-        <p class="pt-8 sm:pt-10 pb-4 text-xs sm:text-[14px] text-gray-500 text-center px-4">© Dreamy School Philippines
-            2025</p>
+        
+        <!-- Download Apps Section -->
+        <div class="bg-[#142850] py-8">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="text-center md:text-left">
+                        <h4 class="text-white font-bold text-lg mb-1">Download Our Mobile App</h4>
+                        <p class="text-gray-400 text-sm">Stay connected with Dreamy School on the go</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href='{{ asset('apk/application-e7b64287-1960-4774-a106-378d55079c78.apk') }}' download
+                            class="flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-r from-[#199BCF] to-[#1A7BA8] hover:from-[#1A7BA8] hover:to-[#199BCF] text-white transition-all duration-300 shadow-lg shadow-[#199BCF]/30">
+                            <i class="fi fi-brands-android text-2xl flex items-center justify-center"></i>
+                            <div class="text-left">
+                                <p class="text-[10px] text-white/70 uppercase tracking-wide">Download for</p>
+                                <p class="text-sm font-semibold">Android (Students)</p>
+                            </div>
+                        </a>
+                        <a href="https://drive.google.com/uc?export=download&id=1bSJ2VhFjTgndlDbhIt8ur-DoxH1xJEOO"
+                            class="flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#4F46E5] hover:from-[#4F46E5] hover:to-[#6366F1] text-white transition-all duration-300 shadow-lg shadow-[#6366F1]/30">
+                            <i class="fi fi-brands-windows text-2xl flex items-center justify-center"></i>
+                            <div class="text-left">
+                                <p class="text-[10px] text-white/70 uppercase tracking-wide">Download for</p>
+                                <p class="text-sm font-semibold">Windows (Staff)</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Copyright Bar -->
+        <div class="bg-[#0F1D32] py-4">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
+                    <p class="text-gray-500">
+                        © {{ date('Y') }} Dreamy School Philippines. All rights reserved.
+                    </p>
+                    <div class="flex items-center gap-6">
+                        <a href="#" class="text-gray-500 hover:text-[#C8A165] transition-colors">Privacy Policy</a>
+                        <a href="#" class="text-gray-500 hover:text-[#C8A165] transition-colors">Terms of Service</a>
+                        <a href="#" class="text-gray-500 hover:text-[#C8A165] transition-colors">Sitemap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </footer>
 @endsection

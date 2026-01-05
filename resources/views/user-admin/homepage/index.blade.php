@@ -19,7 +19,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm opacity-90">Total Sections</p>
-                    <h3 class="text-3xl font-bold mt-1">9</h3>
+                    <h3 class="text-3xl font-bold mt-1">{{ $totalSections }}</h3>
                 </div>
                 <i class="fi fi-rr-layout-fluid text-4xl opacity-50"></i>
             </div>
@@ -28,7 +28,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm opacity-90">Active Content</p>
-                    <h3 class="text-3xl font-bold mt-1">7</h3>
+                    <h3 class="text-3xl font-bold mt-1">{{ $activeSections }}</h3>
                 </div>
                 <i class="fi fi-rr-check-circle text-4xl opacity-50"></i>
             </div>
@@ -37,7 +37,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm opacity-90">Images</p>
-                    <h3 class="text-3xl font-bold mt-1">24</h3>
+                    <h3 class="text-3xl font-bold mt-1">{{ $totalImages }}</h3>
                 </div>
                 <i class="fi fi-rr-picture text-4xl opacity-50"></i>
             </div>
@@ -46,7 +46,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm opacity-90">Last Updated</p>
-                    <h3 class="text-lg font-bold mt-1">2 days ago</h3>
+                    <h3 class="text-lg font-bold mt-1">{{ $lastUpdated ? $lastUpdated->diffForHumans() : 'Never' }}</h3>
                 </div>
                 <i class="fi fi-rr-calendar text-4xl opacity-50"></i>
             </div>
@@ -55,6 +55,42 @@
 
     <!-- Section Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-[14px]">
+
+        <!-- Homepage Notice Card -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="h-2 bg-gradient-to-r from-[#C8A165] to-[#d4af37]"></div>
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Notice Bar</h3>
+                        <p class="text-sm text-gray-500 mt-1">Top announcement banner</p>
+                    </div>
+                    <i class="fi fi-rr-megaphone text-[#C8A165] text-2xl"></i>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fi fi-rr-bell text-xs mr-2"></i>
+                        <span>{{ $homepageNotices->count() }} notice(s) configured</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fi fi-rr-calendar text-xs mr-2"></i>
+                        <span>Schedule visibility</span>
+                    </div>
+                </div>
+                @if($homepageNotices->where('is_active', true)->count() > 0)
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
+                    Active
+                </span>
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
+                <a href="{{ route('admin.homepage.notice.edit') }}" class="block w-full mt-2 bg-[#C8A165] hover:bg-[#b8914f] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
+                    Manage Notices
+                </a>
+            </div>
+        </div>
         
         <!-- Hero Section Card -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
@@ -70,16 +106,22 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-text text-xs mr-2"></i>
-                        <span>Headline, subtitle, button</span>
+                        <span>{{ $heroSection ? Str::limit($heroSection->title, 30) : 'No title set' }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-picture text-xs mr-2"></i>
-                        <span>1 background image</span>
+                        <span>{{ $heroSection && $heroSection->background_image ? '1 background image' : 'No background' }}</span>
                     </div>
                 </div>
+                @if($heroSection && $heroSection->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
                 <a href="{{ route('admin.homepage.hero.edit') }}" class="block w-full mt-2 bg-[#199BCF] hover:bg-[#1A3165] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
                 </a>
@@ -100,16 +142,22 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-text text-xs mr-2"></i>
-                        <span>Title, description, stats</span>
+                        <span>{{ $aboutSection ? Str::limit($aboutSection->heading, 30) : 'No heading set' }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-picture text-xs mr-2"></i>
-                        <span>2 images</span>
+                        <span>{{ ($aboutSection && $aboutSection->image_left ? 1 : 0) + ($aboutSection && $aboutSection->image_right ? 1 : 0) }} images</span>
                     </div>
                 </div>
+                @if($aboutSection && $aboutSection->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
                 <a href="{{ route('admin.homepage.about.edit') }}" class="block w-full mt-2 bg-[#C8A165] hover:bg-[#8B6F47] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
                 </a>
@@ -130,16 +178,22 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-text text-xs mr-2"></i>
-                        <span>Mission statement & description</span>
+                        <span>{{ $missionValuesSection ? Str::limit($missionValuesSection->heading, 30) : 'No heading set' }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-list text-xs mr-2"></i>
-                        <span>Multiple value items</span>
+                        <span>{{ $missionValuesSection && $missionValuesSection->items ? $missionValuesSection->items->count() : 0 }} value items</span>
                     </div>
                 </div>
+                @if($missionValuesSection && $missionValuesSection->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
                 <a href="{{ route('admin.homepage.mission-values.edit') }}" class="block w-full mt-2 bg-[#10b981] hover:bg-[#059669] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
                 </a>
@@ -160,16 +214,22 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-text text-xs mr-2"></i>
-                        <span>Heading & description</span>
+                        <span>{{ $glanceSection ? Str::limit($glanceSection->heading, 30) : 'No heading set' }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-chart-pie text-xs mr-2"></i>
-                        <span>Multiple statistics items</span>
+                        <span>{{ $glanceSection && $glanceSection->items ? $glanceSection->items->count() : 0 }} statistics items</span>
                     </div>
                 </div>
+                @if($glanceSection && $glanceSection->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
                 <a href="{{ route('admin.homepage.school-at-glance.edit') }}" class="block w-full mt-2 bg-[#C8A165] hover:bg-[#8B6F47] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
                 </a>
@@ -190,16 +250,22 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-text text-xs mr-2"></i>
-                        <span>Heading & description</span>
+                        <span>{{ $academicProgramsSection ? Str::limit($academicProgramsSection->heading, 30) : 'No heading set' }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-book text-xs mr-2"></i>
-                        <span>Multiple program items</span>
+                        <span>{{ $academicProgramsSection && $academicProgramsSection->items ? $academicProgramsSection->items->count() : 0 }} program items</span>
                     </div>
                 </div>
+                @if($academicProgramsSection && $academicProgramsSection->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
                 <a href="{{ route('admin.homepage.academic-programs.edit') }}" class="block w-full mt-2 bg-[#8b5cf6] hover:bg-[#6d28d9] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
                 </a>
@@ -219,20 +285,26 @@
                 </div>
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-list text-xs mr-2"></i>
-                        <span>6 key reasons</span>
+                        <i class="fi fi-rr-text text-xs mr-2"></i>
+                        <span>{{ $reasonSection ? Str::limit($reasonSection->heading, 30) : 'No heading set' }}</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-sparkles text-xs mr-2"></i>
-                        <span>Icons & descriptions</span>
+                        <i class="fi fi-rr-list text-xs mr-2"></i>
+                        <span>{{ $reasonSection && $reasonSection->items ? $reasonSection->items->count() : 0 }} key reasons</span>
                     </div>
                 </div>
+                @if($reasonSection && $reasonSection->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
-                <button class="w-full mt-2 bg-[#ec4899] hover:bg-[#be185d] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
+                <a href="{{ route('admin.homepage.reason.edit') }}" class="block w-full mt-2 bg-[#ec4899] hover:bg-[#be185d] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
-                </button>
+                </a>
             </div>
         </div>
 
@@ -242,27 +314,33 @@
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">Alumni Testimonials</h3>
-                        <p class="text-sm text-gray-500 mt-1">Success stories & reviews</p>
+                        <h3 class="text-lg font-bold text-gray-900">Alumni Success Stories</h3>
+                        <p class="text-sm text-gray-500 mt-1">Success stories & testimonials</p>
                     </div>
                     <i class="fi fi-rr-quote-right text-[#06b6d4] text-2xl"></i>
                 </div>
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-user text-xs mr-2"></i>
-                        <span>4 testimonials</span>
+                        <span>{{ $alumniSection && $alumniSection->items ? $alumniSection->items->count() : 0 }} alumni profiles</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-picture text-xs mr-2"></i>
-                        <span>4 profile photos</span>
+                        <i class="fi fi-rr-comment-quote text-xs mr-2"></i>
+                        <span>Quotes & achievements</span>
                     </div>
                 </div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-4">
-                    Needs Update
+                @if($alumniSection && $alumniSection->is_active)
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
+                    Active
                 </span>
-                <button class="w-full mt-2 bg-[#06b6d4] hover:bg-[#0891b2] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
+                <a href="{{ route('admin.homepage.alumni.edit') }}" class="block w-full mt-2 bg-[#06b6d4] hover:bg-[#0891b2] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
-                </button>
+                </a>
             </div>
         </div>
 
@@ -280,19 +358,25 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-picture text-xs mr-2"></i>
-                        <span>8 campus images</span>
+                        <span>{{ $campusTour && $campusTour->items ? $campusTour->items->count() : 0 }} tour slides</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-magic-wand text-xs mr-2"></i>
-                        <span>Vertical carousel</span>
+                        <span>Auto-play carousel</span>
                     </div>
                 </div>
+                @if($campusTour && $campusTour->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
-                <button class="w-full mt-2 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
+                <a href="{{ route('admin.homepage.campus-tour.edit') }}" class="block w-full mt-2 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
-                </button>
+                </a>
             </div>
         </div>
 
@@ -310,31 +394,28 @@
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-list-check text-xs mr-2"></i>
-                        <span>5 application steps</span>
+                        <span>{{ $howToApply && $howToApply->steps ? $howToApply->steps->count() : 0 }} application steps</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
                         <i class="fi fi-rr-link text-xs mr-2"></i>
-                        <span>Portal link included</span>
+                        <span>{{ $howToApply ? Str::limit($howToApply->button_link, 25) : '/portal/register' }}</span>
                     </div>
                 </div>
+                @if($howToApply && $howToApply->is_active)
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
-                <button class="w-full mt-2 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+                    Inactive
+                </span>
+                @endif
+                <a href="{{ route('admin.homepage.how-to-apply.edit') }}" class="block w-full mt-2 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
-                </button>
+                </a>
             </div>
         </div>
 
-    </div>
-
-    <!-- Coming Soon Notice -->
-    <div class="mt-8 px-[14px]">
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
-            <i class="fi fi-rr-info text-blue-500 text-3xl mb-3"></i>
-            <h3 class="text-lg font-bold text-blue-900 mb-2">Advanced Features Coming Soon</h3>
-            <p class="text-sm text-blue-700">Edit functionality, image uploads, and dynamic content management will be available in the next update.</p>
-        </div>
     </div>
 
 @endsection
@@ -343,15 +424,7 @@
 <script>
     // Future: Add interactivity for edit buttons
     document.addEventListener('DOMContentLoaded', function() {
-        const editButtons = document.querySelectorAll('button');
-        editButtons.forEach(button => {
-            if (button.textContent.includes('Edit Section')) {
-                button.addEventListener('click', function() {
-                    // Placeholder for future edit functionality
-                    alert('Edit functionality will be implemented soon!');
-                });
-            }
-        });
+        // Page ready
     });
 </script>
 @endpush

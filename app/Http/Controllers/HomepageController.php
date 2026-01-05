@@ -10,6 +10,15 @@ use App\Models\SchoolAtGlanceSection;
 use App\Models\SchoolAtGlanceItem;
 use App\Models\AcademicProgramsSection;
 use App\Models\AcademicProgramsItem;
+use App\Models\ReasonSection;
+use App\Models\ReasonItem;
+use App\Models\AlumniSection;
+use App\Models\AlumniItem;
+use App\Models\CampusTourSection;
+use App\Models\CampusTourItem;
+use App\Models\HowToApplySection;
+use App\Models\HowToApplyStep;
+use App\Models\HomepageNotice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -26,7 +35,79 @@ class HomepageController extends Controller
         // You can add permission check here if needed
         // abort_unless(auth()->user()->can('manage_homepage'), 403);
 
-        return view('user-admin.homepage.index');
+        // Get all section data for the homepage manager dashboard
+        $heroSection = HeroSection::orderBy('order')->first();
+        $aboutSection = AboutSection::orderBy('order')->first();
+        $missionValuesSection = MissionValuesSection::with('items')->orderBy('order')->first();
+        $glanceSection = SchoolAtGlanceSection::with('items')->orderBy('order')->first();
+        $academicProgramsSection = AcademicProgramsSection::with('items')->orderBy('order')->first();
+        $reasonSection = ReasonSection::with('items')->orderBy('order')->first();
+        $alumniSection = AlumniSection::with('items')->orderBy('order')->first();
+        $campusTour = CampusTourSection::with('items')->orderBy('order')->first();
+        $howToApply = HowToApplySection::with('steps')->orderBy('order')->first();
+        $homepageNotices = HomepageNotice::orderBy('order')->get();
+
+        // Calculate analytics
+        $totalSections = 10; // Fixed number of homepage sections
+        
+        // Count active sections
+        $activeSections = 0;
+        if ($heroSection && $heroSection->is_active) $activeSections++;
+        if ($aboutSection && $aboutSection->is_active) $activeSections++;
+        if ($missionValuesSection && $missionValuesSection->is_active) $activeSections++;
+        if ($glanceSection && $glanceSection->is_active) $activeSections++;
+        if ($academicProgramsSection && $academicProgramsSection->is_active) $activeSections++;
+        if ($reasonSection && $reasonSection->is_active) $activeSections++;
+        if ($alumniSection && $alumniSection->is_active) $activeSections++;
+        if ($campusTour && $campusTour->is_active) $activeSections++;
+        if ($howToApply && $howToApply->is_active) $activeSections++;
+        if ($homepageNotices->where('is_active', true)->count() > 0) $activeSections++;
+
+        // Count total images
+        $totalImages = 0;
+        if ($heroSection && $heroSection->background_image) $totalImages++;
+        if ($aboutSection) {
+            if ($aboutSection->image_left) $totalImages++;
+            if ($aboutSection->image_right) $totalImages++;
+        }
+        if ($campusTour && $campusTour->items) {
+            $totalImages += $campusTour->items->count();
+        }
+        if ($alumniSection && $alumniSection->items) {
+            $totalImages += $alumniSection->items->whereNotNull('photo')->count();
+        }
+
+        // Get last updated time
+        $allSections = collect([
+            $heroSection,
+            $aboutSection,
+            $missionValuesSection,
+            $glanceSection,
+            $academicProgramsSection,
+            $reasonSection,
+            $alumniSection,
+            $campusTour,
+            $howToApply
+        ])->filter()->sortByDesc('updated_at');
+        
+        $lastUpdated = $allSections->first() ? $allSections->first()->updated_at : null;
+
+        return view('user-admin.homepage.index', compact(
+            'heroSection',
+            'aboutSection',
+            'missionValuesSection',
+            'glanceSection',
+            'academicProgramsSection',
+            'reasonSection',
+            'alumniSection',
+            'campusTour',
+            'howToApply',
+            'homepageNotices',
+            'totalSections',
+            'activeSections',
+            'totalImages',
+            'lastUpdated'
+        ));
     }
 
     /**
@@ -498,6 +579,115 @@ class HomepageController extends Controller
     }
 
     /**
+     * Show the form for editing the Reason (Why Choose) section
+     */
+    public function editReasonSection()
+    {
+        $section = ReasonSection::with('items')->orderBy('order')->first();
+        
+        if (!$section) {
+            $section = ReasonSection::create([
+                'heading' => 'Why Choose Dreamy School?',
+                'description' => 'Discover what makes us the preferred choice for quality education',
+                'is_active' => true,
+                'order' => 1,
+            ]);
+        }
+
+        return view('user-admin.homepage.edit-reason', compact('section'));
+    }
+
+    /**
+     * Update the Reason (Why Choose) section
+     */
+    public function updateReasonSection(Request $request)
+    {
+        $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'items' => 'array',
+            'items.*.title' => 'required|string|max:255',
+            'items.*.description' => 'required|string',
+            'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'items.*.order' => 'required|integer|min:1',
+        ]);
+
+        $section = ReasonSection::orderBy('order')->first();
+
+        if (!$section) {
+            $section = ReasonSection::create([
+                'heading' => $request->heading,
+                'description' => $request->description,
+                'is_active' => $request->has('is_active'),
+                'order' => 1,
+            ]);
+        } else {
+            $section->update([
+                'heading' => $request->heading,
+                'description' => $request->description,
+                'is_active' => $request->has('is_active'),
+            ]);
+        }
+
+        // Process items
+        if ($request->has('items')) {
+            $submittedItemIds = [];
+
+            foreach ($request->items as $index => $itemData) {
+                $itemDataToSave = [
+                    'title' => $itemData['title'],
+                    'description' => $itemData['description'],
+                    'order' => $itemData['order'],
+                ];
+
+                // Handle image upload
+                if ($request->hasFile("items.{$index}.image")) {
+                    $file = $request->file("items.{$index}.image");
+                    if ($file->isValid()) {
+                        $filename = 'reason_' . time() . '_' . $index . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs('homepage/reason', $filename, 'public');
+                        
+                        if ($path && Storage::disk('public')->exists($path)) {
+                            $itemDataToSave['image'] = $path;
+                        }
+                    }
+                }
+
+                if (!empty($itemData['id'])) {
+                    // Update existing item
+                    $item = ReasonItem::find($itemData['id']);
+                    if ($item) {
+                        // Delete old image if new one uploaded
+                        if (isset($itemDataToSave['image']) && $item->image) {
+                            Storage::disk('public')->delete($item->image);
+                        }
+                        $item->update($itemDataToSave);
+                        $submittedItemIds[] = $item->id;
+                    }
+                } else {
+                    // Create new item
+                    $newItem = $section->items()->create($itemDataToSave);
+                    $submittedItemIds[] = $newItem->id;
+                }
+            }
+            
+            // Delete items that were not submitted (removed by user)
+            $itemsToDelete = ReasonItem::where('reason_section_id', $section->id)
+                ->whereNotIn('id', $submittedItemIds)
+                ->get();
+            
+            foreach ($itemsToDelete as $item) {
+                if ($item->image) {
+                    Storage::disk('public')->delete($item->image);
+                }
+                $item->delete();
+            }
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'Why Choose section updated successfully!');
+    }
+
+    /**
      * Show the form for editing a specific section
      */
     public function editSection($section)
@@ -507,11 +697,413 @@ class HomepageController extends Controller
     }
 
     /**
+     * Show the form for editing the Alumni section
+     */
+    public function editAlumniSection()
+    {
+        $section = AlumniSection::with('items')->orderBy('order')->first();
+        
+        if (!$section) {
+            $section = AlumniSection::create([
+                'heading' => 'Alumni Success Stories',
+                'description' => 'Meet some of our outstanding alumni and see where their Dreamy School journey has taken them.',
+                'is_active' => true,
+                'order' => 1,
+            ]);
+        }
+
+        return view('user-admin.homepage.edit-alumni', compact('section'));
+    }
+
+    /**
+     * Update the Alumni section
+     */
+    public function updateAlumniSection(Request $request)
+    {
+        $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'background_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'items' => 'array',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.class_year' => 'nullable|string|max:255',
+            'items.*.track' => 'nullable|string|max:255',
+            'items.*.quote' => 'required|string',
+            'items.*.photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'items.*.order' => 'required|integer|min:1',
+        ]);
+
+        $section = AlumniSection::orderBy('order')->first();
+
+        $sectionData = [
+            'heading' => $request->heading,
+            'description' => $request->description,
+            'is_active' => $request->has('is_active'),
+        ];
+
+        // Handle background image upload
+        if ($request->hasFile('background_image')) {
+            $file = $request->file('background_image');
+            if ($file->isValid()) {
+                $filename = 'alumni_bg_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('homepage/alumni', $filename, 'public');
+                
+                if ($path && Storage::disk('public')->exists($path)) {
+                    // Delete old image
+                    if ($section && $section->background_image) {
+                        Storage::disk('public')->delete($section->background_image);
+                    }
+                    $sectionData['background_image'] = $path;
+                }
+            }
+        }
+
+        if (!$section) {
+            $sectionData['order'] = 1;
+            $section = AlumniSection::create($sectionData);
+        } else {
+            $section->update($sectionData);
+        }
+
+        // Process items
+        if ($request->has('items')) {
+            $submittedItemIds = [];
+
+            foreach ($request->items as $index => $itemData) {
+                $itemDataToSave = [
+                    'name' => $itemData['name'],
+                    'class_year' => $itemData['class_year'] ?? null,
+                    'track' => $itemData['track'] ?? null,
+                    'quote' => $itemData['quote'],
+                    'order' => $itemData['order'],
+                ];
+
+                // Handle photo upload
+                if ($request->hasFile("items.{$index}.photo")) {
+                    $file = $request->file("items.{$index}.photo");
+                    if ($file->isValid()) {
+                        $filename = 'alumni_' . time() . '_' . $index . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs('homepage/alumni', $filename, 'public');
+                        
+                        if ($path && Storage::disk('public')->exists($path)) {
+                            $itemDataToSave['photo'] = $path;
+                        }
+                    }
+                }
+
+                if (!empty($itemData['id'])) {
+                    // Update existing item
+                    $item = AlumniItem::find($itemData['id']);
+                    if ($item) {
+                        // Delete old photo if new one uploaded
+                        if (isset($itemDataToSave['photo']) && $item->photo) {
+                            Storage::disk('public')->delete($item->photo);
+                        }
+                        $item->update($itemDataToSave);
+                        $submittedItemIds[] = $item->id;
+                    }
+                } else {
+                    // Create new item
+                    $newItem = $section->items()->create($itemDataToSave);
+                    $submittedItemIds[] = $newItem->id;
+                }
+            }
+            
+            // Delete items that were not submitted (removed by user)
+            $itemsToDelete = AlumniItem::where('alumni_section_id', $section->id)
+                ->whereNotIn('id', $submittedItemIds)
+                ->get();
+            
+            foreach ($itemsToDelete as $item) {
+                if ($item->photo) {
+                    Storage::disk('public')->delete($item->photo);
+                }
+                $item->delete();
+            }
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'Alumni section updated successfully!');
+    }
+
+    /**
+     * Show the form for editing the Campus Tour section
+     */
+    public function editCampusTourSection()
+    {
+        $section = CampusTourSection::with('items')->orderBy('order')->first();
+        
+        if (!$section) {
+            $section = CampusTourSection::create([
+                'heading' => 'Virtual Campus Tour',
+                'description' => 'Explore our modern campus and facilities from the comfort of your home.',
+                'is_active' => true,
+                'order' => 1,
+            ]);
+        }
+
+        return view('user-admin.homepage.edit-campus-tour', compact('section'));
+    }
+
+    /**
+     * Update the Campus Tour section
+     */
+    public function updateCampusTourSection(Request $request)
+    {
+        $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'items' => 'array',
+            'items.*.title' => 'required|string|max:255',
+            'items.*.description' => 'required|string',
+            'items.*.icon' => 'nullable|string|max:255',
+            'items.*.highlight' => 'nullable|string|max:255',
+            'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'items.*.order' => 'required|integer|min:1',
+        ]);
+
+        $section = CampusTourSection::orderBy('order')->first();
+
+        if (!$section) {
+            $section = CampusTourSection::create([
+                'heading' => $request->heading,
+                'description' => $request->description,
+                'is_active' => $request->has('is_active'),
+                'order' => 1,
+            ]);
+        } else {
+            $section->update([
+                'heading' => $request->heading,
+                'description' => $request->description,
+                'is_active' => $request->has('is_active'),
+            ]);
+        }
+
+        // Process items
+        if ($request->has('items')) {
+            $submittedItemIds = [];
+
+            foreach ($request->items as $index => $itemData) {
+                $itemDataToSave = [
+                    'title' => $itemData['title'],
+                    'description' => $itemData['description'],
+                    'icon' => $itemData['icon'] ?? 'fi-rr-marker',
+                    'highlight' => $itemData['highlight'] ?? null,
+                    'order' => $itemData['order'],
+                ];
+
+                // Handle image upload
+                if ($request->hasFile("items.{$index}.image")) {
+                    $file = $request->file("items.{$index}.image");
+                    if ($file->isValid()) {
+                        $filename = 'campus_tour_' . time() . '_' . $index . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $path = $file->storeAs('homepage/campus-tour', $filename, 'public');
+                        
+                        if ($path && Storage::disk('public')->exists($path)) {
+                            $itemDataToSave['image'] = $path;
+                        }
+                    }
+                }
+
+                if (!empty($itemData['id'])) {
+                    // Update existing item
+                    $item = CampusTourItem::find($itemData['id']);
+                    if ($item) {
+                        // Delete old image if new one uploaded
+                        if (isset($itemDataToSave['image']) && $item->image) {
+                            Storage::disk('public')->delete($item->image);
+                        }
+                        $item->update($itemDataToSave);
+                        $submittedItemIds[] = $item->id;
+                    }
+                } else {
+                    // Create new item
+                    $newItem = $section->items()->create($itemDataToSave);
+                    $submittedItemIds[] = $newItem->id;
+                }
+            }
+            
+            // Delete items that were not submitted (removed by user)
+            $itemsToDelete = CampusTourItem::where('campus_tour_section_id', $section->id)
+                ->whereNotIn('id', $submittedItemIds)
+                ->get();
+            
+            foreach ($itemsToDelete as $item) {
+                if ($item->image) {
+                    Storage::disk('public')->delete($item->image);
+                }
+                $item->delete();
+            }
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'Campus Tour section updated successfully!');
+    }
+
+    /**
+     * Show the form for editing the How to Apply section
+     */
+    public function editHowToApplySection()
+    {
+        $section = HowToApplySection::with('steps')->orderBy('order')->first();
+        
+        if (!$section) {
+            $section = HowToApplySection::create([
+                'heading' => 'How to Apply',
+                'description' => 'Follow these simple steps to start your Dreamy School journey.',
+                'button_text' => 'Apply Now',
+                'button_link' => '/portal/register',
+                'is_active' => true,
+                'order' => 1,
+            ]);
+        }
+
+        return view('user-admin.homepage.edit-how-to-apply', compact('section'));
+    }
+
+    /**
+     * Update the How to Apply section
+     */
+    public function updateHowToApplySection(Request $request)
+    {
+        $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'button_text' => 'required|string|max:255',
+            'button_link' => 'required|string|max:255',
+            'steps' => 'array',
+            'steps.*.step_number' => 'required|integer|min:1',
+            'steps.*.title' => 'required|string|max:255',
+            'steps.*.description' => 'required|string',
+            'steps.*.icon' => 'nullable|string|max:255',
+            'steps.*.order' => 'required|integer|min:1',
+        ]);
+
+        $section = HowToApplySection::orderBy('order')->first();
+
+        if (!$section) {
+            $section = HowToApplySection::create([
+                'heading' => $request->heading,
+                'description' => $request->description,
+                'button_text' => $request->button_text,
+                'button_link' => $request->button_link,
+                'is_active' => $request->has('is_active'),
+                'order' => 1,
+            ]);
+        } else {
+            $section->update([
+                'heading' => $request->heading,
+                'description' => $request->description,
+                'button_text' => $request->button_text,
+                'button_link' => $request->button_link,
+                'is_active' => $request->has('is_active'),
+            ]);
+        }
+
+        // Process steps
+        if ($request->has('steps')) {
+            $submittedStepIds = [];
+
+            foreach ($request->steps as $index => $stepData) {
+                $stepDataToSave = [
+                    'step_number' => $stepData['step_number'],
+                    'title' => $stepData['title'],
+                    'description' => $stepData['description'],
+                    'icon' => $stepData['icon'] ?? null,
+                    'order' => $stepData['order'],
+                ];
+
+                if (!empty($stepData['id'])) {
+                    // Update existing step
+                    $step = HowToApplyStep::find($stepData['id']);
+                    if ($step) {
+                        $step->update($stepDataToSave);
+                        $submittedStepIds[] = $step->id;
+                    }
+                } else {
+                    // Create new step
+                    $newStep = $section->steps()->create($stepDataToSave);
+                    $submittedStepIds[] = $newStep->id;
+                }
+            }
+            
+            // Delete steps that were not submitted (removed by user)
+            HowToApplyStep::where('how_to_apply_section_id', $section->id)
+                ->whereNotIn('id', $submittedStepIds)
+                ->delete();
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'How to Apply section updated successfully!');
+    }
+
+    /**
      * Update a specific section
      */
     public function updateSection(Request $request, $section)
     {
         // Logic for updating sections will go here
         return redirect()->route('admin.homepage.index')->with('success', 'Section updated successfully!');
+    }
+
+    /**
+     * Show the form for editing the notice section
+     */
+    public function editNotice()
+    {
+        $notices = HomepageNotice::orderBy('order')->get();
+        return view('user-admin.homepage.edit-notice', compact('notices'));
+    }
+
+    /**
+     * Update the notice section
+     */
+    public function updateNotice(Request $request)
+    {
+        $request->validate([
+            'notices' => 'array',
+            'notices.*.message' => 'required|string',
+            'notices.*.bg_color' => 'required|string|max:7',
+            'notices.*.text_color' => 'required|string|max:7',
+            'notices.*.link_url' => 'nullable|url|max:255',
+            'notices.*.starts_at' => 'nullable|date',
+            'notices.*.ends_at' => 'nullable|date|after_or_equal:notices.*.starts_at',
+            'notices.*.order' => 'required|integer|min:1',
+        ]);
+
+        if ($request->has('notices')) {
+            $submittedIds = [];
+
+            foreach ($request->notices as $noticeData) {
+                $dataToSave = [
+                    'message' => $noticeData['message'],
+                    'bg_color' => $noticeData['bg_color'],
+                    'text_color' => $noticeData['text_color'],
+                    'link_url' => $noticeData['link_url'] ?? null,
+                    'is_scrolling' => isset($noticeData['is_scrolling']),
+                    'is_dismissible' => isset($noticeData['is_dismissible']),
+                    'is_active' => isset($noticeData['is_active']),
+                    'starts_at' => $noticeData['starts_at'] ?? null,
+                    'ends_at' => $noticeData['ends_at'] ?? null,
+                    'order' => $noticeData['order'],
+                ];
+
+                if (!empty($noticeData['id'])) {
+                    $notice = HomepageNotice::find($noticeData['id']);
+                    if ($notice) {
+                        $notice->update($dataToSave);
+                        $submittedIds[] = $notice->id;
+                    }
+                } else {
+                    $newNotice = HomepageNotice::create($dataToSave);
+                    $submittedIds[] = $newNotice->id;
+                }
+            }
+
+            // Delete notices that were removed
+            HomepageNotice::whereNotIn('id', $submittedIds)->delete();
+        } else {
+            // If no notices submitted, delete all
+            HomepageNotice::truncate();
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'Homepage notices updated successfully!');
     }
 }
