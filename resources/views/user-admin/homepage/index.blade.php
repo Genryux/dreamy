@@ -148,31 +148,31 @@
 
         <!-- At a Glance Card -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
-            <div class="h-2 bg-gradient-to-r from-[#f59e0b] to-[#d97706]"></div>
+            <div class="h-2 bg-gradient-to-r from-[#C8A165] to-[#8B6F47]"></div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">At a Glance</h3>
-                        <p class="text-sm text-gray-500 mt-1">Quick stats & numbers</p>
+                        <h3 class="text-lg font-bold text-gray-900">School at a Glance</h3>
+                        <p class="text-sm text-gray-500 mt-1">Key statistics & numbers</p>
                     </div>
-                    <i class="fi fi-rr-chart-line-up text-[#f59e0b] text-2xl"></i>
+                    <i class="fi fi-rr-stats text-[#C8A165] text-2xl"></i>
                 </div>
                 <div class="space-y-2 mb-4">
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-calculator text-xs mr-2"></i>
-                        <span>5 statistics</span>
+                        <i class="fi fi-rr-text text-xs mr-2"></i>
+                        <span>Heading & description</span>
                     </div>
                     <div class="flex items-center text-sm text-gray-600">
-                        <i class="fi fi-rr-refresh text-xs mr-2"></i>
-                        <span>Auto-updated</span>
+                        <i class="fi fi-rr-chart-pie text-xs mr-2"></i>
+                        <span>Multiple statistics items</span>
                     </div>
                 </div>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
                     Active
                 </span>
-                <button class="w-full mt-2 bg-[#f59e0b] hover:bg-[#d97706] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                <a href="{{ route('admin.homepage.school-at-glance.edit') }}" class="block w-full mt-2 bg-[#C8A165] hover:bg-[#8B6F47] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-center">
                     Edit Section
-                </button>
+                </a>
             </div>
         </div>
 

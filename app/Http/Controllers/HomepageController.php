@@ -6,6 +6,8 @@ use App\Models\HeroSection;
 use App\Models\AboutSection;
 use App\Models\MissionValuesSection;
 use App\Models\MissionValuesItem;
+use App\Models\SchoolAtGlanceSection;
+use App\Models\SchoolAtGlanceItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -298,6 +300,98 @@ class HomepageController extends Controller
         }
         
         return response()->json(['success' => false, 'message' => 'Item not found'], 404);
+    }
+
+    /**
+     * Show the form for editing the School at a Glance section
+     */
+    public function editSchoolAtGlanceSection()
+    {
+        $section = SchoolAtGlanceSection::with('items')->orderBy('order')->first();
+        
+        if (!$section) {
+            // Create a default section if none exists
+            $section = SchoolAtGlanceSection::create([
+                'heading' => 'School at a Glance',
+                'description' => 'A quick look at what makes our school unique and outstanding.',
+                'is_active' => true,
+                'order' => 1,
+            ]);
+        }
+        
+        return view('user-admin.homepage.edit-school-at-glance', compact('section'));
+    }
+
+    /**
+     * Update the School at a Glance section
+     */
+    public function updateSchoolAtGlanceSection(Request $request)
+    {
+        $section = SchoolAtGlanceSection::orderBy('order')->first();
+        
+        if (!$section) {
+            $section = new SchoolAtGlanceSection();
+            $section->order = 1;
+        }
+
+        // Validate the request
+        $validated = $request->validate([
+            'heading' => 'required|string|max:255',
+            'description' => 'required|string',
+            'is_active' => 'boolean',
+            // Validate existing items
+            'items.*.id' => 'nullable|exists:school_at_glance_items,id',
+            'items.*.value' => 'required|string|max:255',
+            'items.*.label' => 'required|string|max:255',
+            'items.*.bg_color' => 'required|string|max:7',
+            'items.*.text_color' => 'required|string|max:7',
+            'items.*.order' => 'required|integer|min:1',
+        ]);
+
+        // Update section
+        $section->heading = $validated['heading'];
+        $section->description = $validated['description'];
+        $section->is_active = $request->has('is_active');
+        $section->save();
+
+        // Update or create items
+        if (isset($validated['items'])) {
+            $submittedItemIds = [];
+            
+            foreach ($validated['items'] as $itemData) {
+                if (isset($itemData['id']) && $itemData['id']) {
+                    // Update existing item
+                    $item = SchoolAtGlanceItem::find($itemData['id']);
+                    if ($item) {
+                        $item->update([
+                            'value' => $itemData['value'],
+                            'label' => $itemData['label'],
+                            'bg_color' => $itemData['bg_color'],
+                            'text_color' => $itemData['text_color'],
+                            'order' => $itemData['order'],
+                        ]);
+                        $submittedItemIds[] = $item->id;
+                    }
+                } else {
+                    // Create new item
+                    $newItem = $section->items()->create([
+                        'value' => $itemData['value'],
+                        'label' => $itemData['label'],
+                        'bg_color' => $itemData['bg_color'],
+                        'text_color' => $itemData['text_color'],
+                        'order' => $itemData['order'],
+                    ]);
+                    $submittedItemIds[] = $newItem->id;
+                }
+            }
+            
+            // Delete items that were not submitted (removed by user)
+            SchoolAtGlanceItem::where('school_at_glance_section_id', $section->id)
+                ->whereNotIn('id', $submittedItemIds)
+                ->delete();
+        }
+
+        return redirect()->route('admin.homepage.index')->with('success', 'School at a Glance section updated successfully!');
     }
 
     /**

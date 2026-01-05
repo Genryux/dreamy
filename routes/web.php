@@ -195,6 +195,8 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/admin/homepage/mission-values/edit', [HomepageController::class, 'editMissionValuesSection'])->middleware(['permission:view site management page'])->name('admin.homepage.mission-values.edit');
     Route::put('/admin/homepage/mission-values', [HomepageController::class, 'updateMissionValuesSection'])->middleware(['permission:view site management page'])->name('admin.homepage.mission-values.update');
     Route::delete('/admin/homepage/mission-values/item/{id}', [HomepageController::class, 'deleteMissionValueItem'])->middleware(['permission:view site management page'])->name('admin.homepage.mission-values.item.delete');
+    Route::get('/admin/homepage/school-at-glance/edit', [HomepageController::class, 'editSchoolAtGlanceSection'])->middleware(['permission:view site management page'])->name('admin.homepage.school-at-glance.edit');
+    Route::put('/admin/homepage/school-at-glance', [HomepageController::class, 'updateSchoolAtGlanceSection'])->middleware(['permission:view site management page'])->name('admin.homepage.school-at-glance.update');
     Route::get('/admin/homepage/{section}/edit', [HomepageController::class, 'editSection'])->middleware(['permission:view site management page'])->name('admin.homepage.edit');
     Route::put('/admin/homepage/{section}', [HomepageController::class, 'updateSection'])->middleware(['permission:view site management page'])->name('admin.homepage.update');
 

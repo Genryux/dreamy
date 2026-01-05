@@ -1,4 +1,4 @@
-@extends('layouts.admin', ['title' => 'Edit Mission & Values Section'])
+@extends('layouts.admin', ['title' => 'Edit School at a Glance Section'])
 
 @section('breadcrumbs')
     <nav aria-label="Breadcrumb" class="flex flex-row justify-between items-center mb-2 mt-2">
@@ -31,15 +31,15 @@
                 </svg>
             </li>
             <li>
-                <span class="block text-gray-900">Edit Mission & Values Section</span>
+                <span class="block text-gray-900">Edit School at a Glance Section</span>
             </li>
         </ol>
     </nav>
 @endsection
 
 @section('header')
-    <h2 class="text-3xl font-bold text-gray-900">Edit Mission & Values Section</h2>
-    <p class="text-gray-600 mt-1">Manage the mission and values displayed on the homepage</p>
+    <h2 class="text-3xl font-bold text-gray-900">Edit School at a Glance Section</h2>
+    <p class="text-gray-600 mt-1">Manage the statistics displayed on the homepage</p>
 @endsection
 
 @section('modal')
@@ -51,7 +51,7 @@
         </x-slot>
         
         <div class="p-6">
-            <p class="text-gray-700">Are you sure you want to remove this value item? This action cannot be undone.</p>
+            <p class="text-gray-700">Are you sure you want to remove this statistic? This action cannot be undone.</p>
         </div>
 
         <x-slot name="modal_buttons">
@@ -61,7 +61,7 @@
             </button>
             <button id="delete-item-confirm-btn"
                 class="bg-red-600 text-white text-[14px] px-3 py-2 rounded-xl font-bold shadow-sm hover:bg-red-700 hover:ring hover:ring-red-200 transition duration-200">
-                Delete Item
+                Delete Statistic
             </button>
         </x-slot>
     </x-modal>
@@ -87,7 +87,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.homepage.mission-values.update') }}" method="POST" id="missionValuesForm">
+        <form action="{{ route('admin.homepage.school-at-glance.update') }}" method="POST" id="schoolAtGlanceForm">
             @csrf
             @method('PUT')
             
@@ -133,34 +133,32 @@
                         </div>
                     </div>
 
-                    <!-- Value Items Card -->
+                    <!-- Statistics Items Card -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-semibold text-gray-900">Value Items</h2>
+                            <h2 class="text-lg font-semibold text-gray-900">Statistics Items</h2>
                             <button type="button" 
                                     onclick="addNewItem()"
                                     class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
-                                Add Item
+                                Add Statistic
                             </button>
                         </div>
 
                         <div id="itemsContainer" class="space-y-4">
                             @foreach($section->items as $index => $item)
-                                @include('user-admin.homepage.partials.mission-value-item', ['item' => $item, 'index' => $index])
+                                @include('user-admin.homepage.partials.school-at-glance-item', ['item' => $item, 'index' => $index])
                             @endforeach
                         </div>
 
                         <p class="text-sm text-gray-500 mt-4">
-                            <strong>Icon Classes:</strong> Use Flaticon classes like <code class="bg-gray-100 px-1 py-0.5 rounded">fi fi-rr-bulb</code>, 
-                            <code class="bg-gray-100 px-1 py-0.5 rounded">fi fi-rr-heart</code>, 
-                            <code class="bg-gray-100 px-1 py-0.5 rounded">fi fi-rr-globe</code>, etc.
+                            <strong>Value:</strong> The main number or percentage (e.g., "500+", "95%")
                             <br>
-                            Browse all available icons at: <a href="https://www.flaticon.com/uicons/interface-icons" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Flaticon Interface Icons</a>
+                            <strong>Label:</strong> Description text below the value
                             <br>
-                            <strong>Color:</strong> Use hex color codes (e.g., #1A3165, #C8A165)
+                            <strong>Colors:</strong> Background and text colors (hex format)
                         </p>
                     </div>
 
@@ -181,18 +179,19 @@
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
                         <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <div id="preview" class="bg-[#F8F8F8] p-8">
+                            <div id="preview" class="bg-[#C8A165] p-8">
                                 <div class="text-center mb-8">
-                                    <h2 id="preview-heading" class="font-bold text-2xl text-[#1A3165] mb-2">{{ $section->heading }}</h2>
+                                    <h2 id="preview-heading" class="font-bold text-2xl text-[#f8f8f8] mb-2">{{ $section->heading }}</h2>
                                     <div class="bg-[#C8A165] w-[80px] h-[3px] mx-auto mb-4"></div>
-                                    <p id="preview-description" class="text-sm text-gray-600">{{ $section->description }}</p>
+                                    <p id="preview-description" class="text-sm text-gray-200">{{ $section->description }}</p>
                                 </div>
-                                <div id="preview-items" class="space-y-4">
+                                <div id="preview-items" class="grid grid-cols-2 gap-4">
                                     @foreach($section->items as $item)
-                                        <div class="bg-white rounded-lg shadow p-4 text-center" data-item-id="{{ $item->id }}">
-                                            <i class="{{ $item->icon }} text-2xl mb-2" style="color: {{ $item->color }}"></i>
-                                            <h3 class="text-sm font-bold mb-1" style="color: {{ $item->color }}">{{ $item->title }}</h3>
-                                            <p class="text-xs text-gray-600">{{ Str::limit($item->description, 60) }}</p>
+                                        <div class="flex flex-col items-center justify-center aspect-square rounded-full shadow-lg p-4" 
+                                             style="background-color: {{ $item->bg_color }}; color: {{ $item->text_color }};"
+                                             data-item-id="{{ $item->id }}">
+                                            <div class="text-3xl font-bold mb-1">{{ $item->value }}</div>
+                                            <div class="text-xs opacity-80 text-center">{{ $item->label }}</div>
                                         </div>
                                     @endforeach
                                 </div>
@@ -209,7 +208,7 @@
 <template id="itemTemplate">
     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 item-card" data-item-index="INDEX">
         <div class="flex items-start justify-between mb-3">
-            <h3 class="text-sm font-semibold text-gray-700">Value Item #<span class="item-number">INDEX</span></h3>
+            <h3 class="text-sm font-semibold text-gray-700">Statistic #<span class="item-number">INDEX</span></h3>
             <button type="button" 
                     onclick="removeItem(this)"
                     class="text-red-600 hover:text-red-800">
@@ -222,53 +221,55 @@
         <input type="hidden" name="items[INDEX][id]" value="">
         
         <div class="space-y-3">
-            <!-- Title -->
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Title *</label>
-                <input type="text" 
-                       name="items[INDEX][title]" 
-                       class="item-title w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                       required>
-            </div>
-
-            <!-- Description -->
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Description *</label>
-                <textarea name="items[INDEX][description]" 
-                          class="item-description w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          rows="2"
-                          required></textarea>
-            </div>
-
-            <!-- Icon & Color -->
+            <!-- Value & Label -->
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Icon Class *</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Value *</label>
                     <input type="text" 
-                           name="items[INDEX][icon]" 
-                           class="item-icon w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="fi fi-rr-bulb"
+                           name="items[INDEX][value]" 
+                           class="item-value w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="500+"
                            required>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Color *</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Order *</label>
+                    <input type="number" 
+                           name="items[INDEX][order]" 
+                           class="item-order w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           value="1"
+                           min="1"
+                           required>
+                </div>
+            </div>
+
+            <!-- Label -->
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Label *</label>
+                <input type="text" 
+                       name="items[INDEX][label]" 
+                       class="item-label w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="Active Students"
+                       required>
+            </div>
+
+            <!-- Colors -->
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Background Color *</label>
                     <input type="color" 
-                           name="items[INDEX][color]" 
-                           class="item-color w-full h-9 border border-gray-300 rounded cursor-pointer"
+                           name="items[INDEX][bg_color]" 
+                           class="item-bg-color w-full h-9 border border-gray-300 rounded cursor-pointer"
                            value="#1A3165"
                            required>
                 </div>
-            </div>
-
-            <!-- Order -->
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Display Order *</label>
-                <input type="number" 
-                       name="items[INDEX][order]" 
-                       class="item-order w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                       value="1"
-                       min="1"
-                       required>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Text Color *</label>
+                    <input type="color" 
+                           name="items[INDEX][text_color]" 
+                           class="item-text-color w-full h-9 border border-gray-300 rounded cursor-pointer"
+                           value="#FFFFFF"
+                           required>
+                </div>
             </div>
         </div>
     </div>
@@ -296,10 +297,10 @@ document.getElementById('description').addEventListener('input', function() {
 
 // Update preview for items
 document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('item-title') || 
-        e.target.classList.contains('item-description') ||
-        e.target.classList.contains('item-icon') ||
-        e.target.classList.contains('item-color')) {
+    if (e.target.classList.contains('item-value') || 
+        e.target.classList.contains('item-label') ||
+        e.target.classList.contains('item-bg-color') ||
+        e.target.classList.contains('item-text-color')) {
         updateItemPreviews();
     }
 });
@@ -310,19 +311,19 @@ function updateItemPreviews() {
     
     let previewHTML = '';
     items.forEach((item, index) => {
-        const title = item.querySelector('.item-title').value;
-        const description = item.querySelector('.item-description').value;
-        const icon = item.querySelector('.item-icon').value;
-        const color = item.querySelector('.item-color').value;
+        const value = item.querySelector('.item-value').value;
+        const label = item.querySelector('.item-label').value;
+        const bgColor = item.querySelector('.item-bg-color').value;
+        const textColor = item.querySelector('.item-text-color').value;
         const itemId = item.querySelector('input[name$="[id]"]').value;
         
-        if (title || description) {
-            const truncatedDesc = description.length > 60 ? description.substring(0, 60) + '...' : description;
+        if (value || label) {
             previewHTML += `
-                <div class="bg-white rounded-lg shadow p-4 text-center" data-item-id="${itemId}">
-                    <i class="${icon || 'fi fi-rr-star'} text-2xl mb-2" style="color: ${color}"></i>
-                    <h3 class="text-sm font-bold mb-1" style="color: ${color}">${title}</h3>
-                    <p class="text-xs text-gray-600">${truncatedDesc}</p>
+                <div class="flex flex-col items-center justify-center aspect-square rounded-full shadow-lg p-4" 
+                     style="background-color: ${bgColor}; color: ${textColor};"
+                     data-item-id="${itemId}">
+                    <div class="text-3xl font-bold mb-1">${value}</div>
+                    <div class="text-xs opacity-80 text-center">${label}</div>
                 </div>
             `;
         }

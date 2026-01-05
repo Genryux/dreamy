@@ -106,38 +106,26 @@
 @endsection
 
 @section('glance')
-    <div class="relative bg-[#C8A165] w-screen py-12 px-[20px] md:px-[120px]">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
-                <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">School at a Glance</h2>
-                <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
-                <p class="text-[16px] md:text-[20px] text-gray-200 max-w-2xl mx-auto">A quick look at what makes Dreamy
-                    School unique and outstanding.</p>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div
-                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#1A3165]/90 rounded-full text-white shadow-lg">
-                    <div class="text-[50px] font-bold mb-2">500+</div>
-                    <div class="text-sm opacity-80">Active Students</div>
+    @if($schoolAtGlance && $schoolAtGlance->is_active)
+        <div class="relative bg-[#C8A165] w-screen py-12 px-[20px] md:px-[120px]">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                    <h2 class="font-bold text-[28px] md:text-[40px] text-[#f8f8f8] mb-2">{{ $schoolAtGlance->heading }}</h2>
+                    <div class="bg-[#C8A165] w-[120px] h-[4px] mx-auto mb-6"></div>
+                    <p class="text-[16px] md:text-[20px] text-gray-200 max-w-2xl mx-auto">{{ $schoolAtGlance->description }}</p>
                 </div>
-                <div
-                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#f8f8f8]/90 rounded-full text-white shadow-lg">
-                    <div class="text-[50px] font-bold mb-2 text-[#1A3165]">95%</div>
-                    <div class="text-sm opacity-80 text-[#1A3165]">Graduation Rate</div>
-                </div>
-                <div
-                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#1A3165]/90 rounded-full text-white shadow-lg">
-                    <div class="text-[50px] font-bold mb-2">50+</div>
-                    <div class="text-sm opacity-80">Qualified Teachers</div>
-                </div>
-                <div
-                    class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center bg-[#f8f8f8]/90 rounded-full text-white shadow-lg">
-                    <div class="text-[50px] font-bold mb-2 text-[#1A3165]">15+</div>
-                    <div class="text-sm opacity-80 text-[#1A3165]">Years of Excellence</div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    @foreach($schoolAtGlance->items as $item)
+                        <div class="w-[200px] flex flex-col flex-shrink-0 aspect-square items-center justify-center rounded-full shadow-lg"
+                            style="background-color: {{ $item->bg_color }}; color: {{ $item->text_color }};">
+                            <div class="text-[50px] font-bold mb-2">{{ $item->value }}</div>
+                            <div class="text-sm opacity-80">{{ $item->label }}</div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 @endsection
 
 @section('academic_programs')
