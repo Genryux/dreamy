@@ -35,7 +35,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // Login user (students only for mobile app)
+    // Login user (students and teachers for mobile app)
     public function login(Request $request)
     {
         $request->validate([
@@ -49,12 +49,25 @@ class AuthController extends Controller
 
         $user = Auth::user();
         
-        // Check if user is a student - mobile app is for students only
-        if (!$user->student) {
-            // Log out the user immediately since they're not a student
+        // Determine user type for mobile app (students and teachers allowed)
+        $userType = null;
+        
+        if ($user->student) {
+            $userType = 'student';
+        } elseif ($user->teacher) {
+            // Check if teacher account is active
+            if (!$user->teacher->isActive()) {
+                Auth::logout();
+                return response()->json([
+                    'message' => 'Your teacher account is not active. Please contact administration.'
+                ], 403);
+            }
+            $userType = 'teacher';
+        } else {
+            // Neither student nor teacher - deny access
             Auth::logout();
             return response()->json([
-                'message' => 'Access denied. Mobile app is only available for enrolled students.'
+                'message' => 'Access denied. Mobile app is only available for enrolled students and active teachers.'
             ], 403);
         }
 
@@ -63,6 +76,7 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user,
             'token' => $token,
+            'user_type' => $userType,
             'pin_required' => $user->pin_enabled && $user->pin,
             'pin_setup_required' => !$user->pin
         ]);

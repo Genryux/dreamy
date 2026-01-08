@@ -556,6 +556,23 @@ class SectionController extends Controller
         try {
             $sectionSubject = $section->sectionSubjects()->create($validated);
 
+            // Enroll all current students in this section to the new subject
+            $students = $section->students;
+            $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+            foreach ($students as $student) {
+                $alreadyEnrolled = \App\Models\StudentSubject::where('student_id', $student->id)
+                    ->where('section_subject_id', $sectionSubject->id)
+                    ->first();
+                if (!$alreadyEnrolled) {
+                    \App\Models\StudentSubject::create([
+                        'student_id' => $student->id,
+                        'section_subject_id' => $sectionSubject->id,
+                        'academic_terms_id' => $activeTerm ? $activeTerm->id : null,
+                        'status' => 'enrolled',
+                    ]);
+                }
+            }
+
             // Log the activity
             activity('curriculum_management')
                 ->causedBy(auth()->user())

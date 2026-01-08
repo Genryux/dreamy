@@ -15,10 +15,11 @@ use App\Http\Controllers\Api\SectionSubjectsController;
 use App\Http\Controllers\Api\StudentEnrollmentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\InvoiceController;
- use App\Http\Controllers\Api\AcademicController;
+use App\Http\Controllers\Api\AcademicController;
 use App\Http\Controllers\Api\FinancialController;
 use App\Http\Controllers\Api\StudentProfileController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\TeacherAppController;
 
 Route::get('/tite', function () {
     return response()->json(['message' => 'API routes are working']);
@@ -33,19 +34,27 @@ Route::post('/broadcasting/auth', function (Request $request) {
     return Broadcast::auth($request);
 })->middleware('auth:sanctum');
 
-Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
-	// Authenticated user helpers
-	Route::post('/auth/logout', [AuthController::class, 'logout']);
-	Route::get('/auth/user', [AuthController::class, 'user']);
-	Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
-	
-	// PIN management
-	Route::post('/auth/setup-pin', [AuthController::class, 'setupPin']);
-	Route::post('/auth/verify-pin', [AuthController::class, 'verifyPin']);
-	Route::post('/auth/change-pin', [AuthController::class, 'changePin']);
-	Route::post('/auth/toggle-pin', [AuthController::class, 'togglePin']);
-	Route::post('/auth/change-email', [AuthController::class, 'changeEmail']);
+// ===================================
+// SHARED AUTH ROUTES (Students & Teachers)
+// ===================================
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Authenticated user helpers (accessible by both students and teachers)
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/user', [AuthController::class, 'user']);
+    Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+    
+    // PIN management (accessible by both students and teachers)
+    Route::post('/auth/setup-pin', [AuthController::class, 'setupPin']);
+    Route::post('/auth/verify-pin', [AuthController::class, 'verifyPin']);
+    Route::post('/auth/change-pin', [AuthController::class, 'changePin']);
+    Route::post('/auth/toggle-pin', [AuthController::class, 'togglePin']);
+    Route::post('/auth/change-email', [AuthController::class, 'changeEmail']);
+});
 
+// ===================================
+// STUDENT MOBILE APP ROUTES
+// ===================================
+Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 	// Student self data (mobile app can pass their student id)
 	Route::get('/students/{student}', [StudentController::class, 'show']);
 	Route::patch('/students/{student}', [StudentController::class, 'update']);
@@ -100,6 +109,39 @@ Route::middleware(['auth:sanctum', 'student.only'])->group(function () {
 	Route::put('/profile/personal-info', [StudentProfileController::class, 'updatePersonalInfo']);
 
 	// Notifications - NEW
+	Route::get('/notifications', [NotificationController::class, 'index']);
+	Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+	Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+	Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
+});
+
+// ===================================
+// TEACHER MOBILE APP ROUTES
+// ===================================
+Route::middleware(['auth:sanctum', 'teacher.only'])->prefix('teacher')->group(function () {
+	// Teacher Dashboard - Today's schedule & summary
+	Route::get('/dashboard', [TeacherAppController::class, 'dashboard']);
+	
+	// Teacher Classes - Full schedule
+	Route::get('/my-classes', [TeacherAppController::class, 'myClasses']);
+	
+	// Section Students - Get students enrolled in a specific class
+	Route::get('/classes/{sectionSubjectId}/students', [TeacherAppController::class, 'getSectionStudents']);
+	
+	// Student Details - Get detailed info about a specific student
+	Route::get('/classes/{sectionSubjectId}/students/{studentId}', [TeacherAppController::class, 'getStudentDetails']);
+	
+	// Student Evaluation - Mark student as passed/failed
+	Route::post('/classes/{sectionSubjectId}/students/{studentId}/evaluate', [TeacherAppController::class, 'evaluateStudent']);
+	
+	// Bulk Evaluation - Evaluate multiple students at once
+	Route::post('/classes/{sectionSubjectId}/evaluate-bulk', [TeacherAppController::class, 'bulkEvaluateStudents']);
+	
+	// Teacher Profile
+	Route::get('/profile', [TeacherAppController::class, 'profile']);
+	Route::put('/profile', [TeacherAppController::class, 'updateProfile']);
+
+	// Notifications (shared functionality)
 	Route::get('/notifications', [NotificationController::class, 'index']);
 	Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 	Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);

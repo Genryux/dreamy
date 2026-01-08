@@ -87,6 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 mainContent.style.paddingLeft = '100px';
                 mainContent.style.paddingRight = '100px';
             }
+        } else if (window.innerWidth >= 768) {
+            // Sidebar is expanded on desktop - set content width explicitly
+            content.style.width = 'calc(100% - 260px)';
         }
 
         // Desktop sidebar toggle (also works for mobile)

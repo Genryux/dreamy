@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\AcademicTerms;
 
 class StudentSubject extends Model
 {
@@ -11,7 +12,9 @@ class StudentSubject extends Model
     protected $fillable = [
         'student_id',
         'section_subject_id',
-        'status'
+        'academic_terms_id',
+        'status',
+        'evaluation_status'
     ];
 
     public function student()
@@ -22,5 +25,10 @@ class StudentSubject extends Model
     public function sectionSubject()
     {
         return $this->belongsTo(SectionSubject::class);
+    }
+
+    public function academicTerm()
+    {
+        return $this->belongsTo(AcademicTerms::class, 'academic_terms_id');
     }
 }

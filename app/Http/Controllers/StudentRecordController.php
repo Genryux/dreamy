@@ -499,8 +499,18 @@ class StudentRecordController extends Controller
             ->latest('submitted_at')
             ->first();
 
+        // Get student subjects (enrolled subjects with all necessary info)
+        $studentSubjects = $student->studentSubjects()
+            ->with([
+                'sectionSubject.subject',
+                'sectionSubject.teacher.user',
+                'academicTerm'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         // dd($record, $studentRecordId)
-        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm', 'paymentHistory', 'enrollmentHistory', 'profilePicture'));
+        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm', 'paymentHistory', 'enrollmentHistory', 'profilePicture', 'studentSubjects'));
     }
 
     /**

@@ -753,11 +753,11 @@
 @section('content')
     <x-alert />
 
-    <div class="flex flex-row justify-center items-start gap-4">
+    <div class="flex flex-row justify-center items-start gap-4 w-full">
         <div
-            class="flex flex-row justify-center items-start flex-grow p-6  bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+            class="flex flex-row justify-center items-start p-6 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-full overflow-hidden">
             {{-- info container --}}
-            <div class="flex-1 flex flex-col gap-4 border-r border-[#1e1e1e]/10 pr-6">
+            <div class="w-1/3 shrink-0 flex flex-col gap-4 border-r border-[#1e1e1e]/10 pr-6">
                 {{-- profile --}}
                 <div class="flex flex-row gap-4">
                     @if($profilePicture && $profilePicture->file_path)
@@ -1123,7 +1123,7 @@
                 </div>
             </div>
 
-            <div class="w-2/3 flex flex-col justify-start items-start pl-6 gap-8">
+            <div class="flex-1 flex flex-col justify-start items-start pl-6 gap-8 overflow-hidden min-w-0">
                 <!-- Student Management Actions -->
                 <div class="w-full">
                     <div class="flex items-center justify-between mb-6">
@@ -1282,9 +1282,152 @@
                     </div>
                 </div>
 
+                <!-- Enrolled Subjects Section -->
+                <div class="w-full mt-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">Enrolled Subjects</h2>
+                            <p class="text-sm text-gray-600 mt-1">All subjects the student is enrolled in for the current and previous terms</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="subject-filter" class="text-sm text-gray-600">Filter:</label>
+                            <select id="subject-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="all">All Subjects</option>
+                                <option value="current">Current Semester</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Subjects Table -->
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 60px;">
+                                            #
+                                        </th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 250px;">
+                                            Subject Name
+                                        </th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 180px;">
+                                            Teacher
+                                        </th>
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 110px;">
+                                            Evaluation
+                                        </th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 180px;">
+                                            Academic Term
+                                        </th>
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 120px;">
+                                            Status
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse ($studentSubjects as $studentSubject)
+                                        <tr class="subject-row hover:bg-gray-50 transition-colors" 
+                                            data-academic-term-id="{{ $studentSubject->academic_terms_id ?? '' }}"
+                                            data-current-term="{{ $acadTerm && $acadTerm->id == $studentSubject->academic_terms_id ? 'true' : 'false' }}">
+                                            <!-- Index -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{ $loop->iteration }}
+                                            </td>
+
+                                            <!-- Subject Name -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                        <i class="fi fi-rr-book text-blue-600 text-sm"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ $studentSubject->sectionSubject->subject->name ?? 'N/A' }}
+                                                        </div>
+                                                        <div class="text-xs text-gray-500">
+                                                            {{ $studentSubject->sectionSubject->subject->category ?? '' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Teacher -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                @if ($studentSubject->sectionSubject->teacher && $studentSubject->sectionSubject->teacher->user)
+                                                    @php
+                                                        $lastName = $studentSubject->sectionSubject->teacher->user->last_name ?? '';
+                                                        $firstName = $studentSubject->sectionSubject->teacher->user->first_name ?? '';
+                                                        $firstInitial = $firstName ? strtoupper(substr($firstName, 0, 1)) . '.' : '';
+                                                    @endphp
+                                                    {{ $lastName }}{{ $firstInitial ? ', ' . $firstInitial : '' }}
+                                                @else
+                                                    <span class="text-gray-400">Not assigned</span>
+                                                @endif
+                                            </td>
+
+                                            <!-- Evaluation -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                @php
+                                                    $evalColors = [
+                                                        'passed' => 'bg-green-100 text-green-800',
+                                                        'failed' => 'bg-red-100 text-red-800',
+                                                        null => 'bg-gray-100 text-gray-800'
+                                                    ];
+                                                    $evalKey = $studentSubject->evaluation_status ?? null;
+                                                    $evalColor = $evalColors[$evalKey] ?? 'bg-gray-100 text-gray-800';
+                                                @endphp
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $evalColor }}">
+                                                    {{ $studentSubject->evaluation_status ? ucfirst($studentSubject->evaluation_status) : 'Pending' }}
+                                                </span>
+                                            </td>
+
+                                            <!-- Academic Term -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                @if ($studentSubject->academicTerm)
+                                                    {{ $studentSubject->academicTerm->year ?? '' }} - {{ $studentSubject->academicTerm->semester ?? '' }}
+                                                @else
+                                                    <span class="text-gray-400">N/A</span>
+                                                @endif
+                                            </td>
+
+                                            <!-- Status -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                @php
+                                                    $statusColors = [
+                                                        'enrolled' => 'bg-green-100 text-green-800',
+                                                        'taken' => 'bg-blue-100 text-blue-800',
+                                                        'dropped' => 'bg-red-100 text-red-800',
+                                                    ];
+                                                    $statusColor = $statusColors[strtolower($studentSubject->status ?? '')] ?? 'bg-gray-100 text-gray-800';
+                                                @endphp
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                    {{ ucfirst($studentSubject->status ?? 'N/A') }}
+                                                </span>
+                                            </td>
+
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-12 text-center">
+                                                <div class="flex flex-col items-center">
+                                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                        <i class="fi fi-rr-book text-gray-400 text-2xl"></i>
+                                                    </div>
+                                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No subjects enrolled</h3>
+                                                    <p class="text-sm text-gray-500">This student is not enrolled in any subjects yet.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 @hasanyrole('registrar|super_admin')
                     <!-- Documents & Requirements Section -->
-                    <div class="w-full">
+                    <div class="w-full mt-8">
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h2 class="text-xl font-bold text-gray-900">Documents & Requirements</h2>
@@ -1884,6 +2027,24 @@
                             'An error occurred while updating emergency contact information');
                     });
             });
+
+            // Subject filter functionality
+            const subjectFilter = document.getElementById('subject-filter');
+            if (subjectFilter) {
+                subjectFilter.addEventListener('change', function() {
+                    const filterValue = this.value;
+                    const subjectRows = document.querySelectorAll('.subject-row');
+                    
+                    subjectRows.forEach(row => {
+                        if (filterValue === 'all') {
+                            row.style.display = '';
+                        } else if (filterValue === 'current') {
+                            const isCurrentTerm = row.getAttribute('data-current-term') === 'true';
+                            row.style.display = isCurrentTerm ? '' : 'none';
+                        }
+                    });
+                });
+            }
 
         });
     </script>

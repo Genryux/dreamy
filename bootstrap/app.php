@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'student.only' => \App\Http\Middleware\StudentOnlyMiddleware::class,
+            'teacher.only' => \App\Http\Middleware\TeacherOnlyMiddleware::class,
             'pin.security' => \App\Http\Middleware\CheckPinSecurity::class,
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'exclude.applicant' => \App\Http\Middleware\ExcludeApplicantRole::class,

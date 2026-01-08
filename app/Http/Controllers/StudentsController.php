@@ -115,6 +115,7 @@ class StudentsController extends Controller
                                 \App\Models\StudentSubject::create([
                                     'student_id' => $studentId,
                                     'section_subject_id' => $sectionSubject->id,
+                                    'academic_terms_id' => $activeTerm->id,
                                     'status' => 'enrolled'
                                 ]);
                             }
