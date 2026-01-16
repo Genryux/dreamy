@@ -718,10 +718,19 @@
 @endsection
 
 @section('dashboard-acad-term')
-    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Dashboard</h1>
-        <p class="text-[14px]  text-gray-900/60">Monitor and manage application activity for the current academic term.
-        </p>
+    <div class="flex flex-row items-center justify-between w-full px-[14px] py-2">
+        <div class="flex flex-col justify-center items-start text-start">
+            <h1 class="text-[20px] font-black">Dashboard</h1>
+            <p class="text-[14px]  text-gray-900/60">Monitor and manage application activity for the current academic term.
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="quick-stats-btn"
+                class="flex items-center gap-2 px-3 py-2 rounded-xl border border-blue-200 text-sm font-semibold text-gray-500 bg-white hover:bg-blue-50 hover:border-blue-300 transition">
+                <i class="fi fi-rr-chart-histogram flex items-center"></i>
+                Quick Stats
+            </button>
+        </div>
     </div>
 @endsection
 
@@ -822,9 +831,13 @@
                                         <i class="fi fi-rr-calendar-check text-sm"></i>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-xs text-gray-600 font-medium uppercase tracking-wide">Current Active Term</p>
-                                        <p class="text-sm font-bold text-gray-800" id="current-term-display">{{ $currentAcadTerm->full_name }}</p>
-                                        <p class="text-xs text-gray-600">{{ \Carbon\Carbon::parse($currentAcadTerm->start_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($currentAcadTerm->end_date)->format('M d, Y') }}</p>
+                                        <p class="text-xs text-gray-600 font-medium uppercase tracking-wide">Current Active
+                                            Term</p>
+                                        <p class="text-sm font-bold text-gray-800" id="current-term-display">
+                                            {{ $currentAcadTerm->full_name }}</p>
+                                        <p class="text-xs text-gray-600">
+                                            {{ \Carbon\Carbon::parse($currentAcadTerm->start_date)->format('M d, Y') }} -
+                                            {{ \Carbon\Carbon::parse($currentAcadTerm->end_date)->format('M d, Y') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -838,11 +851,9 @@
                                 <div class="ml-3">
                                     <h3 class="text-sm font-medium text-blue-800">Term Switching</h3>
                                     <div class="mt-2 text-sm text-blue-700">
-                                        <p>This will deactivate the current term and activate the selected term.</p>
-                                        <ul class="list-disc list-inside mt-1">
-                                            <li>Students will be promoted/enrolled in the new term</li>
-                                            <li>Invoices will be generated for new enrollments</li>
-                                        </ul>
+                                        <p>Before switching, please review the quick stats below to confirm there are no
+                                            unpaid invoices and to check students’ promotion status.</p>
+
                                     </div>
                                 </div>
                             </div>
@@ -862,8 +873,7 @@
                                     <option value="">Select a term...</option>
                                     @if (isset($inactiveTerms))
                                         @foreach ($inactiveTerms as $term)
-                                            <option value="{{ $term->id }}" 
-                                                data-semester="{{ $term->semester }}"
+                                            <option value="{{ $term->id }}" data-semester="{{ $term->semester }}"
                                                 data-year="{{ $term->year }}">
                                                 {{ $term->full_name }}
                                                 ({{ \Carbon\Carbon::parse($term->start_date)->format('M Y') }} -
@@ -876,7 +886,8 @@
                         </div>
 
                         {{-- Semester Skip Warning (Dynamic) --}}
-                        <div id="semester-skip-warning" class="hidden p-4 bg-orange-50 border border-orange-400 rounded-lg">
+                        <div id="semester-skip-warning"
+                            class="hidden p-4 bg-orange-50 border border-orange-400 rounded-lg">
                             <div class="flex gap-3">
                                 <div class="flex-shrink-0">
                                     <i class="fi fi-rr-exclamation text-orange-500 text-xl"></i>
@@ -888,14 +899,30 @@
                             </div>
                         </div>
 
-                        <div class="p-4 bg-red-100 border border-red-400 rounded-md flex flex-col justify-center items-center gap-2">
-                            <h4 class="text-sm font-bold text-red-500 flex justify-center items-center gap-2"><i class="fi fi-br-triangle-warning flex items-center justify-center"></i> Critical Warning</h4>
-                            <p class="text-sm text-center text-red-500">Please avoid switching terms <strong>prematurely or carelessly</strong>. Doing so <strong>may trigger automated tasks</strong> and result in <strong>unintended or irreversible consequences</strong>.</p>
+                        <div
+                            class="p-4 bg-red-100 border border-red-400 rounded-md flex flex-col justify-center items-center gap-2">
+                            <h4 class="text-sm font-bold text-red-500 flex justify-center items-center gap-2"><i
+                                    class="fi fi-br-triangle-warning flex items-center justify-center"></i> Critical
+                                Warning</h4>
+                            <p class="text-sm text-center text-red-500">Please avoid switching terms <strong>prematurely or
+                                    carelessly</strong>. Doing so <strong>may trigger automated tasks</strong> and result in
+                                <strong>unintended or irreversible consequences</strong>.
+                            </p>
                         </div>
                     </div>
                 </form>
 
+                <x-slot name="modal_info">
+
+                    <button type="button" id="quick-stats-switch-btn"
+                        class="border border-blue-200 text-[14px] px-3 py-2.5 rounded-xl text-blue-700 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 transition duration-150 flex items-center gap-2">
+                        <i class="fi fi-rr-chart-histogram flex items-center"></i>
+                        Show Quick Stats
+                    </button>
+                </x-slot>
+
                 <x-slot name="modal_buttons">
+
                     <button id="switch-term-cancel-btn"
                         class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
                         Cancel
@@ -904,6 +931,146 @@
                         class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#1580aa] hover:scale-95 transition duration-200 shadow-lg truncate">
                         Confirm Switch
                     </button>
+
+
+                </x-slot>
+            </x-modal>
+
+            {{-- Quick Stats Modal --}}
+            @php
+                $qs = $quickStats ?? [];
+                $qsInvoices = $qs['invoices'] ?? [];
+                $qsPromo = $qs['promotion'] ?? [];
+                // Debug: Uncomment to see data being passed
+                // dd($qs, $qsInvoices, $qsPromo);
+            @endphp
+            <x-modal modal_id="quick-stats-modal" modal_name="System Quick Statistics"
+                close_btn_id="quick-stats-close-btn" modal_container_id="modal-container-quick-stats">
+                <x-slot name="modal_icon">
+                </x-slot>
+
+                <div class="p-6 space-y-6 max-w-5xl w-full mx-auto max-h-[80vh] overflow-y-auto">
+                    <!-- Top Stats Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Students Card -->
+                        <div
+                            class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-shadow h-full flex flex-col justify-between">
+
+                            <div class="flex flex-row justify-between items-center">
+                                <p class="text-sm font-medium opacity-90 mb-1">Total Students</p>
+                                <span class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">Current Term</span>
+                            </div>
+
+                            <p class="text-4xl font-black">{{ number_format($qs['students_current_term'] ?? 0) }}</p>
+                            <p class="text-xs opacity-75 mt-2">Officially enrolled this term</p>
+                        </div>
+
+                        <!-- Teachers Card -->
+                        <div
+                            class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-shadow h-full flex flex-col justify-between">
+
+                            <div class="flex flex-row justify-between items-center">
+                                <p class="text-sm font-medium opacity-90 mb-1">Total Faculties</p>
+                                <span class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full">Total</span>
+                            </div>
+
+                            <p class="text-4xl font-black">{{ number_format($qs['teachers'] ?? 0) }}</p>
+                            <p class="text-xs opacity-75 mt-2">Active teaching staff</p>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Stats -->
+                    <div
+                        class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-6 shadow-md">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-emerald-900">Invoice Statistics</h3>
+                                <p class="text-xs text-emerald-700">Across all terms</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-sm border border-emerald-100 h-22 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Total Invoices</p>
+                                <p class="text-3xl font-black text-emerald-600">
+                                    {{ number_format($qsInvoices['total'] ?? 0) }}</p>
+                            </div>
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-sm border border-red-100 h-22 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Unpaid</p>
+                                <p class="text-3xl font-black text-red-600">
+                                    {{ number_format($qsInvoices['unpaid'] ?? 0) }}</p>
+                            </div>
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-sm border border-yellow-100 h-22 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Partial</p>
+                                <p class="text-3xl font-black text-yellow-600">
+                                    {{ number_format($qsInvoices['partial'] ?? 0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Promotion Eligibility -->
+                    <div
+                        class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-6 shadow-md">
+                        <div class="flex flex-row justify-between items-center gap-3 mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-purple-900">Promotion Eligibility</h3>
+                                <p class="text-xs text-purple-700">Academic status breakdown</p>
+                            </div>
+                            <div title="Student promotion only occurs on 2nd semester" class="cursor-help">
+                                <i class="fi fi-rr-info text-purple-700 text-[20px]"></i>
+                            </div>
+                        </div>
+                        <div class="flex flex-row flex-wrap">
+                            <div
+                                class="flex-1 bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500 w-full h-28 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Eligible</p>
+                                <p class="text-2xl font-black text-green-600">
+                                    {{ number_format($qsPromo['eligible'] ?? 0) }}</p>
+                                <p class="text-xs text-gray-500 mt-1">To be promoted</p>
+                            </div>
+                            <div
+                                class="flex-1 bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500 h-28 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Not Eligible</p>
+                                <p class="text-2xl font-black text-red-600">
+                                    {{ number_format($qsPromo['not_eligible'] ?? 0) }}</p>
+                                <p class="text-xs text-gray-500 mt-1">To be retained</p>
+                            </div>
+                            <div
+                                class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 h-28 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Completed</p>
+                                <p class="text-2xl font-black text-blue-600">
+                                    {{ number_format($qsPromo['completed'] ?? 0) }}</p>
+                                <p class="text-xs text-gray-500 mt-1">To be graduated</p>
+                            </div>
+                            <div
+                                class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-400 h-28 flex flex-col justify-between">
+                                <p class="text-xs text-gray-600 font-semibold mb-1">Not Evaluated</p>
+                                <p class="text-2xl font-black text-gray-700">
+                                    {{ number_format($qsPromo['not_evaluated'] ?? 0) }}</p>
+                                <p class="text-xs text-gray-500 mt-1">Pending review</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Note -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex gap-3">
+                            <i class="fi fi-rr-info text-blue-500"></i>
+                            <div class="flex-1">
+                                <p class="text-sm text-blue-800">
+                                    <strong>Note:</strong> These statistics are calculated based on current
+                                    database records.
+                                    Invoice data includes all academic terms, while student data reflects the current active
+                                    term. Refresh the page for latest data.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <x-slot name="modal_buttons">
                 </x-slot>
             </x-modal>
 
@@ -1465,6 +1632,14 @@
                 'edit-period-cancel-btn', 'modal-container-edit-period');
             initModal('switch-term-modal', 'switch-term-btn', 'switch-term-close-btn',
                 'switch-term-cancel-btn', 'modal-container-switch-term');
+            initModal('quick-stats-modal', 'quick-stats-btn', 'quick-stats-close-btn',
+                'quick-stats-close-btn', 'modal-container-quick-stats');
+
+            const quickStatsBtn = document.getElementById('quick-stats-btn');
+            const quickStatsSwitchBtn = document.getElementById('quick-stats-switch-btn');
+            if (quickStatsBtn && quickStatsSwitchBtn) {
+                quickStatsSwitchBtn.addEventListener('click', () => quickStatsBtn.click());
+            }
 
             // Semester Skip Detection for Switch Term Modal
             const termSelect = document.getElementById('term_id');
@@ -1474,7 +1649,7 @@
             if (termSelect && skipWarning && skipMessage) {
                 termSelect.addEventListener('change', function() {
                     const selectedOption = this.options[this.selectedIndex];
-                    
+
                     if (!selectedOption || !selectedOption.value) {
                         skipWarning.classList.add('hidden');
                         return;
@@ -1491,12 +1666,14 @@
                     // Case 1: Current is 1st Semester, Target is also 1st Semester
                     if (currentSemester === '1st Semester' && targetSemester === '1st Semester') {
                         showWarning = true;
-                        warningMessage = `You are about to switch from <strong>${currentYear} - 1st Semester</strong> to <strong>${targetYear} - 1st Semester</strong>, which will <strong>skip the 2nd semester of ${currentYear}</strong>. Please ensure this is intentional.`;
+                        warningMessage =
+                            `You are about to switch from <strong>${currentYear} - 1st Semester</strong> to <strong>${targetYear} - 1st Semester</strong>, which will <strong>skip the 2nd semester of ${currentYear}</strong>. Please ensure this is intentional.`;
                     }
                     // Case 2: Current is 2nd Semester, Target is also 2nd Semester
                     else if (currentSemester === '2nd Semester' && targetSemester === '2nd Semester') {
                         showWarning = true;
-                        warningMessage = `You are about to switch from <strong>${currentYear} - 2nd Semester</strong> to <strong>${targetYear} - 2nd Semester</strong>, which will <strong>skip the 1st semester of the next school year</strong>. Please ensure this is intentional.`;
+                        warningMessage =
+                            `You are about to switch from <strong>${currentYear} - 2nd Semester</strong> to <strong>${targetYear} - 2nd Semester</strong>, which will <strong>skip the 1st semester of the next school year</strong>. Please ensure this is intentional.`;
                     }
 
                     if (showWarning) {

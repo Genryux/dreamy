@@ -1669,21 +1669,21 @@
                 @endhasanyrole
 
                 @hasanyrole('registrar|super_admin')
-                    <!-- Payment History Section -->
+                    <!-- Invoices Section -->
                     <div class="w-full mt-8">
                         <div class="flex items-center justify-between mb-6">
                             <div>
-                                <h2 class="text-xl font-bold text-gray-900">Payment History</h2>
-                                <p class="text-sm text-gray-600 mt-1">Recent payment transactions and invoice records</p>
+                                <h2 class="text-xl font-bold text-gray-900">Invoices</h2>
+                                <p class="text-sm text-gray-600 mt-1">Invoices assigned to this student</p>
                             </div>
                             <a href="{{ route('school-fees.payments') }}"
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
                                 <i class="fi fi-rr-list mr-2"></i>
-                                View All Payments
+                                View All Invoices
                             </a>
                         </div>
 
-                        <!-- Payment History Table -->
+                        <!-- Invoices Table -->
                         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                             <div class="overflow-x-auto">
                                 <table class="w-full">
@@ -1703,7 +1703,7 @@
                                             </th>
                                             <th
                                                 class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                Payment Method
+                                                Payment Mode
                                             </th>
                                             <th
                                                 class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -1739,7 +1739,7 @@
                                                     {{ $invoice->academicTerm->year ?? 'N/A' }}
                                                 </td>
 
-                                                <!-- Payment Method -->
+                                                <!-- Payment Mode -->
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     @php
                                                         $methodColors = [
@@ -1747,12 +1747,12 @@
                                                             'full' => 'bg-yellow-100 text-yellow-800',
                                                         ];
                                                         $methodColor =
-                                                            $methodColors[$invoice->payment_mode] ??
+                                                            $methodColors[strtolower($invoice->payment_mode ?? '')] ??
                                                             'bg-gray-100 text-gray-800';
                                                     @endphp
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $methodColor }}">
-                                                        {{ ucfirst($invoice->payment_mode) }}
+                                                        {{ $invoice->payment_mode ? ucfirst($invoice->payment_mode) : 'N/A' }}
                                                     </span>
                                                 </td>
 
@@ -1764,9 +1764,21 @@
 
                                                 <!-- Status -->
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @php
+                                                        $status = strtolower($invoice->status ?? '');
+                                                        $statusColors = [
+                                                            'paid' => 'bg-green-100 text-green-800',
+                                                            'unpaid' => 'bg-red-100 text-red-800',
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'partially_paid' => 'bg-indigo-100 text-indigo-800',
+                                                            'overdue' => 'bg-orange-100 text-orange-800',
+                                                            'cancelled' => 'bg-gray-200 text-gray-700',
+                                                        ];
+                                                        $statusColor = $statusColors[$status] ?? 'bg-gray-100 text-gray-800';
+                                                    @endphp
                                                     <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Paid
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                        {{ $invoice->status ? ucfirst(str_replace('_', ' ', $invoice->status)) : 'N/A' }}
                                                     </span>
                                                 </td>
 
@@ -1787,10 +1799,10 @@
                                                             class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                             <i class="fi fi-rr-receipt text-gray-400 text-2xl"></i>
                                                         </div>
-                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No payment history
+                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No invoices found
                                                         </h3>
-                                                        <p class="text-sm text-gray-500">This student hasn't made any payments
-                                                            yet.</p>
+                                                        <p class="text-sm text-gray-500">No invoices are assigned to this
+                                                            student yet.</p>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1804,7 +1816,7 @@
                             <div class="mt-4 text-center">
                                 <a href="{{ route('school-fees.payments') }}"
                                     class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
-                                    View all payment history
+                                    View all invoices
                                     <i class="fi fi-rr-arrow-right ml-1"></i>
                                 </a>
                             </div>

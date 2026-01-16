@@ -474,11 +474,10 @@ class StudentRecordController extends Controller
             $acadTerm = $latestEnrollment ? $latestEnrollment->academicTerm : 'No Academic Term';
         }
 
-        // Get payment history for this student (paid invoices with payments)
-        $paymentHistory = \App\Models\Invoice::withTrashed()
+        // Get invoices assigned to this student (all statuses) with term context
+        $paymentHistory = \App\Models\Invoice::query()
             ->where('student_id', $student->id)
-            ->where('status', 'paid')
-            ->with(['payments', 'academicTerm'])
+            ->with(['academicTerm'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();

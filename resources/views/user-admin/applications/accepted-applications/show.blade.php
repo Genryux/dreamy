@@ -138,7 +138,7 @@
         </x-slot>
     </x-modal>
     {{-- Record Interview Result Modal --}}
-    <x-modal modal_id="record-interview-modal" modal_name="Record Interview Result"
+    <x-modal modal_id="record-interview-modal" modal_name="Record Admission Result"
         close_btn_id="record-interview-close-btn" modal_container_id='modal-container-2'>
 
         <form class="py-6 px-6" id="record-result-form">
@@ -163,7 +163,7 @@
                                     <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
                                     <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Passed</span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Applicant has successfully passed the interview</p>
+                                <p class="text-xs text-gray-500 mt-1">Applicant has successfully passed the admission exam.</p>
                             </div>
                         </div>
                     </label>
@@ -182,7 +182,7 @@
                                     <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                                     <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Failed</span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Applicant did not meet the interview requirements</p>
+                                <p class="text-xs text-gray-500 mt-1">Applicant did not meet the admission requirements.</p>
                             </div>
                         </div>
                     </label>
@@ -210,7 +210,7 @@
                         <div class="ml-3">
                             <h4 class="text-sm font-medium text-gray-700">Automatic Document Assignment</h4>
                             <p class="text-sm text-gray-600 mt-1">
-                                By selecting 'Passed', standard document requirements will be automatically assigned to this applicant. 
+                                By selecting 'Passed', standard document requirements will be automatically assigned to this applicant based on their application type (regular/transferee). 
                                 The applicant will receive email notifications about the required documents and submission deadline.
                             </p>
                         </div>

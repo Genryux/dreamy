@@ -4,6 +4,10 @@ namespace App\Services;
 
 use App\Models\Documents;
 use App\Models\DocumentSubmissions;
+use App\Models\Student;
+use App\Models\StudentEnrollment;
+use App\Models\Teacher;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardDataService
@@ -29,7 +33,8 @@ class DashboardDataService
                 'totalPendingDocumentApplications' => null,
                 'currentAcadTerm' => null,
                 'activeEnrollmentPeriod' => null,
-                'inactiveTerms' => $inactiveTerms
+                'inactiveTerms' => $inactiveTerms,
+                'quickStats' => $this->getQuickStats(null)
             ];
         }
 
@@ -46,7 +51,8 @@ class DashboardDataService
                 'totalAcceptedApplications' => null,
                 'totalPendingDocumentApplications' => null,
                 'activeEnrollmentPeriod' => null,
-                'inactiveTerms' => $inactiveTerms
+                'inactiveTerms' => $inactiveTerms,
+                'quickStats' => $this->getQuickStats($currentAcadTerm)
             ];
         }
 
@@ -66,7 +72,50 @@ class DashboardDataService
             'activeEnrollmentPeriod' => $activeEnrollmentPeriod,
             'totalEnrolledApplications' => $totalEnrolledApplications,
             'totalPendingDocumentsApplications' => $totalPendingDocumentsApplications,
-            'inactiveTerms' => $inactiveTerms
+            'inactiveTerms' => $inactiveTerms,
+            'quickStats' => $this->getQuickStats($currentAcadTerm)
+        ];
+    }
+
+    private function getQuickStats($currentAcadTerm)
+    {
+        $currentTermId = $currentAcadTerm?->id;
+
+        // Students officially enrolled in the current term (based on enrollments)
+        $totalStudentsCurrentTerm = $currentTermId
+            ? StudentEnrollment::where('academic_term_id', $currentTermId)
+                ->whereIn('status', ['enrolled', 'confirmed', 'pending_confirmation'])
+                ->count()
+            : 0;
+
+        // Total teachers
+        $totalTeachers = Teacher::count();
+
+        // Invoice stats (across all terms)
+        $totalInvoices = Invoice::count();
+        $unpaidInvoices = Invoice::where('status', 'unpaid')->count();
+        $partialInvoices = Invoice::whereIn('status', ['partial', 'partially_paid'])->count();
+
+        // Academic status breakdown (promotion eligibility)
+        $eligible = Student::where('status', 'Officially Enrolled')->where('academic_status', 'Passed')->count();
+        $notEligible = Student::where('status', 'Officially Enrolled')->where('academic_status', 'Failed')->count();
+        $completed = Student::where('status', 'Officially Enrolled')->where('academic_status', 'Completed')->count();
+        $notEvaluated = Student::where('status', 'Officially Enrolled')->whereNull('academic_status')->count();
+
+        return [
+            'students_current_term' => $totalStudentsCurrentTerm,
+            'teachers' => $totalTeachers,
+            'invoices' => [
+                'total' => $totalInvoices,
+                'unpaid' => $unpaidInvoices,
+                'partial' => $partialInvoices,
+            ],
+            'promotion' => [
+                'eligible' => $eligible,
+                'not_eligible' => $notEligible,
+                'completed' => $completed,
+                'not_evaluated' => $notEvaluated,
+            ],
         ];
     }
 

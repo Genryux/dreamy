@@ -614,7 +614,8 @@ class ApplicationFormController extends Controller
                     'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null,
                     'enrollmentSummary' => $enrollmentSummary,
                     'countStudentStatuses' => $this->studentService->countStudentStatuses(),
-                    'inactiveTerms' => $data['inactiveTerms'] ?? collect()
+                    'inactiveTerms' => $data['inactiveTerms'] ?? collect(),
+                    'quickStats' => $data['quickStats'] ?? []
                 ]);
             }
 
