@@ -17,8 +17,8 @@ return new class extends Migration
         Schema::create('student_subjects', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Student::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(SectionSubject::class)->constrained()->cascadeOnDelete();
-            $table->string('status')->default('enrolled'); // enrolled, dropped, withdrawn
+            $table->foreignIdFor(SectionSubject::class)->nullable()->constrained()->nullOnDelete();
+            $table->string('status')->default('enrolled'); // enrolled, taken
             $table->timestamps();
         });
     }

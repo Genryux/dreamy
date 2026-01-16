@@ -13,11 +13,9 @@
             @if ($currentAcadTerm)
                 <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <div class="flex items-start">
-                        <i class="fi fi-rr-info text-blue-500 mr-2 mt-0.5"></i>
+                        <i class="fi fi-rr-info text-blue-500 mr-2 mt-0.5 flex justify-center items-center"></i>
                         <div class="text-sm text-blue-800">
-                            <p class="font-medium">Creating a Future Term</p>
-                            <p class="text-blue-700 mt-1">To create a term for early enrollment without affecting the
-                                current term, select <strong>"No - Keep Inactive"</strong> for the status below.</p>
+                            <p class="font-medium">Future terms are inactive by default.</p>
                         </div>
                     </div>
                 </div>
@@ -79,7 +77,9 @@
                     </div>
                 </div>
 
-                <!-- Active Status -->
+                <input type="hidden" name="is_active" value="0">
+
+                {{-- <!-- Active Status -->
                 <div class="flex flex-col">
                     <label for="is_active" class="text-sm font-medium text-gray-700 mb-2">Set as Active Term?</label>
                     <div class="relative">
@@ -94,7 +94,7 @@
                             <option value="0">No - Keep Inactive</option>
                         </select>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </form>
 
@@ -814,6 +814,22 @@
                 <form action="/academic-terms/switch" method="POST" id="switch-term-form" class="p-6">
                     @csrf
                     <div class="space-y-4">
+                        {{-- Current Term Indicator --}}
+                        @if ($currentAcadTerm)
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-300 rounded-lg p-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-blue-500 text-white rounded-full p-2">
+                                        <i class="fi fi-rr-calendar-check text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs text-gray-600 font-medium uppercase tracking-wide">Current Active Term</p>
+                                        <p class="text-sm font-bold text-gray-800" id="current-term-display">{{ $currentAcadTerm->full_name }}</p>
+                                        <p class="text-xs text-gray-600">{{ \Carbon\Carbon::parse($currentAcadTerm->start_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($currentAcadTerm->end_date)->format('M d, Y') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <div class="flex">
                                 <div class="flex-shrink-0">
@@ -840,11 +856,15 @@
                                     <i class="fi fi-rr-calendar-clock text-gray-400"></i>
                                 </div>
                                 <select name="term_id" id="term_id" required
-                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150">
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                    data-current-semester="{{ $currentAcadTerm?->semester }}"
+                                    data-current-year="{{ $currentAcadTerm?->year }}">
                                     <option value="">Select a term...</option>
                                     @if (isset($inactiveTerms))
                                         @foreach ($inactiveTerms as $term)
-                                            <option value="{{ $term->id }}">
+                                            <option value="{{ $term->id }}" 
+                                                data-semester="{{ $term->semester }}"
+                                                data-year="{{ $term->year }}">
                                                 {{ $term->full_name }}
                                                 ({{ \Carbon\Carbon::parse($term->start_date)->format('M Y') }} -
                                                 {{ \Carbon\Carbon::parse($term->end_date)->format('M Y') }})
@@ -854,9 +874,23 @@
                                 </select>
                             </div>
                         </div>
+
+                        {{-- Semester Skip Warning (Dynamic) --}}
+                        <div id="semester-skip-warning" class="hidden p-4 bg-orange-50 border border-orange-400 rounded-lg">
+                            <div class="flex gap-3">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-rr-exclamation text-orange-500 text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-bold text-orange-700 mb-1">⚠️ Semester Skip Detected</h4>
+                                    <p id="semester-skip-message" class="text-sm text-orange-600"></p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="p-4 bg-red-100 border border-red-400 rounded-md flex flex-col justify-center items-center gap-2">
                             <h4 class="text-sm font-bold text-red-500 flex justify-center items-center gap-2"><i class="fi fi-br-triangle-warning flex items-center justify-center"></i> Critical Warning</h4>
-                            <p class="text-sm text-center text-red-500">Please avoid switching terms <strong>prematurely or carelessly</strong>. Doing so <strong>will trigger the automated task mentioned above</strong> and may result in <strong>unintended or irreversible consequences</strong>.</p>
+                            <p class="text-sm text-center text-red-500">Please avoid switching terms <strong>prematurely or carelessly</strong>. Doing so <strong>may trigger automated tasks</strong> and result in <strong>unintended or irreversible consequences</strong>.</p>
                         </div>
                     </div>
                 </form>
@@ -1431,6 +1465,48 @@
                 'edit-period-cancel-btn', 'modal-container-edit-period');
             initModal('switch-term-modal', 'switch-term-btn', 'switch-term-close-btn',
                 'switch-term-cancel-btn', 'modal-container-switch-term');
+
+            // Semester Skip Detection for Switch Term Modal
+            const termSelect = document.getElementById('term_id');
+            const skipWarning = document.getElementById('semester-skip-warning');
+            const skipMessage = document.getElementById('semester-skip-message');
+
+            if (termSelect && skipWarning && skipMessage) {
+                termSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    
+                    if (!selectedOption || !selectedOption.value) {
+                        skipWarning.classList.add('hidden');
+                        return;
+                    }
+
+                    const currentSemester = this.dataset.currentSemester;
+                    const currentYear = this.dataset.currentYear;
+                    const targetSemester = selectedOption.dataset.semester;
+                    const targetYear = selectedOption.dataset.year;
+
+                    let showWarning = false;
+                    let warningMessage = '';
+
+                    // Case 1: Current is 1st Semester, Target is also 1st Semester
+                    if (currentSemester === '1st Semester' && targetSemester === '1st Semester') {
+                        showWarning = true;
+                        warningMessage = `You are about to switch from <strong>${currentYear} - 1st Semester</strong> to <strong>${targetYear} - 1st Semester</strong>, which will <strong>skip the 2nd semester of ${currentYear}</strong>. Please ensure this is intentional.`;
+                    }
+                    // Case 2: Current is 2nd Semester, Target is also 2nd Semester
+                    else if (currentSemester === '2nd Semester' && targetSemester === '2nd Semester') {
+                        showWarning = true;
+                        warningMessage = `You are about to switch from <strong>${currentYear} - 2nd Semester</strong> to <strong>${targetYear} - 2nd Semester</strong>, which will <strong>skip the 1st semester of the next school year</strong>. Please ensure this is intentional.`;
+                    }
+
+                    if (showWarning) {
+                        skipMessage.innerHTML = warningMessage;
+                        skipWarning.classList.remove('hidden');
+                    } else {
+                        skipWarning.classList.add('hidden');
+                    }
+                });
+            }
 
             // Enrollment Period Type Logic
             const periodTypeSelect = document.getElementById('period_type');

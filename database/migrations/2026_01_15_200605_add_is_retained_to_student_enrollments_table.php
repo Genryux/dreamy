@@ -12,12 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('student_enrollments', function (Blueprint $table) {
-            $table->foreignId('enrollment_period_id')
-                ->nullable()
-                ->after('academic_term_id')
-                ->constrained('enrollment_periods')
-                ->nullOnDelete();
-            $table->string('grade_level')->nullable()->after('section_id');
+            $table->boolean('is_retained')->default(false)->after('grade_level');
         });
     }
 
@@ -27,9 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('student_enrollments', function (Blueprint $table) {
-            $table->dropForeign(['enrollment_period_id']);
-            $table->dropColumn('enrollment_period_id');
-            $table->dropColumn('grade_level');
+            $table->dropColumn('is_retained');
         });
     }
 };

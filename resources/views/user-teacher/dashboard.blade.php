@@ -3,8 +3,7 @@
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
         <h1 class="text-[20px] font-black">Dashboard</h1>
-        <p class="text-[14px] text-gray-900/60">View and manage sections you're teaching and advising.
-        </p>
+                    <p class="text-[14px] text-gray-900/60">View and manage subjects you're teaching.</p>
     </div>
 @endsection
 
@@ -116,10 +115,10 @@
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
             <div class="flex flex-col my-2 justify-center items-center w-full">
                 <span class="font-semibold text-[18px]">
-                    Sections
+                    Subjects
                 </span>
                 <span class="font-medium text-gray-400 text-[14px]">
-                    Sections you're teaching and advising
+                    Subjects you're teaching
                 </span>
             </div>
             <div class="flex flex-row justify-between items-center w-full">
@@ -131,7 +130,7 @@
                         <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
                         <input type="search" name="" id="myCustomSearch"
                             class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
-                            placeholder="Search by section name, program, etc.">
+                            placeholder="Search by subject, section, program, etc.">
                         <button id="clear-btn"
                             class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
                             <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
@@ -207,6 +206,10 @@
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Subject</span>
+                                <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                            </th>
+                            <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
                                 <span class="mr-2 font-medium opacity-60 cursor-pointer">Section</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
@@ -223,11 +226,11 @@
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Students</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Schedule</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Role</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Students</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10  px-4 py-2">
@@ -283,46 +286,39 @@
 
             teacherSectionsTable = initCustomDataTable(
                 'teacher-sections',
-                '/teacher/sections',
+                '/teacher/subjects',
                 [{
                         data: 'index',
                         width: '3%',
                         searchable: true
                     },
                     {
-                        data: 'name',
+                        data: 'subject',
+                        width: '18%'
+                    },
+                    {
+                        data: 'section',
                         width: '15%'
                     },
                     {
                         data: 'program',
-                        width: '15%'
+                        width: '14%'
                     },
                     {
                         data: 'year_level',
-                        width: '15%'
+                        width: '12%'
                     },
                     {
                         data: 'room',
-                        width: '15%'
+                        width: '12%'
                     },
                     {
-                        data: 'total_students',
-                        width: '15%'
+                        data: 'schedule',
+                        width: '17%'
                     },
                     {
-                        data: 'role',
-                        width: '15%',
-                        render: function(data, type, row) {
-                            if (row.is_adviser) {
-                                return `
-                                    <div class="flex items-center gap-2">
-                                        <i class="fi fi-sr-user-tie text-xs"></i>
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">Adviser</span>
-                                    </div>
-                                `;
-                            }
-                            return ''; // No indicator for non-adviser sections
-                        }
+                        data: 'students',
+                        width: '12%'
                     },
                     {
                         data: 'id',
@@ -331,7 +327,7 @@
                         render: function(data, type, row) {
                             return `
                             <div class='flex flex-row justify-center items-center opacity-100'>
-                                <a href="/teacher/section/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
+                                <a href="/teacher/subject/${data}" class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-500 font-semibold px-3 py-1 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150 ">
                                     <span class="relative w-4 h-4">
                                         <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
                                         <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
@@ -385,8 +381,8 @@
                     cardsGrid.innerHTML = `
                         <div class="col-span-full flex flex-col justify-center items-center py-12 text-gray-500">
                             <i class="fi fi-sr-folder-open text-4xl mb-4"></i>
-                            <p class="text-lg font-medium">No sections found</p>
-                            <p class="text-sm">You are not assigned to any sections yet</p>
+                            <p class="text-lg font-medium">No subjects found</p>
+                            <p class="text-sm">You are not assigned to any subjects yet</p>
                         </div>
                     `;
                     paginationContainer.innerHTML = '';
@@ -394,23 +390,17 @@
                 }
 
                 // Render cards
-                cardsGrid.innerHTML = data.map(section => `
+                cardsGrid.innerHTML = data.map(subject => `
                     <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 hover:border-[#199BCF]/60 hover:bg-blue-50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-6">
                         <div class="flex flex-col space-y-4">
                             <!-- Header -->
                             <div class="flex flex-row justify-between items-start">
                                 <div class="flex flex-col">
-                                    <h3 class="text-lg font-bold text-gray-800 ">${section.name}</h3>
-                                    <p class="text-sm text-gray-600">${section.program}</p>
+                                    <h3 class="text-lg font-bold text-gray-800 ">${subject.subject}</h3>
+                                    <p class="text-sm text-gray-600">${subject.section} • ${subject.program}</p>
                                 </div>
                                 <div class="flex flex-col items-end">
-                                    <span class="text-xs text-gray-500">#${section.index}</span>
-                                    <div class="mt-1">
-                                        ${section.is_adviser ? 
-                                            '<span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800"><i class="fi fi-sr-user-tie"></i>Adviser</span>' : 
-                                            ''
-                                        }
-                                    </div>
+                                    <span class="text-xs text-gray-500">#${subject.index}</span>
                                 </div>
                             </div>
 
@@ -422,7 +412,7 @@
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Year Level</span>
-                                        <span class="text-sm font-medium">${section.year_level}</span>
+                                        <span class="text-sm font-medium">${subject.year_level}</span>
                                     </div>
                                 </div>
                                 
@@ -432,24 +422,34 @@
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-500">Room</span>
-                                        <span class="text-sm font-medium">${section.room}</span>
+                                        <span class="text-sm font-medium">${subject.room}</span>
                                     </div>
                                 </div>
                                 
                                 <div class="flex flex-row items-center gap-3">
                                     <div class="flex justify-center items-center bg-gray-200 rounded-full w-8 h-8 p-1 flex-shrink-0">
+                                        <i class="fi fi-rr-clock text-gray-700 text-sm"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-500">Schedule</span>
+                                        <span class="text-sm font-medium">${subject.schedule}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-row items-center gap-3">
+                                    <div class="flex justify-center items-center bg-gray-200 rounded-full w-8 h-8 p-1 flex-shrink-0">
                                         <i class="fi fi-sr-users text-gray-700 text-sm"></i>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-xs text-gray-500">Total Students</span>
-                                        <span class="text-sm font-medium">${section.total_students}</span>
+                                        <span class="text-xs text-gray-500">Students</span>
+                                        <span class="text-sm font-medium">${subject.students}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Action Button -->
                             <div class="pt-2 border-t border-gray-100">
-                                <a href="/teacher/section/${section.id}" 
+                                <a href="/teacher/subject/${subject.id}" 
                                    class="w-full flex justify-center items-center gap-2 bg-[#199BCF] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#C8A165] transition-colors duration-200">
                                     <i class="fi fi-rs-eye text-sm"></i>
                                     View Details
@@ -503,10 +503,10 @@
             }
 
             // Function to fetch data for cards
-            async function fetchSectionsForCards(page = 1) {
+                async function fetchSectionsForCards(page = 1) {
                 try {
                     const response = await fetch(
-                        `/teacher/sections?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`
+                        `/teacher/subjects?start=${(page - 1) * window.selectedPageLength}&length=${window.selectedPageLength}&grade_filter=${window.selectedGrade}&program_filter=${window.selectedProgram}&search[value]=${document.getElementById('myCustomSearch').value}`
                     );
                     const data = await response.json();
 

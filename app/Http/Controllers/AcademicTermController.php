@@ -151,11 +151,57 @@ class AcademicTermController extends Controller
             $newTerm = AcademicTerms::create(array_merge($validated, ['is_active' => true]));
             \Log::info('New term created:', ['term_id' => $newTerm->id]);
 
-            //promote students from previous term to the new term
-            $continuingStudents = $activeTerm 
-                ? collect($this->studentService->promoteStudents($activeTerm, $newTerm))
-                : collect();
-            \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
+            // Determine if we should trigger automated tasks (promotion, invoices, notifications)
+            // Only trigger when transitioning to a NEW SCHOOL YEAR (2nd semester → 1st semester)
+            // Don't trigger when transitioning within SAME SCHOOL YEAR (1st → 2nd semester)
+            $shouldTriggerAutomation = false;
+            $transitionType = 'initial';
+            
+            if ($activeTerm) {
+                \Log::info('Checking semester transition:', [
+                    'from_year' => $activeTerm->year,
+                    'from_semester' => $activeTerm->semester,
+                    'to_year' => $newTerm->year,
+                    'to_semester' => $newTerm->semester,
+                ]);
+
+                // Transitioning from 1st to 2nd semester of same year = Same school year
+                if ($activeTerm->semester === '1st Semester' && 
+                    $newTerm->semester === '2nd Semester' && 
+                    $activeTerm->year === $newTerm->year) {
+                    $shouldTriggerAutomation = false;
+                    $transitionType = 'same_school_year';
+                    \Log::info('Same school year transition (1st → 2nd semester) - automation skipped, enrollment records will be created');
+                }
+                // Transitioning from 2nd semester to 1st semester = New school year
+                elseif ($activeTerm->semester === '2nd Semester' && $newTerm->semester === '1st Semester') {
+                    $shouldTriggerAutomation = true;
+                    $transitionType = 'new_school_year';
+                    \Log::info('New school year detected - automation will be triggered');
+                }
+                // Any other case (e.g., same semester different year, or unusual transitions)
+                else {
+                    $shouldTriggerAutomation = true;
+                    $transitionType = 'other';
+                    \Log::info('Other transition type - automation will be triggered');
+                }
+            }
+
+            //promote students from previous term to the new term (only if transitioning to new school year)
+            $continuingStudents = collect();
+            if ($shouldTriggerAutomation && $activeTerm) {
+                $continuingStudents = collect($this->studentService->promoteStudents($activeTerm, $newTerm));
+                \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
+            } 
+            // For same-year transitions (1st → 2nd semester), just create enrollment records without promotion
+            elseif ($transitionType === 'same_school_year' && $activeTerm) {
+                \Log::info('Creating enrollment records for same-year transition without promotion');
+                $continuingStudents = $this->studentService->createSameYearEnrollments($activeTerm, $newTerm);
+                \Log::info('Enrollment records created:', ['count' => $continuingStudents->count()]);
+            }
+            else {
+                \Log::info('Student promotion skipped - ' . ($activeTerm ? 'within same school year' : 'no previous term'));
+            }
 
             // Log the activity for starting new term
             activity('academic_term')
@@ -165,37 +211,72 @@ class AcademicTermController extends Controller
                     'action' => 'started_new_term',
                     'new_term_details' => array_merge($validated, ['is_active' => true]),
                     'previous_term_id' => $activeTerm ? $activeTerm->id : null,
+                    'transition_type' => $transitionType,
+                    'automation_triggered' => $shouldTriggerAutomation,
                     'students_promoted_count' => $continuingStudents->count(),
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
                 ])
-                ->log('New academic term started and students promoted');
+                ->log('New academic term started' . ($shouldTriggerAutomation ? ' and students promoted' : ' (same school year - no promotion)'));
 
-            //get all school fees
-            $schoolFees = SchoolFee::all();
-            \Log::info('School fees found:', ['count' => $schoolFees->count()]);
+            // Clear section subjects and update student subjects status
+            // This happens for ALL term transitions (both same-year and new-year)
+            \Log::info('Clearing section subjects and updating student subjects status');
+            
+            // Update all student_subjects from 'enrolled' to 'taken' for the previous term
+            if ($activeTerm) {
+                $updatedCount = \DB::table('student_subjects')
+                    ->where('academic_terms_id', $activeTerm->id)
+                    ->where('status', 'enrolled')
+                    ->update(['status' => 'taken']);
+                
+                \Log::info('Updated student_subjects status to taken:', ['count' => $updatedCount]);
+            }
+            
+            // Clear all section_subjects (assigned subjects to sections)
+            // Sections will need to be re-assigned subjects for the new term/semester
+            $deletedSectionSubjects = \DB::table('section_subjects')->delete();
+            \Log::info('Cleared section subjects:', ['count' => $deletedSectionSubjects]);
 
-            $continuingStudents->chunk(100)->each(function ($studentsChunk) use ($schoolFees, $newTerm) {
+            // Clear student section assignments when transitioning to new school year
+            // Students who were promoted need to be reassigned to appropriate sections for their new grade level
+            if ($shouldTriggerAutomation && $transitionType === 'new_school_year') {
+                $clearedSections = \DB::table('students')
+                    ->whereNotNull('section_id')
+                    ->update(['section_id' => null]);
+                \Log::info('Cleared student section assignments for new school year:', ['count' => $clearedSections]);
+            }
 
-                foreach ($studentsChunk as $student) {
+            // Generate invoices only if automation is triggered
+            if ($shouldTriggerAutomation && $continuingStudents->isNotEmpty()) {
+                //get all school fees
+                $schoolFees = SchoolFee::all();
+                \Log::info('School fees found:', ['count' => $schoolFees->count()]);
 
-                    // Create new invoice
-                    $invoice = $student->invoices()->create([
-                        'academic_term_id' => $newTerm->id,
-                        'status' => 'unpaid'
-                    ]);
+                $continuingStudents->chunk(100)->each(function ($studentsChunk) use ($schoolFees, $newTerm) {
 
-                    foreach ($schoolFees as $fee) {
-                        $invoice->items()->create(
-                            [
-                                'school_fee_id' => $fee->id,
-                                'academic_term_id' => $newTerm->id,
-                                'amount' => $fee->amount
-                            ]
-                        );
+                    foreach ($studentsChunk as $student) {
+
+                        // Create new invoice
+                        $invoice = $student->invoices()->create([
+                            'academic_term_id' => $newTerm->id,
+                            'status' => 'unpaid'
+                        ]);
+
+                        foreach ($schoolFees as $fee) {
+                            $invoice->items()->create(
+                                [
+                                    'school_fee_id' => $fee->id,
+                                    'academic_term_id' => $newTerm->id,
+                                    'amount' => $fee->amount
+                                ]
+                            );
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                \Log::info('Invoice generation skipped - automation not triggered or no continuing students');
+            }
 
             DB::commit();
             \Log::info('Transaction committed successfully');
@@ -241,11 +322,57 @@ class AcademicTermController extends Controller
             // Activate new term
             $newTerm->update(['is_active' => true]);
 
-            //promote students from previous term to the new term
-            $continuingStudents = $activeTerm 
-                ? collect($this->studentService->promoteStudents($activeTerm, $newTerm))
-                : collect();
-            \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
+            // Determine if we should trigger automated tasks (promotion, invoices, notifications)
+            // Only trigger when transitioning to a NEW SCHOOL YEAR (2nd semester → 1st semester)
+            // Don't trigger when transitioning within SAME SCHOOL YEAR (1st → 2nd semester)
+            $shouldTriggerAutomation = false;
+            $transitionType = 'initial';
+            
+            if ($activeTerm) {
+                \Log::info('Checking semester transition:', [
+                    'from_year' => $activeTerm->year,
+                    'from_semester' => $activeTerm->semester,
+                    'to_year' => $newTerm->year,
+                    'to_semester' => $newTerm->semester,
+                ]);
+
+                // Transitioning from 1st to 2nd semester of same year = Same school year
+                if ($activeTerm->semester === '1st Semester' && 
+                    $newTerm->semester === '2nd Semester' && 
+                    $activeTerm->year === $newTerm->year) {
+                    $shouldTriggerAutomation = false;
+                    $transitionType = 'same_school_year';
+                    \Log::info('Same school year transition (1st → 2nd semester) - automation skipped, enrollment records will be created');
+                }
+                // Transitioning from 2nd semester to 1st semester = New school year
+                elseif ($activeTerm->semester === '2nd Semester' && $newTerm->semester === '1st Semester') {
+                    $shouldTriggerAutomation = true;
+                    $transitionType = 'new_school_year';
+                    \Log::info('New school year detected - automation will be triggered');
+                }
+                // Any other case (e.g., same semester different year, or unusual transitions)
+                else {
+                    $shouldTriggerAutomation = true;
+                    $transitionType = 'other';
+                    \Log::info('Other transition type - automation will be triggered');
+                }
+            }
+
+            //promote students from previous term to the new term (only if transitioning to new school year)
+            $continuingStudents = collect();
+            if ($shouldTriggerAutomation && $activeTerm) {
+                $continuingStudents = collect($this->studentService->promoteStudents($activeTerm, $newTerm));
+                \Log::info('Students promoted:', ['count' => $continuingStudents->count()]);
+            }
+            // For same-year transitions (1st → 2nd semester), just create enrollment records without promotion
+            elseif ($transitionType === 'same_school_year' && $activeTerm) {
+                \Log::info('Creating enrollment records for same-year transition without promotion');
+                $continuingStudents = $this->studentService->createSameYearEnrollments($activeTerm, $newTerm);
+                \Log::info('Enrollment records created:', ['count' => $continuingStudents->count()]);
+            }
+            else {
+                \Log::info('Student promotion skipped - ' . ($activeTerm ? 'within same school year' : 'no previous term'));
+            }
 
             // Log the activity for switching term
             activity('academic_term')
@@ -255,39 +382,74 @@ class AcademicTermController extends Controller
                     'action' => 'switched_term',
                     'new_term_details' => $newTerm->toArray(),
                     'previous_term_id' => $activeTerm ? $activeTerm->id : null,
+                    'transition_type' => $transitionType,
+                    'automation_triggered' => $shouldTriggerAutomation,
                     'students_promoted_count' => $continuingStudents->count(),
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
                 ])
-                ->log('Switched to existing academic term and students promoted');
+                ->log('Switched to existing academic term' . ($shouldTriggerAutomation ? ' and students promoted' : ' (same school year - no promotion)'));
 
-            //get all school fees
-            $schoolFees = SchoolFee::all();
+            // Clear section subjects and update student subjects status
+            // This happens for ALL term transitions (both same-year and new-year)
+            \Log::info('Clearing section subjects and updating student subjects status');
+            
+            // Update all student_subjects from 'enrolled' to 'taken' for the previous term
+            if ($activeTerm) {
+                $updatedCount = \DB::table('student_subjects')
+                    ->where('academic_terms_id', $activeTerm->id)
+                    ->where('status', 'enrolled')
+                    ->update(['status' => 'taken']);
+                
+                \Log::info('Updated student_subjects status to taken:', ['count' => $updatedCount]);
+            }
+            
+            // Clear all section_subjects (assigned subjects to sections)
+            // Sections will need to be re-assigned subjects for the new term/semester
+            $deletedSectionSubjects = \DB::table('section_subjects')->delete();
+            \Log::info('Cleared section subjects:', ['count' => $deletedSectionSubjects]);
 
-            $continuingStudents->chunk(100)->each(function ($studentsChunk) use ($schoolFees, $newTerm) {
-                foreach ($studentsChunk as $student) {
-                    // Check if invoice already exists for this term to avoid duplicates
-                    $existingInvoice = $student->invoices()->where('academic_term_id', $newTerm->id)->exists();
+            // Clear student section assignments when transitioning to new school year
+            // Students who were promoted need to be reassigned to appropriate sections for their new grade level
+            if ($shouldTriggerAutomation && $transitionType === 'new_school_year') {
+                $clearedSections = \DB::table('students')
+                    ->whereNotNull('section_id')
+                    ->update(['section_id' => null]);
+                \Log::info('Cleared student section assignments for new school year:', ['count' => $clearedSections]);
+            }
 
-                    if (!$existingInvoice) {
-                        // Create new invoice
-                        $invoice = $student->invoices()->create([
-                            'academic_term_id' => $newTerm->id,
-                            'status' => 'unpaid'
-                        ]);
+            // Generate invoices only if automation is triggered
+            if ($shouldTriggerAutomation && $continuingStudents->isNotEmpty()) {
+                //get all school fees
+                $schoolFees = SchoolFee::all();
 
-                        foreach ($schoolFees as $fee) {
-                            $invoice->items()->create(
-                                [
-                                    'school_fee_id' => $fee->id,
-                                    'academic_term_id' => $newTerm->id,
-                                    'amount' => $fee->amount
-                                ]
-                            );
+                $continuingStudents->chunk(100)->each(function ($studentsChunk) use ($schoolFees, $newTerm) {
+                    foreach ($studentsChunk as $student) {
+                        // Check if invoice already exists for this term to avoid duplicates
+                        $existingInvoice = $student->invoices()->where('academic_term_id', $newTerm->id)->exists();
+
+                        if (!$existingInvoice) {
+                            // Create new invoice
+                            $invoice = $student->invoices()->create([
+                                'academic_term_id' => $newTerm->id,
+                                'status' => 'unpaid'
+                            ]);
+
+                            foreach ($schoolFees as $fee) {
+                                $invoice->items()->create(
+                                    [
+                                        'school_fee_id' => $fee->id,
+                                        'academic_term_id' => $newTerm->id,
+                                        'amount' => $fee->amount
+                                    ]
+                                );
+                            }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                \Log::info('Invoice generation skipped - automation not triggered or no continuing students');
+            }
 
             DB::commit();
             return redirect()->back()->with('success', 'Switched to academic term successfully!');

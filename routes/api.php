@@ -136,6 +136,11 @@ Route::middleware(['auth:sanctum', 'teacher.only'])->prefix('teacher')->group(fu
 	
 	// Bulk Evaluation - Evaluate multiple students at once
 	Route::post('/classes/{sectionSubjectId}/evaluate-bulk', [TeacherAppController::class, 'bulkEvaluateStudents']);
+
+	// Teaching history + remedial controls
+	Route::get('/teaching-history', [TeacherAppController::class, 'teachingHistory']);
+	Route::get('/student-subjects/{studentSubjectId}', [TeacherAppController::class, 'getStudentSubjectHistory']);
+	Route::post('/student-subjects/{studentSubjectId}/remedial', [TeacherAppController::class, 'updateStudentSubjectRemedial']);
 	
 	// Teacher Profile
 	Route::get('/profile', [TeacherAppController::class, 'profile']);

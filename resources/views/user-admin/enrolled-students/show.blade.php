@@ -74,7 +74,8 @@
             @csrf
             @method('patch')
             <div class="mb-6">
-                <h3 class="text-[14px] font-semibold text-gray-800 mb-4">Academic evaluation for the current term</h3>
+                <h3 class="text-[14px] font-semibold text-gray-800 mb-4">Student promotion eligibility for the next academic
+                    term.</h3>
                 <div class="space-y-3 flex flex-col justify-center items-center">
                     <!-- Passed Option -->
                     <label for="passed"
@@ -91,10 +92,11 @@
                             </div>
                             <div class="ml-3">
                                 <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Passed</span>
+                                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Passed -
+                                        Eligible for Promotion</span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Student passed the current term</p>
+                                <p class="text-xs text-gray-500 mt-1">Student passed all the subjects and eligible for
+                                    promotion.</p>
                             </div>
                         </div>
                     </label>
@@ -114,16 +116,17 @@
                             </div>
                             <div class="ml-3">
                                 <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Failed</span>
+                                    <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Failed - Not
+                                        Eligible for Promotion</span>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1">Student did not meet the sufficient requirements for
-                                    the current term</p>
+                                    the current term and can't be promoted.</p>
                             </div>
                         </div>
                     </label>
 
-                    <p class="self-center text-[14px] text-gray-500">Please make sure you select the correct option, as this
+                    <p class="self-center text-[14px] text-gray-500">Once a new academic term has startedPlease make sure
+                        you select the correct option, as this
                         action cannot be undone.</p>
                 </div>
             </div>
@@ -446,8 +449,8 @@
                         <i class="fi fi-rr-star mr-2"></i>
                         Grade Level <span class="text-red-500">*</span>
                     </label>
-                    <select name="grade_level" id="grade_level" required
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                    <select name="grade_level" id="grade_level" required disabled
+                        class="flex flex-row text-gray-500 justify-start items-center border border-[#1e1e1e]/10 bg-gray-200 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                         <option value="">Select Grade Level</option>
                         <option value="Grade 11">Grade 11</option>
                         <option value="Grade 12">Grade 12</option>
@@ -459,8 +462,8 @@
                         <i class="fi fi-rr-graduation-cap mr-2"></i>
                         Program <span class="text-red-500">*</span>
                     </label>
-                    <select name="program_id" id="program_id"
-                        class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
+                    <select name="program_id" id="program_id" disabled
+                        class="flex flex-row justify-start items-center text-gray-500 border border-[#1e1e1e]/10 bg-gray-200 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                         <option value="">Select Program</option>
                         @foreach ($programs ?? [] as $program)
                             <option value="{{ $program->id }}">{{ $program->name }}</option>
@@ -482,7 +485,7 @@
                     </select>
                 </div>
 
-                <div class="w-full">
+                {{-- <div class="w-full">
                     <label for="acad_term_applied" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fi fi-rr-calendar mr-2"></i>
                         Academic Year
@@ -502,7 +505,7 @@
                         <option value="1st Semester">1st Semester</option>
                         <option value="2nd Semester">2nd Semester</option>
                     </select>
-                </div>
+                </div> --}}
             </div>
         </form>
 
@@ -699,8 +702,8 @@
     </x-modal>
 
     {{-- Re-enroll student modal --}}
-    <x-modal modal_id="reenroll-student" modal_name="Re-enroll Student"
-        close_btn_id="reenroll-student-close-btn" modal_container_id="modal-container-reenroll-student">
+    <x-modal modal_id="reenroll-student" modal_name="Re-enroll Student" close_btn_id="reenroll-student-close-btn"
+        modal_container_id="modal-container-reenroll-student">
 
         <x-slot name="modal_icon">
             <div class="size-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
@@ -760,7 +763,7 @@
             <div class="w-1/3 shrink-0 flex flex-col gap-4 border-r border-[#1e1e1e]/10 pr-6">
                 {{-- profile --}}
                 <div class="flex flex-row gap-4">
-                    @if($profilePicture && $profilePicture->file_path)
+                    @if ($profilePicture && $profilePicture->file_path)
                         <img src="{{ asset('storage/' . $profilePicture->file_path) }}" alt="Student Profile Picture"
                             class="size-20 rounded-md ring ring-gray-200 object-cover">
                     @else
@@ -1194,7 +1197,10 @@
 
 
                         <!-- Update Academic Status -->
-                        @if ($student->status === 'Officially Enrolled' && $student->academic_status === null)
+                        @if (
+                            $student->status === 'Officially Enrolled' &&
+                            $student->academic_status === null &&
+                            isset($acadTerm) && ($acadTerm->semester === '2nd Semester' || $acadTerm->semester === 'Second Semester'))
                             <button id="evaluate-student-btn"
                                 class="group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
@@ -1204,12 +1210,12 @@
                                     </div>
                                     <div class="text-left">
                                         <p class="font-semibold text-sm">Academic Status</p>
-                                        <p class="text-xs text-indigo-100">Pass/Fail evaluation</p>
+                                        <p class="text-xs text-indigo-100">Promotion Eligibility</p>
                                     </div>
                                 </div>
                             </button>
                         @else
-                            <button disabled
+                            <button disabled title="Only available at the end of the school year or in 2nd semester"
                                 class="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white rounded-xl p-4 transition-all duration-300 ">
                                 <div class="flex items-center space-x-3">
                                     <div
@@ -1218,7 +1224,7 @@
                                     </div>
                                     <div class="text-left">
                                         <p class="font-semibold text-sm">Academic Status</p>
-                                        <p class="text-xs text-gray-100">Pass/Fail evaluation</p>
+                                        <p class="text-xs text-gray-100">Promotion Eligibility</p>
                                     </div>
                                 </div>
                             </button>
@@ -1287,11 +1293,13 @@
                     <div class="flex items-center justify-between mb-6">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900">Enrolled Subjects</h2>
-                            <p class="text-sm text-gray-600 mt-1">All subjects the student is enrolled in for the current and previous terms</p>
+                            <p class="text-sm text-gray-600 mt-1">All subjects the student is enrolled in for the current
+                                and previous terms</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="subject-filter" class="text-sm text-gray-600">Filter:</label>
-                            <select id="subject-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select id="subject-filter"
+                                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="all">All Subjects</option>
                                 <option value="current">Current Semester</option>
                             </select>
@@ -1304,29 +1312,43 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 60px;">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 60px;">
                                             #
                                         </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 250px;">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 250px;">
                                             Subject Name
                                         </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 180px;">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 180px;">
                                             Teacher
                                         </th>
-                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 110px;">
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 110px;">
                                             Evaluation
                                         </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 180px;">
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 130px;">
+                                            Remedial Status
+                                        </th>
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 150px;">
+                                            Remedial Deadline
+                                        </th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 180px;">
                                             Academic Term
                                         </th>
-                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider" style="width: 120px;">
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                            style="width: 120px;">
                                             Status
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse ($studentSubjects as $studentSubject)
-                                        <tr class="subject-row hover:bg-gray-50 transition-colors" 
+                                        <tr class="subject-row hover:bg-gray-50 transition-colors"
                                             data-academic-term-id="{{ $studentSubject->academic_terms_id ?? '' }}"
                                             data-current-term="{{ $acadTerm && $acadTerm->id == $studentSubject->academic_terms_id ? 'true' : 'false' }}">
                                             <!-- Index -->
@@ -1337,15 +1359,25 @@
                                             <!-- Subject Name -->
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center">
-                                                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                    <div
+                                                        class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                                                         <i class="fi fi-rr-book text-blue-600 text-sm"></i>
                                                     </div>
                                                     <div>
+                                                        @php
+                                                            // Try direct subject relationship first (for subjects from previous terms where section_subjects might be deleted)
+                                                            $subject = $studentSubject->subject;
+
+                                                            // Fallback to subject through sectionSubject for current term
+                                                            if (!$subject && $studentSubject->sectionSubject) {
+                                                                $subject = $studentSubject->sectionSubject->subject;
+                                                            }
+                                                        @endphp
                                                         <div class="text-sm font-medium text-gray-900">
-                                                            {{ $studentSubject->sectionSubject->subject->name ?? 'N/A' }}
+                                                            {{ $subject->name ?? 'N/A' }}
                                                         </div>
                                                         <div class="text-xs text-gray-500">
-                                                            {{ $studentSubject->sectionSubject->subject->category ?? '' }}
+                                                            {{ $subject->category ?? '' }}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1353,13 +1385,29 @@
 
                                             <!-- Teacher -->
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                @if ($studentSubject->sectionSubject->teacher && $studentSubject->sectionSubject->teacher->user)
-                                                    @php
-                                                        $lastName = $studentSubject->sectionSubject->teacher->user->last_name ?? '';
-                                                        $firstName = $studentSubject->sectionSubject->teacher->user->first_name ?? '';
-                                                        $firstInitial = $firstName ? strtoupper(substr($firstName, 0, 1)) . '.' : '';
-                                                    @endphp
-                                                    {{ $lastName }}{{ $firstInitial ? ', ' . $firstInitial : '' }}
+                                                @php
+                                                    // Try direct teacher relationship first (for subjects from previous terms where section_subjects might be deleted)
+                                                    $teacher = $studentSubject->teacher;
+
+                                                    // Fallback to teacher through sectionSubject for current term
+                                                    // if (!$teacher && $studentSubject->sectionSubject) {
+                                                    //     $teacher = $studentSubject->sectionSubject->teacher;
+                                                    // }
+
+                                                    if ($teacher && $teacher->user) {
+                                                        $lastName = $teacher->user->last_name ?? '';
+                                                        $firstName = $teacher->user->first_name ?? '';
+                                                        $firstInitial = $firstName
+                                                            ? strtoupper(substr($firstName, 0, 1)) . '.'
+                                                            : '';
+                                                        $teacherName =
+                                                            $lastName . ($firstInitial ? ', ' . $firstInitial : '');
+                                                    } else {
+                                                        $teacherName = null;
+                                                    }
+                                                @endphp
+                                                @if ($teacherName)
+                                                    {{ $teacherName }}
                                                 @else
                                                     <span class="text-gray-400">Not assigned</span>
                                                 @endif
@@ -1371,20 +1419,93 @@
                                                     $evalColors = [
                                                         'passed' => 'bg-green-100 text-green-800',
                                                         'failed' => 'bg-red-100 text-red-800',
-                                                        null => 'bg-gray-100 text-gray-800'
+                                                        null => 'bg-gray-100 text-gray-800',
                                                     ];
                                                     $evalKey = $studentSubject->evaluation_status ?? null;
                                                     $evalColor = $evalColors[$evalKey] ?? 'bg-gray-100 text-gray-800';
                                                 @endphp
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $evalColor }}">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $evalColor }}">
                                                     {{ $studentSubject->evaluation_status ? ucfirst($studentSubject->evaluation_status) : 'Pending' }}
                                                 </span>
+                                            </td>
+
+                                            <!-- Remedial Status -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                @if ($studentSubject->evaluation_status === 'failed')
+                                                    @php
+                                                        $remedialColors = [
+                                                            'cleared' => 'bg-emerald-100 text-emerald-800',
+                                                            'failed' => 'bg-rose-100 text-rose-800',
+                                                            null => 'bg-yellow-100 text-yellow-800',
+                                                        ];
+                                                        $remedialKey = $studentSubject->remedial_status ?? null;
+                                                        $remedialColor =
+                                                            $remedialColors[$remedialKey] ??
+                                                            'bg-yellow-100 text-yellow-800';
+
+                                                        $isFinalized = $studentSubject->finalized_at !== null;
+                                                        $isExpired =
+                                                            $studentSubject->remedial_deadline &&
+                                                            now()->isAfter($studentSubject->remedial_deadline);
+                                                    @endphp
+                                                    <div class="flex flex-col items-center gap-1">
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $remedialColor }}">
+                                                            @if ($studentSubject->remedial_status)
+                                                                {{ ucfirst($studentSubject->remedial_status) }}
+                                                            @else
+                                                                Pending
+                                                            @endif
+                                                        </span>
+                                                        @if ($isFinalized)
+                                                            <span class="inline-flex items-center text-xs text-gray-500">
+                                                                <i class="fi fi-rr-lock mr-1"></i> Finalized
+                                                            </span>
+                                                        @elseif($isExpired)
+                                                            <span class="inline-flex items-center text-xs text-orange-600">
+                                                                <i class="fi fi-rr-clock mr-1"></i> Expired
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-gray-400 text-xs">N/A</span>
+                                                @endif
+                                            </td>
+
+                                            <!-- Remedial Deadline -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
+                                                @if ($studentSubject->remedial_deadline)
+                                                    @php
+                                                        $deadline = \Carbon\Carbon::parse(
+                                                            $studentSubject->remedial_deadline,
+                                                        );
+                                                        $isExpired = now()->isAfter($deadline);
+                                                    @endphp
+                                                    <div class="flex flex-col items-center">
+                                                        <span
+                                                            class="{{ $isExpired ? 'text-red-600 font-semibold' : 'text-gray-700' }}">
+                                                            {{ $deadline->format('M d, Y') }}
+                                                        </span>
+                                                        <span class="text-xs text-gray-500">
+                                                            {{ $deadline->format('h:i A') }}
+                                                        </span>
+                                                        @if ($isExpired && !$studentSubject->finalized_at)
+                                                            <span class="text-xs text-red-600 mt-1">
+                                                                ({{ $deadline->diffForHumans() }})
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-gray-400 text-xs">Not set</span>
+                                                @endif
                                             </td>
 
                                             <!-- Academic Term -->
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                 @if ($studentSubject->academicTerm)
-                                                    {{ $studentSubject->academicTerm->year ?? '' }} - {{ $studentSubject->academicTerm->semester ?? '' }}
+                                                    {{ $studentSubject->academicTerm->year ?? '' }} -
+                                                    {{ $studentSubject->academicTerm->semester ?? '' }}
                                                 @else
                                                     <span class="text-gray-400">N/A</span>
                                                 @endif
@@ -1398,9 +1519,12 @@
                                                         'taken' => 'bg-blue-100 text-blue-800',
                                                         'dropped' => 'bg-red-100 text-red-800',
                                                     ];
-                                                    $statusColor = $statusColors[strtolower($studentSubject->status ?? '')] ?? 'bg-gray-100 text-gray-800';
+                                                    $statusColor =
+                                                        $statusColors[strtolower($studentSubject->status ?? '')] ??
+                                                        'bg-gray-100 text-gray-800';
                                                 @endphp
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
                                                     {{ ucfirst($studentSubject->status ?? 'N/A') }}
                                                 </span>
                                             </td>
@@ -1410,11 +1534,14 @@
                                         <tr>
                                             <td colspan="6" class="px-6 py-12 text-center">
                                                 <div class="flex flex-col items-center">
-                                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                    <div
+                                                        class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                         <i class="fi fi-rr-book text-gray-400 text-2xl"></i>
                                                     </div>
-                                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No subjects enrolled</h3>
-                                                    <p class="text-sm text-gray-500">This student is not enrolled in any subjects yet.</p>
+                                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No subjects enrolled
+                                                    </h3>
+                                                    <p class="text-sm text-gray-500">This student is not enrolled in any
+                                                        subjects yet.</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -1515,7 +1642,6 @@
                                                             View
                                                         </a>
                                                     @else
-
                                                     @endif
                                                 </td>
                                             </tr>
@@ -1550,7 +1676,7 @@
                                 <h2 class="text-xl font-bold text-gray-900">Payment History</h2>
                                 <p class="text-sm text-gray-600 mt-1">Recent payment transactions and invoice records</p>
                             </div>
-                            <a href="{{ route('school-fees.payments') }}" 
+                            <a href="{{ route('school-fees.payments') }}"
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
                                 <i class="fi fi-rr-list mr-2"></i>
                                 View All Payments
@@ -1563,25 +1689,32 @@
                                 <table class="w-full">
                                     <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
                                                 #
                                             </th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Invoice Number
                                             </th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Academic Term
                                             </th>
-                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Payment Method
                                             </th>
-                                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Total Amount
                                             </th>
-                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
                                                 Status
                                             </th>
-                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
                                                 Action
                                             </th>
                                         </tr>
@@ -1613,21 +1746,26 @@
                                                             'installment' => 'bg-green-100 text-green-800',
                                                             'full' => 'bg-yellow-100 text-yellow-800',
                                                         ];
-                                                        $methodColor = $methodColors[$invoice->payment_mode] ?? 'bg-gray-100 text-gray-800';
+                                                        $methodColor =
+                                                            $methodColors[$invoice->payment_mode] ??
+                                                            'bg-gray-100 text-gray-800';
                                                     @endphp
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $methodColor }}">
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $methodColor }}">
                                                         {{ ucfirst($invoice->payment_mode) }}
                                                     </span>
                                                 </td>
 
                                                 <!-- Total Amount -->
-                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
+                                                <td
+                                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
                                                     ₱{{ number_format($invoice->total_amount, 2) }}
                                                 </td>
 
                                                 <!-- Status -->
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         Paid
                                                     </span>
                                                 </td>
@@ -1645,11 +1783,14 @@
                                             <tr>
                                                 <td colspan="7" class="px-6 py-12 text-center">
                                                     <div class="flex flex-col items-center">
-                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                        <div
+                                                            class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                             <i class="fi fi-rr-receipt text-gray-400 text-2xl"></i>
                                                         </div>
-                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No payment history</h3>
-                                                        <p class="text-sm text-gray-500">This student hasn't made any payments yet.</p>
+                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No payment history
+                                                        </h3>
+                                                        <p class="text-sm text-gray-500">This student hasn't made any payments
+                                                            yet.</p>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1661,7 +1802,7 @@
 
                         @if ($paymentHistory->count() >= 5)
                             <div class="mt-4 text-center">
-                                <a href="{{ route('school-fees.payments') }}" 
+                                <a href="{{ route('school-fees.payments') }}"
                                     class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
                                     View all payment history
                                     <i class="fi fi-rr-arrow-right ml-1"></i>
@@ -1677,7 +1818,8 @@
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h2 class="text-xl font-bold text-gray-900">Enrollment History</h2>
-                                <p class="text-sm text-gray-600 mt-1">Student's enrollment records across different academic terms</p>
+                                <p class="text-sm text-gray-600 mt-1">Student's enrollment records across different academic
+                                    terms</p>
                             </div>
                         </div>
 
@@ -1687,22 +1829,32 @@
                                 <table class="w-full">
                                     <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
                                                 #
                                             </th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Academic Term
                                             </th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Program
                                             </th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Grade Level
                                             </th>
-                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-24">
+                                                Retained
+                                            </th>
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
                                                 Status
                                             </th>
-                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th
+                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Enrolled Date
                                             </th>
                                         </tr>
@@ -1717,7 +1869,8 @@
 
                                                 <!-- Academic Term -->
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $enrollment->academicTerm->year ?? 'N/A' }} - {{ $enrollment->academicTerm->semester ?? '' }}
+                                                    {{ $enrollment->academicTerm->year ?? 'N/A' }} -
+                                                    {{ $enrollment->academicTerm->semester ?? '' }}
                                                 </td>
 
                                                 <!-- Program -->
@@ -1727,7 +1880,20 @@
 
                                                 <!-- Grade Level -->
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                    {{ $enrollment->student->grade_level ?? 'N/A' }}
+                                                    {{ $enrollment->grade_level ?? 'N/A' }}
+                                                </td>
+
+                                                <!-- Retained -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @if ($enrollment->is_retained)
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                            Yes
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                            No
+                                                        </span>
+                                                    @endif
                                                 </td>
 
                                                 <!-- Status -->
@@ -1739,9 +1905,12 @@
                                                             'pending' => 'bg-yellow-100 text-yellow-800',
                                                             'withdrawn' => 'bg-red-100 text-red-800',
                                                         ];
-                                                        $statusColor = $statusColors[strtolower($enrollment->status)] ?? 'bg-gray-100 text-gray-800';
+                                                        $statusColor =
+                                                            $statusColors[strtolower($enrollment->status)] ??
+                                                            'bg-gray-100 text-gray-800';
                                                     @endphp
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
                                                         {{ ucfirst($enrollment->status) }}
                                                     </span>
                                                 </td>
@@ -1753,13 +1922,16 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="px-6 py-12 text-center">
+                                                <td colspan="7" class="px-6 py-12 text-center">
                                                     <div class="flex flex-col items-center">
-                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                        <div
+                                                            class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                             <i class="fi fi-rr-calendar text-gray-400 text-2xl"></i>
                                                         </div>
-                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No enrollment history</h3>
-                                                        <p class="text-sm text-gray-500">This student doesn't have any enrollment records yet.</p>
+                                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No enrollment
+                                                            history</h3>
+                                                        <p class="text-sm text-gray-500">This student doesn't have any
+                                                            enrollment records yet.</p>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -2034,7 +2206,7 @@
                 subjectFilter.addEventListener('change', function() {
                     const filterValue = this.value;
                     const subjectRows = document.querySelectorAll('.subject-row');
-                    
+
                     subjectRows.forEach(row => {
                         if (filterValue === 'all') {
                             row.style.display = '';

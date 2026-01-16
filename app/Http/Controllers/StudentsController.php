@@ -115,6 +115,8 @@ class StudentsController extends Controller
                                 \App\Models\StudentSubject::create([
                                     'student_id' => $studentId,
                                     'section_subject_id' => $sectionSubject->id,
+                                    'teacher_id' => $sectionSubject->teacher_id,
+                                    'subject_id' => $sectionSubject->subject_id,
                                     'academic_terms_id' => $activeTerm->id,
                                     'status' => 'enrolled'
                                 ]);
@@ -174,16 +176,29 @@ class StudentsController extends Controller
                 // Get the active academic term
                 $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
 
-                if ($activeTerm) {
-                    \App\Models\StudentEnrollment::where('student_id', $studentId)
-                        ->where('academic_term_id', $activeTerm->id)
-                        ->update(['section_id' => null]);
+                if (!$activeTerm) {
+                    return;
+                }
 
-                    // Remove student from all subjects in this section
-                    $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
+                \App\Models\StudentEnrollment::where('student_id', $studentId)
+                    ->where('academic_term_id', $activeTerm->id)
+                    ->update(['section_id' => null]);
 
-                    foreach ($sectionSubjects as $sectionSubject) {
-                        \App\Models\StudentSubject::where('student_id', $studentId)
+                // Remove student from all subjects in this section
+                $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
+
+                foreach ($sectionSubjects as $sectionSubject) {
+                    $hasPassed = \App\Models\StudentSubject::where('student_id', $studentId)
+                        ->where('section_subject_id', $sectionSubject->id)
+                        ->where('evaluation_status', 'passed')
+                        ->exists();
+
+                    if ($hasPassed) {
+                        throw new \Exception(
+                            'The student has already been evaluated.'
+                        );
+                    } else {
+                        StudentSubject::where('student_id', $studentId)
                             ->where('section_subject_id', $sectionSubject->id)
                             ->delete();
                     }
@@ -958,20 +973,20 @@ class StudentsController extends Controller
     {
         $school = \App\Models\SchoolSetting::query()->first();
         $studentRecord = $student->record;
-        
+
         // Get current academic term info
         $currentEnrollment = $student->getCurrentAcademicTerm();
         $acadTerm = $currentEnrollment ? $currentEnrollment->academicTerm : null;
-        
+
         // Get 2x2 picture submission
         $profilePicture = \App\Models\DocumentSubmissions::where('owner_id', $student->id)
             ->where('owner_type', Student::class)
-            ->whereHas('documents', function($query) {
+            ->whereHas('documents', function ($query) {
                 $query->where('type', '2x2 Picture');
             })
             ->latest('submitted_at')
             ->first();
-        
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.sis', [
             'student' => $student,
             'studentRecord' => $studentRecord,

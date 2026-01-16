@@ -287,6 +287,9 @@ class TeacherAppController extends Controller
                 'enrollment' => [
                     'evaluation_status' => $studentSubject->evaluation_status ?? 'pending',
                     'subject_name' => $sectionSubject->subject->name ?? 'Unknown',
+                    'remedial_status' => $studentSubject->remedial_status,
+                    'remedial_deadline' => $studentSubject->remedial_deadline,
+                    'is_remedial_status_finalized' => (bool) $studentSubject->is_remedial_status_finalized,
                 ],
                 'guardian_info' => [
                     'father_name' => $record->father_name ?? null,
@@ -313,18 +316,6 @@ class TeacherAppController extends Controller
         $user = Auth::user();
         $teacher = $user->teacher;
 
-        // Verify this section subject belongs to this teacher
-        $sectionSubject = SectionSubject::where('id', $sectionSubjectId)
-            ->where('teacher_id', $teacher->id)
-            ->first();
-
-        if (!$sectionSubject) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Class not found or you are not authorized to evaluate students.',
-            ], 404);
-        }
-
         // Get the student subject record
         $studentSubject = StudentSubject::where('student_id', $studentId)
             ->where('section_subject_id', $sectionSubjectId)
@@ -337,8 +328,31 @@ class TeacherAppController extends Controller
             ], 404);
         }
 
+        // Verify this student subject is assigned to this teacher
+        // Try from student_subjects first (direct assignment), then fall back to section_subject
+        $isAuthorized = false;
+        
+        if ($studentSubject->teacher_id === $teacher->id) {
+            $isAuthorized = true;
+        } elseif ($studentSubject->sectionSubject && $studentSubject->sectionSubject->teacher_id === $teacher->id) {
+            $isAuthorized = true;
+        }
+
+        if (!$isAuthorized) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to evaluate this student.',
+            ], 403);
+        }
+
         // Update the evaluation status
         $studentSubject->evaluation_status = $request->status;
+
+        // If marked failed and deadline not yet set, seed 30-day remedial deadline
+        if ($request->status === 'failed' && !$studentSubject->remedial_deadline) {
+            $studentSubject->remedial_deadline = Carbon::now()->addDays(30);
+        }
+
         $studentSubject->save();
 
         // Get student info for response
@@ -370,18 +384,6 @@ class TeacherAppController extends Controller
         $user = Auth::user();
         $teacher = $user->teacher;
 
-        // Verify this section subject belongs to this teacher
-        $sectionSubject = SectionSubject::where('id', $sectionSubjectId)
-            ->where('teacher_id', $teacher->id)
-            ->first();
-
-        if (!$sectionSubject) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Class not found or you are not authorized to evaluate students.',
-            ], 404);
-        }
-
         $updated = 0;
         $errors = [];
 
@@ -390,13 +392,28 @@ class TeacherAppController extends Controller
                 ->where('section_subject_id', $sectionSubjectId)
                 ->first();
 
-            if ($studentSubject) {
-                $studentSubject->evaluation_status = $evaluation['status'];
-                $studentSubject->save();
-                $updated++;
-            } else {
+            if (!$studentSubject) {
                 $errors[] = "Student ID {$evaluation['student_id']} not found in this class.";
+                continue;
             }
+
+            // Verify this student subject is assigned to this teacher
+            $isAuthorized = false;
+            
+            if ($studentSubject->teacher_id === $teacher->id) {
+                $isAuthorized = true;
+            } elseif ($studentSubject->sectionSubject && $studentSubject->sectionSubject->teacher_id === $teacher->id) {
+                $isAuthorized = true;
+            }
+
+            if (!$isAuthorized) {
+                $errors[] = "You are not authorized to evaluate Student ID {$evaluation['student_id']}.";
+                continue;
+            }
+
+            $studentSubject->evaluation_status = $evaluation['status'];
+            $studentSubject->save();
+            $updated++;
         }
 
         return response()->json([
@@ -406,6 +423,159 @@ class TeacherAppController extends Controller
                 'updated_count' => $updated,
                 'errors' => $errors,
             ],
+        ]);
+    }
+
+    /**
+     * Teaching history grouped by subject/section/term
+     */
+    public function teachingHistory(): JsonResponse
+    {
+        $teacher = Auth::user()->teacher;
+
+        $studentSubjects = StudentSubject::with(['student.user', 'subject', 'sectionSubject.section', 'academicTerm'])
+            ->where(function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id)
+                    ->orWhereHas('sectionSubject', function ($sub) use ($teacher) {
+                        $sub->where('teacher_id', $teacher->id);
+                    });
+            })
+            ->get();
+
+        $grouped = $studentSubjects->groupBy(function ($item) {
+            $subjectId = $item->subject_id ?? 'none';
+            $sectionName = $item->sectionSubject->section->name ?? 'No Section';
+            $termName = $item->academicTerm->full_name ?? 'No Term';
+            return $subjectId . '|' . $sectionName . '|' . $termName;
+        })->map(function ($items) {
+            $first = $items->first();
+            return [
+                'subject_id' => $first->subject_id,
+                'subject_name' => $first->subject->name ?? 'Unknown Subject',
+                'section_name' => $first->sectionSubject->section->name ?? null,
+                'academic_term' => $first->academicTerm->full_name ?? null,
+                'students' => $items->map(function ($studentSubject) {
+                    $student = $studentSubject->student;
+                    return [
+                        'student_subject_id' => $studentSubject->id,
+                        'student_id' => $student->id,
+                        'name' => $student->full_name,
+                        'lrn' => $student->lrn,
+                        'evaluation_status' => $studentSubject->evaluation_status,
+                        'remedial_status' => $studentSubject->remedial_status,
+                        'remedial_deadline' => $studentSubject->remedial_deadline,
+                        'is_remedial_status_finalized' => (bool) $studentSubject->is_remedial_status_finalized,
+                        'subject_name' => $studentSubject->subject->name ?? 'Unknown Subject',
+                        'section_name' => $studentSubject->sectionSubject->section->name ?? null,
+                        'academic_term' => $studentSubject->academicTerm->full_name ?? null,
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $grouped,
+        ]);
+    }
+
+    /**
+     * Single student_subject history
+     */
+    public function getStudentSubjectHistory(int $studentSubjectId): JsonResponse
+    {
+        $teacher = Auth::user()->teacher;
+
+        $studentSubject = StudentSubject::with(['student.user', 'subject', 'sectionSubject.section', 'academicTerm'])
+            ->find($studentSubjectId);
+
+        if (!$studentSubject) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Record not found.',
+            ], 404);
+        }
+
+        $isAuthorized = ($studentSubject->teacher_id === $teacher->id)
+            || ($studentSubject->sectionSubject && $studentSubject->sectionSubject->teacher_id === $teacher->id);
+
+        if (!$isAuthorized) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to view this record.',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->mapStudentSubject($studentSubject),
+        ]);
+    }
+
+    /**
+     * Update remedial status for a student_subject
+     */
+    public function updateStudentSubjectRemedial(Request $request, int $studentSubjectId): JsonResponse
+    {
+        $request->validate([
+            'status' => 'required|in:failed,cleared',
+        ]);
+
+        $teacher = Auth::user()->teacher;
+
+        $studentSubject = StudentSubject::with(['student.user', 'subject', 'sectionSubject', 'academicTerm'])
+            ->find($studentSubjectId);
+
+        if (!$studentSubject) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Record not found.',
+            ], 404);
+        }
+
+        $isAuthorized = ($studentSubject->teacher_id === $teacher->id)
+            || ($studentSubject->sectionSubject && $studentSubject->sectionSubject->teacher_id === $teacher->id);
+
+        if (!$isAuthorized) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to update this record.',
+            ], 403);
+        }
+
+        // Ensure only failed evaluation can be updated for remedial
+        if ($studentSubject->evaluation_status !== 'failed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Remedial status can only be updated when evaluation status is failed.',
+            ], 422);
+        }
+
+        // Lock if already finalized
+        if ($studentSubject->is_remedial_status_finalized) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Remedial status is already finalized.',
+            ], 422);
+        }
+
+        $status = $request->status; // failed or cleared
+
+        $studentSubject->remedial_status = $status;
+
+        if ($status === 'failed' && !$studentSubject->remedial_deadline) {
+            $studentSubject->remedial_deadline = Carbon::now()->addDays(30);
+        }
+
+        // Finalize on either action per requirement
+        $studentSubject->is_remedial_status_finalized = true;
+        $studentSubject->finalized_at = Carbon::now();
+
+        $studentSubject->save();
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->mapStudentSubject($studentSubject),
         ]);
     }
 
@@ -509,5 +679,28 @@ class TeacherAppController extends Controller
         $endFormatted = Carbon::parse($end)->format('g:i A');
 
         return "{$startFormatted} - {$endFormatted}";
+    }
+
+    /**
+     * Map student_subject to API payload
+     */
+    private function mapStudentSubject(StudentSubject $studentSubject): array
+    {
+        $student = $studentSubject->student;
+
+        return [
+            'student_subject_id' => $studentSubject->id,
+            'student_id' => $student->id,
+            'student_name' => $student->full_name,
+            'lrn' => $student->lrn,
+            'subject_name' => $studentSubject->subject->name ?? 'Unknown Subject',
+            'section_name' => $studentSubject->sectionSubject->section->name ?? null,
+            'academic_term' => $studentSubject->academicTerm->full_name ?? null,
+            'evaluation_status' => $studentSubject->evaluation_status,
+            'remedial_status' => $studentSubject->remedial_status,
+            'remedial_deadline' => $studentSubject->remedial_deadline,
+            'is_remedial_status_finalized' => (bool) $studentSubject->is_remedial_status_finalized,
+            'finalized_at' => $studentSubject->finalized_at,
+        ];
     }
 }

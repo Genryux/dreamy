@@ -90,6 +90,15 @@
                                     </span>
 
                                 </x-nav-link>
+
+                                <x-nav-link href="/teacher/history" :active="request()->is('teacher/history')">
+
+                                    <span class="flex flex-row items-center space-x-4">
+                                        <i class="fi fi-rs-time-past text-[20px] flex-shrink-0"></i>
+                                        <p class="font-semibold text-[16px] nav-text truncate">Teaching History</p>
+                                    </span>
+
+                                </x-nav-link>
                             @endcan
 
                             <span class='flex items-center mt-4'>

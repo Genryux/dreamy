@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Program;
 use App\Models\Section;
 use App\Models\Student;
+use App\Models\StudentSubject;
 use App\Models\Subject;
 use App\Services\ScheduleConflictService;
 use Carbon\Carbon;
@@ -450,8 +451,12 @@ class SectionController extends Controller
 
         // Get subjects that are not already assigned to this section
         $assignedSubjectIds = $section->sectionSubjects()->pluck('subject_id');
+        $programId = $section->program_id;
 
-        $subjects = Subject::where('program_id', $section->program_id)
+        $subjects = Subject::where(function ($q) use ($programId) {
+            $q->where('program_id', $programId)
+                ->orWhereNull('program_id');
+        })
             ->where('grade_level', $section->year_level)
             ->where('semester', $activeTerm->semester) // Filter by current semester
             ->whereNotIn('id', $assignedSubjectIds)
@@ -553,24 +558,37 @@ class SectionController extends Controller
             ], 422);
         }
 
+        $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+
+        if (!$activeTerm) {
+            return;
+        }
+
         try {
+
             $sectionSubject = $section->sectionSubjects()->create($validated);
 
-            // Enroll all current students in this section to the new subject
-            $students = $section->students;
-            $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+            //students belong in this section
+            $students = Student::where('section_id', $section->id)->get();
+
+            //loop through students
             foreach ($students as $student) {
-                $alreadyEnrolled = \App\Models\StudentSubject::where('student_id', $student->id)
-                    ->where('section_subject_id', $sectionSubject->id)
-                    ->first();
-                if (!$alreadyEnrolled) {
-                    \App\Models\StudentSubject::create([
+
+                //check if the subject already exists
+                $existingSubjects = StudentSubject::where('student_id', $student->id)->where('section_subject_id', $sectionSubject->id)->first();
+
+                //create student subject
+                if (!$existingSubjects) {
+                    StudentSubject::create([
                         'student_id' => $student->id,
                         'section_subject_id' => $sectionSubject->id,
-                        'academic_terms_id' => $activeTerm ? $activeTerm->id : null,
-                        'status' => 'enrolled',
+                        'teacher_id' => $sectionSubject->teacher_id,
+                        'subject_id' => $sectionSubject->subject_id,
+                        'academic_terms_id' => $activeTerm->id,
+                        'status' => 'enrolled'
                     ]);
                 }
+
             }
 
             // Log the activity
@@ -655,6 +673,32 @@ class SectionController extends Controller
             $originalValues = $sectionSubject->toArray();
 
             $sectionSubject->update($validated);
+
+            // If teacher_id or subject_id changed, update all related student_subjects records
+            // This ensures student records maintain accurate teacher/subject info even after section_subjects is deleted
+            if (isset($validated['teacher_id']) && $validated['teacher_id'] != $originalValues['teacher_id']) {
+                \DB::table('student_subjects')
+                    ->where('section_subject_id', $sectionSubject->id)
+                    ->update([
+                        'teacher_id' => $validated['teacher_id']
+                    ]);
+                \Log::info('Updated teacher_id in student_subjects', [
+                    'section_subject_id' => $sectionSubject->id,
+                    'new_teacher_id' => $validated['teacher_id']
+                ]);
+            }
+
+            if (isset($validated['subject_id']) && $validated['subject_id'] != $originalValues['subject_id']) {
+                \DB::table('student_subjects')
+                    ->where('section_subject_id', $sectionSubject->id)
+                    ->update([
+                        'subject_id' => $validated['subject_id']
+                    ]);
+                \Log::info('Updated subject_id in student_subjects', [
+                    'section_subject_id' => $sectionSubject->id,
+                    'new_subject_id' => $validated['subject_id']
+                ]);
+            }
 
             // Calculate changes (only track scalar values to avoid array conversion error)
             $changes = [];

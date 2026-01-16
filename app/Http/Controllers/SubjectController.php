@@ -51,7 +51,10 @@ class SubjectController extends Controller
 
         //return response()->json(['ewan' => $request->all()]);
 
-        $query = Subject::query()->where('program_id', $program->id);
+        $query = Subject::query()->where(function ($q) use ($program) {
+            $q->where('program_id', $program->id)
+            ->orWhereNull('program_id');
+        });
 
         // search filter
         if ($search = $request->input('search.value')) {

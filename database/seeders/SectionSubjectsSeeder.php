@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Section;
 use App\Models\Subject;
 use App\Models\SectionSubject;
+use App\Models\Teacher;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -18,10 +19,14 @@ class SectionSubjectsSeeder extends Seeder
         // Get existing sections and subjects
         $sections = Section::all();
         $subjects = Subject::all();
+        $teachers = Teacher::all();
 
         if ($sections->isEmpty() || $subjects->isEmpty()) {
             return;
         }
+
+        // Get a random teacher or first available
+        $defaultTeacher = $teachers->first();
 
         // Sample scheduling data
         $scheduleData = [
@@ -40,20 +45,26 @@ class SectionSubjectsSeeder extends Seeder
             ['section_name' => '11-STEM-A', 'subject_name' => 'Earth and Life Science', 'room' => 'Science Lab 2', 'days' => ['Friday'], 'start_time' => '10:00', 'end_time' => '12:00'],
         ];
 
+        $teacherIndex = 0;
         foreach ($scheduleData as $schedule) {
             $section = $sections->where('name', $schedule['section_name'])->first();
             $subject = $subjects->where('name', $schedule['subject_name'])->first();
 
             if ($section && $subject) {
+                // Assign teachers in a round-robin fashion
+                $teacher = $teachers->count() > 0 ? $teachers->get($teacherIndex % $teachers->count()) : null;
+                
                 SectionSubject::create([
                     'section_id' => $section->id,
                     'subject_id' => $subject->id,
-                    'teacher_id' => null, // Will be assigned later
+                    'teacher_id' => $teacher?->id,
                     'room' => $schedule['room'],
                     'days_of_week' => $schedule['days'],
                     'start_time' => $schedule['start_time'],
                     'end_time' => $schedule['end_time'],
                 ]);
+                
+                $teacherIndex++;
             }
         }
     }

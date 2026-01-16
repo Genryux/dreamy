@@ -15,6 +15,8 @@ class StudentEnrollment extends Model
         'enrollment_period_id',
         'program_id',
         'section_id',
+        'grade_level',
+        'is_retained',
         'status',
         'enrolled_at',
         'confirmed_at',
@@ -25,6 +27,7 @@ class StudentEnrollment extends Model
         'enrolled_at' => 'datetime',
         'confirmed_at' => 'datetime',
         'meta' => 'array',
+        'is_retained' => 'boolean',
     ];
 
     public function student()

@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Mail;
 class StudentRecordController extends Controller
 {
     public function __construct(
-        protected AcademicTermService $academic_term_service,
+        protected AcademicTermService $academicTermService,
         protected StudentService $student_service,
         protected InvoiceService $invoiceService
     ) {}
@@ -500,17 +500,25 @@ class StudentRecordController extends Controller
             ->first();
 
         // Get student subjects (enrolled subjects with all necessary info)
+        // Prefer direct relationships on student_subjects (`teacher`, `subject`) and
+        // still load `sectionSubject.subject` for current-term context but avoid
+        // eager-loading sectionSubject->teacher to prevent falling back to that
+        // when historical data should come from the pivot row.
         $studentSubjects = $student->studentSubjects()
             ->with([
                 'sectionSubject.subject',
-                'sectionSubject.teacher.user',
+                'teacher.user',
+                'subject',
                 'academicTerm'
             ])
             ->orderBy('created_at', 'desc')
             ->get();
 
+            $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+
+
         // dd($record, $studentRecordId)
-        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm', 'paymentHistory', 'enrollmentHistory', 'profilePicture', 'studentSubjects'));
+        return view('user-admin.enrolled-students.show', compact('student', 'assignedDocuments', 'programs', 'sections', 'acadTerm', 'paymentHistory', 'enrollmentHistory', 'profilePicture', 'studentSubjects', 'activeTerm'));
     }
 
     /**
@@ -664,19 +672,13 @@ class StudentRecordController extends Controller
         try {
             $validated = $request->validate([
                 'lrn' => 'required|string|max:255',
-                'grade_level' => 'required|string|in:Grade 11,Grade 12',
-                'program_id' => 'required|exists:programs,id',
                 'section' => 'nullable|string|max:255',
-                'acad_term_applied' => 'nullable|string|max:255',
-                'semester_applied' => 'nullable|string|in:1st Semester,2nd Semester',
             ]);
 
             DB::transaction(function () use ($validated, $student) {
                 // Update student information
                 $student->update([
                     'lrn' => $validated['lrn'],
-                    'grade_level' => $validated['grade_level'],
-                    'program_id' => $validated['program_id'],
                     'section_id' => $validated['section'],
                 ]);
 
@@ -684,11 +686,6 @@ class StudentRecordController extends Controller
                     'section_id' => $validated['section']
                 ]);
 
-                // Update student record information
-                $student->record->update([
-                    'acad_term_applied' => $validated['acad_term_applied'],
-                    'semester_applied' => $validated['semester_applied'],
-                ]);
             });
 
             // Log the activity
@@ -700,8 +697,6 @@ class StudentRecordController extends Controller
                     'student_id' => $student->id,
                     'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
                     'updated_fields' => array_keys($validated),
-                    'new_grade_level' => $validated['grade_level'],
-                    'new_program_id' => $validated['program_id'],
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent()
                 ])
@@ -726,7 +721,7 @@ class StudentRecordController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while updating academic information'
+                'message' => 'An error occurred while updating acsdasademic information'. $e->getMessage()
             ], 500);
         }
     }

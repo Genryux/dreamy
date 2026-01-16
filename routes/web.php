@@ -424,6 +424,14 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
 
 Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function () {
     Route::get('/teacher/dashboard', [TeacherManagementController::class, 'dashboard'])->name('teacher.dashboard');
+    Route::get('/teacher/subjects', [TeacherManagementController::class, 'getTeacherSubjects']);
+    Route::get('/teacher/subject/{id}', [TeacherManagementController::class, 'showSubject'])->name('teacher.subject.show');
+    Route::get('/teacher/subject/{id}/students', [TeacherManagementController::class, 'getSubjectStudents']);
+    Route::post('/teacher/subject/{id}/student/{studentId}/evaluation', [TeacherManagementController::class, 'updateSubjectStudentEvaluation']);
+    Route::get('/teacher/history', [TeacherManagementController::class, 'teachingHistory'])->name('teacher.history');
+    Route::get('/teacher/history/data', [TeacherManagementController::class, 'getTeachingHistoryData']);
+    Route::get('/teacher/student-subject/{id}', [TeacherManagementController::class, 'getStudentSubjectHistory']);
+    Route::post('/teacher/student-subject/{id}/remedial', [TeacherManagementController::class, 'updateStudentSubjectRemedial']);
     Route::get('/teacher/sections', [TeacherManagementController::class, 'getTeacherSections'])->name('teacher.sections');
     Route::get('/teacher/section/{section}', [TeacherManagementController::class, 'showSection'])->name('teacher.section.show');
 });

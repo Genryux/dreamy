@@ -142,7 +142,7 @@
     </x-modal>
 
     <!-- Add Subject Modal -->
-    <x-modal modal_id="add-subject-modal" modal_name="Add Subject" close_btn_id="add-subject-modal-close-btn"
+    <x-modal modal_id="add-subject-modal" modal_name="Add Subject (Current semester)" close_btn_id="add-subject-modal-close-btn"
         modal_container_id="modal-container-4">
         <x-slot name="modal_icon">
             <i class='fi fi-rr-book flex justify-center items-center'></i>

@@ -22,7 +22,7 @@ class StudentService
         // Get the intended academic term from the applicant's enrollment period
         // This ensures students are enrolled in the term they applied for (current or future)
         $enrollmentPeriod = $applicant->enrollmentPeriod;
-        
+
         if (!$enrollmentPeriod) {
             throw new \InvalidArgumentException('No enrollment period found for applicant.');
         }
@@ -132,6 +132,7 @@ class StudentService
                     'status' => 'enrolled',
                     'program_id' => $applicant->program_id,
                     'section_id' => $student->section_id,
+                    'grade_level' => $student->grade_level,
                     'enrolled_at' => Carbon::now()
                 ]
             );
@@ -149,18 +150,18 @@ class StudentService
 
         // Filter students who were enrolled in the PREVIOUS term (the one being ended)
         // These are the students who need to be promoted to the new term
-        $studentQuery = Student::with(['enrollments' => function($q) use ($previousTerm) {
+        $studentQuery = Student::with(['enrollments' => function ($q) use ($previousTerm) {
             $q->where('academic_term_id', $previousTerm->id);
         }])
-        ->whereHas('enrollments', function ($q) use ($previousTerm) {
-            $q->where('academic_term_id', $previousTerm->id);
-        });
+            ->whereHas('enrollments', function ($q) use ($previousTerm) {
+                $q->where('academic_term_id', $previousTerm->id);
+            });
 
         $studentQuery->chunk(500, function ($students) use (&$continuingStudents, $newTerm, $continuingEnrollmentPeriod) {
 
             foreach ($students as $student) {
 
-                if ($student->status === 'Graduated') {
+                if ($student->status === 'Graduated' || $student->status === 'Dropped' || $student->status === 'Transferred') {
                     continue;
                 } else if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Passed') {
                     $student->update([
@@ -175,14 +176,14 @@ class StudentService
                         'academic_status' => null
                     ]);
 
-                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod);
+                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod, true);
                     $continuingStudents->push($student);
                 } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Failed') {
                     $student->update([
                         'academic_status' => null
                     ]);
 
-                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod);
+                    $this->updateOrCreateEnrollment($student, $newTerm, $continuingEnrollmentPeriod, true);
                     $continuingStudents->push($student);
                 } else if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Completed') {
                     $student->update([
@@ -259,20 +260,24 @@ class StudentService
         ]);
     }
 
-    private function updateOrCreateEnrollment($student, $academicTerm, $enrollmentPeriod = null)
+    private function updateOrCreateEnrollment($student, $academicTerm, $enrollmentPeriod = null, $isRetained = false)
     {
-        $latestEnrollment = $student->enrollments()->latest()->first();
-
         $enrollmentData = [
             'academic_term_id' => $academicTerm->id,
             'enrollment_period_id' => $enrollmentPeriod?->id,
+            'program_id' => $student->program->id,
+            'grade_level' => $student->grade_level,
+            'is_retained' => $isRetained,
             'status' => 'pending_confirmation',
             'enrolled_at' => null,
         ];
 
-        if ($latestEnrollment) {
-            $latestEnrollment->update($enrollmentData);
-        } else {
+        // Only create if not already present for this term
+        $existingEnrollment = $student->enrollments()
+            ->where('academic_term_id', $academicTerm->id)
+            ->first();
+
+        if (!$existingEnrollment) {
             $student->enrollments()->create($enrollmentData);
         }
 
@@ -301,15 +306,18 @@ class StudentService
     {
         return [
             'to_promote' => Student::where('grade_level', 'Grade 11')
+                ->where('status', 'Officially Enrolled')
                 ->where(function ($query) {
                     $query->whereIn('academic_status', ['Passed'])
                         ->orWhereNull('academic_status');
                 })->count(),
 
             'to_retain' => Student::whereIn('grade_level', ['Grade 11', 'Grade 12'])
+                ->where('status', 'Officially Enrolled')
                 ->where('academic_status', 'Failed')->count(),
 
             'to_graduate' => Student::where('grade_level', 'Grade 12')
+                ->where('status', 'Officially Enrolled')
                 ->where(function ($query) {
                     $query->whereIn('academic_status', ['Completed'])
                         ->orWhereNull('academic_status');
@@ -318,5 +326,71 @@ class StudentService
             'not_evaluated' => Student::whereIn('grade_level', ['Grade 11', 'Grade 12'])
                 ->whereNull('academic_status')->count(),
         ];
+    }
+
+    /**
+     * Create enrollment records for same-year transitions (1st → 2nd semester)
+     * This does NOT promote students, just creates enrollment records for the new term
+     * 
+     * @param AcademicTerms $previousTerm
+     * @param AcademicTerms $newTerm
+     * @return \Illuminate\Support\Collection
+     */
+    public function createSameYearEnrollments($previousTerm, $newTerm)
+    {
+        $enrolledStudents = collect();
+
+        // Get all students who were enrolled in the previous term
+        $studentQuery = Student::with(['enrollments' => function ($q) use ($previousTerm) {
+            $q->where('academic_term_id', $previousTerm->id);
+        }])
+            ->whereHas('enrollments', function ($q) use ($previousTerm) {
+                $q->where('academic_term_id', $previousTerm->id);
+            })
+            ->where('status', '!=', 'Graduated'); // Exclude graduated students
+
+        $studentQuery->chunk(500, function ($students) use (&$enrolledStudents, $newTerm) {
+            foreach ($students as $student) {
+                // Always create a new enrollment record for the new term
+                // Same-year transitions (1st → 2nd semester) don't involve retention
+                $enrollmentData = [
+                    'academic_term_id' => $newTerm->id,
+                    'program_id' => $student->program_id,
+                    'section_id' => $student->section_id,
+                    'status' => 'enrolled', // Auto-confirm for same-year transitions
+                    'grade_level' => $student->grade_level,
+                    'is_retained' => false, // Same-year transitions don't involve retention
+                    'enrolled_at' => now(),
+                    'confirmed_at' => now(),
+                ];
+
+                // Only create if not already present for this term
+                $existingEnrollment = $student->enrollments()
+                    ->where('academic_term_id', $newTerm->id)
+                    ->first();
+
+                if (!$existingEnrollment) {
+                    $student->enrollments()->create($enrollmentData);
+                    $enrolledStudents->push($student);
+
+                    \Log::info('Created same-year enrollment:', [
+                        'student_id' => $student->id,
+                        'student_name' => $student->getFullNameAttribute(),
+                        'term_id' => $newTerm->id,
+                    ]);
+                } else {
+                    \Log::info('Enrollment already exists for student:', [
+                        'student_id' => $student->id,
+                        'term_id' => $newTerm->id,
+                    ]);
+                }
+            }
+        });
+
+        \Log::info('Same-year enrollment creation completed:', [
+            'total_students' => $enrolledStudents->count(),
+        ]);
+
+        return $enrolledStudents;
     }
 }

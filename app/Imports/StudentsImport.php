@@ -222,6 +222,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
                         'status' => 'enrolled',
                         'program_id' => $program->id ?? null, // Can be set later
                         'section_id' => null, // Can be set later
+                        'grade_level' => $students->grade_level,
                         'enrolled_at' => Carbon::now()
                     ]
                 );
