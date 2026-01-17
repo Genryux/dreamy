@@ -1065,9 +1065,8 @@
                             modalContainer.classList.add('hidden');
                         }
 
-                        // Reload page to show updated data
                         setTimeout(() => {
-                            window.location.reload();
+                            window.location.href = 'applications/pending-documents';
                         }, 1500);
 
                     } else {
