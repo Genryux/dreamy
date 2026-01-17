@@ -1620,7 +1620,17 @@
                                     '';
                                 document.getElementById('edit_last_name').value = user.last_name || '';
                                 document.getElementById('edit_email').value = user.email || '';
-                                document.getElementById('edit_role').value = user.role || '';
+                                const editRoleSelect = document.getElementById('edit_role');
+                                editRoleSelect.value = user.role || '';
+
+                                // Disable role change for protected roles
+                                if (user.role === 'student' || user.role === 'super_admin') {
+                                    editRoleSelect.disabled = true;
+                                    editRoleSelect.title = 'Role cannot be changed for this user';
+                                } else {
+                                    editRoleSelect.disabled = false;
+                                    editRoleSelect.title = '';
+                                }
 
 
                                 // Handle program field visibility and value
