@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subject;
 use App\Models\Track;
 use App\Services\AcademicTermService;
 use Illuminate\Http\Request;
@@ -32,11 +33,7 @@ class TrackController extends Controller
             });
         });
 
-        $totalSubjects = $tracks->sum(function ($track) {
-            return $track->programs->sum(function ($program) {
-                return $program->subjects()->count();
-            });
-        });
+        $totalSubjects = Subject::all()->count();
 
         $totalTeachers = $tracks->sum(function ($track) {
             return $track->programs->sum(function ($program) {

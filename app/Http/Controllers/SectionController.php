@@ -70,13 +70,21 @@ class SectionController extends Controller
         $data = $query
             ->offset($start)
             ->limit($request->length)
-            ->get(['id', 'name', 'year_level', 'room', 'total_enrolled_students'])
+            ->with('teacher.user')
+            ->get(['id', 'name', 'year_level', 'room', 'total_enrolled_students', 'teacher_id'])
             ->map(function ($item, $key) use ($start) {
-                // dd($item);
+                $adviser = 'Not Assigned';
+                if ($item->teacher) {
+                    if ($item->teacher->user) {
+                        $adviser = $item->teacher->user->last_name . ', ' . $item->teacher->user->first_name;
+                    } else {
+                        $adviser = trim(($item->teacher->first_name ?? '') . ' ' . ($item->teacher->last_name ?? ''));
+                    }
+                }
                 return [
                     'index' => $start + $key + 1,
                     'name' => $item->name,
-                    'adviser' => 'Not Assigned',
+                    'adviser' => $adviser,
                     'year_level' => $item->year_level,
                     'room' => $item->room ?? 'Not Assigned',
                     'total_enrolled_students' => $item->countStudents() ?? '-',

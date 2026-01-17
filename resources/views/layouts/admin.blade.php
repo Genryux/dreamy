@@ -37,7 +37,7 @@
                                     <span class="flex flex-row justify-between items-center space-x-4 w-full">
                                         <div class="flex flex-row justify-between items-center space-x-4">
                                             <i class="fi fi-rr-chart-simple text-[20px] flex-shrink-0"></i>
-                                        <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
+                                            <p class="font-semibold text-[16px] nav-text truncate">Dashboard</p>
                                         </div>
 
                                         @php
@@ -68,8 +68,9 @@
                                 </x-nav-link>
                             @endcan
 
-                            {{-- For head teacher --}}
-                            @can('view head teacher dashboard page')
+
+                            @hasrole('head_teacher')
+                                {{-- For head teacher --}}
                                 <x-nav-link href="/head-teacher/dashboard" :active="request()->is('head-teacher/dashboard')">
 
                                     <span class="flex flex-row items-center space-x-4">
@@ -78,10 +79,9 @@
                                     </span>
 
                                 </x-nav-link>
-                            @endcan
+                            @endhasrole
 
-                            {{-- For teachers --}}
-                            @can('view teachers dashboard page')
+                            @hasrole('teacher')
                                 <x-nav-link href="/teacher/dashboard" :active="request()->is('teacher/dashboard')">
 
                                     <span class="flex flex-row items-center space-x-4">
@@ -99,15 +99,8 @@
                                     </span>
 
                                 </x-nav-link>
-                            @endcan
-
-                            <span class='flex items-center mt-4'>
-                                <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
-                            </span>
-                        </div>
-
-                        <div class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full ">
-
+                            @endhasrole
+                            
                             @can('view enrolled students page')
                                 <x-nav-link href="/enrolled-students" :active="request()->is('enrolled-students')">
 
@@ -120,6 +113,15 @@
 
                                 </x-nav-link>
                             @endcan
+
+                            <span class='flex items-center mt-4'>
+                                <span class="h-[0.9px] flex-1 bg-[#f8f8f8]/20"></span>
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col space-y-2 flex-1 mt-2 h-full w-full ">
+
+
 
                             @can('view documents page')
                                 <x-nav-link href="/documents" :active="request()->is('documents')">
@@ -317,7 +319,8 @@
                                     class="absolute right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden"
                                     style="width: 640px; max-width: 90vw;">
                                     {{-- Header --}}
-                                    <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-[#199BCF]/5 to-[#C8A165]/5">
+                                    <div
+                                        class="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-[#199BCF]/5 to-[#C8A165]/5">
                                         <div class="flex justify-between items-center">
                                             <div class="flex items-center gap-2">
                                                 <h3 class="text-lg font-bold text-gray-900">Notifications</h3>
@@ -329,15 +332,18 @@
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     {{-- Notification List --}}
-                                    <div id="notification-list" class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                    <div id="notification-list"
+                                        class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                                         <div class="p-8 text-center text-gray-400">
-                                            <div class="animate-spin rounded-full h-8 w-8 border-2 border-[#199BCF] border-t-transparent mx-auto mb-3"></div>
+                                            <div
+                                                class="animate-spin rounded-full h-8 w-8 border-2 border-[#199BCF] border-t-transparent mx-auto mb-3">
+                                            </div>
                                             <p class="text-sm font-medium">Loading notifications...</p>
                                         </div>
                                     </div>
-                                    
+
                                     {{-- Footer --}}
 
                                 </div>
@@ -435,18 +441,18 @@
                 @yield('docs_submission_progress')
 
                 @hasanyrole('super_admin|registrar')
-                @php
-                    $academicTermService = app(\App\Services\AcademicTermService::class);
-                    $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
-                @endphp
+                    @php
+                        $academicTermService = app(\App\Services\AcademicTermService::class);
+                        $currentAcadTerm = $academicTermService->fetchCurrentAcademicTerm();
+                    @endphp
 
-                @if (!$currentAcadTerm)
-                    <div
-                        class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
-                        <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
-                        No active academic term, some features might not work properly
-                    </div>
-                @endif
+                    @if (!$currentAcadTerm)
+                        <div
+                            class="fixed bottom-5 right-5 flex flex-row justify-center items-center bg-yellow-100 text-yellow-500 border border-yellow-500 font-semibold px-3 py-2.5 rounded-xl text-[14px] gap-2 z-50">
+                            <i class="fi fi-sr-exclamation flex justify-center items-center text-[20px]"></i>
+                            No active academic term, some features might not work properly
+                        </div>
+                    @endif
                 @endhasanyrole
 
 
@@ -687,8 +693,7 @@
                 }
 
                 if (!userRoles.some(role => ['registrar', 'super_admin', 'head_teacher', 'teacher'].includes(
-                        role))) {
-                }
+                        role))) {}
 
                 // Request notification permission
                 if ('Notification' in window && Notification.permission === 'default') {

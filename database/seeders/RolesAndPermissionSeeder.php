@@ -227,7 +227,6 @@ class RolesAndPermissionSeeder extends Seeder
             'evaluate student',
             
             // Page Viewing (limited)
-            'view enrolled students page',
             'view teachers dashboard page'
         ]);
 

@@ -615,7 +615,7 @@
                         <p class="text-[14px] truncate">Total Subjects</p>
                     </div>
                     <p class="font-bold text-[24px]" id="totalSubjectsDisplay">{{ $program->getTotalSubjects() }}</p>
-                    <p class="text-[12px] truncate text-gray-300">Subjects in this program</p>
+                    <p class="text-[12px] truncate text-gray-300">Specialized subjects in this program</p>
                 </div>
             </div>
 
