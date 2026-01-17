@@ -1095,11 +1095,23 @@
                                     {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('M. d') . ' - ' . \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('M. d') }}
                                 </span>
                                 @if ($activeEnrollmentPeriod->status == 'Ongoing')
-                                    <span id="status-span"
-                                        class="text-[12px] text-green-500 bg-green-100 px-2 py-1 rounded-full mt-1">Ongoing</span>
+                                    <div
+                                        class="flex justify-center items-center border border-green-400 rounded-full mt-1 ">
+                                        <span id="status-span"
+                                            class="flex justify-center items-center gap-1 text-[12px] text-green-500 bg-green-100 animate-pulse px-2 py-1 rounded-full">
+                                            <div class="h-[12px] w-[12px] bg-green-400 rounded-full animate-pulse"></div>
+                                            Ongoing
+                                        </span>
+                                    </div>
                                 @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                                    <span id="status-span"
-                                        class="text-[12px] text-red-500 bg-red-100 px-2 py-1 rounded-full mt-1">Paused</span>
+                                    <div
+                                        class="flex justify-center items-center border border-red-400 rounded-full mt-1 ">
+                                        <span id="status-span"
+                                            class="flex justify-center items-center gap-1 text-[12px] text-red-500 bg-red-100 animate-pulse px-2 py-1 rounded-full">
+                                            <div class="h-[12px] w-[12px] bg-red-400 rounded-full animate-pulse"></div>
+                                            Paused
+                                        </span>
+                                    </div>
                                 @endif
                             </button>
                         @else
@@ -1902,28 +1914,65 @@
             window.Echo.channel('updating-enrollment-period-status').listen('EnrollmentPeriodStatusUpdated', (
                 event) => {
                 let statusSpan = document.querySelector('#status-span');
+                let statusContainer = statusSpan.parentElement;
 
                 if (event.enrollmentPeriod.status == 'Paused') {
-                    statusSpan.innerHTML = event.enrollmentPeriod.status;
-                    statusSpan.classList.remove('text-green-500');
-                    statusSpan.classList.remove('bg-green-100');
-                    statusSpan.classList.add('text-red-500');
-                    statusSpan.classList.add('bg-red-100');
-                    document.querySelector('#enrollment-cont').classList.remove('bg-blue-50')
-                    document.querySelector('#enrollment-cont').classList.add('bg-red-50')
+                    // Update status text with circular indicator
+                    statusSpan.innerHTML = `
+                        <div class="h-[12px] w-[12px] bg-red-400 rounded-full animate-pulse"></div>
+                        Paused
+                    `;
+
+                    // Update span colors
+                    statusSpan.classList.remove('text-green-500', 'bg-green-100');
+                    statusSpan.classList.add('text-red-500', 'bg-red-100');
+
+                    // Ensure wrapper div with red border exists
+                    if (statusContainer && statusContainer.classList.contains('border')) {
+                        // If existing wrapper is green, switch to red
+                        statusContainer.classList.remove('border-green-400');
+                        statusContainer.classList.add('border-red-400');
+                        statusContainer.classList.add('flex', 'justify-center', 'items-center');
+                        statusContainer.classList.add('rounded-full', 'mt-1');
+                    } else {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'flex justify-center items-center border border-red-400 rounded-full mt-1';
+                        statusSpan.parentElement.replaceChild(wrapper, statusSpan);
+                        wrapper.appendChild(statusSpan);
+                        statusContainer = wrapper;
+                    }
+
+                    // Update container background
+                    document.querySelector('#enrollment-cont').classList.remove('bg-blue-50', 'bg-green-50');
+                    document.querySelector('#enrollment-cont').classList.add('bg-red-50');
+
                 } else if (event.enrollmentPeriod.status == 'Ongoing') {
-                    statusSpan.innerHTML = event.enrollmentPeriod.status;
-                    statusSpan.classList.remove('text-red-500');
-                    statusSpan.classList.remove('bg-red-100');
-                    statusSpan.classList.add('text-green-500');
-                    statusSpan.classList.add('bg-green-100');
-                    document.querySelector('#enrollment-cont').classList.remove('bg-red-50')
-                    document.querySelector('#enrollment-cont').classList.add('bg-green-50')
-
-
+                    // Create wrapper div if needed
+                    if (!statusContainer.classList.contains('border')) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'flex justify-center items-center border border-green-400 rounded-full mt-1';
+                        statusSpan.parentElement.replaceChild(wrapper, statusSpan);
+                        wrapper.appendChild(statusSpan);
+                        statusContainer = wrapper;
+                    } else {
+                        statusContainer.classList.add('border', 'border-green-400', 'rounded-full', 'mt-1');
+                        statusContainer.classList.remove('border-red-400');
+                    }
+                    
+                    // Update status text with circular indicator
+                    statusSpan.innerHTML = `
+                        <div class="h-[12px] w-[12px] bg-green-400 rounded-full animate-pulse"></div>
+                        Ongoing
+                    `;
+                    
+                    // Update span colors
+                    statusSpan.classList.remove('text-red-500', 'bg-red-100');
+                    statusSpan.classList.add('text-green-500', 'bg-green-100');
+                    
+                    // Update container background
+                    document.querySelector('#enrollment-cont').classList.remove('bg-red-50', 'bg-blue-50');
+                    document.querySelector('#enrollment-cont').classList.add('bg-green-50');
                 }
-
-
             });
 
 
