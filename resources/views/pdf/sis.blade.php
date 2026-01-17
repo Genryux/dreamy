@@ -208,8 +208,70 @@
             font-weight: bold;
             text-align: center;
         }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(290deg);
+            font-size: 120px;
+            color: rgba(0,0,0,0.09);
+            font-weight: 800;
+            letter-spacing: 8px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            text-transform: uppercase;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Make table backgrounds transparent so watermark shows through
+           but preserve dark-blue label backgrounds */
+        .info-table,
+        .student-details-table {
+            background-color: transparent;
+        }
+
+        .info-table td,
+        .student-details-table td,
+        .value-cell {
+            background-color: transparent;
+        }
+
+        /* Photo box shouldn't obscure watermark */
+        .photo-box {
+            background-color: transparent;
+        }
+
+        /* Ensure dark-blue label cells remain opaque so they are not made transparent */
+        .info-table td.label-cell,
+        .student-details-table td.label-cell,
+        .label-cell,
+        .highlight-label {
+            background-color: #1A3165 !important;
+            color: #ffffff !important;
+        }
+
+        /* Generated timestamp box */
+        .generated-info {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            font-size: 9px;
+            color: #374151;
+            background: rgba(255,255,255,0.85);
+            padding: 4px 8px;
+            border-radius: 4px;
+            z-index: 3;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
     </style>
-</head>
+    </head>
 
 <body>
     @php
@@ -260,6 +322,32 @@
             $semesterDisplay = $record->semester_applied;
         }
     @endphp
+
+    @php
+        $status = $student->status ?? '';
+        $wmColor = 'rgba(31,41,55,0.20)';
+        if (strtolower($status) === 'dropped') {
+            $wmColor = 'rgba(220,38,38,0.20)';
+        } elseif (strtolower($status) === 'graduated') {
+            $wmColor = 'rgba(16,185,129,0.20)';
+        } elseif (in_array(strtolower($status), ['officially enrolled', 'enrolled'])) {
+            $wmColor = 'rgba(67,176,241,0.20)';
+            $status = 'Enrolled';
+        }
+    @endphp
+
+    @if(!empty($status))
+        <div class="watermark" style="color: {{ $wmColor }}">{{ strtoupper($status) }}</div>
+    @endif
+
+    @php
+        $generatedAt = now();
+        $generatedBy = optional(auth()->user())->first_name ? optional(auth()->user())->first_name . ' ' . optional(auth()->user())->last_name : (optional(auth()->user())->email ?? 'System');
+    @endphp
+
+    <div class="generated-info">Generated on: {{ $generatedAt->format('M. d, Y H:i') }} by: {{ $generatedBy }}</div>
+
+    <div class="page-content">
 
     <!-- Header -->
     <div class="header">
@@ -442,6 +530,9 @@
             <td class="value-cell">{{ $record && $record->is_4ps_beneficiary ? 'Yes' : 'No' }}</td>
         </tr>
     </table>
+</body>
+
+</div>
 </body>
 
 </html>
