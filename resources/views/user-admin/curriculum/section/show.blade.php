@@ -110,23 +110,7 @@
                     <div class="w-8">#</div>
                     <div class="flex-1 text-left ml-4">Full Name</div>
                 </div>
-                @forelse ($students as $index => $student)
-                    <div
-                        class="flex flex-row justify-between items-center gap-2 w-full p-3 hover:bg-gray-50 transition duration-150">
-                        <div class="w-8 text-sm text-gray-500">{{ $index + 1 }}</div>
-                        <input type="checkbox" name="student[]" id="lrn-{{ $student->lrn }}" value="{{ $student->id }}"
-                            class="peer sr-only" />
-                        <label for="lrn-{{ $student->lrn }}"
-                            class="flex-1 bg-gray-100 peer-checked:bg-green-100 peer-checked:border-green-300 inline-block px-3 py-2 rounded border border-transparent cursor-pointer transition duration-150">
-                            <span class="text-sm">{{ $student->user->last_name }}, {{ $student->user->first_name }}</span>
-                        </label>
-                    </div>
-                @empty
-                    <div class="py-8 text-center text-gray-500">
-                        <i class="fi fi-sr-user-slash text-2xl mb-2"></i>
-                        <p>No students available to assign.</p>
-                    </div>
-                @endforelse
+
             </div>
         </form>
         <x-slot name="modal_buttons">

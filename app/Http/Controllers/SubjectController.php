@@ -131,6 +131,7 @@ class SubjectController extends Controller
     public function index()
     {
         $programs = \App\Models\Program::where('status', 'active')->get();
+
         return view('user-admin.curriculum.subject.index', compact('programs'));
     }
 
@@ -170,15 +171,24 @@ class SubjectController extends Controller
         }
 
         // Sorting
-        $columns = ['id', 'name', 'category', 'grade_level', 'semester', 'program'];
-        $orderColumnIndex = $request->input('order.0.column');
+        // Map DataTables column indexes to DB columns. Keys should match the table column indexes sent by the client.
+        // We intentionally do NOT include 'semester' here so ordering attempts on that column will be ignored server-side.
+        $columnMap = [
+            1 => 'name',
+            2 => 'category',
+            3 => 'grade_level',
+            4 => 'program',
+        ];
+
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
         $orderDir = $request->input('order.0.dir', 'asc');
 
-        if ($orderColumnIndex >= 1 && $orderColumnIndex <= 5) {
-            $sortColumn = $columns[$orderColumnIndex] ?? 'id';
+        $sortColumn = $columnMap[$orderColumnIndex] ?? null;
+
+        if ($sortColumn) {
             if ($sortColumn === 'program') {
-                $query->leftJoin('programs', 'subjects.program_id', '=', 'programs.id')
-                      ->orderBy('programs.code', $orderDir);
+                // Order by program code using a subquery to avoid joins that can interfere with Eloquent model hydration
+                $query->orderByRaw("(select code from programs where programs.id = subjects.program_id) {$orderDir}");
             } else {
                 $query->orderBy($sortColumn, $orderDir);
             }
@@ -203,7 +213,7 @@ class SubjectController extends Controller
                     'category' => ucfirst($subject->category),
                     'grade_level' => $subject->grade_level,
                     'semester' => $subject->semester,
-                    'program' => $subject->program ? $subject->program->code : 'Not Set',
+                    'program' => $subject->program->code ?? '-',
                     'id' => $subject->id
                 ];
             });

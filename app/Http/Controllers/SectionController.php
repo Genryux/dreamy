@@ -395,14 +395,19 @@ class SectionController extends Controller
 
     public function show(Section $section)
     {
-        $year_level = $section->year_level;
-        $program = $section->program->code;
+        // dd('this method');
 
-        $students = Student::where('grade_level', $year_level)
-            ->where('program_id', $section->program_id)
-            ->where('section_id', null)
-            ->with('user')
-            ->get();
+        // $year_level = $section->year_level;
+        // $program = $section->program->code;
+
+        // $students = Student::where('status', 'Officially Enrolled')
+        //     ->where('grade_level', $year_level)
+        //     ->where('program_id', $section->program_id)
+        //     ->whereNull('section_id')
+        //     ->with('user')
+        //     ->get();
+
+        // dd($students);
 
         // Get teachers filtered by the section's program ID
         $teachers = \App\Models\Teacher::where('status', 'active')
@@ -417,7 +422,7 @@ class SectionController extends Controller
             'program'
         ]);
 
-        return view('user-admin.curriculum.section.show', compact('section', 'students', 'teachers'));
+        return view('user-admin.curriculum.section.show', compact('section', 'teachers'));
     }
 
     // Students who doesn't have a section yet (filtered by year level and program)
@@ -426,9 +431,10 @@ class SectionController extends Controller
         $year_level = $section->year_level;
         $program = $section->program->code;
 
-        $students = Student::where('grade_level', $year_level)
+        $students = Student::where('status', 'Officially Enrolled')
+            ->where('grade_level', $year_level)
             ->where('program_id', $section->program_id)
-            ->where('section_id', null)
+            ->whereNull('section_id')
             ->with('user')
             ->get();
 
@@ -588,7 +594,6 @@ class SectionController extends Controller
                         'status' => 'enrolled'
                     ]);
                 }
-
             }
 
             // Log the activity

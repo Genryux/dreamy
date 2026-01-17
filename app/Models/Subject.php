@@ -31,6 +31,10 @@ class Subject extends Model
         return $this->hasMany(SectionSubject::class);
     }
 
+    public function scopeWithSectionSubjects($query) {
+        return $query->has('sectionSubjects');
+    }
+
     /**
      * Scope: filter by semester.
      */

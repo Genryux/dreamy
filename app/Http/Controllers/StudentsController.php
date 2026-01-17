@@ -15,12 +15,15 @@ use App\Models\Program;
 use App\Models\User;
 use App\Notifications\PrivateImmediateNotification;
 use App\Notifications\PrivateQueuedNotification;
+use App\Services\AcademicTermService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class StudentsController extends Controller
 {
+
+    public function __construct(protected AcademicTermService $academicTermService) {}
 
     public function getStudent(Request $request)
     {
@@ -852,16 +855,17 @@ class StudentsController extends Controller
     {
 
         $student = Student::find($request->id);
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
 
         try {
 
-            DB::transaction(function () use ($student) {
+            DB::transaction(function () use ($student, $activeTerm) {
                 $student->update([
                     'status' => 'Dropped'
                 ]);
 
-                $student->enrollments()->update([
-                    'status' => 'Dropped'
+                $student->enrollments()->where('academic_term_id', $activeTerm->id)->update([
+                    'status' => 'withdrawn'
                 ]);
 
                 // Log the activity

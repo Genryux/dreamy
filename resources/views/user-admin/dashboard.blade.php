@@ -852,7 +852,7 @@
                                     <h3 class="text-sm font-medium text-blue-800">Term Switching</h3>
                                     <div class="mt-2 text-sm text-blue-700">
                                         <p>Before switching, please review the quick stats below to confirm there are no
-                                            unpaid invoices and to check students’ promotion status.</p>
+                                            unpaid invoices and that all students have been reviewed and evaluated.</p>
 
                                     </div>
                                 </div>

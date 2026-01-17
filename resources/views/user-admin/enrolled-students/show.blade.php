@@ -681,7 +681,7 @@
                         Are you sure you want withdraw the enrollment of this student?
                     </p>
                     <p class="text-gray-500">
-                        This would mark the student as dropped.
+                        This action will update the student’s status to <strong>Dropped</strong> and record their enrollment history as <strong>Withdrawn</strong>.
                     </p>
                 </div>
 
@@ -874,6 +874,13 @@
                                 <span>Age</span>
                             </div>
                             <p class="font-semibold opacity-85">{{ $student->record->age ?? 'N/A' }}</p>
+                        </div>
+                        <div class="flex flex-row justify-start items-start gap-2 w-full">
+                            <div class="flex flex-row justify-center items-center gap-2 opacity-70">
+                                <i class="fi fi-rr-user flex justify-center items-center"></i>
+                                <span>Gender:</span>
+                            </div>
+                            <p class="font-semibold opacity-85">{{ $student->record->gender ?? 'N/A' }}</p>
                         </div>
                         <div class="flex flex-row justify-start items-start gap-2 w-full">
                             <div class="flex flex-row justify-center items-center gap-2 opacity-70">
@@ -1575,20 +1582,19 @@
                                 <table id="enrolledStudents" class="w-full">
                                     <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <th
-                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
                                                 #
                                             </th>
-                                            <th
-                                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                                 Document Name
                                             </th>
-                                            <th
-                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
                                                 Status
                                             </th>
-                                            <th
-                                                class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">
+                                                Submission Date
+                                            </th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">
                                                 Action
                                             </th>
                                         </tr>
@@ -1604,8 +1610,7 @@
                                                 <!-- Document Name -->
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="flex items-center">
-                                                        <div
-                                                            class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                                                             <i class="fi fi-rr-file text-blue-600 text-sm"></i>
                                                         </div>
                                                         <div class="text-sm font-medium text-gray-900">
@@ -1626,10 +1631,18 @@
                                                             $statusColors[strtolower($doc->status)] ??
                                                             'bg-gray-100 text-gray-800';
                                                     @endphp
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColor }}">
                                                         {{ ucfirst($doc->status) }}
                                                     </span>
+                                                </td>
+
+                                                <!-- Submission Date -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
+                                                    @if ($doc->latest_submission && $doc->latest_submission->created_at)
+                                                        {{ \Carbon\Carbon::parse($doc->created_at)->format('M d, Y h:i A') }}
+                                                    @else
+                                                        <span class="text-gray-400 text-xs">N/A</span>
+                                                    @endif
                                                 </td>
 
                                                 <!-- Action -->
