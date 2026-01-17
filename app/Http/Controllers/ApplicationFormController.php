@@ -1031,6 +1031,7 @@ class ApplicationFormController extends Controller
                         'pending' => 0,
                         'accepted' => 0,
                         'pending_documents' => 0,
+                        'officially_enrolled' => 0,
                         'rejected' => 0,
                     ]
                 ]);
@@ -1045,6 +1046,7 @@ class ApplicationFormController extends Controller
                 'pending' => (clone $baseQuery)->where('application_status', 'Pending')->count(),
                 'accepted' => (clone $baseQuery)->where('application_status', 'Accepted')->count(),
                 'pending_documents' => (clone $baseQuery)->where('application_status', 'Pending-Documents')->count(),
+                'officially_enrolled' => (clone $baseQuery)->where('application_status', 'Officially Enrolled')->count(),
                 'rejected' => (clone $baseQuery)->where('application_status', 'Rejected')->count(),
             ];
 

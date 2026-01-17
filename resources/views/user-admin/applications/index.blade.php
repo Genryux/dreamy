@@ -42,9 +42,9 @@
             </p>
         </div>
     </div>
-    
+
     {{-- Enrollment Period Context Indicator --}}
-    @if($activeEnrollmentPeriod)
+    @if ($activeEnrollmentPeriod)
         <div class="mx-[14px] mt-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div class="flex flex-row items-center gap-2">
                 <i class="fi fi-rr-info flex justify-center items-center text-blue-600"></i>
@@ -54,10 +54,11 @@
                     </span>
                     <span class="text-[12px] text-blue-700">
                         Academic Term: {{ $activeEnrollmentPeriod->academicTerms->getFullNameAttribute() }}
-                        @if($currentAcadTerm && $activeEnrollmentPeriod->academic_terms_id != $currentAcadTerm->id)
+                        @if ($currentAcadTerm && $activeEnrollmentPeriod->academic_terms_id != $currentAcadTerm->id)
                             <span class="text-blue-600 font-semibold">(Early Enrollment)</span>
                         @endif
-                        • {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('M d') }} - {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('M d, Y') }}
+                        • {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_start_date)->format('M d') }} -
+                        {{ \Carbon\Carbon::parse($activeEnrollmentPeriod->application_end_date)->format('M d, Y') }}
                     </span>
                 </div>
             </div>
@@ -96,7 +97,7 @@
 
 
             </div>
-            <div class="flex flex-row justify-center items-center w-full gap-4">
+            <div class="flex flex-row justify-center items-center w-full gap-4 flex-wrap">
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-150">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2">
@@ -135,6 +136,16 @@
                     </div>
                     <p class="font-bold text-[24px]" id="rejectedApplicationsCount">0</p>
                     <p class="text-[12px] truncate text-gray-300">Applications that have been rejected</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
+                        <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
+                        <p class="text-[14px] truncate">Officially Enrolled</p>
+                    </div>
+                    <p class="font-bold text-[24px]" id="officiallyEnrolledCount">0</p>
+                    <p class="text-[12px] truncate text-gray-300">Applications that have passed the admission process</p>
                 </div>
             </div>
 
@@ -771,6 +782,8 @@
                             .pending_documents || 0;
                         document.getElementById('rejectedApplicationsCount').textContent = data.statistics.rejected ||
                             0;
+                        document.getElementById('officiallyEnrolledCount').textContent = data.statistics.officially_enrolled ||
+                            0;
                     } else {
                         console.error('Failed to load application statistics:', data.message);
                     }
@@ -783,6 +796,7 @@
                     document.getElementById('acceptedApplicationsCount').textContent = '0';
                     document.getElementById('pendingDocumentsCount').textContent = '0';
                     document.getElementById('rejectedApplicationsCount').textContent = '0';
+                    document.getElementById('officiallyEnrolledCount').textContent = '0';
                 });
         }
 
