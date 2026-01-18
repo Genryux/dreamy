@@ -245,14 +245,12 @@ class InvoiceController extends Controller
                     $sharedNotificationId
                 ));
 
-                Notification::route('broadcast', 'user.' . $user->id)
-                    ->notify(new PrivateImmediateNotification(
-                        "Invoice notification",
-                        "Hi! An invoice for the academic term {$currentTerm['year']} - {$currentTerm['semester']} the has been assigned to you. You can settle it at your convenience; either one-time or in monthly installments.",
-                        null,
-                        $sharedNotificationId,
-                        'user.' . $user->id // Pass the channel
-                    ));
+                $user->notify(new PrivateImmediateNotification(
+                    "Invoice notification",
+                    "Hi! An invoice for the academic term {$currentTerm['year']} - {$currentTerm['semester']} the has been assigned to you. You can settle it at your convenience; either one-time or in monthly installments.",
+                    null,
+                    $sharedNotificationId
+                ));
 
                 // Log the activity
                 activity('financial_management')

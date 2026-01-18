@@ -113,14 +113,12 @@ class SendMonthlyReminder extends Command
                     $sharedNotificationId
                 ));
 
-                Notification::route('broadcast', 'user.' . $student->id)
-                    ->notify(new PrivateImmediateNotification(
-                        "Monthly Payment Reminder",
-                        $message,
-                        null,
-                        $sharedNotificationId,
-                        'user.' . $student->id // Pass the channel
-                    ));
+                $student->notify(new PrivateImmediateNotification(
+                    "Monthly Payment Reminder",
+                    $message,
+                    null,
+                    $sharedNotificationId
+                ));
             }
 
             $this->info("Monthly reminder notifications sent to {$students->count()} students on {$now->format('Y-m-d')} (due day: {$dueDayOfMonth}).");

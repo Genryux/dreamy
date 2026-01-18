@@ -8,9 +8,12 @@ use App\Models\Section;
 use App\Models\SectionSubject;
 use App\Models\Student;
 use App\Models\StudentSubject;
+use App\Notifications\PrivateImmediateNotification;
+use App\Notifications\PrivateQueuedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
 
 class TeacherAppController extends Controller
@@ -63,6 +66,7 @@ class TeacherAppController extends Controller
                 'current_date' => $today->format('l, F j, Y'),
                 'current_day' => $currentDay,
                 'academic_term' => $activeTerm ? $activeTerm->full_name : 'No Active Term',
+                'academic_term_status' => $activeTerm?->status,
                 'statistics' => [
                     'total_sections' => $totalSections,
                     'total_subjects' => $totalSubjects,
@@ -261,6 +265,7 @@ class TeacherAppController extends Controller
 
         $student = $studentSubject->student;
         $record = $student->record;
+        $activeTerm = AcademicTerms::where('is_active', true)->first();
 
         return response()->json([
             'success' => true,
@@ -299,6 +304,11 @@ class TeacherAppController extends Controller
                     'guardian_name' => $record->guardian_name ?? null,
                     'guardian_contact' => $record->guardian_contact_number ?? null,
                 ],
+                'term' => [
+                    'id' => $activeTerm?->id,
+                    'semester' => $activeTerm?->semester,
+                    'status' => $activeTerm?->status,
+                ],
             ],
         ]);
     }
@@ -315,6 +325,14 @@ class TeacherAppController extends Controller
 
         $user = Auth::user();
         $teacher = $user->teacher;
+
+        $activeTerm = AcademicTerms::where('is_active', true)->first();
+        if (!$activeTerm || $activeTerm->status !== 'Closing') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student evaluations are only allowed when the current academic term is set to Closing.',
+            ], 403);
+        }
 
         // Get the student subject record
         $studentSubject = StudentSubject::where('student_id', $studentId)
@@ -355,8 +373,29 @@ class TeacherAppController extends Controller
 
         $studentSubject->save();
 
-        // Get student info for response
         $student = Student::with('user')->find($studentId);
+        if ($student?->user) {
+            $subjectName = $studentSubject->subject->name ?? $studentSubject->sectionSubject?->subject?->name ?? 'Subject';
+            $sectionName = $studentSubject->sectionSubject?->section?->name ?? 'Section';
+            $statusLabel = ucfirst($request->status);
+            $sharedId = 'student-eval-' . $studentSubject->id . '-' . uniqid();
+            $student->user->notify(new PrivateQueuedNotification(
+                'Subject Evaluation Result',
+                "Your {$subjectName} evaluation for {$sectionName} has been marked as {$statusLabel}.",
+                null,
+                $sharedId
+            ));
+
+            $student->user->notify(new PrivateImmediateNotification(
+                'Subject Evaluation Result',
+                "Your {$subjectName} evaluation for {$sectionName} has been marked as {$statusLabel}.",
+                null,
+                $sharedId
+            ));
+        }
+
+        // Get student info for response
+        $student = $student ?? Student::with('user')->find($studentId);
 
         return response()->json([
             'success' => true,
@@ -383,6 +422,14 @@ class TeacherAppController extends Controller
 
         $user = Auth::user();
         $teacher = $user->teacher;
+
+        $activeTerm = AcademicTerms::where('is_active', true)->first();
+        if (!$activeTerm || $activeTerm->status !== 'Closing') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student evaluations are only allowed when the current academic term is set to Closing.',
+            ], 403);
+        }
 
         $updated = 0;
         $errors = [];
@@ -412,7 +459,31 @@ class TeacherAppController extends Controller
             }
 
             $studentSubject->evaluation_status = $evaluation['status'];
+            if ($evaluation['status'] === 'failed' && !$studentSubject->remedial_deadline) {
+                $studentSubject->remedial_deadline = Carbon::now()->addDays(30);
+            }
             $studentSubject->save();
+
+            $student = Student::with('user')->find($evaluation['student_id']);
+            if ($student?->user) {
+                $subjectName = $studentSubject->subject->name ?? $studentSubject->sectionSubject?->subject?->name ?? 'Subject';
+                $sectionName = $studentSubject->sectionSubject?->section?->name ?? 'Section';
+                $statusLabel = ucfirst($evaluation['status']);
+                $sharedId = 'student-eval-' . $studentSubject->id . '-' . uniqid();
+                $student->user->notify(new PrivateQueuedNotification(
+                    'Subject Evaluation Result',
+                    "Your {$subjectName} evaluation for {$sectionName} has been marked as {$statusLabel}.",
+                    null,
+                    $sharedId
+                ));
+
+                $student->user->notify(new PrivateImmediateNotification(
+                    'Subject Evaluation Result',
+                    "Your {$subjectName} evaluation for {$sectionName} has been marked as {$statusLabel}.",
+                    null,
+                    $sharedId
+                ));
+            }
             $updated++;
         }
 

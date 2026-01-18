@@ -194,15 +194,24 @@
                     </div>
                 </div>
 
+                @php
+                    $isEvalAllowed = ($activeTerm?->status === 'Closing');
+                @endphp
                 <div class="border border-[#1e1e1e]/10 rounded-lg p-4 bg-gray-50">
                     <p class="text-sm font-semibold text-gray-800 mb-3">Evaluation</p>
                     <div id="eval-btn-container">
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" class="eval-btn px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-700" data-status="failed">Failed</button>
-                            <button type="button" class="eval-btn px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-green-300 hover:text-green-700" data-status="passed">Passed</button>
-                        </div>
-                        <span id="evaluation-done-msg" class="text-green-600 text-xs font-semibold hidden mt-2"></span>
-                        <p class="text-xs text-gray-500 mt-2">Select status then confirm to update.</p>
+                        @if ($isEvalAllowed)
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" class="eval-btn px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-700" data-status="failed">Failed</button>
+                                <button type="button" class="eval-btn px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-green-300 hover:text-green-700" data-status="passed">Passed</button>
+                            </div>
+                            <span id="evaluation-done-msg" class="text-green-600 text-xs font-semibold hidden mt-2"></span>
+                            <p class="text-xs text-gray-500 mt-2">Select status then confirm to update.</p>
+                        @else
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-xs text-yellow-700">
+                                Evaluation actions are only available when the current academic term is set to Closing.
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

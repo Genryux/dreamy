@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Notifications\PrivateImmediateNotification;
 use App\Notifications\PrivateQueuedNotification;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 class NotificationService
 {
@@ -20,14 +19,12 @@ class NotificationService
                 $sharedId
             ));
 
-            Notification::route('broadcast', 'user.' . $user->id)
-                ->notify(new PrivateImmediateNotification(
-                    $header,
-                    $message,
-                    $url,
-                    $sharedId,
-                    'user.' . $user->id
-                ));
+            $user->notify(new PrivateImmediateNotification(
+                $header,
+                $message,
+                $url,
+                $sharedId
+            ));
         });
     }
 }

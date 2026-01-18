@@ -507,14 +507,12 @@ class PaymentPlanService
                     $sharedNotificationId
                 ));
 
-                Notification::route('broadcast', 'user.' . $user->id)
-                    ->notify(new PrivateImmediateNotification(
-                        "Payment Received!",
-                        "We've successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
-                        null,
-                        $sharedNotificationId,
-                        'user.' . $student->id
-                    ));
+                $user->notify(new PrivateImmediateNotification(
+                    "Payment Received!",
+                    "We've successfully received your payment of ₱{$amount} for the {$scheduleText} of your monthly installment plan for {$invoice->invoice_number}. A receipt has been sent to your email for your records.",
+                    null,
+                    $sharedNotificationId
+                ));
             }
 
             // Update invoice status

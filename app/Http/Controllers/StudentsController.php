@@ -149,6 +149,54 @@ class StudentsController extends Controller
                 ])
                 ->log('Students assigned to section');
 
+            $section->load('teacher.user');
+            $teacherUser = $section->teacher?->user;
+            if ($teacherUser) {
+                $sharedId = 'students-added-' . $section->id . '-' . uniqid();
+                $teacherUser->notify(new PrivateQueuedNotification(
+                    'Students Added to Advising Section',
+                    count($selectedStudents) === 1
+                        ? "1 student has been added to your advising section {$section->name}."
+                        : count($selectedStudents) . " students have been added to your advising section {$section->name}.",
+                    url('/teacher/dashboard'),
+                    $sharedId
+                ));
+
+                $teacherUser->notify(new PrivateImmediateNotification(
+                    'Students Added to Advising Section',
+                    count($selectedStudents) === 1
+                        ? "1 student has been added to your advising section {$section->name}."
+                        : count($selectedStudents) . " students have been added to your advising section {$section->name}.",
+                    url('/teacher/dashboard'),
+                    $sharedId
+                ));
+            }
+
+            $studentsForNotify = Student::with('user')
+                ->whereIn('id', $selectedStudents)
+                ->get();
+
+            foreach ($studentsForNotify as $notifyStudent) {
+                if (!$notifyStudent->user) {
+                    continue;
+                }
+
+                $sharedId = 'section-assigned-' . $section->id . '-' . uniqid();
+                $notifyStudent->user->notify(new PrivateQueuedNotification(
+                    'Section Assignment Updated',
+                    "You have been assigned to section {$section->name}.",
+                    url('/student/sections'),
+                    $sharedId
+                ));
+
+                $notifyStudent->user->notify(new PrivateImmediateNotification(
+                    'Section Assignment Updated',
+                    "You have been assigned to section {$section->name}.",
+                    url('/student/sections'),
+                    $sharedId
+                ));
+            }
+
             return response()->json([
                 'success' => 'Section successfully assigned to the selected students',
                 'count'   => $studentCount
@@ -716,6 +764,17 @@ class StudentsController extends Controller
             'result' => 'required|in:Passed,Failed'
         ]);
 
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        if (!$activeTerm) {
+            return redirect()->back()->withErrors(['error' => 'No active academic term found.']);
+        }
+
+        if ($activeTerm->semester !== '2nd Semester' || $activeTerm->status !== 'Closing') {
+            return redirect()->back()->withErrors([
+                'error' => 'Academic evaluation is only allowed during the Closing status of the 2nd semester. Please update the academic term status to Closing before proceeding.'
+            ]);
+        }
+
         $student = Student::find($request->id);
 
         try {
@@ -759,14 +818,12 @@ class StudentsController extends Controller
                 $sharedNotificationId
             ));
 
-            Notification::route('broadcast', 'user.' . $user->id)
-                ->notify(new PrivateImmediateNotification(
-                    "Evaluation Results Update!",
-                    "Your academic evaluation results have been released. Kindly click this notification or navigate to the Dashboard to review them.",
-                    '/(tabs)/dashboard',
-                    $sharedNotificationId,
-                    'user.' . $student->id
-                ));
+            $user->notify(new PrivateImmediateNotification(
+                "Evaluation Results Update!",
+                "Your academic evaluation results have been released. Kindly click this notification or navigate to the Dashboard to review them.",
+                '/(tabs)/dashboard',
+                $sharedNotificationId
+            ));
 
             return redirect()->back()->with('success', 'Successfully evaluated student');
         } catch (\Throwable $th) {
@@ -779,6 +836,17 @@ class StudentsController extends Controller
         $validated = $request->validate([
             'action' => 'required|in:promote-to-next-year,mark-as-graduated'
         ]);
+
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        if (!$activeTerm) {
+            return redirect()->back()->withErrors(['error' => 'No active academic term found.']);
+        }
+
+        if ($activeTerm->semester !== '2nd Semester' || $activeTerm->status !== 'Closing') {
+            return redirect()->back()->withErrors([
+                'error' => 'Manual promotion is only allowed during the Closing status of the 2nd semester. Please update the academic term status to Closing before proceeding.'
+            ]);
+        }
 
         $student = Student::find($request->id);
 

@@ -13,6 +13,9 @@ class PrivateQueuedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    protected ?string $broadcastChannel = null;
+    protected ?int $notifiableId = null;
+
     /**
      * Create a new notification instance.
      */
@@ -20,9 +23,10 @@ class PrivateQueuedNotification extends Notification implements ShouldQueue
         public string $title,
         public string $message,
         public ?string $url = null,
-        public ?string $sharedId = null
+        public ?string $sharedId = null,
+        ?string $broadcastChannel = null
     ) {
-        //
+        $this->broadcastChannel = $broadcastChannel;
     }
 
     /**
@@ -33,6 +37,12 @@ class PrivateQueuedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
+        if (isset($notifiable->id)) {
+            $this->notifiableId = (int) $notifiable->id;
+        }
+        if (!$this->broadcastChannel && isset($notifiable->id)) {
+            $this->broadcastChannel = 'user.' . $notifiable->id;
+        }
         return ['database', 'broadcast']; // Queued for performance - saves to DB and broadcasts to private channel
     }
 
@@ -55,10 +65,19 @@ class PrivateQueuedNotification extends Notification implements ShouldQueue
      */
     public function broadcastOn()
     {
-        // Return a closure that will be called with the notifiable
-        return function ($notifiable) {
-            return new \Illuminate\Broadcasting\Channel('user.' . $notifiable->id);
-        };
+        $channelName = $this->broadcastChannel;
+
+        if ($channelName instanceof \Closure || !$channelName) {
+            $channelName = $this->notifiableId
+                ? 'user.' . $this->notifiableId
+                : 'user.1';
+        }
+
+        if (!is_string($channelName)) {
+            $channelName = 'user.1';
+        }
+
+        return new PrivateChannel($channelName);
     }
 
     /**

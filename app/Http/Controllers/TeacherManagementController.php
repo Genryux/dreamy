@@ -9,7 +9,9 @@ use App\Models\SectionSubject;
 use App\Models\StudentSubject;
 use App\Models\Student;
 use Carbon\Carbon;
-use App\Services\AcademicTermService;
+    use App\Services\AcademicTermService;
+    use App\Notifications\PrivateImmediateNotification;
+    use App\Notifications\PrivateQueuedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,9 @@ use Illuminate\Validation\Rules\Password;
 
 class TeacherManagementController extends Controller
 {
+    public function __construct(
+        protected AcademicTermService $academicTermService
+    ) {}
     /**
      * Display a listing of teachers.
      */
@@ -478,10 +483,13 @@ class TeacherManagementController extends Controller
 
         $studentCount = StudentSubject::where('section_subject_id', $sectionSubject->id)->count();
 
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+
         return view('user-teacher.subject.show', [
             'sectionSubject' => $sectionSubject,
             'studentCount' => $studentCount,
             'teacher' => $teacher,
+            'activeTerm' => $activeTerm,
         ]);
     }
 
@@ -554,6 +562,14 @@ class TeacherManagementController extends Controller
             return response()->json(['success' => false, 'message' => 'Teacher profile not found'], 404);
         }
 
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        if (!$activeTerm || $activeTerm->status !== 'Closing') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student evaluations are only allowed when the current academic term is set to Closing.',
+            ], 403);
+        }
+
         $request->validate([
             'evaluation_status' => 'nullable|in:passed,failed,pending',
             'remedial_status' => 'nullable|in:cleared,failed,pending',
@@ -581,6 +597,30 @@ class TeacherManagementController extends Controller
             $studentSubject->remedial_deadline = $request->input('remedial_deadline') ? Carbon::parse($request->input('remedial_deadline')) : null;
         }
         $studentSubject->save();
+
+        if (in_array($evaluation, ['passed', 'failed'], true)) {
+            $studentUser = $studentSubject->student?->user;
+            $subjectName = $sectionSubject->subject->name ?? 'Subject';
+            $sectionName = $sectionSubject->section->name ?? 'Section';
+            $statusLabel = ucfirst($evaluation);
+
+            if ($studentUser) {
+                $sharedId = 'student-eval-' . $studentSubject->id . '-' . uniqid();
+                $studentUser->notify(new PrivateQueuedNotification(
+                    'Subject Evaluation Result',
+                    "Your {$subjectName} evaluation for {$sectionName} has been marked as {$statusLabel}.",
+                    url('/student/grades'),
+                    $sharedId
+                ));
+
+                $studentUser->notify(new PrivateImmediateNotification(
+                    'Subject Evaluation Result',
+                    "Your {$subjectName} evaluation for {$sectionName} has been marked as {$statusLabel}.",
+                    url('/student/grades'),
+                    $sharedId
+                ));
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -709,6 +749,14 @@ class TeacherManagementController extends Controller
         ]);
 
         $teacher = Auth::user()->teacher;
+
+        $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
+        if (!$activeTerm || $activeTerm->status !== 'Closing') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Remedial updates are only allowed when the current academic term is set to Closing.',
+            ], 403);
+        }
 
         $studentSubject = StudentSubject::with(['student.user', 'subject', 'sectionSubject', 'academicTerm'])
             ->find($studentSubjectId);

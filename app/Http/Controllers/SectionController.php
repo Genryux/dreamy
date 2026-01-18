@@ -8,9 +8,12 @@ use App\Models\Student;
 use App\Models\StudentSubject;
 use App\Models\Subject;
 use App\Services\ScheduleConflictService;
+use App\Notifications\PrivateImmediateNotification;
+use App\Notifications\PrivateQueuedNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class SectionController extends Controller
 {
@@ -389,6 +392,27 @@ class SectionController extends Controller
                 return $section;
             });
 
+            if (!empty($validated['adviser_id'])) {
+                $section->load('teacher.user', 'program');
+                $teacherUser = $section->teacher?->user;
+                if ($teacherUser) {
+                    $sharedId = 'adviser-assigned-' . $section->id . '-' . uniqid();
+                    $teacherUser->notify(new PrivateQueuedNotification(
+                        'Advising Section Assigned',
+                        "You have been assigned as adviser for section {$section->name} ({$section->program->name}).",
+                        url('/teacher/dashboard'),
+                        $sharedId
+                    ));
+
+                    $teacherUser->notify(new PrivateImmediateNotification(
+                        'Advising Section Assigned',
+                        "You have been assigned as adviser for section {$section->name} ({$section->program->name}).",
+                        url('/teacher/dashboard'),
+                        $sharedId
+                    ));
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Section successfully created.'
@@ -581,6 +605,7 @@ class SectionController extends Controller
         try {
 
             $sectionSubject = $section->sectionSubjects()->create($validated);
+            $sectionSubject->load(['teacher.user', 'subject', 'section']);
 
             //students belong in this section
             $students = Student::where('section_id', $section->id)->get();
@@ -625,6 +650,23 @@ class SectionController extends Controller
                     'user_agent' => request()->userAgent()
                 ])
                 ->log('Subject assigned to section');
+
+            if ($sectionSubject->teacher?->user) {
+                $sharedId = 'subject-assigned-' . $sectionSubject->id . '-' . uniqid();
+                $sectionSubject->teacher->user->notify(new PrivateQueuedNotification(
+                    'New Subject Assignment',
+                    "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                    url("/teacher/subject/{$sectionSubject->id}"),
+                    $sharedId
+                ));
+
+                $sectionSubject->teacher->user->notify(new PrivateImmediateNotification(
+                    'New Subject Assignment',
+                    "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                    url("/teacher/subject/{$sectionSubject->id}"),
+                    $sharedId
+                ));
+            }
 
             return response()->json([
                 'success' => 'Subject assigned successfully',
@@ -699,6 +741,24 @@ class SectionController extends Controller
                     'section_subject_id' => $sectionSubject->id,
                     'new_teacher_id' => $validated['teacher_id']
                 ]);
+
+                $sectionSubject->load(['teacher.user', 'subject', 'section']);
+                if ($sectionSubject->teacher?->user) {
+                    $sharedId = 'subject-assigned-' . $sectionSubject->id . '-' . uniqid();
+                    $sectionSubject->teacher->user->notify(new PrivateQueuedNotification(
+                        'New Subject Assignment',
+                        "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                        url("/teacher/subject/{$sectionSubject->id}"),
+                        $sharedId
+                    ));
+
+                    $sectionSubject->teacher->user->notify(new PrivateImmediateNotification(
+                        'New Subject Assignment',
+                        "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                        url("/teacher/subject/{$sectionSubject->id}"),
+                        $sharedId
+                    ));
+                }
             }
 
             if (isset($validated['subject_id']) && $validated['subject_id'] != $originalValues['subject_id']) {
@@ -855,6 +915,27 @@ class SectionController extends Controller
             $originalValues = $section->toArray();
 
             $section->update($validated);
+
+            if (array_key_exists('teacher_id', $validated) && $validated['teacher_id'] != $originalValues['teacher_id']) {
+                $section->load('teacher.user', 'program');
+                $teacherUser = $section->teacher?->user;
+                if ($teacherUser) {
+                    $sharedId = 'adviser-assigned-' . $section->id . '-' . uniqid();
+                    $teacherUser->notify(new PrivateQueuedNotification(
+                        'Advising Section Assigned',
+                        "You have been assigned as adviser for section {$section->name} ({$section->program->name}).",
+                        url('/teacher/dashboard'),
+                        $sharedId
+                    ));
+
+                    $teacherUser->notify(new PrivateImmediateNotification(
+                        'Advising Section Assigned',
+                        "You have been assigned as adviser for section {$section->name} ({$section->program->name}).",
+                        url('/teacher/dashboard'),
+                        $sharedId
+                    ));
+                }
+            }
 
             // Log the activity
             activity('curriculum_management')

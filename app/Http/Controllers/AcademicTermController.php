@@ -65,7 +65,8 @@ class AcademicTermController extends Controller
                     'semester' => 'required|string|max:255',
                     'start_date' => 'required|date|after_or_equal:today',
                     'end_date' => 'required|date|after:start_date',
-                    'is_active' => 'required|boolean'
+                    'is_active' => 'required|boolean',
+                    'status' => 'nullable|in:Upcoming,Ongoing,Closing',
                 ]);
 
                 // Check for overlapping academic terms
@@ -83,6 +84,10 @@ class AcademicTermController extends Controller
                     return redirect()->back()
                         ->withErrors(['start_date' => 'This academic term overlaps with an existing term.'])
                         ->withInput();
+                }
+
+                if (empty($validated['status'])) {
+                    $validated['status'] = $validated['is_active'] ? 'Ongoing' : 'Upcoming';
                 }
 
                 $newTerm = AcademicTerms::create($validated);
@@ -121,6 +126,7 @@ class AcademicTermController extends Controller
             'semester' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
+            'status' => 'nullable|in:Upcoming,Ongoing,Closing',
         ]);
 
         \Log::info('Validation passed:', $validated);
@@ -148,7 +154,10 @@ class AcademicTermController extends Controller
             }
 
             //start new term
-            $newTerm = AcademicTerms::create(array_merge($validated, ['is_active' => true]));
+            $newTerm = AcademicTerms::create(array_merge($validated, [
+                'is_active' => true,
+                'status' => $validated['status'] ?? 'Ongoing',
+            ]));
             \Log::info('New term created:', ['term_id' => $newTerm->id]);
 
             // Determine if we should trigger automated tasks (promotion, invoices, notifications)
@@ -315,12 +324,28 @@ class AcademicTermController extends Controller
 
             // Deactivate current active term
             $activeTerm = AcademicTerms::where('is_active', true)->first();
+
+            if ($activeTerm && $activeTerm->semester === '2nd Semester' && $newTerm->semester === '1st Semester') {
+                $unevaluatedCount = $this->studentService->countUnevaluatedStudentsForTerm($activeTerm->id);
+
+                if ($unevaluatedCount > 0) {
+                    DB::rollBack();
+                    return redirect()->back()->with(
+                        'error',
+                        "There are still {$unevaluatedCount} unevaluated students in the current term. Please review their promotion eligibility and finalize evaluations before switching to a new academic year."
+                    );
+                }
+            }
+
             if ($activeTerm) {
                 $activeTerm->update(['is_active' => false]);
             }
 
             // Activate new term
-            $newTerm->update(['is_active' => true]);
+            $newTerm->update([
+                'is_active' => true,
+                'status' => 'Ongoing',
+            ]);
 
             // Determine if we should trigger automated tasks (promotion, invoices, notifications)
             // Only trigger when transitioning to a NEW SCHOOL YEAR (2nd semester → 1st semester)
@@ -506,7 +531,8 @@ class AcademicTermController extends Controller
                 'semester' => 'required|string|max:255',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after:start_date',
-                'is_active' => 'required|in:0,1'
+                'is_active' => 'required|in:0,1',
+                'status' => 'required|in:Upcoming,Ongoing,Closing',
             ]);
 
             // Store original values for comparison

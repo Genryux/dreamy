@@ -603,6 +603,9 @@ class ApplicationFormController extends Controller
                     $enrollmentSummary = $this->dashboardDataService->getEnrollmentSummary();
                 }
 
+                $currentAcadTerm = $data['currentAcadTerm'] ?? null;
+                $unevaluatedStudentsCount = $this->studentService->countUnevaluatedStudentsForTerm($currentAcadTerm?->id);
+
                 return view('user-admin.dashboard', [
                     'applications' => $recentApplications = $data['recentApplications'] ?? collect(),
                     'pendingApplicationsCount' => $totalPendingApplications = $data['totalPendingApplications'] ?? 0,
@@ -610,12 +613,13 @@ class ApplicationFormController extends Controller
                     'pendingDocumentsApplicationsCount' => $totalPendingDocumentsApplications = $data['totalPendingDocumentsApplications'] ?? 0,
                     'enrolledApplicationsCount' => $totalEnrolledApplications = $data['totalEnrolledApplications'] ?? 0,
                     'applicationCount' => $totalApplications = $data['totalApplications'] ?? 0,
-                    'currentAcadTerm' => $currentAcadTerm = $data['currentAcadTerm'] ?? null,
+                    'currentAcadTerm' => $currentAcadTerm,
                     'activeEnrollmentPeriod' => $activeEnrollmentPeriod = $data['activeEnrollmentPeriod'] ?? null,
                     'enrollmentSummary' => $enrollmentSummary,
                     'countStudentStatuses' => $this->studentService->countStudentStatuses(),
                     'inactiveTerms' => $data['inactiveTerms'] ?? collect(),
-                    'quickStats' => $data['quickStats'] ?? []
+                    'quickStats' => $data['quickStats'] ?? [],
+                    'unevaluatedStudentsCount' => $unevaluatedStudentsCount,
                 ]);
             }
 

@@ -29,6 +29,9 @@ class PrivateImmediateNotification extends Notification
      */
     public function via(object $notifiable): array
     {
+        if (!$this->broadcastChannel && isset($notifiable->id)) {
+            $this->broadcastChannel = 'user.' . $notifiable->id;
+        }
         return ['broadcast']; // Only broadcast, immediate delivery (not queued)
     }
 
@@ -39,7 +42,13 @@ class PrivateImmediateNotification extends Notification
     {
         // Ensure we always have a valid channel name
         $channelName = $this->broadcastChannel ?? ($notifiable ? 'user.' . $notifiable->id : 'user.1');
-        return new \Illuminate\Broadcasting\Channel($channelName);
+
+        if ($channelName instanceof \Closure || !is_string($channelName)) {
+            $channelName = $notifiable && isset($notifiable->id)
+                ? 'user.' . $notifiable->id
+                : 'user.1';
+        }
+        return new PrivateChannel($channelName);
     }
 
     /**

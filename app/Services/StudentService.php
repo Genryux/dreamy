@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\EnrollmentPeriod;
 use App\Models\Student;
+use App\Models\StudentEnrollment;
 use App\Notifications\PrivateImmediateNotification;
 use App\Notifications\PrivateQueuedNotification;
 use Carbon\Carbon;
@@ -292,14 +293,12 @@ class StudentService
             $sharedNotificationId
         ));
 
-        Notification::route('broadcast', 'user.' . $user->id)
-            ->notify(new PrivateImmediateNotification(
-                "Enrollment Confirmation!",
-                "The new academic term has officially begun. Click this notification or head to your Dashboard to confirm your enrollment.",
-                null,
-                $sharedNotificationId,
-                'user.' . $student->id
-            ));
+        $user->notify(new PrivateImmediateNotification(
+            "Enrollment Confirmation!",
+            "The new academic term has officially begun. Click this notification or head to your Dashboard to confirm your enrollment.",
+            null,
+            $sharedNotificationId
+        ));
     }
 
     public function countStudentStatuses()
@@ -326,6 +325,19 @@ class StudentService
             'not_evaluated' => Student::whereIn('grade_level', ['Grade 11', 'Grade 12'])
                 ->whereNull('academic_status')->count(),
         ];
+    }
+
+    public function countUnevaluatedStudentsForTerm(?int $academicTermId): int
+    {
+        if (!$academicTermId) {
+            return 0;
+        }
+
+        return StudentEnrollment::where('academic_term_id', $academicTermId)
+            ->join('students', 'students.id', '=', 'student_enrollments.student_id')
+            ->whereNull('students.academic_status')
+            ->where('students.status', 'Officially Enrolled')
+            ->count('students.id');
     }
 
     /**

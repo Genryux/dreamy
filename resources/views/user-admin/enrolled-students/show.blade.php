@@ -23,6 +23,13 @@
     </nav>
 @endsection
 @section('modal')
+    @php
+        $isClosingTerm = ($activeTerm?->status === 'Closing');
+        $isSecondSemester = ($activeTerm?->semester === '2nd Semester');
+        $canAdminEvaluate = $student->status === 'Officially Enrolled' && $student->academic_status === null && $isClosingTerm && $isSecondSemester;
+        $canAdminPromote = $student->status === 'Officially Enrolled' && $isClosingTerm && $isSecondSemester;
+    @endphp
+
     <x-modal modal_id="generate-coe-modal" modal_name="Generate Certificate of Enrollment"
         close_btn_id="generate-coe-close-btn" modal_container_id="modal-container-coe">
         <style>
@@ -125,9 +132,9 @@
                         </div>
                     </label>
 
-                    <p class="self-center text-[14px] text-gray-500">Once a new academic term has startedPlease make sure
-                        you select the correct option, as this
-                        action cannot be undone.</p>
+                    <p id="evaluation-dynamic-message" class="self-center text-[13px] text-gray-600"></p>
+                    <p class="self-center text-[14px] text-gray-500">Once a new academic term has started, please make sure
+                        you select the correct option, as this action cannot be undone.</p>
                 </div>
             </div>
 
@@ -140,8 +147,9 @@
                 Cancel
             </button>
             <button type="submit" form="evaluate-form"
-                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate"></i>Confirm
-                Result
+                class="bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-[#C8A165]/20 hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate disabled:opacity-50 disabled:cursor-not-allowed"
+                @if (!$canAdminEvaluate) disabled @endif>
+                </i>Confirm Result
             </button>
         </x-slot>
     </x-modal>
@@ -337,7 +345,8 @@
                 Cancel
             </button>
             <button type="submit" form="promote-form"
-                class="bg-teal-600 hover:bg-teal-700 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white transition duration-200 shadow-lg">
+                class="bg-teal-600 hover:bg-teal-700 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white transition duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                @if (!$canAdminPromote) disabled @endif>
                 <i class="fi fi-rr-arrow-up mr-1"></i>Confirm Promotion
             </button>
         </x-slot>
@@ -1204,10 +1213,7 @@
 
 
                         <!-- Update Academic Status -->
-                        @if (
-                            $student->status === 'Officially Enrolled' &&
-                            $student->academic_status === null &&
-                            isset($acadTerm) && ($acadTerm->semester === '2nd Semester' || $acadTerm->semester === 'Second Semester'))
+                        @if ($canAdminEvaluate)
                             <button id="evaluate-student-btn"
                                 class="group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1">
                                 <div class="flex items-center space-x-3">
@@ -1222,8 +1228,8 @@
                                 </div>
                             </button>
                         @else
-                            <button disabled title="Only available at the end of the school year or in 2nd semester"
-                                class="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white rounded-xl p-4 transition-all duration-300 ">
+                            <button disabled title="Available only during Closing status in 2nd semester"
+                                class="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white rounded-xl p-4 transition-all duration-300">
                                 <div class="flex items-center space-x-3">
                                     <div
                                         class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -1239,7 +1245,7 @@
 
                         @hasanyrole('registrar|super_admin')
                             <!-- Promote Student -->
-                            @if ($student->status === 'Officially Enrolled')
+                            @if ($canAdminPromote)
                                 <button id="promote-student-btn"
                                     class="group relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-1">
                                     <div class="flex items-center space-x-3">
@@ -1250,6 +1256,20 @@
                                         <div class="text-left">
                                             <p class="font-semibold text-sm">Promote Student</p>
                                             <p class="text-xs text-teal-100">Advance to next level</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            @elseif ($student->status === 'Officially Enrolled')
+                                <button disabled title="Available only during Closing status in 2nd semester"
+                                    class="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white rounded-xl p-4 transition-all duration-300">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i class="fi fi-rr-arrow-up flex justify-center items-center text-lg"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-sm">Promote Student</p>
+                                            <p class="text-xs text-gray-100">Advance to next level</p>
                                         </div>
                                     </div>
                                 </button>
@@ -1987,6 +2007,28 @@
         } from "{{ asset('js/alert.js') }}";
 
         document.addEventListener("DOMContentLoaded", function() {
+
+            const evaluationDynamicMessage = document.getElementById('evaluation-dynamic-message');
+            const evaluationResultInputs = document.querySelectorAll('input[name="result"]');
+
+            function updateEvaluationMessage(value) {
+                if (!evaluationDynamicMessage) return;
+                if (value === 'Passed') {
+                    evaluationDynamicMessage.textContent =
+                        'Once a new academic term has started, the student will be automatically promoted to the next level.';
+                } else if (value === 'Failed') {
+                    evaluationDynamicMessage.textContent =
+                        'Once a new academic term has started, the student will be marked as retained and will not be promoted to the next level.';
+                }
+            }
+
+            if (evaluationResultInputs.length) {
+                evaluationResultInputs.forEach((input) => {
+                    input.addEventListener('change', (e) => updateEvaluationMessage(e.target.value));
+                });
+                const checked = document.querySelector('input[name="result"]:checked');
+                updateEvaluationMessage(checked ? checked.value : 'Passed');
+            }
 
             // Handle flash messages from server
             @if (session('success'))

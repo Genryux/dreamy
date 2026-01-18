@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\SectionSubject;
+use App\Notifications\PrivateImmediateNotification;
+use App\Notifications\PrivateQueuedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Notification;
 
 class SectionSubjectsController extends Controller
 {
@@ -39,6 +42,24 @@ class SectionSubjectsController extends Controller
         ]);
 
         $sectionSubject = SectionSubject::create($validated);
+        $sectionSubject->load(['teacher.user', 'subject', 'section']);
+
+        if ($sectionSubject->teacher?->user) {
+            $sharedId = 'subject-assigned-' . $sectionSubject->id . '-' . uniqid();
+            $sectionSubject->teacher->user->notify(new PrivateQueuedNotification(
+                'New Subject Assignment',
+                "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                url("/teacher/subject/{$sectionSubject->id}"),
+                $sharedId
+            ));
+
+            $sectionSubject->teacher->user->notify(new PrivateImmediateNotification(
+                'New Subject Assignment',
+                "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                url("/teacher/subject/{$sectionSubject->id}"),
+                $sharedId
+            ));
+        }
 
         return response()->json([
             'success' => true,
@@ -73,6 +94,27 @@ class SectionSubjectsController extends Controller
         ]);
 
         $sectionSubject->update($validated);
+        $sectionSubject->load(['teacher.user', 'subject', 'section']);
+
+        if (array_key_exists('teacher_id', $validated)) {
+            $teacherUser = $sectionSubject->teacher?->user;
+            if ($teacherUser) {
+                $sharedId = 'subject-assigned-' . $sectionSubject->id . '-' . uniqid();
+                $teacherUser->notify(new PrivateQueuedNotification(
+                    'New Subject Assignment',
+                    "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                    url("/teacher/subject/{$sectionSubject->id}"),
+                    $sharedId
+                ));
+
+                $teacherUser->notify(new PrivateImmediateNotification(
+                    'New Subject Assignment',
+                    "You have been assigned to teach {$sectionSubject->subject->name} for section {$sectionSubject->section->name}.",
+                    url("/teacher/subject/{$sectionSubject->id}"),
+                    $sharedId
+                ));
+            }
+        }
 
         return response()->json([
             'success' => true,

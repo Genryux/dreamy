@@ -11,7 +11,7 @@ class AcademicTerms extends Model
 
     protected $table = "academic_terms";
     protected $fillable = [
-        'year', 'semester', 'start_date', 'end_date', 'is_active'
+        'year', 'semester', 'start_date', 'end_date', 'is_active', 'status'
     ];
 
     // Cast dates to proper date objects
@@ -19,6 +19,7 @@ class AcademicTerms extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'is_active' => 'boolean',
+        'status' => 'string',
     ];
 
     public function getFullNameAttribute() {

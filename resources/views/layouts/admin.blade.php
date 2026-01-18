@@ -280,6 +280,16 @@
         <div id="content" class="relative flex-1 flex flex-col transition-all duration-300 w-full">
             <!-- Top Navigation Bar -->
             @unless (Request::is('invoice/*'))
+                @php
+                    $activeTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
+                    $termStatus = $activeTerm?->status ?? null;
+                    $statusStyles = [
+                        'Closing' => 'bg-red-50 text-red-600 border-red-300',
+                        'Ongoing' => 'bg-green-50 text-green-600 border-green-300',
+                        'Upcoming' => 'bg-gray-50 text-gray-600 border-gray-300',
+                    ];
+                    $statusClass = $statusStyles[$termStatus] ?? 'bg-gray-50 text-gray-600 border-gray-300';
+                @endphp
                 <header id="top-nav-bar"
                     class="z-10 bg-transparent h-[60px] px-[10px] flex justify-between items-center gap-2 sticky top-0 border-b border-[#1e1e1e]/5 hover:shadow-sm transition duration-200">
 
@@ -299,6 +309,26 @@
                         class="md:hidden flex flex-row py-2 px-2 hover:bg-[#e0e0e0] rounded-md transition-all duration-150">
                         <i class="fi fi-rs-menu-burger text-[20px]"></i>
                     </button>
+
+                    <div class="flex-1 flex justify-center">
+                        @if ($activeTerm)
+                            <div class="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white/70">
+                                <span class="text-[14px] font-semibold text-gray-700">
+                                    {{ $activeTerm->full_name }}
+                                </span>
+                                <span class="text-[14px] font-medium text-gray-500">|</span>
+                                <span class="text-[12px] font-semibold">Status:</span>
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border {{ $statusClass }} text-[12px] font-semibold">
+                                    <span class="w-2.5 h-2.5 rounded-full {{ str_contains($statusClass, 'red') ? 'bg-red-500' : (str_contains($statusClass, 'green') ? 'bg-green-500' : 'bg-gray-500') }}"></span>
+                                    {{ $termStatus }}
+                                </span>
+                            </div>
+                        @else
+                            <div class="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white shadow-sm">
+                                <span class="text-[14px] font-semibold text-gray-600">No active term</span>
+                            </div>
+                        @endif
+                    </div>
 
                     <div class="flex flex-row items-center space-x-2">
                         {{-- Notification Bell --}}
@@ -647,6 +677,38 @@
 
                 // Simple real-time listener
                 const userRoles = window.Laravel?.user?.roles?.map(role => role.name || role) || [];
+                const currentUserId = window.Laravel?.user?.id || null;
+
+                // Listen to private user channel for direct notifications
+                if (currentUserId && window.Echo) {
+                    window.Echo.private(`user.${currentUserId}`)
+                        .listen('.notification', (e) => {
+                            loadNotifications();
+
+                            if (Notification.permission === 'granted') {
+                                new Notification(e.title || 'Notification', {
+                                    body: e.message || '',
+                                    icon: '/favicon.ico'
+                                });
+                            }
+                        })
+                        .listen('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (e) => {
+                            loadNotifications();
+
+                            if (Notification.permission === 'granted') {
+                                new Notification(e.title || 'Notification', {
+                                    body: e.message || '',
+                                    icon: '/favicon.ico'
+                                });
+                            }
+                        })
+                        .subscribed(() => {
+                            console.log('Successfully subscribed to private user channel');
+                        })
+                        .error((error) => {
+                            console.error('Private user channel error:', error);
+                        });
+                }
 
                 // Listen to admins channel (registrar, super_admin)
                 if (userRoles.some(role => ['registrar', 'super_admin'].includes(role))) {

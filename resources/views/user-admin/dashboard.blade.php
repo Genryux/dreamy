@@ -77,7 +77,28 @@
                     </div>
                 </div>
 
+                <!-- Status Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="edit_status" class="text-sm font-medium text-gray-700 mb-2">Term Status</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-flag text-gray-400"></i>
+                            </div>
+                            <select name="status" id="edit_status"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                                <option value="Upcoming">Upcoming</option>
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="Closing">Closing</option>
+                            </select>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Use Closing to allow evaluations.</p>
+                    </div>
+                </div>
+
                 <input type="hidden" name="is_active" value="0">
+                <input type="hidden" name="status" value="Upcoming">
 
                 {{-- <!-- Active Status -->
                 <div class="flex flex-col">
@@ -177,22 +198,28 @@
                     </div>
                 </div>
 
-                <!-- Active Status -->
-                <div class="flex flex-col">
-                    <label for="edit_is_active" class="text-sm font-medium text-gray-700 mb-2">Set as Active Term?</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fi fi-rr-settings text-gray-400"></i>
+                <!-- Status Row -->
+                <div class="flex flex-row gap-4">
+                    <div class="flex-1 flex flex-col">
+                        <label for="edit_status" class="text-sm font-medium text-gray-700 mb-2">Term Status</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fi fi-rr-flag text-gray-400"></i>
+                            </div>
+                            <select name="status" id="edit_status"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
+                                required>
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="Closing">Closing</option>
+                                <option value="Upcoming">Upcoming</option>
+                            </select>
                         </div>
-                        <select name="is_active" id="edit_is_active"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                            required>
-                            <option value="">Select Status</option>
-                            <option value="1">Yes - Set as Active</option>
-                            <option value="0">No - Keep Inactive</option>
-                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Use Closing to enable evaluations.</p>
                     </div>
                 </div>
+
+                <input type="hidden" name="is_active" id="edit_is_active">
+
             </div>
         </form>
 
@@ -560,161 +587,6 @@
         </x-modal>
     @endif
 
-    @if ($currentAcadTerm)
-        <x-modal modal_id="start-academic-term" modal_name="Start new academic term"
-            close_btn_id="start-academic-term-close-btn" modal_container_id="modal-container-start-term">
-            <x-slot name="modal_icon">
-                <i class='fi fi-rr-calendar flex justify-center items-center'></i>
-            </x-slot>
-
-            <form action="/new-term/{{ $currentAcadTerm->id }}" method="POST" id="start-academic-term-form"
-                class="p-6">
-                @csrf
-                <input type="hidden" name="status" id="ep-status" value="Closed">
-
-                <div class="space-y-4">
-
-                    <div class="space-y-4">
-                        <!-- Period and Semester Row -->
-                        <div class="flex flex-row gap-4">
-                            <div class="flex-1 flex flex-col">
-                                <label for="year" class="text-sm font-medium text-gray-700 mb-2">Academic Year</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fi fi-rr-calendar-day text-gray-400"></i>
-                                    </div>
-                                    <input type="text" name="year" id="year" placeholder="2024-2025"
-                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                        required>
-                                </div>
-                            </div>
-                            <div class="flex-1 flex flex-col">
-                                <label for="semester" class="text-sm font-medium text-gray-700 mb-2">Semester</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fi fi-rr-clock-five text-gray-400"></i>
-                                    </div>
-                                    <select name="semester" id="semester"
-                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                        required>
-                                        <option value="">Select Semester</option>
-                                        <option value="1st Semester" selected>1st Semester</option>
-                                        <option value="2nd Semester">2nd Semester</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Start and End Date Row -->
-                        <div class="flex flex-row gap-4">
-                            <div class="flex-1 flex flex-col">
-                                <label for="start_date" class="text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fi fi-rr-calendar-check text-gray-400"></i>
-                                    </div>
-                                    <input type="date" name="start_date" id="start_date"
-                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                        required>
-                                </div>
-                            </div>
-                            <div class="flex-1 flex flex-col">
-                                <label for="end_date" class="text-sm font-medium text-gray-700 mb-2">End Date</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fi fi-rr-calendar-xmark text-gray-400"></i>
-                                    </div>
-                                    <input type="date" name="end_date" id="end_date"
-                                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#199BCF]/20 focus:border-[#199BCF] transition duration-150"
-                                        required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fi fi-rr-exclamation-triangle text-yellow-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h4 class="text-sm font-medium text-yellow-900">Important Notice</h4>
-                                <p class="text-[13px] text-yellow-800 mt-2">This process will:</p>
-                                <div class="mt-1 text-sm text-yellow-700">
-                                    <ul class="list-disc list-inside space-y-1">
-                                        <li>
-                                            Promote all students to the next year level, including those not yet evaluated.
-                                            <i class="text-[12px]">(Completed grade 12 students will be mark as Graduated.)
-                                            </i>
-                                        </li>
-                                        <li>
-                                            Set all student statuses to <span class="font-medium">“Pending
-                                                Confirmation”</span> , prompting them to confirm
-                                            enrollment via the mobile app.
-                                        </li>
-                                        <li>
-                                            Automatically assign all relevant school fees.
-                                        </li>
-                                    </ul>
-                                    <h4 class="mt-2 text-[13px]">
-                                        Please review all student records carefully before initiating this process to ensure
-                                        accuracy.
-                                    </h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fi fi-rr-exclamation-triangle text-gray-400"></i>
-                            </div>
-                            <div class="ml-3 w-full">
-                                <h4 class="text-sm font-medium text-gray-900">Summary</h4>
-                                <div class="mt-1 text-sm text-gray-700 flex flex-row justify-evenly items-center w-full">
-                                    <div class="flex flex-col justify-center items-center">
-                                        <span>To promote</span>
-                                        <span
-                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['to_promote'] }}</span>
-                                    </div>
-                                    <div class="flex flex-col justify-center items-center">
-                                        <span>To retain</span>
-                                        <span
-                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['to_retain'] }}</span>
-
-                                    </div>
-                                    <div class="flex flex-col justify-center items-center">
-                                        <span>To graduate</span>
-                                        <span
-                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['to_graduate'] }}</span>
-
-                                    </div>
-                                    <div class="flex flex-col justify-center items-center">
-                                        <span>Not Evaluated</span>
-                                        <span
-                                            class="font-semibold text-gray-600">{{ $countStudentStatuses['not_evaluated'] }}</span>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            <x-slot name="modal_buttons">
-                <button id="start-academic-term-cancel-btn"
-                    class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2.5 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
-                    Cancel
-                </button>
-                <button type="submit" form="start-academic-term-form" id="start-academic-term-confirmation"
-                    data-id="{{ $currentAcadTerm->id }}"
-                    class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2.5 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#C8A165] hover:scale-95 transition duration-200 shadow-[#199BCF]/20 hover:shadow-[#C8A165]/20 shadow-lg truncate">
-                    Start New Term
-                </button>
-            </x-slot>
-        </x-modal>
-    @endif
 @endsection
 
 @section('dashboard-acad-term')
@@ -740,24 +612,15 @@
             <div class="flex-1 w-full flex flex-row items-center bg-blue-50 rounded-xl justify-between p-6">
                 <div class="flex flex-row items-center justify-center">
                     @if (@isset($currentAcadTerm->id))
-                        <button id="edit-acad-term-btn"
-                            class="flex flex-col justify-center items-start text-gray-800 hover:text-blue-400 ease-in-out duration-150 cursor-pointer space-y-1"
-                            data-term-id="{{ $currentAcadTerm->id }}" data-year="{{ $currentAcadTerm->year }}"
-                            data-semester="{{ $currentAcadTerm->semester }}"
-                            data-start-date="{{ $currentAcadTerm->start_date }}"
-                            data-end-date="{{ $currentAcadTerm->end_date }}"
-                            data-is-active="{{ $currentAcadTerm->is_active }}" title="Click to edit academic term">
-
+                        <div class="flex flex-col justify-center items-start text-gray-800 space-y-1">
                             @if ($currentAcadTerm->year === null)
                                 <span class="font-bold text-[16px] ">No active academic year yet.</span>
                             @else
                                 <span class="font-bold text-[16px] ">Academic Year {{ $currentAcadTerm->year }}</span>
-                                <span
-                                    class="text-[14px] font-semibold text-gray-700">{{ $currentAcadTerm->semester }}</span>
-                                <span
-                                    class="text-[12px] font-medium text-gray-500">{{ \Carbon\Carbon::parse($currentAcadTerm->start_date)->format('M. d, Y') . ' - ' . \Carbon\Carbon::parse($currentAcadTerm->end_date)->format('M. d, Y') }}</span>
+                                <span class="text-[14px] font-semibold text-gray-700">{{ $currentAcadTerm->semester }}</span>
+                                <span class="text-[12px] font-medium text-gray-500">{{ \Carbon\Carbon::parse($currentAcadTerm->start_date)->format('M. d, Y') . ' - ' . \Carbon\Carbon::parse($currentAcadTerm->end_date)->format('M. d, Y') }}</span>
                             @endif
-                        </button>
+                        </div>
                     @else
                         <button
                             class="flex flex-col justify-center items-start text-blue-500 hover:text-blue-400 ease-in-out duration-150 py-7">
@@ -780,6 +643,19 @@
                             class="absolute top-full right-0 mt-2 w-64 z-20 bg-white flex-col justify-center items-center gap-1 rounded-lg shadow-lg border border-[#1e1e1e]/10 py-2 px-1 opacity-0 scale-95 pointer-events-none transition-all duration-200 ease-out transform origin-top-right">
 
                             @if ($currentAcadTerm)
+                                {{-- Update Current Term --}}
+                                <button id="edit-acad-term-btn"
+                                    class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-gray-700 hover:bg-blue-50 hover:text-[#199BCF] rounded-md transition-colors duration-150 text-left"
+                                    data-term-id="{{ $currentAcadTerm->id }}" data-year="{{ $currentAcadTerm->year }}"
+                                    data-semester="{{ $currentAcadTerm->semester }}"
+                                    data-start-date="{{ optional($currentAcadTerm->start_date)->format('Y-m-d') }}"
+                                    data-end-date="{{ optional($currentAcadTerm->end_date)->format('Y-m-d') }}"
+                                    data-is-active="{{ $currentAcadTerm->is_active }}"
+                                    data-status="{{ $currentAcadTerm->status ?? 'Ongoing' }}">
+                                    <i class="fi fi-rr-edit text-[16px]"></i>
+                                    Update Current Term
+                                </button>
+
                                 {{-- Add Future Term --}}
                                 <button id="acad-term-btn"
                                     class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-gray-700 hover:bg-blue-50 hover:text-[#199BCF] rounded-md transition-colors duration-150 text-left">
@@ -794,14 +670,6 @@
                                     Switch to Existing Term
                                 </button>
 
-                                <div class="my-1 border-t border-gray-100"></div>
-
-                                {{-- End & Start New Term --}}
-                                <button id="end-term-btn"
-                                    class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150 text-left">
-                                    <i class="fi fi-sr-calendar-xmark text-[16px]"></i>
-                                    End & Start New Term
-                                </button>
                             @else
                                 <button id="acad-term-btn"
                                     class="flex w-full justify-start items-center px-4 py-2.5 gap-3 text-[14px] font-medium text-[#199BCF] hover:bg-blue-50 rounded-md transition-colors duration-150 text-left">
@@ -820,7 +688,8 @@
                     <i class='fi fi-rr-exchange flex justify-center items-center'></i>
                 </x-slot>
 
-                <form action="/academic-terms/switch" method="POST" id="switch-term-form" class="p-6">
+                <form action="/academic-terms/switch" method="POST" id="switch-term-form"
+                    class="p-6 overflow-y-scroll">
                     @csrf
                     <div class="space-y-4">
                         {{-- Current Term Indicator --}}
@@ -843,21 +712,26 @@
                             </div>
                         @endif
 
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fi fi-rr-info text-blue-400"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-blue-800">Term Switching</h3>
-                                    <div class="mt-2 text-sm text-blue-700">
-                                        <p>Before switching, please review the quick stats below to confirm there are no
-                                            unpaid invoices and that all students have been reviewed and evaluated.</p>
 
+
+                        @if (($unevaluatedStudentsCount ?? 0) > 0)
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fi fi-rr-exclamation text-red-500"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-red-800">Switching Restricted</h3>
+                                        <div class="mt-1 text-sm text-red-700">
+                                            There are still <strong>{{ $unevaluatedStudentsCount }}</strong> unevaluated
+                                            students in the current term.
+                                            Please assess their promotion eligibility first before proceeding to switch.
+                                            This helps keep promotions and enrollment records accurate.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
 
                         <div class="flex flex-col">
                             <label for="term_id" class="text-sm font-medium text-gray-700 mb-2">Select Target
@@ -890,25 +764,33 @@
                             class="hidden p-4 bg-orange-50 border border-orange-400 rounded-lg">
                             <div class="flex gap-3">
                                 <div class="flex-shrink-0">
-                                    <i class="fi fi-rr-exclamation text-orange-500 text-xl"></i>
+                                    <i class="fi fi-rr-exclamation text-orange-500"></i>
                                 </div>
                                 <div class="flex-1">
-                                    <h4 class="text-sm font-bold text-orange-700 mb-1">⚠️ Semester Skip Detected</h4>
+                                    <h4 class="text-sm font-bold text-orange-700 mb-1">Semester Skip Detected</h4>
                                     <p id="semester-skip-message" class="text-sm text-orange-600"></p>
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            class="p-4 bg-red-100 border border-red-400 rounded-md flex flex-col justify-center items-center gap-2">
-                            <h4 class="text-sm font-bold text-red-500 flex justify-center items-center gap-2"><i
-                                    class="fi fi-br-triangle-warning flex items-center justify-center"></i> Critical
-                                Warning</h4>
-                            <p class="text-sm text-center text-red-500">Please avoid switching terms <strong>prematurely or
-                                    carelessly</strong>. Doing so <strong>may trigger automated tasks</strong> and result in
-                                <strong>unintended or irreversible consequences</strong>.
-                            </p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fi fi-rr-info text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-gray-700">Term Switching</h3>
+                                    <div class="mt-2 text-sm text-gray-600">
+                                        <p>
+                                            <b>Bef</b>ore <b>switc</b>hing <b>ter</b>ms, <b>ple</b>ase <b>rev</b>iew <b>t</b>he <b>sum</b>mary <b>bel</b>ow <b>t</b>o
+                                            <b>en</b>sure <b>th</b>ere <b>a</b>re <b>n</b>o <b>unp</b>aid <b>inv</b>oices <b>a</b>nd <b>th</b>at <b>a</b>ll <b>stud</b>ents <b>ha</b>ve <b>be</b>en <b>rev</b>iewed <b>a</b>nd <b>eval</b>uated. <b>Swit</b>ching <b>ter</b>ms <b>trig</b>gers <b>auto</b>mated <b>proce</b>sses <b>th</b>at <b>m</b>ay be <b>irreve</b>rsible. <b>Proc</b>eed <b>on</b>ly <b>wh</b>en <b>y</b>ou <b>a</b>re <b>cer</b>tain <b>a</b>ll <b>requir</b>ements <b>ha</b>ve <b>be</b>en <b>comp</b>leted.
+                                        </p>
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                 </form>
 
@@ -928,7 +810,8 @@
                         Cancel
                     </button>
                     <button type="submit" form="switch-term-form"
-                        class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#1580aa] hover:scale-95 transition duration-200 shadow-lg truncate">
+                        class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#1580aa] hover:scale-95 transition duration-200 shadow-lg truncate disabled:opacity-50 disabled:cursor-not-allowed"
+                        @if (($unevaluatedStudentsCount ?? 0) > 0) disabled @endif>
                         Confirm Switch
                     </button>
 
@@ -1104,8 +987,7 @@
                                         </span>
                                     </div>
                                 @elseif ($activeEnrollmentPeriod->status == 'Paused')
-                                    <div
-                                        class="flex justify-center items-center border border-red-400 rounded-full mt-1 ">
+                                    <div class="flex justify-center items-center border border-red-400 rounded-full mt-1 ">
                                         <span id="status-span"
                                             class="flex justify-center items-center gap-1 text-[12px] text-red-500 bg-red-100 animate-pulse px-2 py-1 rounded-full">
                                             <div class="h-[12px] w-[12px] bg-red-400 rounded-full animate-pulse"></div>
@@ -1638,8 +1520,6 @@
                 'modal-container-2');
             initModal('end-enrollment-modal', 'end-enrollment-btn', 'end-enrollment-close-btn',
                 'end-enrollment-cancel-btn', 'modal-container-3');
-            initModal('start-academic-term', 'end-term-btn', 'start-academic-term-close-btn',
-                'start-academic-term-cancel-btn', 'modal-container-start-term');
             initModal('edit-period-modal', 'edit-period-btn', 'edit-enrollment-close-btn',
                 'edit-period-cancel-btn', 'modal-container-edit-period');
             initModal('switch-term-modal', 'switch-term-btn', 'switch-term-close-btn',
@@ -1759,6 +1639,7 @@
                     const startDate = this.getAttribute('data-start-date');
                     const endDate = this.getAttribute('data-end-date');
                     const isActive = this.getAttribute('data-is-active');
+                    const status = this.getAttribute('data-status');
 
                     // Populate the edit form
                     document.getElementById('edit_year').value = year;
@@ -1766,6 +1647,7 @@
                     document.getElementById('edit_start_date').value = startDate;
                     document.getElementById('edit_end_date').value = endDate;
                     document.getElementById('edit_is_active').value = isActive;
+                    document.getElementById('edit_status').value = status || 'Ongoing';
 
                     // Update form action URL
                     const editForm = document.getElementById('edit-academic-term-form');
@@ -1936,21 +1818,24 @@
                         statusContainer.classList.add('rounded-full', 'mt-1');
                     } else {
                         const wrapper = document.createElement('div');
-                        wrapper.className = 'flex justify-center items-center border border-red-400 rounded-full mt-1';
+                        wrapper.className =
+                            'flex justify-center items-center border border-red-400 rounded-full mt-1';
                         statusSpan.parentElement.replaceChild(wrapper, statusSpan);
                         wrapper.appendChild(statusSpan);
                         statusContainer = wrapper;
                     }
 
                     // Update container background
-                    document.querySelector('#enrollment-cont').classList.remove('bg-blue-50', 'bg-green-50');
+                    document.querySelector('#enrollment-cont').classList.remove('bg-blue-50',
+                        'bg-green-50');
                     document.querySelector('#enrollment-cont').classList.add('bg-red-50');
 
                 } else if (event.enrollmentPeriod.status == 'Ongoing') {
                     // Create wrapper div if needed
                     if (!statusContainer.classList.contains('border')) {
                         const wrapper = document.createElement('div');
-                        wrapper.className = 'flex justify-center items-center border border-green-400 rounded-full mt-1';
+                        wrapper.className =
+                            'flex justify-center items-center border border-green-400 rounded-full mt-1';
                         statusSpan.parentElement.replaceChild(wrapper, statusSpan);
                         wrapper.appendChild(statusSpan);
                         statusContainer = wrapper;
@@ -1958,17 +1843,17 @@
                         statusContainer.classList.add('border', 'border-green-400', 'rounded-full', 'mt-1');
                         statusContainer.classList.remove('border-red-400');
                     }
-                    
+
                     // Update status text with circular indicator
                     statusSpan.innerHTML = `
                         <div class="h-[12px] w-[12px] bg-green-400 rounded-full animate-pulse"></div>
                         Ongoing
                     `;
-                    
+
                     // Update span colors
                     statusSpan.classList.remove('text-red-500', 'bg-red-100');
                     statusSpan.classList.add('text-green-500', 'bg-green-100');
-                    
+
                     // Update container background
                     document.querySelector('#enrollment-cont').classList.remove('bg-red-50', 'bg-blue-50');
                     document.querySelector('#enrollment-cont').classList.add('bg-green-50');
