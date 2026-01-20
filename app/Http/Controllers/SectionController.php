@@ -284,15 +284,26 @@ class SectionController extends Controller
                 ->with(['user', 'record'])
                 ->offset($start)
                 ->limit($request->length)
-                ->get(['id', 'user_id', 'lrn', 'grade_level', 'program_id'])
+                ->get(['id', 'user_id', 'lrn', 'grade_level', 'program_id', 'status'])
                 ->map(function ($item, $key) use ($start) {
+                    $record = $item->record;
+                    $birthdate = $record?->birthdate ? $record->birthdate->format('M d, Y') : '-';
+                    $address = $record?->current_address
+                        ?? $record?->permanent_address
+                        ?? ($record ? trim($record->currentAddress()) : '-')
+                        ?? '-';
+
                     return [
                         'index' => $start + $key + 1,
                         'lrn' => $item->lrn,
                         'full_name' => ($item->user?->last_name ?? '') . ', ' . ($item->user?->first_name ?? ''),
-                        'age' => $item->record?->age ?? '-',
-                        'gender' => $item->record?->gender ?? '-',
-                        'contact_number' => $item->record?->contact_number ?? '-',
+                        'age' => $record?->age ?? '-',
+                        'gender' => $record?->gender ?? '-',
+                        'contact_number' => $record?->contact_number ?? '-',
+                        'email' => $item->user?->email ?? '-',
+                        'birthdate' => $birthdate,
+                        'address' => $address ?: '-',
+                        'status' => $item->status ?? $record?->academic_status ?? '-',
                         'id' => $item->id
                     ];
                 });

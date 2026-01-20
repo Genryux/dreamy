@@ -227,7 +227,16 @@ class TeacherManagementController extends Controller
         }
 
         // Get sections where teacher is adviser
-        $advisedSections = $teacher->sections()->with(['program', 'enrollments'])->get();
+        $advisedSections = $teacher->sections()
+            ->with([
+                'program',
+                'enrollments.student.user',
+                'sectionSubjects' => function ($query) use ($teacher) {
+                    $query->where('teacher_id', $teacher->id)
+                          ->with(['subject', 'teacher.user']);
+                },
+            ])
+            ->get();
         
         // Get sections where teacher teaches subjects
         $teachingSections = Section::whereHas('sectionSubjects', function($query) use ($teacher) {
@@ -253,6 +262,66 @@ class TeacherManagementController extends Controller
         $programs = \App\Models\Program::where('status', 'active')->get();
 
         // Note: Dashboard UI now lists subjects (not sections); counts retained for existing stats card usage
+        return view('user-teacher.dashboard', compact(
+            'teacher', 
+            'allSections', 
+            'advisedSections', 
+            'teachingSections',
+            'totalSections',
+            'totalStudents',
+            'advisedSectionsCount',
+            'teachingSectionsCount',
+            'programs',
+            'academicTermData'
+        ));
+    }
+
+    /**
+     * Show teacher advising sections.
+     */
+    public function advisingSections()
+    {
+        $teacher = Auth::user()->teacher;
+        
+        if (!$teacher) {
+            return redirect()->route('login')->with('error', 'Teacher profile not found.');
+        }
+
+        // Get sections where teacher is adviser
+        $advisedSections = $teacher->sections()
+            ->with([
+                'program',
+                'enrollments.student.user',
+                'sectionSubjects' => function ($query) use ($teacher) {
+                    $query->where('teacher_id', $teacher->id)
+                          ->with(['subject', 'teacher.user']);
+                },
+            ])
+            ->get();
+        
+        // Get sections where teacher teaches subjects
+        $teachingSections = Section::whereHas('sectionSubjects', function($query) use ($teacher) {
+            $query->where('teacher_id', $teacher->id);
+        })->with(['program', 'enrollments'])->get();
+
+        // Combine and deduplicate sections
+        $allSections = $advisedSections->merge($teachingSections)->unique('id');
+        
+        // Calculate analytics
+        $totalSections = $allSections->count();
+        $totalStudents = $allSections->sum(function($section) {
+            return $section->enrollments->count();
+        });
+        $advisedSectionsCount = $advisedSections->count();
+        $teachingSectionsCount = $teachingSections->count();
+
+        // Get current academic term data
+        $academicTermService = app(AcademicTermService::class);
+        $academicTermData = $academicTermService->getCurrentAcademicTermData();
+
+        // Get all programs for the filter
+        $programs = \App\Models\Program::where('status', 'active')->get();
+
         return view('user-teacher.dashboard', compact(
             'teacher', 
             'allSections', 

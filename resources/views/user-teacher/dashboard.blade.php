@@ -2,8 +2,13 @@
 
 @section('header')
     <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Dashboard</h1>
-                    <p class="text-[14px] text-gray-900/60">View and manage subjects you're teaching.</p>
+        @if (Route::is('teacher.advising-sections'))
+            <h1 class="text-[20px] font-black">Advising Sections</h1>
+            <p class="text-[14px] text-gray-900/60">View students and your assigned subjects per section.</p>
+        @else
+            <h1 class="text-[20px] font-black">Dashboard</h1>
+            <p class="text-[14px] text-gray-900/60">View and manage subjects you're teaching.</p>
+        @endif
     </div>
 @endsection
 
@@ -110,6 +115,28 @@
 @section('content')
     <x-alert />
 
+    <!-- Tab Navigation -->
+    <div
+        class="px-5 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-300">
+        <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+                <a href="{{ route('teacher.dashboard') }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg
+                    {{ Route::is('teacher.dashboard') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Subjects
+                </a>
+            </li>
+            <li class="me-2">
+                <a href="{{ route('teacher.advising-sections') }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg
+                    {{ Route::is('teacher.advising-sections') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Advising Sections
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    @if (Route::is('teacher.dashboard'))
     <div class="flex flex-row justify-center items-start gap-4">
         <div
             class="flex flex-col justify-start items-center flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
@@ -259,19 +286,143 @@
         </div>
 
     </div>
+    @elseif (Route::is('teacher.advising-sections'))
+        <div class="flex flex-col gap-6 p-5">
+            @forelse($advisedSections as $section)
+                <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 p-6">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+                        <div>
+                            <h2 class="text-[18px] font-bold text-gray-900">{{ $section->name }}</h2>
+                            <p class="text-[14px] text-gray-600 mt-1">
+                                {{ $section->program->code ?? 'N/A' }} • {{ $section->year_level }} • Room:
+                                {{ $section->room ?? 'Not assigned' }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
+                                Students: {{ $section->enrollments->count() }}
+                            </span>
+                            <a href="{{ route('teacher.section.show', $section->id) }}"
+                                class="group relative inline-flex items-center gap-2 bg-blue-100 text-blue-600 font-semibold px-3 py-1.5 rounded-xl hover:bg-blue-500 hover:ring hover:ring-blue-200 hover:text-white transition duration-150">
+                                <span class="relative w-4 h-4">
+                                    <i class="fi fi-rs-eye flex justify-center items-center absolute inset-0 group-hover:opacity-0 transition-opacity text-[16px]"></i>
+                                    <i class="fi fi-ss-eye flex justify-center items-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity text-[16px]"></i>
+                                </span>
+                                View Section
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="lg:col-span-2 bg-[#f8f8f8] rounded-xl border border-[#1e1e1e]/10 p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-[16px] font-semibold text-gray-900">Students</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="text-left text-gray-500 border-b border-gray-200">
+                                            <th class="px-3 py-2 w-10">#</th>
+                                            <th class="px-3 py-2">LRN</th>
+                                            <th class="px-3 py-2">Full Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($section->enrollments as $index => $enrollment)
+                                            @php
+                                                $student = $enrollment->student;
+                                            @endphp
+                                            <tr class="border-t border-gray-200">
+                                                <td class="px-3 py-2">{{ $index + 1 }}</td>
+                                                <td class="px-3 py-2">{{ $student->lrn ?? 'N/A' }}</td>
+                                                <td class="px-3 py-2">
+                                                    {{ $student?->full_name ?? 'N/A' }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="px-3 py-6 text-center text-sm text-gray-500">
+                                                    No students enrolled in this section.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#f8f8f8] rounded-xl border border-[#1e1e1e]/10 p-4">
+                            <h3 class="text-[16px] font-semibold text-gray-900 mb-3">Your Subjects</h3>
+                            <div class="space-y-3">
+                                @forelse($section->sectionSubjects as $sectionSubject)
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition duration-150">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                <i class="fi fi-sr-book text-gray-600 text-sm"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-semibold text-gray-900 line-clamp-2">
+                                                    {{ $sectionSubject->subject->name }}
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-1">
+                                                    {{ $sectionSubject->subject->category ?? 'General Subject' }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        @if ($sectionSubject->days_of_week || $sectionSubject->start_time)
+                                            <div class="mt-3 text-xs text-gray-600">
+                                                <div class="flex flex-wrap gap-2">
+                                                    @if ($sectionSubject->days_of_week)
+                                                        @foreach($sectionSubject->days_of_week as $day)
+                                                            <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md whitespace-nowrap">
+                                                                {{ $day }}
+                                                            </span>
+                                                        @endforeach
+                                                    @endif
+                                                    @if ($sectionSubject->start_time && $sectionSubject->end_time)
+                                                        <span class="px-2 py-1 bg-gray-50 text-gray-700 text-xs font-medium rounded-md whitespace-nowrap">
+                                                            {{ $sectionSubject->start_time }} - {{ $sectionSubject->end_time }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="flex flex-col items-center justify-center text-gray-500 py-8">
+                                        <i class="fi fi-sr-folder-open text-3xl mb-3"></i>
+                                        <p class="text-sm font-medium">No subjects assigned to you</p>
+                                        <p class="text-xs">You are not teaching subjects in this section yet</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="bg-white rounded-xl shadow-md border border-[#1e1e1e]/10 p-10 text-center text-gray-500">
+                    <i class="fi fi-sr-folder-open text-4xl mb-4"></i>
+                    <p class="text-lg font-medium">No advising sections found</p>
+                    <p class="text-sm">You are not assigned as an adviser to any section.</p>
+                </div>
+            @endforelse
+        </div>
+    @endif
 @endsection
 
-@push('scripts')
-    <script type="module">
-        import {
-            dropDown
-        } from "/js/dropdown.js";
-        import {
-            clearSearch
-        } from "/js/clearSearch.js"
-        import {
-            initCustomDataTable
-        } from "/js/initTable.js";
+@if (Route::is('teacher.dashboard'))
+    @push('scripts')
+        <script type="module">
+            import {
+                dropDown
+            } from "/js/dropdown.js";
+            import {
+                clearSearch
+            } from "/js/clearSearch.js"
+            import {
+                initCustomDataTable
+            } from "/js/initTable.js";
 
         let teacherSectionsTable;
         window.selectedGrade = '';
@@ -691,5 +842,6 @@
             dropDown('dropdown_btn', 'dropdown_selection');
 
         });
-    </script>
-@endpush
+        </script>
+    @endpush
+@endif

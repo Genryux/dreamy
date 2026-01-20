@@ -221,7 +221,6 @@ class RolesAndPermissionSeeder extends Seeder
         $teacher->givePermissionTo([
             // Section and Subject Management
             'view sections',
-            'view student',
 
             // Student management
             'evaluate student',

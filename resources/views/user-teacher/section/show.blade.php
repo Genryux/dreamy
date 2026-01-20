@@ -40,6 +40,61 @@
     </div>
 @endsection
 
+@section('modal')
+    <x-modal modal_id="student-info-modal" modal_name="Student Information" close_btn_id="student-info-modal-close-btn"
+        modal_container_id="modal-container-student-info">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-user flex justify-center items-center'></i>
+        </x-slot>
+
+        <div class="p-6 space-y-4">
+            <div class="flex flex-col gap-1">
+                <p class="text-sm font-medium text-gray-500">Name</p>
+                <p id="student-info-name" class="text-[16px] font-semibold text-gray-900">-</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-gray-500">Age</p>
+                    <p id="student-info-age" class="text-[14px] text-gray-900">-</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-gray-500">Gender</p>
+                    <p id="student-info-gender" class="text-[14px] text-gray-900">-</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-gray-500">Contact Number</p>
+                    <p id="student-info-contact" class="text-[14px] text-gray-900">-</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-gray-500">Email</p>
+                    <p id="student-info-email" class="text-[14px] text-gray-900">-</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-gray-500">Birthday</p>
+                    <p id="student-info-birthday" class="text-[14px] text-gray-900">-</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-sm font-medium text-gray-500">Status</p>
+                    <p id="student-info-status" class="text-[14px] text-gray-900">-</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <p class="text-sm font-medium text-gray-500">Address</p>
+                <p id="student-info-address" class="text-[14px] text-gray-900">-</p>
+            </div>
+        </div>
+
+        <x-slot name="modal_buttons">
+            <button id="student-info-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Close
+            </button>
+        </x-slot>
+    </x-modal>
+@endsection
+
 @section('stat')
     <div class="flex justify-center items-center">
         <div
@@ -527,11 +582,22 @@
                     {
                         data: 'id',
                         render: function(data, type, row) {
+                            const safeValue = (value) => String(value ?? '-').replace(/"/g, '&quot;');
                             return `
                                 <div class='flex flex-row justify-center items-center gap-1'>
-                                    <a href='/student/${data}' class="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150">
+                                    <button
+                                        id="open-student-info-modal-btn-${data}"
+                                        class="student-info-btn px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition duration-150"
+                                        data-student-name="${safeValue(row.full_name)}"
+                                        data-student-age="${safeValue(row.age)}"
+                                        data-student-gender="${safeValue(row.gender)}"
+                                        data-student-contact="${safeValue(row.contact_number)}"
+                                        data-student-email="${safeValue(row.email)}"
+                                        data-student-birthday="${safeValue(row.birthdate)}"
+                                        data-student-address="${safeValue(row.address)}"
+                                        data-student-status="${safeValue(row.status)}">
                                         <i class="fi fi-rr-eye text-xs"></i>
-                                    </a>
+                                    </button>
                             </div>
                             `;
                         },
@@ -575,6 +641,41 @@
             );
 
             clearSearch('clear-btn', 'myCustomSearch', table1);
+
+            function populateStudentInfoModal(button) {
+                document.getElementById('student-info-name').textContent = button.getAttribute('data-student-name') || '-';
+                document.getElementById('student-info-age').textContent = button.getAttribute('data-student-age') || '-';
+                document.getElementById('student-info-gender').textContent = button.getAttribute('data-student-gender') || '-';
+                document.getElementById('student-info-contact').textContent = button.getAttribute('data-student-contact') || '-';
+                document.getElementById('student-info-email').textContent = button.getAttribute('data-student-email') || '-';
+                document.getElementById('student-info-birthday').textContent = button.getAttribute('data-student-birthday') || '-';
+                document.getElementById('student-info-address').textContent = button.getAttribute('data-student-address') || '-';
+                document.getElementById('student-info-status').textContent = button.getAttribute('data-student-status') || '-';
+            }
+
+            function initializeStudentInfoModals() {
+                document.querySelectorAll('.student-info-btn').forEach((button) => {
+                    if (button.dataset.modalInitialized) return;
+
+                    let studentId = button.id.replace('open-student-info-modal-btn-', '');
+                    let buttonId = `open-student-info-modal-btn-${studentId}`;
+
+                    initModal('student-info-modal', buttonId, 'student-info-modal-close-btn',
+                        'student-info-cancel-btn', 'modal-container-student-info');
+
+                    button.addEventListener('click', () => {
+                        populateStudentInfoModal(button);
+                    });
+
+                    button.dataset.modalInitialized = 'true';
+                });
+            }
+
+            table1.on('draw', function() {
+                initializeStudentInfoModals();
+            });
+
+            initializeStudentInfoModals();
 
             // Event listeners
             let pageLengthSelection = document.querySelector('#page-length-selection');
