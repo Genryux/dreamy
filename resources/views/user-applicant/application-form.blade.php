@@ -30,7 +30,7 @@
                 <!-- Second container: left edge slants forward "/" -->
                 <div
                     class="w-[25%] h-30 rounded-tr-xl bg-[#0D4F69] border border-[#199BCF] text-white flex items-center justify-center [clip-path:polygon(4%_0,100%_0,100%_100%,0_100%)] p-4">
-                    <img src="{{ asset('images/Dreamy_logo.png') }}" alt="dreamy_logo" class="h-[100px] md:h-[130px]">
+                    <img src="{{ asset('images/Dreamy_logo.png') }}" alt="dreamy_logo" class="h-[60px] md:h-[130px]">
 
                 </div>
             </div>
@@ -873,15 +873,6 @@
                                         d="M15 19l-7-7 7-7"></path>
                                 </svg>
                                 Previous
-                            </button>
-                            <button type="button" id="clearFormBtn"
-                                class="inline-flex items-center px-4 py-2 border border-red-300 rounded-xl shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                    </path>
-                                </svg>
-                                Clear Form
                             </button>
                         </div>
 

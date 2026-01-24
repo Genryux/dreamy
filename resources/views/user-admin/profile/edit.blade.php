@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class=" {{ auth()->user()->hasRole('applicant') ? 'px-40' : 'p-6' }}">
+    <div class=" {{ auth()->user()->hasRole('applicant') ? 'px-2 md:px-10 lg:px-40 py-6' : 'p-6' }}">
 
     @hasanyrole('applicant|student')
         <a href="/admission" class="flex flex-row justify-start items-center text-gray-600 gap-2 text-[18px] mb-8"><i
