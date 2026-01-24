@@ -210,13 +210,14 @@ class DashboardDataService
         // Count applications that were ever accepted (including those who moved to next stages)
         $everAcceptedApplications = $applications->whereIn('application_status', ['Accepted', 'Pending-Documents', 'Officially Enrolled'])->count();
         
-        // Current status counts
-        $currentlyAccepted = $applications->where('application_status', 'Accepted')->count();
-        $officiallyEnrolled = $applications->where('application_status', 'Officially Enrolled')->count();
-        $rejectedApplications = $applications->where('application_status', 'Rejected')->count();
-        $pendingDocuments = $applications->where('application_status', 'Pending-Documents')->count();
-        $completedFailed = $applications->where('application_status', 'Completed-Failed')->count();
-        $pendingApplications = $applications->where('application_status', 'Pending')->count();
+        // Current status counts (exclude archived applicants)
+        $currentlyAccepted = $applications->where('application_status', 'Accepted')->where('is_archived', false)->count();
+        $officiallyEnrolled = $applications->where('application_status', 'Officially Enrolled')->where('is_archived', false)->count();
+        $rejectedApplications = $applications->where('application_status', 'Rejected')->where('is_archived', false)->count();
+        $pendingDocuments = $applications->where('application_status', 'Pending-Documents')->where('is_archived', false)->count();
+        $completedFailed = $applications->where('application_status', 'Completed-Failed')->where('is_archived', false)->count();
+        $pendingApplications = $applications->where('application_status', 'Pending')->where('is_archived', false)->count();
+        $archivedApplications = $applications->where('is_archived', true)->count();
         
         // Calculate acceptance rate based on applications that were ever accepted
         $acceptanceRate = $totalApplications > 0 ? round(($everAcceptedApplications / $totalApplications) * 100, 1) : 0;
@@ -250,6 +251,7 @@ class DashboardDataService
             'pending_documents' => $pendingDocuments,
             'completed_failed' => $completedFailed,
             'pending_applications' => $pendingApplications,
+            'archived_applications' => $archivedApplications,
             'acceptance_rate' => $acceptanceRate,
             'enrollment_success_rate' => $enrollmentSuccessRate,
             'overall_success_rate' => $overallSuccessRate,

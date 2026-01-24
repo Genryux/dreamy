@@ -27,7 +27,6 @@
         $isClosingTerm = ($activeTerm?->status === 'Closing');
         $isSecondSemester = ($activeTerm?->semester === '2nd Semester');
         $canAdminEvaluate = $student->status === 'Officially Enrolled' && $student->academic_status === null && $isClosingTerm && $isSecondSemester;
-        $canAdminPromote = $student->status === 'Officially Enrolled' && $isClosingTerm && $isSecondSemester;
     @endphp
 
     <x-modal modal_id="generate-coe-modal" modal_name="Generate Certificate of Enrollment"
@@ -133,8 +132,7 @@
                     </label>
 
                     <p id="evaluation-dynamic-message" class="self-center text-[13px] text-gray-600"></p>
-                    <p class="self-center text-[14px] text-gray-500">Once a new academic term has started, please make sure
-                        you select the correct option, as this action cannot be undone.</p>
+
                 </div>
             </div>
 
@@ -263,91 +261,110 @@
         </x-slot>
     </x-modal> --}}
 
-    <!-- Student Promotion Modal -->
-    <x-modal modal_id="promote-student" modal_name="Promote Student to Next Grade Level"
-        close_btn_id="promote-student-close-btn" modal_container_id="modal-container-promote-student">
+    <!-- Assign Section Modal -->
+    <x-modal modal_id="assign-section" modal_name="Assign Section to Student"
+        close_btn_id="assign-section-close-btn" modal_container_id="modal-container-assign-section">
 
         <x-slot name="modal_icon">
             <div class="size-10 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center">
-                <i class="fi fi-rr-arrow-up"></i>
+                <i class="fi fi-rr-users-class"></i>
             </div>
         </x-slot>
 
-        <form action="/promote-student/{{ $student->id }}" method="POST" id="promote-form" class="p-6">
+        <form action="/assign-section-to-student/{{ $student->id }}" method="POST" id="assign-section-form" class="p-6">
             @csrf
             @method('patch')
 
-            @php
-
-                $message = '';
-                $action = '';
-                $warning = '';
-                $warningColor = '';
-
-                if ($student->grade_level === 'Grade 11') {
-                    $message = 'This action will promote the student to the next year level (Grade 12)';
-                    $action = 'promote-to-next-year';
-                } else {
-                    $message = 'This action will mark the student as graduated';
-                    $action = 'mark-as-graduated';
-                }
-
-                if ($student->academic_status === null) {
-                    $warning = 'The student has not yet evaluated by the designated faculty member.';
-                    $warningColor = 'yellow';
-                } elseif ($student->academic_status === 'Failed') {
-                    $warning = 'The student has been evaluated as Failed. Promotion is not recommended';
-                    $warningColor = 'red';
-                }
-
-            @endphp
-
-            <input type="hidden" name="action" value="{{ $action }}">
-
-            <div class="flex flex-col justify-center items-center py-8 px-6 font-regular text-[14px] text-center">
-                <div class="flex justify-center items-center w-auto p-6 bg-teal-100 w-[300px] rounded-full">
-                    <i class='fi fi-ss-exclamation flex justify-center text-[52px] items-center text-teal-500'></i>
+            <div class="space-y-4">
+                <!-- Section Dropdown -->
+                <div>
+                    <label for="section_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fi fi-rr-users-class mr-1"></i>
+                        Select Section <span class="text-red-500">*</span>
+                    </label>
+                    <select name="section_id" id="section_id" required
+                        class="w-full border border-gray-300 rounded-lg py-2.5 px-3 text-sm bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+                        <option value="">-- Select a section --</option>
+                        @foreach ($sections ?? [] as $section)
+                            <option value="{{ $section->id }}" 
+                                    {{ $student->section_id == $section->id ? 'selected' : '' }}
+                                    data-adviser="{{ $section->teacher ? $section->teacher->first_name . ' ' . $section->teacher->last_name : 'No Adviser' }}"
+                                    data-room="{{ $section->room ?? 'Not assigned' }}"
+                                    data-students="{{ $section->students->count() }}">
+                                {{ $section->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(empty($sections) || count($sections ?? []) === 0)
+                        <p class="text-xs text-orange-600 mt-2">
+                            <i class="fi fi-rr-exclamation mr-1"></i>
+                            No sections available for {{ $student->program->code ?? 'this program' }} - {{ $student->grade_level ?? 'this grade level' }}.
+                        </p>
+                    @endif
                 </div>
-                <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
-                    <p class="text-gray-700 text-[16px] font-semibold">
-                        Are you sure you want promote this student?
-                    </p>
-                    <p class="text-gray-500">
-                        {{ $message }}.
-                    </p>
-                    <p class="text-gray-600 font-semibold">Current Year Level: {{ $student->grade_level }}
-                    </p>
-                </div>
-                @if ($warningColor === 'yellow')
-                    <div class="bg-yellow-50 border border-yellow-400 rounded-xl p-4">
-                        <p class="text-yellow-600">{{ $warning }}</p>
+
+                <!-- Section Details -->
+                <div id="section-details" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
+                    <h4 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <i class="fi fi-rr-info"></i> Section Details
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-white rounded-lg p-3 border border-gray-100">
+                            <p class="text-gray-500 text-xs">Section Name</p>
+                            <p id="detail-section-name" class="font-medium text-gray-800">-</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 border border-gray-100">
+                            <p class="text-gray-500 text-xs">Adviser</p>
+                            <p id="detail-adviser" class="font-medium text-gray-800">-</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 border border-gray-100">
+                            <p class="text-gray-500 text-xs">Room</p>
+                            <p id="detail-room" class="font-medium text-gray-800">-</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 border border-gray-100">
+                            <p class="text-gray-500 text-xs">Students Enrolled</p>
+                            <p id="detail-students" class="font-medium text-gray-800">-</p>
+                        </div>
                     </div>
-                @elseif ($warningColor === 'red')
-                    <div class="bg-red-50 border border-red-400 rounded-xl p-4">
-                        <p class="text-red-600">{{ $warning }}</p>
+                </div>
+
+                <!-- Current Section Info -->
+                @if($student->section_id)
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p class="text-sm text-blue-700">
+                            <i class="fi fi-rr-info mr-1"></i>
+                            <span class="font-medium">Current Section:</span> {{ $student->section->name ?? 'Unknown' }}
+                        </p>
+                    </div>
+                @else
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p class="text-sm text-yellow-700">
+                            <i class="fi fi-rr-exclamation mr-1"></i>
+                            This student is not currently assigned to any section.
+                        </p>
                     </div>
                 @endif
 
-                <div class="flex flex-row justify-center items-center mt-6 px-4">
-                    <p class="text-start text-[12px] text-gray-600"><span
-                            class="text-gray-800 font-semibold">Important:</span> The system automatically promotes all
-                        students at the start of a new academic term. Please proceed
-                        with this manual action only for special cases.</p>
+                <!-- Note -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <p class="text-xs text-gray-600">
+                        <span class="font-semibold text-gray-700">Note:</span> 
+                        Assigning a section will also auto-enroll the student in all subjects offered by that section.
+                    </p>
                 </div>
-
             </div>
         </form>
 
         <x-slot name="modal_info"></x-slot>
         <x-slot name="modal_buttons">
-            <button type="button" id="promote-student-cancel-btn"
+            <button type="button" id="assign-section-cancel-btn"
                 class="border border-[#1e1e1e]/15 text-[14px] bg-gray-50 px-3 py-2 rounded-xl text-[#0f111c]/80 hover:ring hover:ring-gray-200 hover:bg-gray-100 font-semibold">
                 Cancel
             </button>
-            <button type="submit" form="promote-form"
+            <button type="submit" form="assign-section-form"
                 class="bg-teal-600 hover:bg-teal-700 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white transition duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                @if (!$canAdminPromote) disabled @endif>
-                <i class="fi fi-rr-arrow-up mr-1"></i>Confirm Promotion
+                {{ empty($sections) || count($sections ?? []) === 0 ? 'disabled' : '' }}>
+                <i class="fi fi-rr-check mr-1"></i>Assign Section
             </button>
         </x-slot>
     </x-modal>
@@ -485,7 +502,7 @@
                         <i class="fi fi-rr-tags mr-2"></i>
                         Section
                     </label>
-                    <select name="section" id="section"
+                    <select name="section" id="section" disabled
                         class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-3 gap-2 w-full outline-none hover:ring hover:ring-[#199BCF]/20 focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF] transition duration-150 shadow-sm text-[14px]">
                         <option value="">Select Section</option>
                         @foreach ($sections ?? [] as $section)
@@ -1244,32 +1261,18 @@
                         @endif
 
                         @hasanyrole('registrar|super_admin')
-                            <!-- Promote Student -->
-                            @if ($canAdminPromote)
-                                <button id="promote-student-btn"
+                            <!-- Assign Section -->
+                            @if ($student->status === 'Officially Enrolled')
+                                <button id="assign-section-btn"
                                     class="group relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25 hover:-translate-y-1">
                                     <div class="flex items-center space-x-3">
                                         <div
                                             class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                            <i class="fi fi-rr-arrow-up flex justify-center items-center text-lg"></i>
+                                            <i class="fi fi-rr-users-class flex justify-center items-center text-lg"></i>
                                         </div>
                                         <div class="text-left">
-                                            <p class="font-semibold text-sm">Promote Student</p>
-                                            <p class="text-xs text-teal-100">Advance to next level</p>
-                                        </div>
-                                    </div>
-                                </button>
-                            @elseif ($student->status === 'Officially Enrolled')
-                                <button disabled title="Available only during Closing status in 2nd semester"
-                                    class="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white rounded-xl p-4 transition-all duration-300">
-                                    <div class="flex items-center space-x-3">
-                                        <div
-                                            class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                            <i class="fi fi-rr-arrow-up flex justify-center items-center text-lg"></i>
-                                        </div>
-                                        <div class="text-left">
-                                            <p class="font-semibold text-sm">Promote Student</p>
-                                            <p class="text-xs text-gray-100">Advance to next level</p>
+                                            <p class="font-semibold text-sm">Assign Section</p>
+                                            <p class="text-xs text-teal-100">{{ $student->section ? 'Change section' : 'Assign to section' }}</p>
                                         </div>
                                     </div>
                                 </button>
@@ -2051,9 +2054,36 @@
                 'evaluate-student-cancel-btn',
                 'modal-container-evaluate-student');
 
-            initModal('promote-student', 'promote-student-btn', 'promote-student-close-btn',
-                'promote-student-cancel-btn',
-                'modal-container-promote-student');
+            initModal('assign-section', 'assign-section-btn', 'assign-section-close-btn',
+                'assign-section-cancel-btn',
+                'modal-container-assign-section');
+
+            // Section details display on dropdown change
+            const sectionSelect = document.getElementById('section_id');
+            const sectionDetails = document.getElementById('section-details');
+            
+            if (sectionSelect && sectionDetails) {
+                sectionSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    
+                    if (this.value) {
+                        // Show section details
+                        sectionDetails.classList.remove('hidden');
+                        document.getElementById('detail-section-name').textContent = selectedOption.textContent;
+                        document.getElementById('detail-adviser').textContent = selectedOption.dataset.adviser || 'No Adviser';
+                        document.getElementById('detail-room').textContent = selectedOption.dataset.room || 'Not assigned';
+                        document.getElementById('detail-students').textContent = (selectedOption.dataset.students || '0') + ' students';
+                    } else {
+                        // Hide section details
+                        sectionDetails.classList.add('hidden');
+                    }
+                });
+                
+                // Trigger change on page load if a section is pre-selected
+                if (sectionSelect.value) {
+                    sectionSelect.dispatchEvent(new Event('change'));
+                }
+            }
 
             // Initialize edit modals
             initModal('edit-personal-info-modal', 'edit-personal-info-btn', 'edit-personal-info-close-btn',

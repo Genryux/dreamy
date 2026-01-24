@@ -63,12 +63,20 @@ class InvoiceController extends Controller
             ->map(function ($item, $key) use ($start) {
                 // Get current active academic term
                 $currentTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-                $isCurrentTerm = $currentTerm && $item->academic_term_id == $currentTerm->id;
+                
+                // Determine if this invoice is for a PAST term (not current, not future)
+                // A term is considered "past" if its end_date has passed
+                $isPastTerm = false;
+                if ($item->academicTerm && $currentTerm) {
+                    // Invoice is from a past term if the invoice's term ended before today
+                    $isPastTerm = $item->academicTerm->end_date < now()->toDateString() && 
+                                  $item->academic_term_id !== $currentTerm->id;
+                }
 
                 // Determine status badge color
                 $statusBadge = $item->status;
-                if ($item->status === 'unpaid' && !$isCurrentTerm) {
-                    $statusBadge = 'overdue'; // Special status for unpaid invoices from previous terms
+                if ($item->status === 'unpaid' && $isPastTerm) {
+                    $statusBadge = 'overdue'; // Special status for unpaid invoices from PAST terms only
                 }
 
                 return [
@@ -143,12 +151,20 @@ class InvoiceController extends Controller
             ->map(function ($item, $key) use ($start) {
                 // Get current active academic term
                 $currentTerm = \App\Models\AcademicTerms::where('is_active', true)->first();
-                $isCurrentTerm = $currentTerm && $item->academic_term_id == $currentTerm->id;
+                
+                // Determine if this invoice is for a PAST term (not current, not future)
+                // A term is considered "past" if its end_date has passed
+                $isPastTerm = false;
+                if ($item->academicTerm && $currentTerm) {
+                    // Invoice is from a past term if the invoice's term ended before today
+                    $isPastTerm = $item->academicTerm->end_date < now()->toDateString() && 
+                                  $item->academic_term_id !== $currentTerm->id;
+                }
 
                 // Determine status badge color
                 $statusBadge = $item->status;
-                if ($item->status === 'unpaid' && !$isCurrentTerm) {
-                    $statusBadge = 'overdue'; // Special status for unpaid invoices from previous terms
+                if ($item->status === 'unpaid' && $isPastTerm) {
+                    $statusBadge = 'overdue'; // Special status for unpaid invoices from PAST terms only
                 }
 
                 return [

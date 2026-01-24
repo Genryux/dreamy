@@ -124,6 +124,10 @@ Route::middleware(['auth:sanctum', 'teacher.only'])->prefix('teacher')->group(fu
 	
 	// Teacher Classes - Full schedule
 	Route::get('/my-classes', [TeacherAppController::class, 'myClasses']);
+
+	// Teacher Advising Sections
+	Route::get('/advising-sections', [TeacherAppController::class, 'advisingSections']);
+	Route::get('/advising-sections/{section}/students', [TeacherAppController::class, 'getAdvisingSectionStudents']);
 	
 	// Section Students - Get students enrolled in a specific class
 	Route::get('/classes/{sectionSubjectId}/students', [TeacherAppController::class, 'getSectionStudents']);

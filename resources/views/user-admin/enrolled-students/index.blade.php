@@ -448,7 +448,7 @@
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
-                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Academic Status</span>
+                                <span class="mr-2 font-medium opacity-60 cursor-pointer">Promotion Eligibility</span>
                                 <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
                             </th>
                             <th class="w-1/7 text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
@@ -1101,11 +1101,11 @@
                             switch (data) {
                                 case 'Passed':
                                     badgeClass = 'bg-green-100 text-green-800';
-                                    badgeText = 'Passed';
+                                    badgeText = 'Eligible';
                                     break;
                                 case 'Failed':
                                     badgeClass = 'bg-red-100 text-red-800';
-                                    badgeText = 'Failed';
+                                    badgeText = 'Not Eligible';
                                     break;
                                 case 'Completed':
                                     badgeClass = 'bg-blue-100 text-blue-800';

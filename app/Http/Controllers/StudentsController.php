@@ -831,10 +831,10 @@ class StudentsController extends Controller
         }
     }
 
-    public function promoteStudent(Request $request)
+    public function assignSectionToStudent(Student $student, Request $request)
     {
         $validated = $request->validate([
-            'action' => 'required|in:promote-to-next-year,mark-as-graduated'
+            'section_id' => 'required|exists:sections,id'
         ]);
 
         $activeTerm = $this->academicTermService->fetchCurrentAcademicTerm();
@@ -842,80 +842,103 @@ class StudentsController extends Controller
             return redirect()->back()->withErrors(['error' => 'No active academic term found.']);
         }
 
-        if ($activeTerm->semester !== '2nd Semester' || $activeTerm->status !== 'Closing') {
-            return redirect()->back()->withErrors([
-                'error' => 'Manual promotion is only allowed during the Closing status of the 2nd semester. Please update the academic term status to Closing before proceeding.'
-            ]);
+        $section = Section::find($validated['section_id']);
+        
+        // Verify section matches student's program and grade level
+        if ($section->program_id !== $student->program_id || $section->year_level !== $student->grade_level) {
+            return redirect()->back()->withErrors(['error' => 'Section does not match student\'s program and grade level.']);
         }
 
-        $student = Student::find($request->id);
-
         try {
+            DB::transaction(function () use ($student, $section, $activeTerm) {
+                // Update Student model
+                $student->update(['section_id' => $section->id]);
 
-            if ($validated['action'] === 'promote-to-next-year') {
+                // Update StudentEnrollment model for current term
+                \App\Models\StudentEnrollment::where('student_id', $student->id)
+                    ->where('academic_term_id', $activeTerm->id)
+                    ->update(['section_id' => $section->id]);
 
-                if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Failed') {
-                    return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
-                }
+                // Auto-assign subjects: Get all subjects offered by this section
+                $sectionSubjects = \App\Models\SectionSubject::where('section_id', $section->id)->get();
 
-                if ($student->grade_level === 'Grade 11' && $student->academic_status === 'Passed') {
-                    $student->update([
-                        'grade_level' => 'Grade 12'
-                    ]);
+                foreach ($sectionSubjects as $sectionSubject) {
+                    // Check if student is already enrolled in this subject
+                    $existingEnrollment = \App\Models\StudentSubject::where('student_id', $student->id)
+                        ->where('section_subject_id', $sectionSubject->id)
+                        ->first();
 
-                    // Log the activity
-                    activity('student_management')
-                        ->causedBy(auth()->user())
-                        ->performedOn($student)
-                        ->withProperties([
-                            'action' => 'promoted_student',
+                    // Only create if not already enrolled
+                    if (!$existingEnrollment) {
+                        \App\Models\StudentSubject::create([
                             'student_id' => $student->id,
-                            'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
-                            'promotion_action' => 'promote-to-next-year',
-                            'previous_grade_level' => 'Grade 11',
-                            'new_grade_level' => 'Grade 12',
-                            'academic_status' => $student->academic_status,
-                            'ip_address' => request()->ip(),
-                            'user_agent' => request()->userAgent()
-                        ])
-                        ->log('Student promoted to next year level');
+                            'section_subject_id' => $sectionSubject->id,
+                            'teacher_id' => $sectionSubject->teacher_id,
+                            'subject_id' => $sectionSubject->subject_id,
+                            'academic_terms_id' => $activeTerm->id,
+                            'status' => 'enrolled'
+                        ]);
+                    }
                 }
 
-                return redirect()->back()->with('success', 'Successfully promoted student');
-            } else if ($validated['action'] === 'mark-as-graduated') {
+                // Log the activity
+                activity('student_management')
+                    ->causedBy(auth()->user())
+                    ->performedOn($student)
+                    ->withProperties([
+                        'action' => 'assigned_section_to_student',
+                        'student_id' => $student->id,
+                        'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
+                        'section_id' => $section->id,
+                        'section_name' => $section->name,
+                        'program_id' => $section->program_id,
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ])
+                    ->log('Student assigned to section');
+            });
 
-                if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Failed') {
-                    return redirect()->back()->withErrors(['error' => 'Failed promote student: The student has been evaluated as Failed.']);
-                }
+            // Notify the section adviser (if exists)
+            $section->load('teacher.user');
+            $teacherUser = $section->teacher?->user;
+            if ($teacherUser) {
+                $sharedId = 'student-added-' . $section->id . '-' . uniqid();
+                $teacherUser->notify(new PrivateQueuedNotification(
+                    'New Student Added to Section',
+                    "A new student ({$student->user->first_name} {$student->user->last_name}) has been added to your advising section {$section->name}.",
+                    url('/teacher/dashboard'),
+                    $sharedId
+                ));
 
-                if ($student->grade_level === 'Grade 12' && $student->academic_status === 'Passed') {
-
-                    $student->update([
-                        'academic_status' => 'Completed',
-                    ]);
-
-                    // Log the activity
-                    activity('student_management')
-                        ->causedBy(auth()->user())
-                        ->performedOn($student)
-                        ->withProperties([
-                            'action' => 'graduated_student',
-                            'student_id' => $student->id,
-                            'student_name' => $student->user->first_name . ' ' . $student->user->last_name,
-                            'promotion_action' => 'mark-as-graduated',
-                            'grade_level' => $student->grade_level,
-                            'previous_academic_status' => 'Passed',
-                            'new_academic_status' => 'Completed',
-                            'ip_address' => request()->ip(),
-                            'user_agent' => request()->userAgent()
-                        ])
-                        ->log('Student marked as graduated');
-                }
-
-                return redirect()->back()->with('success', 'Successfully mark student as completed');
+                $teacherUser->notify(new PrivateImmediateNotification(
+                    'New Student Added to Section',
+                    "A new student ({$student->user->first_name} {$student->user->last_name}) has been added to your advising section {$section->name}.",
+                    url('/teacher/dashboard'),
+                    $sharedId
+                ));
             }
+
+            // Notify the student
+            if ($student->user) {
+                $sharedId = 'section-assigned-' . $section->id . '-' . uniqid();
+                $student->user->notify(new PrivateQueuedNotification(
+                    'Section Assignment Updated',
+                    "You have been assigned to section {$section->name}.",
+                    '/(tabs)/dashboard',
+                    $sharedId
+                ));
+
+                $student->user->notify(new PrivateImmediateNotification(
+                    'Section Assignment Updated',
+                    "You have been assigned to section {$section->name}.",
+                    '/(tabs)/dashboard',
+                    $sharedId
+                ));
+            }
+
+            return redirect()->back()->with('success', 'Successfully assigned student to section ' . $section->name);
         } catch (\Throwable $th) {
-            return redirect()->back()->withErrors(['error' => "Failed to promote student: {$th->getMessage()}"]);
+            return redirect()->back()->withErrors(['error' => "Failed to assign section: {$th->getMessage()}"]);
         }
     }
 

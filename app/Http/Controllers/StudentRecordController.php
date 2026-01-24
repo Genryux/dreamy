@@ -379,7 +379,10 @@ class StudentRecordController extends Controller
             if ($auto_assign === '1') {
 
                 try {
-                    $invoice = $this->invoiceService->assignInvoiceAfterPromotion($student->id);
+                    // Get the academic term from the applicant's enrollment period (for future term support)
+                    $enrollmentTermId = $applicant->applicationForm?->academic_terms_id;
+                    
+                    $invoice = $this->invoiceService->assignInvoiceAfterPromotion($student->id, $enrollmentTermId);
 
                     return response()->json([
                         'success' => true,
@@ -457,7 +460,10 @@ class StudentRecordController extends Controller
             $programs = null;
         }
 
-        $sections = Section::where('year_level', $student->grade_level)->where('program_id', $student->program_id)->get();
+        $sections = Section::with(['teacher', 'students'])
+            ->where('year_level', $student->grade_level)
+            ->where('program_id', $student->program_id)
+            ->get();
 
         if (!$sections) {
             $sections = null;
@@ -671,18 +677,12 @@ class StudentRecordController extends Controller
         try {
             $validated = $request->validate([
                 'lrn' => 'required|string|max:255',
-                'section' => 'nullable|string|max:255',
             ]);
 
             DB::transaction(function () use ($validated, $student) {
                 // Update student information
                 $student->update([
                     'lrn' => $validated['lrn'],
-                    'section_id' => $validated['section'],
-                ]);
-
-                $student->enrollments()->update([
-                    'section_id' => $validated['section']
                 ]);
 
             });

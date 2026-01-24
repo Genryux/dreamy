@@ -25,6 +25,11 @@ class Interview extends Model
         return $this->belongsTo(Applicants::class);
     }
 
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
+
     public function scopeWithStatus($query, $status)
     {
         return $query->where('status', $status);

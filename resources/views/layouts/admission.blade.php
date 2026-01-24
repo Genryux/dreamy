@@ -94,6 +94,16 @@
                     @yield('summary')
 
                 </section>
+            @elseif ($applicant->is_archived && $applicant->archive_reason === 'Enrollment period ended')
+                <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
+                    @yield('status')
+                    @yield('enrollment_period_ended')
+                </div>
+            @elseif ($applicant->is_archived)
+                <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
+                    @yield('status')
+                    @yield('archived')
+                </div>
             @elseif ($applicant->application_status == 'Pending')
                 <div class="flex flex-col justify-center items-center gap-2 md:w-[70%]">
                     @yield('status')

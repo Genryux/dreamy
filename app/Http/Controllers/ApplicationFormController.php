@@ -120,7 +120,9 @@ class ApplicationFormController extends Controller
     public function getPendingApplications(Request $request)
     {
         try {
-            $query = Applicants::withStatus('Pending')->with(['applicationForm', 'program']);
+            $query = Applicants::withStatus('Pending')
+                ->where('is_archived', false)
+                ->with(['applicationForm', 'program']);
 
             // Filter by active enrollment period (supports early enrollment for future terms)
             $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
@@ -238,7 +240,9 @@ class ApplicationFormController extends Controller
     public function getAcceptedApplications(Request $request)
     {
         try {
-            $query = Applicants::withStatus('Accepted')->with(['applicationForm', 'program']);
+            $query = Applicants::withStatus('Accepted')
+                ->where('is_archived', false)
+                ->with(['applicationForm', 'program']);
 
             // Filter by active enrollment period (supports early enrollment for future terms)
             $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
@@ -380,7 +384,9 @@ class ApplicationFormController extends Controller
     public function getPendingDocumentsApplications(Request $request)
     {
         try {
-            $query = Applicants::withStatus('Pending-Documents')->with(['assignedDocuments', 'applicationForm', 'program']);
+            $query = Applicants::withStatus('Pending-Documents')
+                ->where('is_archived', false)
+                ->with(['assignedDocuments', 'applicationForm', 'program']);
 
             // Filter by active enrollment period (supports early enrollment for future terms)
             $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
@@ -762,11 +768,31 @@ class ApplicationFormController extends Controller
                     ->log('Application submitted');
 
                 // Get total applications count for the current academic term
-                $totalApplications = Applicants::whereIn('application_status', ['Pending', 'Accepted', 'Pending-Documents', 'Rejected'])
+                $totalApplications = Applicants::whereIn('application_status', ['Pending', 'Accepted', 'Pending-Documents', 'Rejected', 'Officially Enrolled'])
                     ->where('enrollment_period_id', $activeEnrollmentPeriod->id)->count();
 
+                // Get status-specific counts for real-time dashboard updates
+                $statusCounts = [
+                    'pending' => Applicants::where('enrollment_period_id', $activeEnrollmentPeriod->id)
+                        ->where('application_status', 'Pending')
+                        ->where('is_archived', false)
+                        ->count(),
+                    'accepted' => Applicants::where('enrollment_period_id', $activeEnrollmentPeriod->id)
+                        ->where('application_status', 'Accepted')
+                        ->where('is_archived', false)
+                        ->count(),
+                    'pending_documents' => Applicants::where('enrollment_period_id', $activeEnrollmentPeriod->id)
+                        ->where('application_status', 'Pending-Documents')
+                        ->where('is_archived', false)
+                        ->count(),
+                    'enrolled' => Applicants::where('enrollment_period_id', $activeEnrollmentPeriod->id)
+                        ->where('application_status', 'Officially Enrolled')
+                        ->where('is_archived', false)
+                        ->count(),
+                ];
+
                 // Dispatch event for real-time dashboard updates
-                event(new RecentApplicationTableUpdated($form, $totalApplications));
+                event(new RecentApplicationTableUpdated($form, $totalApplications, $statusCounts));
 
                 // Send to admin roles (registrar, super_admin)
                 $admins = User::role(['registrar', 'super_admin'])->get();
@@ -824,7 +850,9 @@ class ApplicationFormController extends Controller
     public function getRejectedApplications(Request $request)
     {
         try {
-            $query = Applicants::where('application_status', 'Rejected')->with(['applicationForm', 'program']);
+            $query = Applicants::where('application_status', 'Rejected')
+                ->where('is_archived', false)
+                ->with(['applicationForm', 'program']);
 
             // Filter by active enrollment period (supports early enrollment for future terms)
             $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
@@ -947,6 +975,112 @@ class ApplicationFormController extends Controller
         }
     }
 
+
+    /**
+     * Get archived applications for DataTables
+     */
+    public function getArchivedApplications(Request $request)
+    {
+        try {
+            $query = Applicants::where('is_archived', true)->with(['applicationForm', 'program']);
+
+            $activeEnrollmentPeriod = $this->enrollmentPeriodService->getAnyActiveEnrollmentPeriod();
+            if ($activeEnrollmentPeriod) {
+                $query->where('enrollment_period_id', $activeEnrollmentPeriod->id);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+
+            if ($search = $request->input('search.value')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('applicant_id', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('name', 'like', "%{$search}%")->orWhere('code', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('applicationForm', function ($formQuery) use ($search) {
+                            $formQuery->where('grade_level', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            if ($program = $request->input('program_filter')) {
+                $query->whereHas('program', function ($formQuery) use ($program) {
+                    $formQuery->where('code', $program);
+                });
+            }
+
+            if ($grade = $request->input('grade_filter')) {
+                $query->whereHas('applicationForm', function ($formQuery) use ($grade) {
+                    $formQuery->where('grade_level', $grade);
+                });
+            }
+
+            $totalRecords = Applicants::where('is_archived', true)->count();
+            $filtered = $query->count();
+
+            $columns = ['index', 'applicant_id', 'full_name', 'program', 'status', 'archived_at'];
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderDir = $request->input('order.0.dir', 'desc');
+
+            if ($orderColumnIndex !== null && isset($columns[$orderColumnIndex])) {
+                $sortColumn = $columns[$orderColumnIndex];
+                switch ($sortColumn) {
+                    case 'applicant_id':
+                        $query->orderBy('applicant_id', $orderDir);
+                        break;
+                    case 'full_name':
+                        $query->orderBy('last_name', $orderDir)->orderBy('first_name', $orderDir);
+                        break;
+                    case 'program':
+                        $query->leftJoin('application_forms', 'applicants.id', '=', 'application_forms.applicants_id')
+                            ->orderBy('applicants.program_id', $orderDir)->select('applicants.*');
+                        break;
+                    case 'status':
+                        $query->orderBy('application_status', $orderDir);
+                        break;
+                    case 'archived_at':
+                        $query->orderBy('archived_at', $orderDir);
+                        break;
+                    default:
+                        $query->orderBy('archived_at', 'desc');
+                        break;
+                }
+            } else {
+                $query->orderBy('archived_at', 'desc');
+            }
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 10);
+
+            $data = $query->offset($start)->limit($length)
+                ->get(['id', 'first_name', 'last_name', 'program_id', 'application_status', 'archived_at', 'archive_reason', 'applicant_id'])
+                ->map(function ($item, $key) use ($start) {
+                    return [
+                        'index' => $start + $key + 1,
+                        'applicant_id' => $item->applicant_id ?? 'N/A',
+                        'full_name' => $item->last_name . ', ' . $item->first_name,
+                        'program' => $item->program->code ?? 'N/A',
+                        'status' => $item->application_status,
+                        'archived_at' => $item->archived_at ? \Carbon\Carbon::parse($item->archived_at)->timezone('Asia/Manila')->format('M d, Y - g:i A') : '-',
+                        'archive_reason' => $item->archive_reason ?? '',
+                        'id' => $item->id
+                    ];
+                });
+
+            return response()->json([
+                'draw' => (int) $request->input('draw'),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filtered,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
     /**
      * Reject an application
      */
@@ -1044,14 +1178,15 @@ class ApplicationFormController extends Controller
             // Define the statuses to include in the total count
             $includedStatuses = ['Pending', 'Accepted', 'Pending-Documents', 'Rejected', 'Completed-Failed', 'Officially Enrolled'];
 
-            // Get counts for each status
+            // Get counts for each status (excluding archived from regular status counts)
             $statistics = [
-                'total' => (clone $baseQuery)->whereIn('application_status', $includedStatuses)->count(),
-                'pending' => (clone $baseQuery)->where('application_status', 'Pending')->count(),
-                'accepted' => (clone $baseQuery)->where('application_status', 'Accepted')->count(),
-                'pending_documents' => (clone $baseQuery)->where('application_status', 'Pending-Documents')->count(),
-                'officially_enrolled' => (clone $baseQuery)->where('application_status', 'Officially Enrolled')->count(),
-                'rejected' => (clone $baseQuery)->where('application_status', 'Rejected')->count(),
+                'total' => (clone $baseQuery)->whereIn('application_status', $includedStatuses)->where('is_archived', false)->count(),
+                'pending' => (clone $baseQuery)->where('application_status', 'Pending')->where('is_archived', false)->count(),
+                'accepted' => (clone $baseQuery)->where('application_status', 'Accepted')->where('is_archived', false)->count(),
+                'pending_documents' => (clone $baseQuery)->where('application_status', 'Pending-Documents')->where('is_archived', false)->count(),
+                'officially_enrolled' => (clone $baseQuery)->where('application_status', 'Officially Enrolled')->where('is_archived', false)->count(),
+                'rejected' => (clone $baseQuery)->where('application_status', 'Rejected')->where('is_archived', false)->count(),
+                'archived' => (clone $baseQuery)->where('is_archived', true)->count(),
             ];
 
             return response()->json([

@@ -276,8 +276,12 @@
                 <div class="bg-gradient-to-r from-[#1A3165] to-[#199BCF] rounded-xl p-6 mb-8 text-white">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-xl font-bold mb-2">{{ $invoice->student?->full_name ?? 'Unknown Student' }}
+                            <a href="{{ route('students.show', ['student' => $invoice->student?->id]) }}"
+                                class="flex items-center gap-2 hover:underline hover:text-[#199BCF]">
+                                <h2 class="text-xl font-bold mb-2">{{ $invoice->student?->full_name ?? 'Unknown Student' }}
                             </h2>
+                            </a>
+
                             <div class="grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <p class="text-blue-100">Student ID</p>

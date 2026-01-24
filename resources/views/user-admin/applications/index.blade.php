@@ -141,6 +141,16 @@
                 <div
                     class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
                     <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
+                        <i class="fi fi-rr-box-archive flex justify-center items-center"></i>
+                        <p class="text-[14px] truncate">Archived Applications</p>
+                    </div>
+                    <p class="font-bold text-[24px]" id="archivedApplicationsCount">0</p>
+                    <p class="text-[12px] truncate text-gray-300">Applications that have been archived</p>
+                </div>
+
+                <div
+                    class="flex-1 flex flex-col items-center justify-center border border-white/20 bg-[#E3ECFF]/30 gap-2 p-8 py-6 rounded-lg hover:-translate-y-1 hover:bg-[#E3ECFF]/40 transition duration-300">
+                    <div class="opacity-80 flex flex-row justify-center items-center gap-2 ">
                         <i class="fi fi-rr-graduation-cap flex justify-center items-center"></i>
                         <p class="text-[14px] truncate">Officially Enrolled</p>
                     </div>
@@ -191,6 +201,15 @@
                     Rejected
                 </a>
             </li>
+
+            <li class="me-2">
+                <a href="{{ route('applications.archived') }}"
+                    class="inline-block p-4 border-b-2 rounded-t-lg 
+              {{ Route::is('applications.archived') ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300' }}">
+                    Archived
+                </a>
+            </li>
+
 
         </ul>
     </div>
@@ -689,6 +708,123 @@
         </div>
     @endif
 
+    @if (Route::is('applications.archived'))
+        <div class="flex flex-row justify-center items-start gap-4">
+            <div
+                class="flex flex-col justify-start items-start flex-grow p-5 space-y-4 bg-[#f8f8f8] rounded-xl shadow-md border border-[#1e1e1e]/10 w-[40%]">
+                <div class="flex flex-col my-2 justify-center items-center w-full">
+                    <span class="font-semibold text-[18px]">
+                        Archived Applications
+                    </span>
+                    <span class="font-medium text-gray-400 text-[14px]">
+                        Applications that have been temporarily archived
+                    </span>
+                </div>
+                <div class="flex flex-row justify-between items-center w-full">
+
+                    <div class="w-full flex flex-row justify-between items-center gap-4">
+
+                        <label for="myCustomSearch"
+                            class="flex flex-row justify-start items-center border border-[#1e1e1e]/10 bg-gray-100 self-start rounded-lg py-2 px-2 gap-2 w-[40%] hover:ring hover:ring-blue-200 focus-within:ring focus-within:ring-blue-100 focus-within:border-blue-500 transition duration-150 shadow-sm">
+                            <i class="fi fi-rs-search flex justify-center items-center text-[#1e1e1e]/60 text-[16px]"></i>
+                            <input type="search" name="" id="myCustomSearch"
+                                class="my-custom-search bg-transparent outline-none text-[14px] w-full peer"
+                                placeholder="Search by lrn, name, grade level, etc.">
+                            <button id="clear-btn"
+                                class="clear-btn flex justify-center items-center peer-placeholder-shown:hidden peer-not-placeholder-shown:block">
+                                <i class="fi fi-rs-cross-small text-[18px] flex justify-center items-center"></i>
+                            </button>
+                        </label>
+                        <div class="flex flex-row justify-start items-center w-full gap-2">
+                            <div
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+                                <select name="pageLength" id="page-length-selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option selected disabled>Entries</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <i id="clear-gender-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                            <div id="grade_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition-all ease-in-out duration-150 shadow-sm">
+
+                                <select name="grade_selection" id="grade_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 h-full w-full cursor-pointer">
+                                    <option value="" disabled selected>Grade</option>
+                                    <option value="" data-putanginamo="Grade 11">Grade 11</option>
+                                    <option value="" data-putanginamo="Grade 12">Grade 12</option>
+                                </select>
+                                <i id="clear-grade-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+
+                            </div>
+
+                            <div id="program_selection_container"
+                                class="flex flex-row justify-between items-center rounded-lg border border-[#1e1e1e]/10 bg-gray-100 px-3 py-2 gap-2 focus-within:bg-gray-200 focus-within:border-[#1e1e1e]/15 hover:bg-gray-200 hover:border-[#1e1e1e]/15 transition duration-150 shadow-sm">
+                                <select name="" id="program_selection"
+                                    class="appearance-none bg-transparent text-[14px] font-medium text-gray-700 w-full cursor-pointer">
+                                    <option value="" selected>All Programs</option>
+                                    @foreach (\App\Models\Program::where('status', 'active')->get() as $program)
+                                        <option value="{{ $program->code }}">{{ $program->code }}</option>
+                                    @endforeach
+                                </select>
+                                <i id="clear-program-filter-btn"
+                                    class="fi fi-rr-caret-down text-gray-500 flex justify-center items-center"></i>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="w-full">
+                    <table id="archived-table" class="w-full table-fixed">
+                        <thead class="text-[14px]">
+                            <tr>
+                                <th class="w-[3%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-2 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">#</span>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant ID</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[20%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Applicant Name</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Program</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[12%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Status</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[15%] text-start bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 cursor-pointer">Archived At</span>
+                                    <i class="fi fi-sr-sort text-[12px] text-gray-400"></i>
+                                </th>
+                                <th class="w-[10%] text-center bg-[#E3ECFF]/50 border-b border-[#1e1e1e]/10 px-4 py-2">
+                                    <span class="mr-2 font-medium opacity-60 select-none">Actions</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- <tr class="border-t-[1px] border-[#1e1e1e]/15 w-full rounded-md"></tr> --}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
 @endsection
 
 @push('scripts')
@@ -730,6 +866,7 @@
         let approvedTable = null;
         let pendingDocumentsTable = null;
         let rejectedTable = null;
+        let archivedTable = null;
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -755,6 +892,8 @@
                 initializePendingDocumentsTable();
             } else if (currentPath === '/applications/rejected') {
                 initializeRejectedTable();
+            } else if (currentPath === '/applications/archived') {
+                initializeArchivedTable();
             } else if (currentPath === '/school-fees/payments') {
                 initializePaymentHistoryTab();
             }
@@ -782,6 +921,8 @@
                             .pending_documents || 0;
                         document.getElementById('rejectedApplicationsCount').textContent = data.statistics.rejected ||
                             0;
+                        document.getElementById('archivedApplicationsCount').textContent = data.statistics.archived ||
+                            0;
                         document.getElementById('officiallyEnrolledCount').textContent = data.statistics.officially_enrolled ||
                             0;
                     } else {
@@ -796,6 +937,7 @@
                     document.getElementById('acceptedApplicationsCount').textContent = '0';
                     document.getElementById('pendingDocumentsCount').textContent = '0';
                     document.getElementById('rejectedApplicationsCount').textContent = '0';
+                    document.getElementById('archivedApplicationsCount').textContent = '0';
                     document.getElementById('officiallyEnrolledCount').textContent = '0';
                 });
         }
@@ -1195,6 +1337,91 @@
             }
 
             clearSearch('clear-btn', 'myCustomSearch', rejectedTable);
+        }
+
+        function initializeArchivedTable() {
+            if (document.getElementById('archived-table')) {
+                archivedTable = initCustomDataTable(
+                    'archived-table',
+                    '/getArchivedApplications',
+                    [{
+                            data: 'index',
+                            width: '3%',
+                            searchable: true,
+                            orderable: true,
+                            render: DataTable.render.text()
+                        },
+                        {
+                            data: 'applicant_id',
+                            width: '15%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
+                        },
+                        {
+                            data: 'full_name',
+                            width: '20%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
+                        },
+                        {
+                            data: 'program',
+                            width: '15%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
+                        },
+                        {
+                            data: 'status',
+                            width: '12%',
+                            orderable: true,
+                            searchable: true,
+                            render: function(data, type, row) {
+                                return `<span class="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">${data}</span>`;
+                            }
+                        },
+                        {
+                            data: 'archived_at',
+                            width: '15%',
+                            orderable: true,
+                            searchable: true,
+                            render: DataTable.render.text()
+                        },
+                        {
+                            data: 'id',
+                            className: 'text-center',
+                            width: '10%',
+                            render: function(data, type, row) {
+                                return `
+                                    <div class='flex flex-row justify-center items-center gap-2'>
+                                        <form action="/applicants/${data}/restore" method="POST" class="inline restore-form">
+                                            @csrf
+                                            <button type="submit" 
+                                                class="group relative inline-flex items-center gap-2 bg-green-100 text-green-600 font-semibold px-3 py-1 rounded-xl hover:bg-green-500 hover:ring hover:ring-green-200 hover:text-white transition duration-150">
+                                                <i class="fi fi-rr-refresh flex justify-center items-center text-[14px]"></i>
+                                                Restore
+                                            </button>
+                                        </form>
+                                    </div>
+                                `;
+                            },
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    [
+                        [5, 'desc']
+                    ],
+                    'myCustomSearch', {
+                        grade_filter: window.selectedGrade,
+                        program_filter: window.selectedProgram,
+                        pageLength: window.selectedPageLength
+                    }
+                );
+            }
+
+            clearSearch('clear-btn', 'myCustomSearch', archivedTable);
         }
 
         // Initialize filter event listeners

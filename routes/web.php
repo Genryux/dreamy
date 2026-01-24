@@ -224,6 +224,8 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
         ->middleware(['permission:view applications page'])->name('applications.pending-documents');
     Route::get('/applications/rejected', [ApplicationFormController::class, 'index'])
         ->middleware(['permission:view applications page'])->name('applications.rejected');
+    Route::get('/applications/archived', [ApplicationFormController::class, 'index'])
+        ->middleware(['permission:view applications page'])->name('applications.archived');
 
     // Individual application pages
     Route::get('/applications/pending/form-details/{applicant}', [ApplicationFormController::class, 'pendingDetails'])
@@ -239,6 +241,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::get('/getAcceptedApplications', [ApplicationFormController::class, 'getAcceptedApplications'])->name('get.accepted-applications');
     Route::get('/getPendingDocumentsApplications', [ApplicationFormController::class, 'getPendingDocumentsApplications'])->name('get.pending-documents-applications');
     Route::get('/getRejectedApplications', [ApplicationFormController::class, 'getRejectedApplications'])->name('get.rejected-applications');
+    Route::get('/getArchivedApplications', [ApplicationFormController::class, 'getArchivedApplications'])->name('get.archived-applications');
 
     // Application statistics API
     Route::get('/api/application-statistics', [ApplicationFormController::class, 'getApplicationStatistics'])->name('api.application-statistics');
@@ -274,6 +277,7 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::post('/enrollment-period', [EnrollmentPeriodController::class, 'store'])->middleware(['permission:add enrollment period'])->name('enrollment-period.post');
     Route::patch('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'update'])->middleware(['permission:update enrollment period'])->name('enrollment-period.patch');
     Route::put('/enrollment-period/{id}', [EnrollmentPeriodController::class, 'updateEnrollment'])->middleware(['permission:update enrollment period'])->name('enrollment-period.update');
+    Route::post('/enrollment-period/check-date-conflict', [EnrollmentPeriodController::class, 'checkDateConflict'])->middleware(['permission:add enrollment period'])->name('enrollment-period.check-conflict');
 
 
     // Interview Management
@@ -284,6 +288,10 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     // Route::put('/set-interview/{id}', [InterviewController::class, 'update'])->name('interview.patch');
     Route::post('/reject-application/{applicant}', [ApplicationFormController::class, 'reject'])
         ->middleware(['permission:reject application'])->name('application.reject');
+
+    // Applicant Archive/Restore
+    Route::post('/applicants/{applicant}/archive', [ApplicantsController::class, 'archive'])->name('applicants.archive');
+    Route::post('/applicants/{applicant}/restore', [ApplicantsController::class, 'restore'])->name('applicants.restore');
 
     // Student Management
     Route::get('/enrolled-students', [StudentsController::class, 'index'])->middleware(['permission:view enrolled students page'])->name('students.index');
@@ -301,12 +309,12 @@ Route::middleware(['auth', 'pin.security', 'exclude.applicant'])->group(function
     Route::post('/assign-section/{section}', [StudentsController::class, 'assignSection'])->middleware(['permission:add student to a section']);
     Route::post('/removeStudentFromSection/{section}', [StudentsController::class, 'removeStudentFromSection'])->middleware(['permission:remove assigned subject to a section', 'throttle:10,1']);
     Route::patch('/evaluate-student/{id}', [StudentsController::class, 'evaluateStudent'])->middleware(['permission:evaluate student']);
-    Route::patch('/promote-student/{id}', [StudentsController::class, 'promoteStudent'])->middleware(['permission:promote student']);
+    Route::patch('/assign-section-to-student/{student}', [StudentsController::class, 'assignSectionToStudent'])->middleware(['permission:add student to a section']);
     Route::patch('/withdraw-student/{id}', [StudentsController::class, 'withdrawStudent'])->middleware(['permission:withdraw enrollment']);
     Route::patch('/reenroll-student/{id}', [StudentsController::class, 'reenrollStudent'])->middleware(['permission:withdraw enrollment']);
 
     // Student Records
-    Route::get('/student/{student}', [StudentRecordController::class, 'show'])->middleware(['permission:view student']);
+    Route::get('/student/{student}', [StudentRecordController::class, 'show'])->middleware(['permission:view student'])->name('students.show');
     Route::get('/student-record/{studentRecord}/coe', [StudentRecordController::class, 'coePreview'])->name('students.coe.preview');
     Route::get('/student-record/{studentRecord}/coe.pdf', [StudentRecordController::class, 'coePdf'])->name('students.coe.pdf');
     Route::get('/students/{student}/sis', [StudentsController::class, 'generateSIS'])->name('students.sis');

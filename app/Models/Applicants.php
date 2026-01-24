@@ -25,7 +25,20 @@ class Applicants extends Model
         'rejection_reason',
         'rejection_remarks',
         'rejected_at',
-        'rejected_by'
+        'rejected_by',
+        'is_archived',
+        'archive_type',
+        'archived_at',
+        'archived_by',
+        'archive_reason',
+        'restored_at',
+        'restored_by'
+    ];
+
+    protected $casts = [
+        'archived_at' => 'datetime',
+        'restored_at' => 'datetime',
+        'is_archived' => 'boolean',
     ];
 
     public function applicationForm()
@@ -97,6 +110,90 @@ class Applicants extends Model
     public function scopeWithStatus($query, $status)
     {
         return $query->where('application_status', $status);
+    }
+
+    /**
+     * Scope to get only active (non-archived) applicants
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_archived', false);
+    }
+
+    /**
+     * Scope to get only archived applicants
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('is_archived', true);
+    }
+
+    /**
+     * Scope to get manually archived applicants
+     */
+    public function scopeManuallyArchived($query)
+    {
+        return $query->where('is_archived', true)->where('archive_type', 'manual');
+    }
+
+    /**
+     * Scope to get period-expired archived applicants
+     */
+    public function scopePeriodExpiredArchived($query)
+    {
+        return $query->where('is_archived', true)->where('archive_type', 'period_expired');
+    }
+
+    /**
+     * Relationship: User who archived this applicant
+     */
+    public function archivedByUser()
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
+
+    /**
+     * Relationship: User who restored this applicant
+     */
+    public function restoredByUser()
+    {
+        return $this->belongsTo(User::class, 'restored_by');
+    }
+
+    /**
+     * Check if applicant is archived
+     */
+    public function isArchived(): bool
+    {
+        return $this->is_archived === true;
+    }
+
+    /**
+     * Archive this applicant
+     */
+    public function archive(User $archivedBy, ?string $reason = null, string $type = 'manual'): void
+    {
+        $this->update([
+            'is_archived' => true,
+            'archive_type' => $type,
+            'archived_at' => now(),
+            'archived_by' => $archivedBy->id,
+            'archive_reason' => $reason,
+            'restored_at' => null,
+            'restored_by' => null,
+        ]);
+    }
+
+    /**
+     * Restore this applicant from archive
+     */
+    public function restore(User $restoredBy): void
+    {
+        $this->update([
+            'is_archived' => false,
+            'restored_at' => now(),
+            'restored_by' => $restoredBy->id,
+        ]);
     }
 
     protected static function booted()

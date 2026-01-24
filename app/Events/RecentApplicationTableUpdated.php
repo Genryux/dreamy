@@ -18,15 +18,23 @@ class RecentApplicationTableUpdated implements ShouldBroadcastNow
 
     public $application;
     public $total_applications;
+    public $pending_count;
+    public $accepted_count;
+    public $pending_documents_count;
+    public $enrolled_count;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(Applicants $applicant, $total_applications)
+    public function __construct(Applicants $applicant, $total_applications, $statusCounts = [])
     {
         // Load the applicationForm relationship and convert to array with relationship data
         $this->application = $applicant->load('applicationForm')->toArray();
         $this->total_applications = $total_applications;
+        $this->pending_count = $statusCounts['pending'] ?? 0;
+        $this->accepted_count = $statusCounts['accepted'] ?? 0;
+        $this->pending_documents_count = $statusCounts['pending_documents'] ?? 0;
+        $this->enrolled_count = $statusCounts['enrolled'] ?? 0;
     }
 
     /**

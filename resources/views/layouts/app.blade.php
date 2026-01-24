@@ -163,6 +163,7 @@
         @yield('how_to_apply')
         @yield('news_announcement')
         @yield('footer')
+        @yield('section_1')
 
     </main>
 

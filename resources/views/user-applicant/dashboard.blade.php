@@ -144,15 +144,29 @@
         {{-- Status Badge --}}
         <div class="flex flex-row justify-center items-center gap-2">
             <p class="md:text-[16px] font-medium text-gray-600">Application status:</p>
-            @if ($applicant->application_status == 'Pending')
+            
+            {{-- PRIORITY 1: Check if enrollment period ended (auto-archived) - HIGHEST PRIORITY --}}
+            @if ($applicant->is_archived && $applicant->archive_reason === 'Enrollment period ended')
+                <div
+                    class="bg-red-50 border border-red-500 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
+                    <i class="fi fi-rr-calendar-xmark text-[14px] text-red-600 flex justify-center items-center"></i>
+                    <p class="text-red-600 text-[14px] font-semibold">Enrollment Ended</p>
+                </div>
+            {{-- PRIORITY 2: Check if archived for other reasons --}}
+            @elseif ($applicant->is_archived)
+                <div
+                    class="bg-orange-50 border border-orange-500 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
+                    <i class="fi fi-rr-box text-[14px] text-orange-600 flex justify-center items-center"></i>
+                    <p class="text-orange-600 text-[14px] font-semibold">Archived</p>
+                </div>
+            {{-- Only check application status if NOT archived --}}
+            @elseif ($applicant->application_status == 'Pending')
                 <div
                     class="bg-yellow-50 border border-yellow-300 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
                     <i class="fi fi-ss-pending text-[14px] text-yellow-500 flex justify-center items-center"></i>
                     <p class="text-yellow-500 text-[14px] font-semibold">Pending</p>
                 </div>
-            @endif
-
-            @if ($applicant->application_status == 'Accepted')
+            @elseif ($applicant->application_status == 'Accepted')
                 @if ($applicant->interview->status == null)
                     <div
                         class="bg-[#E6F4EA] border border-[#34A853]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-1">
@@ -172,17 +186,13 @@
                         <p class="text-yellow-500 text-[14px] font-semibold">Waiting For Result</p>
                     </div>
                 @endif
-            @endif
-
-            @if ($applicant->application_status == 'Rejected')
+            @elseif ($applicant->application_status == 'Rejected')
                 <div
                     class="bg-red-50 border border-red-300 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-1">
                     <i class="fi fi-ss-cross-circle text-red-500 text-[14px] flex justify-center items-center"></i>
                     <p class="text-red-500 font-semibold text-[14px]">Rejected</p>
                 </div>
-            @endif
-
-            @if ($applicant->application_status == 'Completed-Failed')
+            @elseif ($applicant->application_status == 'Completed-Failed')
                 @if ($applicant->interview->status == 'Exam-Failed')
                     <div
                         class="bg-red-50 border border-red-300 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-1">
@@ -190,25 +200,19 @@
                         <p class="text-red-500 font-semibold text-[14px]">Exam-Failed</p>
                     </div>
                 @endif
-            @endif
-
-            @if ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Exam-Passed')
+            @elseif ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Exam-Passed')
                 <div
                     class="bg-green-50 border border-green-500/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
                     <i class="fi fi-ss-check text-[14px] text-green-500 flex justify-center items-center"></i>
                     <p class="text-green-500 font-semibold text-[14px]">Exam-Passed</p>
                 </div>
-            @endif
-
-            @if ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Exam-Completed')
+            @elseif ($applicant->application_status == 'Pending-Documents' && $applicant->interview->status == 'Exam-Completed')
                 <div
                     class="bg-orange-50 border border-orange-300 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
                     <i class="fi fi-rs-folder-times text-[14px] text-orange-500 flex justify-center items-center"></i>
                     <p class="text-orange-500 text-[14px] font-semibold">Pending-Documents</p>
                 </div>
-            @endif
-
-            @if ($applicant->application_status == 'Officially Enrolled')
+            @elseif ($applicant->application_status == 'Officially Enrolled')
                 <div
                     class="bg-[#E7F0FD] border border-[#1A73E8]/60 flex flex-row justify-center items-center py-1 px-2 rounded-full gap-2">
                     <i class="fi fi-ss-graduation-cap text-[#1A73E8] flex justify-center items-center"></i>
@@ -307,6 +311,155 @@
     </div>
 
 @endsection
+
+{{-- ENROLLMENT PERIOD ENDED SECTION - HIGHEST PRIORITY --}}
+@if ($applicant->is_archived && $applicant->archive_reason === 'Enrollment period ended')
+    @section('enrollment_period_ended')
+        <div class="flex flex-col justify-center items-center h-full w-full space-y-2">
+            <div
+                class="bg-[#f8f8f8] flex flex-col w-full rounded-xl border border-[#1e1e1e]/20 justify-center py-3 px-3 md:py-4 md:px-6">
+                <div class="flex flex-row justify-start items-center gap-2 md:gap-3">
+                    <div
+                        class="text-[20px] text-white bg-red-600 size-[35px] rounded-full flex justify-center items-center">
+                        <i class="fi fi-rr-calendar-xmark flex justify-center items-center"></i>
+                    </div>
+                    <div class="flex flex-col justify-center items-start">
+                        <p class="text-[16px] font-semibold text-gray-800">Enrollment Period Ended</p>
+                        <p class="text-[14px] font-medium text-gray-500">
+                            Ended on: {{ $applicant->archived_at?->format('M d, Y g:i A') ?? 'Unknown' }}
+                        </p>
+                    </div>
+                </div>
+                
+                <x-divider class="my-4 opacity-15"></x-divider>
+                
+                <div class="flex flex-col justify-center items-center space-y-6 py-4">
+                    <div class="flex flex-col justify-center items-center gap-2">
+                        <div class="bg-red-100 border-2 border-red-500 rounded-full p-6 mb-2">
+                            <i class="fi fi-rr-calendar-xmark text-[48px] text-red-600 flex justify-center items-center"></i>
+                        </div>
+                        
+                        <h2 class="font-semibold text-[18px] text-gray-800">Enrollment Period Has Ended</h2>
+                        
+                        <p class="self-center text-center text-[14px] text-gray-600 px-4 md:px-22 max-w-2xl">
+                            Unfortunately, the enrollment period has ended before your application was completed. Your admission process could not be finalized.
+                        </p>
+                        
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6 mt-4 max-w-2xl w-full">
+                            <h3 class="text-[15px] font-semibold text-red-900 mb-3">What happened?</h3>
+                            <ul class="space-y-2 text-[14px] text-red-800">
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-info text-red-600 mt-1"></i>
+                                    <span>The enrollment period closed while your application was still in progress</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-info text-red-600 mt-1"></i>
+                                    <span>Your application could not be completed before the deadline</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-info text-red-600 mt-1"></i>
+                                    <span>All incomplete applications were automatically archived</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-4 max-w-2xl w-full">
+                            <h3 class="text-[15px] font-semibold text-blue-900 mb-3">What are my options?</h3>
+                            <ul class="space-y-2 text-[14px] text-blue-800">
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-check text-blue-600 mt-1"></i>
+                                    <span>Visit or contact the Admissions Office for more information</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-check text-blue-600 mt-1"></i>
+                                    <span>Your previous application data may help expedite future applications</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-4 max-w-2xl w-full">
+                            <h3 class="text-[15px] font-semibold text-gray-900 mb-3">Need Assistance?</h3>
+                            <p class="text-[14px] text-gray-700 mb-4">
+                                If you have questions or believe this is an error, please contact the Admissions Office. They can provide guidance on next steps and future enrollment opportunities.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endsection
+@endif
+
+{{-- ARCHIVED SECTION - SECOND PRIORITY (for other archive reasons) --}}
+@if ($applicant->is_archived && $applicant->archive_reason !== 'Enrollment period ended')
+    @section('archived')
+        <div class="flex flex-col justify-center items-center h-full w-full space-y-2">
+            <div
+                class="bg-[#f8f8f8] flex flex-col w-full rounded-xl border border-[#1e1e1e]/20 justify-center py-3 px-3 md:py-4 md:px-6">
+                <div class="flex flex-row justify-start items-center gap-2 md:gap-3">
+                    <div
+                        class="text-[20px] text-white bg-orange-600 size-[35px] rounded-full flex justify-center items-center">
+                        <i class="fi fi-rr-box flex justify-center items-center"></i>
+                    </div>
+                    <div class="flex flex-col justify-center items-start">
+                        <p class="text-[16px] font-semibold text-gray-800">Application Archived</p>
+                        <p class="text-[14px] font-medium text-gray-500">
+                            Archived on: {{ $applicant->archived_at?->format('M d, Y g:i A') ?? 'Unknown' }}
+                        </p>
+                    </div>
+                </div>
+                
+                <x-divider class="my-4 opacity-15"></x-divider>
+                
+                <div class="flex flex-col justify-center items-center space-y-6 py-4">
+                    <div class="flex flex-col justify-center items-center gap-2">
+                        <div class="bg-orange-100 border-2 border-orange-500 rounded-full p-6 mb-2">
+                            <i class="fi fi-rr-box text-[48px] text-orange-600 flex justify-center items-center"></i>
+                        </div>
+                        
+                        <h2 class="font-semibold text-[18px] text-gray-800">Your Application is Temporarily On Hold</h2>
+                        
+                        <p class="self-center text-center text-[14px] text-gray-600 px-4 md:px-22 max-w-2xl">
+                            Your application has been temporarily archived. Don't worry - all your information and progress have been preserved.
+                        </p>
+                        
+                        @if($applicant->archive_reason)
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-2 max-w-2xl w-full">
+                                <p class="text-[13px] font-semibold text-orange-800 mb-1">Reason:</p>
+                                <p class="text-[13px] text-orange-700">{{ $applicant->archive_reason }}</p>
+                            </div>
+                        @endif
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-4 max-w-2xl w-full">
+                            <h3 class="text-[15px] font-semibold text-blue-900 mb-3">What does this mean?</h3>
+                            <ul class="space-y-2 text-[14px] text-blue-800">
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-check text-blue-600 mt-1"></i>
+                                    <span>Your application data is safely stored and preserved</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-check text-blue-600 mt-1"></i>
+                                    <span>Your admission exam results (if any) are kept on record</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fi fi-rr-check text-blue-600 mt-1"></i>
+                                    <span>You can be restored and continue your application process</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-4 max-w-2xl w-full">
+                            <h3 class="text-[15px] font-semibold text-gray-900 mb-3">Need to Continue?</h3>
+                            <p class="text-[14px] text-gray-700 mb-4">
+                                If you'd like to continue with your application, please contact the Admissions Office. They can restore your application and help you proceed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endsection
+@endif
 
 @if ($applicant->application_status === 'Pending')
     @section('pending')
@@ -789,7 +942,7 @@
                         <p
                             class="self-center text-center text-[12px] md:text-[14px] text-gray-500 px-4 md:px-22 mb-4 md:mb-8">
                             Everything is set up for
-                            your upcoming interview. Please review the details below
+                            your upcoming admission exam. Please review the details below
                             and make sure to
                             arrive on time. </p>
                     </div>
@@ -992,7 +1145,7 @@
                         <h2 class="font-semibold text-[18px] text-gray-800">Congratulations! You're In!</h2>
                         <p class="self-center text-center text-[14px] text-gray-500 px-22 mb-8">You’ve successfully
                             passed
-                            your interview and are now conditionally enrolled. <br class="hidden md:block">Please submit
+                            your admission exam and are now conditionally enrolled. <br class="hidden md:block">Please submit
                             all required documents by clicking the button below. <br>
                         </p>
                     </div>

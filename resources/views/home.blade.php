@@ -660,7 +660,7 @@
                                 <li>
                                     <a href="{{ route('login') }}" class="text-gray-400 hover:text-[#C8A165] transition-colors duration-200 flex items-center group">
                                         <i class="fi fi-rr-angle-right text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
-                                        Student Portal
+                                        Admission Portal
                                     </a>
                                 </li>
                             </ul>
@@ -679,7 +679,7 @@
                                     </div>
                                     <div>
                                         <p class="text-white text-sm font-medium">Address</p>
-                                        <p class="text-gray-400 text-sm">San Jose del Monte, Bulacan, Philippines</p>
+                                        <p class="text-gray-400 text-sm">Lot 23 Block 2 PSD 56216 Sitio Tanag, Brgy, San Isidro Rodriguez, Rizal, Philippines</p>
                                     </div>
                                 </li>
                                 <li class="flex items-start gap-3">
@@ -688,7 +688,7 @@
                                     </div>
                                     <div>
                                         <p class="text-white text-sm font-medium">Phone</p>
-                                        <a href="tel:+639123456789" class="text-gray-400 text-sm hover:text-[#C8A165] transition-colors">+63 912 345 6789</a>
+                                        <a href="tel:+639123456789" class="text-gray-400 text-sm hover:text-[#C8A165] transition-colors">+63 917 630 0777</a>
                                     </div>
                                 </li>
                                 <li class="flex items-start gap-3">
@@ -697,7 +697,7 @@
                                     </div>
                                     <div>
                                         <p class="text-white text-sm font-medium">Email</p>
-                                        <a href="mailto:info@dreamyschool.ph" class="text-gray-400 text-sm hover:text-[#C8A165] transition-colors">info@dreamyschool.ph</a>
+                                        <a href="mailto:ph@dreamyedu.net" class="text-gray-400 text-sm hover:text-[#C8A165] transition-colors">ph@dreamyedu.net</a>
                                     </div>
                                 </li>
                                 <li class="flex items-start gap-3">
@@ -755,15 +755,7 @@
                             <i class="fi fi-brands-android text-2xl flex items-center justify-center"></i>
                             <div class="text-left">
                                 <p class="text-[10px] text-white/70 uppercase tracking-wide">Download for</p>
-                                <p class="text-sm font-semibold">Android (Students)</p>
-                            </div>
-                        </a>
-                        <a href="https://drive.google.com/uc?export=download&id=1bSJ2VhFjTgndlDbhIt8ur-DoxH1xJEOO"
-                            class="flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#4F46E5] hover:from-[#4F46E5] hover:to-[#6366F1] text-white transition-all duration-300 shadow-lg shadow-[#6366F1]/30">
-                            <i class="fi fi-brands-windows text-2xl flex items-center justify-center"></i>
-                            <div class="text-left">
-                                <p class="text-[10px] text-white/70 uppercase tracking-wide">Download for</p>
-                                <p class="text-sm font-semibold">Windows (Staff)</p>
+                                <p class="text-sm font-semibold">Android (Students & Teachers)</p>
                             </div>
                         </a>
                     </div>

@@ -239,8 +239,8 @@ class UserInvitationController extends Controller
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
-                'role' => ['required', Rule::exists('roles', 'name')],
-                'program_id' => 'required_if:role,teacher,head_teacher|exists:programs,id',
+                'role' => ['nullable', Rule::exists('roles', 'name')],
+                'program_id' => 'nullable|required_if:role,teacher,head_teacher|exists:programs,id',
             ]);
 
             // Update user basic info
@@ -250,25 +250,27 @@ class UserInvitationController extends Controller
                 'email' => $validated['email'],
             ]);
 
-            // Update role
-            $user->syncRoles([$validated['role']]);
+            // Update role only if it's present in the request
+            if (isset($validated['role'])) {
+                $user->syncRoles([$validated['role']]);
 
-            // Update teacher record if role is teacher or head_teacher
-            if (in_array($validated['role'], ['teacher', 'head_teacher'])) {
-                if ($user->teacher) {
-                    $user->teacher->update([
-                        'program_id' => $validated['program_id'],
-                    ]);
+                // Update teacher record if role is teacher or head_teacher
+                if (in_array($validated['role'], ['teacher', 'head_teacher'])) {
+                    if ($user->teacher) {
+                        $user->teacher->update([
+                            'program_id' => $validated['program_id'],
+                        ]);
+                    } else {
+                        \App\Models\Teacher::create([
+                            'user_id' => $user->id,
+                            'program_id' => $validated['program_id'],
+                        ]);
+                    }
                 } else {
-                    \App\Models\Teacher::create([
-                        'user_id' => $user->id,
-                        'program_id' => $validated['program_id'],
-                    ]);
-                }
-            } else {
-                // Remove teacher record if role changed
-                if ($user->teacher) {
-                    $user->teacher->delete();
+                    // Remove teacher record if role changed
+                    if ($user->teacher) {
+                        $user->teacher->delete();
+                    }
                 }
             }
 
@@ -276,7 +278,7 @@ class UserInvitationController extends Controller
             \Log::info('User updated', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'role' => $validated['role'],
+                'role' => $validated['role'] ?? $user->roles->first()?->name,
                 'updated_by' => auth()->user()->id,
                 'updated_by_email' => auth()->user()->email,
                 'ip_address' => $request->ip(),
@@ -290,7 +292,7 @@ class UserInvitationController extends Controller
                     'id' => $user->id,
                     'name' => $user->first_name . ' ' . $user->last_name,
                     'email' => $user->email,
-                    'role' => $validated['role']
+                    'role' => $validated['role'] ?? $user->roles->first()?->name
                 ]
             ]);
         } catch (\Throwable $th) {

@@ -328,6 +328,17 @@
                         </div>
                     </div>
 
+                    <!-- Date Conflict Warning -->
+                    <div id="date-conflict-warning" class="hidden bg-amber-50 border border-amber-300 rounded-lg p-3">
+                        <div class="flex items-start gap-2">
+                            <i class="fi fi-rr-exclamation-triangle text-amber-600 text-lg flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="text-sm font-medium text-amber-800">Date Conflict Detected</p>
+                                <p id="conflict-message" class="text-xs text-amber-700 mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Period Type and Early Discount Row -->
                     <div class="flex flex-row gap-4">
                         <div class="flex-1 flex flex-col">
@@ -552,6 +563,25 @@
                         <p class="text-gray-600 mb-4">Are you sure you want to end the current enrollment period?</p>
                     </div>
 
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fi fi-rr-box-archive text-red-500 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-bold text-red-800">Auto-Archive Warning</h4>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p class="mb-2"><strong>All non-enrolled applicants will be automatically archived.</strong></p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li>Applicants with status: Pending, Accepted, Pending-Documents, or Rejected</li>
+                                        <li>Only <strong>Officially Enrolled</strong> applicants will remain active</li>
+                                        <li>Archived applications can be viewed in the Archived tab</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
@@ -564,7 +594,7 @@
                                         <li>Ensure all applications have been reviewed</li>
                                         <li>No pending or unprocessed submissions remain</li>
                                         <li>This action will prevent further applications</li>
-                                        <li>Ongoing applications may be affected</li>
+                                        <li>This action cannot be undone</li>
                                     </ul>
                                 </div>
                             </div>
@@ -714,7 +744,7 @@
 
 
 
-                        @if (($unevaluatedStudentsCount ?? 0) > 0)
+                        @if ($currentAcadTerm?->semester === '2nd Semester' && ($unevaluatedStudentsCount ?? 0) > 0)
                             <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
@@ -811,7 +841,7 @@
                     </button>
                     <button type="submit" form="switch-term-form"
                         class="self-center flex flex-row justify-center items-center bg-[#199BCF] py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:bg-[#1580aa] hover:scale-95 transition duration-200 shadow-lg truncate disabled:opacity-50 disabled:cursor-not-allowed"
-                        @if (($unevaluatedStudentsCount ?? 0) > 0) disabled @endif>
+                        @if ($currentAcadTerm?->semester === '2nd Semester' && ($unevaluatedStudentsCount ?? 0) > 0) disabled @endif>
                         Confirm Switch
                     </button>
 
@@ -1092,7 +1122,7 @@
                         <div
                             class="flex flex-col justify-center items-center bg-yellow-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-yellow-200">
                             <p class="font-semibold text-[14px] text-yellow-600">Pending</p>
-                            <p class="font-bold text-[28px] text-yellow-600">
+                            <p id="pending-count" class="font-bold text-[28px] text-yellow-600">
                                 {{ $pendingApplicationsCount ?? '0' }}
                             </p>
                         </div>
@@ -1100,7 +1130,7 @@
                         <div
                             class="flex flex-col justify-center items-center bg-green-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-green-200">
                             <p class="font-semibold text-[14px] text-green-600">Accepted</p>
-                            <p class="font-bold text-[28px] text-green-600">
+                            <p id="accepted-count" class="font-bold text-[28px] text-green-600">
                                 {{ $selectedApplicationsCount ?? '0' }}
                             </p>
                         </div>
@@ -1108,7 +1138,7 @@
                         <div
                             class="flex flex-col justify-center items-center bg-orange-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-orange-200">
                             <p class="font-semibold text-[14px] text-orange-500">Pending-Document</p>
-                            <p class="font-bold text-[28px] text-orange-500">
+                            <p id="pending-documents-count" class="font-bold text-[28px] text-orange-500">
                                 {{ $pendingDocumentsApplicationsCount ?? '0' }}
                             </p>
                         </div>
@@ -1116,7 +1146,7 @@
                         <div
                             class="flex flex-col justify-center items-center bg-blue-50 backdrop-blur-sm gap-2 p-2 rounded-xl border border-blue-200">
                             <p class="font-semibold text-[14px] text-blue-500">Enrolled</p>
-                            <p class="font-bold text-[28px] text-blue-500">
+                            <p id="enrolled-count" class="font-bold text-[28px] text-blue-500">
                                 {{ $enrolledApplicationsCount ?? '0' }}
                             </p>
                         </div>
@@ -1169,7 +1199,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600">Total Applications</p>
-                                <p class="text-2xl font-bold text-gray-900">
+                                <p id="current-count-summary" class="text-2xl font-bold text-gray-900">
                                     {{ number_format($enrollmentSummary['total_applications']) }}</p>
                             </div>
                             <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -1179,10 +1209,10 @@
                         @if ($enrollmentSummary['max_applicants'] > 0)
                             <div class="mt-2">
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-500 h-2 rounded-full"
+                                    <div id="progress-bar-summary" class="bg-blue-500 h-2 rounded-full"
                                         style="width: {{ min(100, $enrollmentSummary['capacity_utilization']) }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">{{ $enrollmentSummary['capacity_utilization'] }}% of
+                                <p id="percent-text-summary" class="text-xs text-gray-500 mt-1">{{ $enrollmentSummary['capacity_utilization'] }}% of
                                     capacity</p>
                             </div>
                         @endif
@@ -1237,31 +1267,36 @@
                 </div>
 
                 <!-- Status Breakdown -->
-                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-7 gap-3 mb-6">
                     <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
                         <p class="text-xs font-medium text-yellow-700">Pending</p>
-                        <p class="text-lg font-bold text-yellow-800">
+                        <p id="pending-count-summary" class="text-lg font-bold text-yellow-800">
                             {{ number_format($enrollmentSummary['pending_applications']) }}</p>
                     </div>
                     <div class="bg-green-50 rounded-lg p-3 border border-green-200">
                         <p class="text-xs font-medium text-green-700">Currently Accepted</p>
-                        <p class="text-lg font-bold text-green-800">
+                        <p id="accepted-count-summary" class="text-lg font-bold text-green-800">
                             {{ number_format($enrollmentSummary['currently_accepted_applications']) }}</p>
                     </div>
                     <div class="bg-orange-50 rounded-lg p-3 border border-orange-200">
                         <p class="text-xs font-medium text-orange-700">Pending Docs</p>
-                        <p class="text-lg font-bold text-orange-800">
+                        <p id="pending-documents-count-summary" class="text-lg font-bold text-orange-800">
                             {{ number_format($enrollmentSummary['pending_documents']) }}</p>
                     </div>
                     <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
                         <p class="text-xs font-medium text-blue-700">Enrolled</p>
-                        <p class="text-lg font-bold text-blue-800">
+                        <p id="enrolled-count-summary" class="text-lg font-bold text-blue-800">
                             {{ number_format($enrollmentSummary['officially_enrolled']) }}</p>
                     </div>
                     <div class="bg-red-50 rounded-lg p-3 border border-red-200">
                         <p class="text-xs font-medium text-red-700">Rejected</p>
                         <p class="text-lg font-bold text-red-800">
                             {{ number_format($enrollmentSummary['rejected_applications']) }}</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                        <p class="text-xs font-medium text-purple-700">Archived</p>
+                        <p class="text-lg font-bold text-purple-800">
+                            {{ number_format($enrollmentSummary['archived_applications'] ?? 0) }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                         <p class="text-xs font-medium text-gray-700">Failed</p>
@@ -1721,6 +1756,66 @@
                         }
                     }
 
+                    // Update Enrollment Overview status counts (both sections)
+                    // Regular section elements
+                    const pendingCountEl = document.getElementById('pending-count');
+                    const acceptedCountEl = document.getElementById('accepted-count');
+                    const pendingDocumentsCountEl = document.getElementById('pending-documents-count');
+                    const enrolledCountEl = document.getElementById('enrolled-count');
+                    
+                    // Summary section elements
+                    const currentCountSummaryEl = document.getElementById('current-count-summary');
+                    const progressBarSummaryEl = document.getElementById('progress-bar-summary');
+                    const percentTextSummaryEl = document.getElementById('percent-text-summary');
+                    const pendingCountSummaryEl = document.getElementById('pending-count-summary');
+                    const acceptedCountSummaryEl = document.getElementById('accepted-count-summary');
+                    const pendingDocumentsCountSummaryEl = document.getElementById('pending-documents-count-summary');
+                    const enrolledCountSummaryEl = document.getElementById('enrolled-count-summary');
+
+                    // Update regular section counts
+                    if (pendingCountEl && event.pending_count !== undefined) {
+                        pendingCountEl.textContent = event.pending_count;
+                    }
+                    if (acceptedCountEl && event.accepted_count !== undefined) {
+                        acceptedCountEl.textContent = event.accepted_count;
+                    }
+                    if (pendingDocumentsCountEl && event.pending_documents_count !== undefined) {
+                        pendingDocumentsCountEl.textContent = event.pending_documents_count;
+                    }
+                    if (enrolledCountEl && event.enrolled_count !== undefined) {
+                        enrolledCountEl.textContent = event.enrolled_count;
+                    }
+                    
+                    // Update summary section (enrollmentSummary view)
+                    if (currentCountSummaryEl && event.total_applications !== undefined) {
+                        currentCountSummaryEl.textContent = event.total_applications;
+                    }
+                    if (progressBarSummaryEl && event.total_applications !== undefined) {
+                        const maxApplicantsSummary = parseInt("{{ $enrollmentSummary['max_applicants'] ?? 0 }}", 10) || 0;
+                        let percentSummary = 0;
+                        if (maxApplicantsSummary > 0) {
+                            percentSummary = Math.round((event.total_applications / maxApplicantsSummary) * 100);
+                            percentSummary = Math.min(percentSummary, 100);
+                        }
+                        progressBarSummaryEl.style.width = percentSummary + "%";
+                        if (percentTextSummaryEl) {
+                            percentTextSummaryEl.textContent = `${percentSummary}% of capacity`;
+                        }
+                    }
+                    if (pendingCountSummaryEl && event.pending_count !== undefined) {
+                        pendingCountSummaryEl.textContent = event.pending_count;
+                    }
+                    if (acceptedCountSummaryEl && event.accepted_count !== undefined) {
+                        acceptedCountSummaryEl.textContent = event.accepted_count;
+                    }
+                    if (pendingDocumentsCountSummaryEl && event.pending_documents_count !== undefined) {
+                        pendingDocumentsCountSummaryEl.textContent = event.pending_documents_count;
+                    }
+                    if (enrolledCountSummaryEl && event.enrolled_count !== undefined) {
+                        enrolledCountSummaryEl.textContent = event.enrolled_count;
+                    }
+
+
                     // Reload the table to show new data
                     recentApplicationTable.ajax.reload(function() {
 
@@ -2084,5 +2179,78 @@
             });
             element.textContent = timeString;
         }
+
+        // Live date conflict checking for enrollment period
+        document.addEventListener('change', function(e) {
+            // Check if it's one of our inputs
+            if (e.target.id === 'ep_academic_terms_id' || 
+                e.target.id === 'start_date' || 
+                e.target.id === 'end_date') {
+                
+                // Find the parent form to scope our search
+                const form = e.target.closest('form');
+                if (!form) return;
+
+                // input elements within THIS specific form
+                const academicTermSelect = form.querySelector('#ep_academic_terms_id');
+                const startDateInput = form.querySelector('#start_date');
+                const endDateInput = form.querySelector('#end_date');
+                
+                // The warning div is outside the form but within the modal content
+                // Go up to modal content (parent of form) then find the warning div
+                const modalContent = form.closest('.modal-content') || form.parentElement;
+                const warningDiv = modalContent.querySelector('#date-conflict-warning');
+                const conflictMessage = modalContent.querySelector('#conflict-message');
+
+                if (!academicTermSelect || !startDateInput || !endDateInput) {
+                    return;
+                }
+
+                const academicTermId = academicTermSelect.value;
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+
+                if (!academicTermId || !startDate || !endDate) {
+                    if (warningDiv) warningDiv.classList.add('hidden');
+                    return;
+                }
+
+                // Clear existing timeout
+                if (window.conflictCheckTimeout) {
+                    clearTimeout(window.conflictCheckTimeout);
+                }
+
+                // Set new timeout
+                window.conflictCheckTimeout = setTimeout(function() {
+                    
+                    fetch('/enrollment-period/check-date-conflict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            academic_terms_id: academicTermId,
+                            application_start_date: startDate,
+                            application_end_date: endDate
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!warningDiv || !conflictMessage) return;
+                        
+                        if (data.hasConflict) {
+                            const period = data.conflictingPeriods[0];
+                            conflictMessage.innerHTML = `The dates you selected overlap with <strong>"${period.name}"</strong> (${period.period_type}) which runs from <strong>${period.start_date}</strong> to <strong>${period.end_date}</strong>.`;
+                            warningDiv.classList.remove('hidden');
+                        } else {
+                            warningDiv.classList.add('hidden');
+                        }
+                    })
+                    .catch(err => console.error('Error checking date conflict:', err));
+                }, 100);
+            }
+        });
     </script>
 @endpush

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\EnrollmentPeriodStatusUpdated;
+use App\Models\Applicants;
 use App\Models\EnrollmentPeriod;
 use App\Models\StudentEnrollment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class EnrollmentPeriodController extends Controller
@@ -182,6 +184,9 @@ class EnrollmentPeriodController extends Controller
             if ($enrollmentPeriod->period_for === 'old') {
                 $this->handleUnconfirmedStudents($enrollmentPeriod);
             }
+
+            // Auto-archive all non-enrolled applicants for this enrollment period
+            $archivedCount = $this->archiveNonEnrolledApplicants($enrollmentPeriod);
         }
 
         // Store original values for comparison
@@ -254,5 +259,135 @@ class EnrollmentPeriodController extends Controller
             'period_name' => $enrollmentPeriod->name,
             'unconfirmed_count' => $unconfirmedEnrollments->count(),
         ]);
+    }
+
+    /**
+     * Archive all non-enrolled applicants when the enrollment period is closed.
+     * Applicants with status 'Officially Enrolled' are excluded from archiving.
+     */
+    private function archiveNonEnrolledApplicants(EnrollmentPeriod $enrollmentPeriod): int
+    {
+        // Get all applicants for this enrollment period who are NOT officially enrolled
+        $applicantsToArchive = Applicants::where('enrollment_period_id', $enrollmentPeriod->id)
+            ->where('is_archived', false)
+            ->where('application_status', '!=', 'Officially Enrolled')
+            ->get();
+
+        $archivedCount = 0;
+        $now = Carbon::now();
+
+        foreach ($applicantsToArchive as $applicant) {
+            $applicant->update([
+                'is_archived' => true,
+                'archived_at' => $now,
+                'archive_reason' => 'Enrollment period ended',
+            ]);
+            $archivedCount++;
+        }
+
+        \Log::info("Auto-archived applicants for enrollment period {$enrollmentPeriod->id}", [
+            'period_name' => $enrollmentPeriod->name,
+            'archived_count' => $archivedCount,
+        ]);
+
+        return $archivedCount;
+    }
+
+    /**
+     * Get count of applicants that will be archived when closing enrollment period.
+     * Used by the end enrollment modal to show the user how many will be affected.
+     */
+    public function getArchivableApplicantsCount($id)
+    {
+        try {
+            $enrollmentPeriod = EnrollmentPeriod::findOrFail($id);
+
+            // Count applicants who are NOT officially enrolled and NOT already archived
+            $count = Applicants::where('enrollment_period_id', $id)
+                ->where('is_archived', false)
+                ->where('application_status', '!=', 'Officially Enrolled')
+                ->count();
+
+            // Get breakdown by status for detailed display
+            $breakdown = Applicants::where('enrollment_period_id', $id)
+                ->where('is_archived', false)
+                ->where('application_status', '!=', 'Officially Enrolled')
+                ->selectRaw('application_status, COUNT(*) as count')
+                ->groupBy('application_status')
+                ->pluck('count', 'application_status')
+                ->toArray();
+
+            return response()->json([
+                'success' => true,
+                'count' => $count,
+                'breakdown' => $breakdown,
+                'enrollment_period' => [
+                    'id' => $enrollmentPeriod->id,
+                    'name' => $enrollmentPeriod->name,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getArchivableApplicantsCount error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get archivable applicants count',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check for date conflicts with existing enrollment periods.
+     * Used for live validation in the create enrollment period modal.
+     */
+    public function checkDateConflict(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'academic_terms_id' => 'required|exists:academic_terms,id',
+                'application_start_date' => 'required|date',
+                'application_end_date' => 'required|date',
+            ]);
+
+            // Find overlapping enrollment periods
+            $overlappingPeriods = EnrollmentPeriod::where('academic_terms_id', $validated['academic_terms_id'])
+                ->where(function ($query) use ($validated) {
+                    $query->whereBetween('application_start_date', [$validated['application_start_date'], $validated['application_end_date']])
+                        ->orWhereBetween('application_end_date', [$validated['application_start_date'], $validated['application_end_date']])
+                        ->orWhere(function ($q) use ($validated) {
+                            $q->where('application_start_date', '<=', $validated['application_start_date'])
+                              ->where('application_end_date', '>=', $validated['application_end_date']);
+                        });
+                })
+                ->get(['id', 'name', 'application_start_date', 'application_end_date', 'period_type']);
+
+            if ($overlappingPeriods->isNotEmpty()) {
+                $conflictDetails = $overlappingPeriods->map(function ($period) {
+                    return [
+                        'id' => $period->id,
+                        'name' => $period->name,
+                        'period_type' => ucfirst($period->period_type),
+                        'start_date' => Carbon::parse($period->application_start_date)->format('M d, Y'),
+                        'end_date' => Carbon::parse($period->application_end_date)->format('M d, Y'),
+                    ];
+                });
+
+                return response()->json([
+                    'hasConflict' => true,
+                    'conflictingPeriods' => $conflictDetails,
+                    'message' => 'The selected dates overlap with an existing enrollment period.',
+                ]);
+            }
+
+            return response()->json([
+                'hasConflict' => false,
+                'message' => 'No conflicts found.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'hasConflict' => false,
+                'error' => 'Error checking conflicts: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

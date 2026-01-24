@@ -399,7 +399,7 @@ class InterviewController extends Controller
     public function showAdmissionDetails(Applicants $applicant)
     {
         $applicant_details = $applicant?->applicationForm;
-        $interview_details = $applicant?->interview;
+        $interview_details = $applicant?->interview()->with('teacher')->first();
 
         // If no interview record exists, create a default one to avoid null errors
         if (!$interview_details) {

@@ -109,10 +109,13 @@
             </div>
             <div class="py-8 px-6 space-y-2 font-regular text-[14px] text-center">
                 <p class="text-gray-700 text-[16px] font-semibold">
-                    Are you sure you want to verify this document?
+                    Are you sure you want to reject this document?
                 </p>
                 <p class="text-gray-500">
                     This action will mark the document as <strong>invalid</strong> and <strong>rejected</strong>.
+                </p>
+                <p class="text-gray-500">
+                    <strong>Note</strong>: This would allow the applicant to submit a new document.
                 </p>
             </div>
 
@@ -229,19 +232,22 @@
                     {{-- Scenario 1: No school fees & No downpayment --}}
                     <div id="warning-message-both"
                         class="hidden bg-red-50 border border-red-300 text-red-500 rounded-xl py-2.5">
-                        <p>No school fees have been set up yet and no down payment is configured. Please create a school fee record and set up down payment to avoid incorrect invoice totals.</p>
+                        <p>No school fees have been set up yet and no down payment is configured. Please create a school fee
+                            record and set up down payment to avoid incorrect invoice totals.</p>
                     </div>
                 @elseif ($schoolFees === null && $schoolSettings !== null)
                     {{-- Scenario 2: No school fee, with downpayment --}}
                     <div id="warning-message-fees"
                         class="hidden bg-red-50 border border-red-300 text-red-500 rounded-xl py-2.5">
-                        <p>No school fees have been set up yet. Please create a school fee record first; otherwise, the system can't assign the right fees to students.</p>
+                        <p>No school fees have been set up yet. Please create a school fee record first; otherwise, the
+                            system can't assign the right fees to students.</p>
                     </div>
                 @elseif ($schoolFees !== null && $schoolSettings === null)
                     {{-- Scenario 3: With school fee, no downpayment --}}
                     <div id="warning-message-settings"
                         class="hidden bg-red-50 border border-red-300 text-red-500 rounded-xl py-2.5">
-                        <p>School fees found, but no down payment is configured. Please set it up to avoid incorrect invoice totals.</p>
+                        <p>School fees found, but no down payment is configured. Please set it up to avoid incorrect invoice
+                            totals.</p>
                     </div>
                 @else
                     {{-- Scenario 4: With school fee, with downpayment --}}
@@ -266,13 +272,117 @@
         </x-slot>
 
     </x-modal>
+    {{-- Archive Applicant Modal --}}
+    <x-modal modal_id="archive-applicant-modal" modal_name="Archive Applicant" close_btn_id="archive-close-btn"
+        modal_container_id="modal-container-6">
+        <x-slot name="modal_icon">
+            <i class='fi fi-rr-box flex justify-center items-center text-orange-500'></i>
+        </x-slot>
+
+        <form id="archive-form" action="{{ route('applicants.archive', $applicant->id) }}" method="POST" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <!-- Warning Message -->
+                <div class="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-orange-800 mb-1">Archive Applicant</h4>
+                        <p class="text-sm text-orange-700">
+                            This will temporarily set aside this applicant. Their document submission progress will be preserved. They can be restored at any time.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Archive Reason -->
+                <div>
+                    <label for="archive_reason" class="block text-sm font-medium text-gray-700 mb-2">
+                        Reason (Optional)
+                    </label>
+                    <textarea name="reason" id="archive_reason" rows="3"
+                        placeholder="e.g., No document submission after deadline, Unresponsive for extended period..."
+                        class="w-full border-2 border-gray-300 bg-gray-100 rounded-lg px-3 py-2 outline-none focus-within:ring focus-within:ring-[#199BCF]/10 focus-within:border-[#199BCF]/60 hover:ring hover:ring-[#199BCF]/20 transition duration-200 placeholder:italic placeholder:text-[13px] text-[14px] resize-none"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">This reason will be recorded in the activity log</p>
+                </div>
+
+                <!-- Send Notification Checkbox -->
+                <div class="flex items-start space-x-2">
+                    <input type="checkbox" name="send_notification" id="send_notification" value="1"
+                        class="mt-0.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="send_notification" class="text-sm text-gray-700">
+                        Send email notification to applicant
+                        <span class="block text-xs text-gray-500 mt-0.5">Notify the applicant that their application has been temporarily archived</span>
+                    </label>
+                </div>
+            </div>
+        </form>
+
+        <x-slot name="modal_buttons">
+            <button id="archive-cancel-btn"
+                class="bg-gray-50 border border-[#1e1e1e]/15 text-[14px] px-3 py-2 rounded-xl text-[#0f111c]/80 font-bold shadow-sm hover:bg-gray-100 hover:ring hover:ring-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button type="submit" form="archive-form"
+                class="bg-orange-500 py-2 px-3 rounded-xl text-[14px] font-semibold gap-2 text-white hover:ring hover:ring-orange-200 hover:bg-orange-600 hover:scale-95 transition duration-200 shadow-orange-500/20 shadow-lg">
+                Archive Applicant
+            </button>
+        </x-slot>
+    </x-modal>
 @endsection
 
 @section('header')
-    <div class="flex flex-col justify-center items-start text-start px-[14px] py-2">
-        <h1 class="text-[20px] font-black">Document Review</h1>
-        <p class="text-[14px]  text-gray-900/60">Review submitted documents here and choose to approve or decline based on
-            their accuracy.</p>
+    <div class="flex flex-row justify-between items-center px-[14px] py-2">
+        <div class="flex flex-col justify-center items-start text-start">
+            <h1 class="text-[20px] font-black">Document Review</h1>
+            <p class="text-[14px]  text-gray-900/60">Review submitted documents here and choose to approve or decline based on
+                their accuracy.</p>
+        </div>
+        
+        <!-- Archive/Restore Dropdown -->
+        <div class="relative inline-block">
+            <button id="archive-dropdown-btn" type="button"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                </svg>
+                Actions
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="archive-dropdown-menu"
+                class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div class="py-1" role="menu">
+                    @if ($applicant->is_archived)
+                        <!-- Restore Option (when archived) -->
+                        <form action="{{ route('applicants.restore', $applicant->id) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 flex items-center gap-2"
+                                role="menuitem">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Restore Applicant
+                            </button>
+                        </form>
+                    @else
+                        <!-- Archive Option (when active) -->
+                        <button type="button" id="open-archive-modal-btn"
+                            class="w-full text-left px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 flex items-center gap-2"
+                            role="menuitem">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                            </svg>
+                            Archive Applicant
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -879,7 +989,7 @@
                 try {
                     // Lazy load PDF.js library
                     await window.loadPDFLibrary();
-                    
+
                     // Check if PDF.js is available
                     if (typeof window.pdfjsLib === 'undefined') {
                         throw new Error('PDF.js library not loaded');
@@ -1066,7 +1176,7 @@
                         }
 
                         setTimeout(() => {
-                            window.location.href = 'applications/pending-documents';
+                            window.location.href = '/applications/pending-documents';
                         }, 1500);
 
                     } else {
@@ -1084,5 +1194,85 @@
             });
 
         });
+
+        // Archive dropdown toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownBtn = document.getElementById('archive-dropdown-btn');
+            const dropdownMenu = document.getElementById('archive-dropdown-menu');
+            
+            if (dropdownBtn && dropdownMenu) {
+                dropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('hidden');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Initialize archive modal
+            initModal('archive-applicant-modal', 'open-archive-modal-btn', 'archive-close-btn', 'archive-cancel-btn', 'modal-container-6');
+
+            // Read-only mode for archived applicants
+            const isArchived = {{ $applicant->is_archived ? 'true' : 'false' }};
+            if (isArchived) {
+                // Disable enroll button
+                const enrollBtn = document.getElementById('open-enroll-student-modal-btn');
+                if (enrollBtn) {
+                    enrollBtn.disabled = true;
+                    enrollBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+                    enrollBtn.title = 'This applicant is archived. Restore to enable actions.';
+                }
+
+                // Disable verify/reject buttons for documents
+                const verifyButtons = document.querySelectorAll('.verify-document-btn');
+                const rejectButtons = document.querySelectorAll('.reject-document-btn');
+                
+                verifyButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+                    btn.title = 'This applicant is archived. Restore to enable actions.';
+                });
+                
+                rejectButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+                    btn.title = 'This applicant is archived. Restore to enable actions.';
+                });
+
+                // Show archived banner
+                const archivedDate = '{{ $applicant->archived_at?->format("M d, Y g:i A") ?? "Unknown" }}';
+                const archivedReason = '{{ $applicant->archive_reason ?? "" }}';
+                
+                const archivedBanner = document.createElement('div');
+                archivedBanner.className = 'bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-4 rounded-r-lg shadow-sm';
+                
+                let bannerHTML = '<div class="flex items-center">';
+                bannerHTML += '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">';
+                bannerHTML += '<path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>';
+                bannerHTML += '</svg>';
+                bannerHTML += '<div class="flex-1">';
+                bannerHTML += '<p class="font-semibold">This applicant is archived</p>';
+                bannerHTML += '<p class="text-sm">Archived on: ' + archivedDate;
+                if (archivedReason) {
+                    bannerHTML += ' • Reason: ' + archivedReason;
+                }
+                bannerHTML += '</p>';
+                bannerHTML += '</div>';
+                bannerHTML += '</div>';
+                
+                archivedBanner.innerHTML = bannerHTML;
+                
+                const firstContent = document.querySelector('.flex.flex-col.bg-\\[\\#f8f8f8\\]');
+                if (firstContent && firstContent.parentNode) {
+                    firstContent.parentNode.insertBefore(archivedBanner, firstContent);
+                }
+            }
+        });
+
     </script>
 @endpush

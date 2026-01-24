@@ -162,6 +162,92 @@ class TeacherAppController extends Controller
     }
 
     /**
+     * Get advising sections assigned to the teacher
+     */
+    public function advisingSections(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $teacher = $user->teacher;
+
+        $sections = Section::with(['program'])
+            ->where('teacher_id', $teacher->id)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'sections' => $sections->map(function ($section) {
+                    return [
+                        'id' => $section->id,
+                        'name' => $section->name,
+                        'program' => $section->program->name ?? 'N/A',
+                        'year_level' => $section->year_level ?? 'N/A',
+                        'room' => $section->room ?? 'TBA',
+                        'students_count' => $section->enrollments()->count(),
+                    ];
+                }),
+            ],
+        ]);
+    }
+
+    /**
+     * Get advising section details with enrolled students
+     */
+    public function getAdvisingSectionStudents(Request $request, Section $section): JsonResponse
+    {
+        $user = Auth::user();
+        $teacher = $user->teacher;
+
+        if ($section->teacher_id !== $teacher->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Section not found or you are not authorized to view it.',
+            ], 404);
+        }
+
+        $section->load([
+            'program',
+            'enrollments.student.user',
+            'enrollments.student.record',
+            'enrollments.student.program',
+        ]);
+
+        $students = $section->enrollments->map(function ($enrollment) {
+            $student = $enrollment->student;
+            $record = $student?->record;
+
+            return [
+                'id' => $student->id,
+                'lrn' => $student->lrn,
+                'name' => $student->full_name,
+                'first_name' => $student->user->first_name ?? '',
+                'last_name' => $student->user->last_name ?? '',
+                'email' => $student->user->email ?? '',
+                'gender' => $record->gender ?? 'N/A',
+                'grade_level' => $student->grade_level ?? 'N/A',
+                'program' => $student->program->name ?? 'N/A',
+                'contact_number' => $record->contact_number ?? null,
+                'status' => $student->status ?? $record?->academic_status ?? 'N/A',
+            ];
+        })->sortBy('name')->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'section_info' => [
+                    'id' => $section->id,
+                    'section_name' => $section->name,
+                    'program' => $section->program->name ?? 'N/A',
+                    'year_level' => $section->year_level ?? 'N/A',
+                    'room' => $section->room ?? 'TBA',
+                ],
+                'students_count' => $students->count(),
+                'students' => $students,
+            ],
+        ]);
+    }
+
+    /**
      * Get section details with enrolled students for a specific section subject
      */
     public function getSectionStudents(Request $request, int $sectionSubjectId): JsonResponse

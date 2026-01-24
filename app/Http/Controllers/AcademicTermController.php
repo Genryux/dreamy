@@ -8,6 +8,10 @@ use App\Models\InvoiceItem;
 use App\Models\SchoolFee;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\Teacher;
+use App\Models\User;
+use App\Notifications\PrivateQueuedNotification;
+use App\Notifications\PrivateImmediateNotification;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -477,6 +481,94 @@ class AcademicTermController extends Controller
             }
 
             DB::commit();
+
+            // Send notification to all admin users after switching from 1st to 2nd semester
+            if ($transitionType === 'same_school_year' && $activeTerm) {
+                $adminUsers = User::whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['super_admin', 'registrar', 'admin']);
+                })->get();
+
+                foreach ($adminUsers as $adminUser) {
+                    $sharedId = 'term-switched-' . $newTerm->id . '-' . uniqid();
+                    $adminUser->notify(new PrivateQueuedNotification(
+                        'Academic Term Switched Successfully',
+                        "Successfully switched to {$newTerm->full_name}. All section subject assignments have been cleared for the new semester. Students' subject enrollment status has been updated from 'Enrolled' to 'Taken' for proper academic record tracking.",
+                        url('/dashboard'),
+                        $sharedId
+                    ));
+
+                    $adminUser->notify(new PrivateImmediateNotification(
+                        'Academic Term Switched Successfully',
+                        "Successfully switched to {$newTerm->full_name}. All section subject assignments have been cleared for the new semester. Students' subject enrollment status has been updated from 'Enrolled' to 'Taken' for proper academic record tracking.",
+                        url('/dashboard'),
+                        $sharedId
+                    ));
+                }
+            }
+
+            // Send notification to all admin users after switching from 2nd semester to 1st semester (new school year)
+            if ($transitionType === 'new_school_year' && $activeTerm) {
+                $adminUsers = User::whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['super_admin', 'registrar', 'admin']);
+                })->get();
+
+                $promotedCount = $continuingStudents->count();
+
+                foreach ($adminUsers as $adminUser) {
+                    $sharedId = 'new-school-year-' . $newTerm->id . '-' . uniqid();
+                    $adminUser->notify(new PrivateQueuedNotification(
+                        'New School Year Started',
+                        "Successfully switched to {$newTerm->full_name}. {$promotedCount} eligible students have been promoted to the next grade level and enrollment confirmations have been sent to their mobile app. All students have been unassigned from their previous sections for new section assignments. Invoices for the new term have been automatically generated for all continuing students.",
+                        url('/dashboard'),
+                        $sharedId
+                    ));
+
+                    $adminUser->notify(new PrivateImmediateNotification(
+                        'New School Year Started',
+                        "Successfully switched to {$newTerm->full_name}. {$promotedCount} eligible students have been promoted to the next grade level and enrollment confirmations have been sent to their mobile app. All students have been unassigned from their previous sections for new section assignments. Invoices for the new term have been automatically generated for all continuing students.",
+                        url('/dashboard'),
+                        $sharedId
+                    ));
+                }
+            }
+
+            // Send notification to all teachers after term switch
+            if ($activeTerm) {
+                $teachers = Teacher::with('user')->where('status', 'active')->get();
+
+                $teacherTitle = '';
+                $teacherMessage = '';
+
+                if ($transitionType === 'same_school_year') {
+                    $teacherTitle = 'New Semester Started';
+                    $teacherMessage = "A new semester has started ({$newTerm->full_name}). All subject assignments you were teaching have been cleared to prepare for new assignments. Please wait for updated teaching schedules from the administration.";
+                } elseif ($transitionType === 'new_school_year') {
+                    $teacherTitle = 'New School Year Started';
+                    $teacherMessage = "A new school year has started ({$newTerm->full_name}). All subject assignments you were teaching have been cleared to prepare for new assignments. Please wait for updated teaching schedules from the administration.";
+                }
+
+                if (!empty($teacherTitle)) {
+                    foreach ($teachers as $teacher) {
+                        if ($teacher->user) {
+                            $sharedId = 'teacher-term-switch-' . $newTerm->id . '-' . uniqid();
+                            $teacher->user->notify(new PrivateQueuedNotification(
+                                $teacherTitle,
+                                $teacherMessage,
+                                url('/teacher/dashboard'),
+                                $sharedId
+                            ));
+
+                            $teacher->user->notify(new PrivateImmediateNotification(
+                                $teacherTitle,
+                                $teacherMessage,
+                                url('/teacher/dashboard'),
+                                $sharedId
+                            ));
+                        }
+                    }
+                }
+            }
+
             return redirect()->back()->with('success', 'Switched to academic term successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -553,6 +645,68 @@ class AcademicTermController extends Controller
                     'user_agent' => $request->userAgent()
                 ])
                 ->log('Academic term updated');
+
+            // Send notification to admins when status changes
+            $originalStatus = $originalValues['status'] ?? null;
+            $newStatus = $validated['status'];
+
+            if ($originalStatus !== $newStatus && in_array($newStatus, ['Ongoing', 'Closing'])) {
+                $adminUsers = User::whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['super_admin', 'registrar', 'admin']);
+                })->get();
+
+                $notificationTitle = '';
+                $notificationMessage = '';
+
+                if ($newStatus === 'Ongoing') {
+                    $notificationTitle = 'Academic Term Status: Ongoing';
+                    $notificationMessage = "The academic term {$academicTerm->full_name} is now ongoing. Student promotion eligibility evaluation is currently restricted. Teachers cannot evaluate student subjects during this period.";
+                } elseif ($newStatus === 'Closing') {
+                    $notificationTitle = 'Academic Term Status: Closing';
+                    $notificationMessage = "The academic term {$academicTerm->full_name} is now closing. You can now evaluate students' promotion eligibility. Teachers are now able to submit final evaluations for student subjects.";
+                }
+
+                foreach ($adminUsers as $adminUser) {
+                    $sharedId = 'term-status-' . $academicTerm->id . '-' . uniqid();
+                    $adminUser->notify(new PrivateQueuedNotification(
+                        $notificationTitle,
+                        $notificationMessage,
+                        url('/dashboard'),
+                        $sharedId
+                    ));
+
+                    $adminUser->notify(new PrivateImmediateNotification(
+                        $notificationTitle,
+                        $notificationMessage,
+                        url('/dashboard'),
+                        $sharedId
+                    ));
+                }
+
+                // Send notification to teachers when status changes to Closing
+                if ($newStatus === 'Closing') {
+                    $teachers = Teacher::with('user')->where('status', 'active')->get();
+
+                    foreach ($teachers as $teacher) {
+                        if ($teacher->user) {
+                            $sharedId = 'teacher-term-closing-' . $academicTerm->id . '-' . uniqid();
+                            $teacher->user->notify(new PrivateQueuedNotification(
+                                'Term Closing: Student Evaluation Now Available',
+                                "The academic term {$academicTerm->full_name} is now set to closing. You can now submit final evaluations for student subjects in your classes.",
+                                url('/teacher/dashboard'),
+                                $sharedId
+                            ));
+
+                            $teacher->user->notify(new PrivateImmediateNotification(
+                                'Term Closing: Student Evaluation Now Available',
+                                "The academic term {$academicTerm->full_name} is now set to closing. You can now submit final evaluations for student subjects in your classes.",
+                                url('/teacher/dashboard'),
+                                $sharedId
+                            ));
+                        }
+                    }
+                }
+            }
 
             return redirect()->back()->with('success', 'Academic term updated successfully.');
         } catch (\Illuminate\Validation\ValidationException $e) {
