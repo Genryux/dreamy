@@ -71,6 +71,9 @@ class SessionController extends Controller
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole('student')) {
             // Platform-based redirect for students
+            if (!$user->applicant) {
+                return redirect()->route('mobile.app.notice');
+            }
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             // Temporarily disabled platform restrictions - always redirect to admin
@@ -318,6 +321,12 @@ class SessionController extends Controller
             // } else {
             //     return redirect()->route('admission.dashboard');
             // }
+
+            // Check if student has an applicant record
+            if (!$user->applicant) {
+                return redirect()->route('mobile.app.notice');
+            }
+            
             return redirect()->route('admission.dashboard');
         } elseif ($user->hasRole(['registrar', 'super_admin'])) {
             // Platform-based redirect for admin users

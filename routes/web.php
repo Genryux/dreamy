@@ -97,6 +97,11 @@ Route::get('/desktop-student-message', function () {
     return view('auth.desktop-student-message');
 })->middleware('auth')->name('desktop.student.message');
 
+// Mobile App Required Notice (for students without applicant records)
+Route::get('/mobile-app-notice', function () {
+    return view('auth.mobile-app-notice');
+})->middleware('auth')->name('mobile.app.notice');
+
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED ROUTES
