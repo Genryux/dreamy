@@ -36,6 +36,8 @@ class Applicants extends Model
     ];
 
     protected $casts = [
+        'accepted_at' => 'datetime',
+        'rejected_at' => 'datetime',
         'archived_at' => 'datetime',
         'restored_at' => 'datetime',
         'is_archived' => 'boolean',
@@ -94,7 +96,8 @@ class Applicants extends Model
 
     public function submissions()
     {
-        return $this->morphMany(DocumentSubmissions::class, 'owner');
+        return $this->morphMany(DocumentSubmissions::class, 'owner')
+            ->orderByDesc('submitted_at');
     }
 
     public function assignedDocuments() 

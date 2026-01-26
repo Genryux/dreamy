@@ -1251,7 +1251,7 @@
                                                     @forelse ($doc->submissions as $submission)
                                                         {{ $submission->submitted_at->timezone('Asia/Manila')->format('M. d - g:i A') }}<br>
                                                     @empty
-                                                        -
+                                                        <span class="text-gray-400 text-sm">-</span>
                                                     @endforelse
                                                 </td>
                                                 <td

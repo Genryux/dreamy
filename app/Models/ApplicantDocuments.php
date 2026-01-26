@@ -30,7 +30,10 @@ class ApplicantDocuments extends Model
     public function submissions()
     {
         return $this->hasMany(DocumentSubmissions::class, 'documents_id', 'documents_id')
-            ->where('owner_id', $this->applicants_id)
-            ->where('owner_type', Applicants::class);
+            ->where(function ($query) {
+                $query->where('owner_id', $this->applicants_id)
+                      ->where('owner_type', Applicants::class);
+            })
+            ->latest('submitted_at');
     }
 }

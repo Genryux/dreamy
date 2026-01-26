@@ -110,8 +110,8 @@ class AdmissionDashboardController extends Controller
                 }
 
                 if ($interview_status === 'Exam-Completed') {
-                    // Get the current applicant's assigned documents
-                    $assignedDocuments = $applicant->assignedDocuments;
+                    // Use the already eager-loaded assigned documents from $data to preserve submissions relationship
+                    $assignedDocuments = $data['assignedDocuments'] ?? $applicant->assignedDocuments()->with('submissions')->get();
                     $totalAssignedDocuments = $assignedDocuments->count();
                     $verifiedCount = $assignedDocuments->where('status', 'Verified')->count();
 

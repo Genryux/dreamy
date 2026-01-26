@@ -1661,8 +1661,8 @@
 
                                                 <!-- Submission Date -->
                                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
-                                                    @if ($doc->latest_submission && $doc->latest_submission->created_at)
-                                                        {{ \Carbon\Carbon::parse($doc->created_at)->format('M d, Y h:i A') }}
+                                                    @if ($doc->latest_submission && $doc->latest_submission->submitted_at)
+                                                        {{ \Carbon\Carbon::parse($doc->latest_submission->submitted_at)->timezone('Asia/Manila')->format('M d, Y g:i A') }}
                                                     @else
                                                         <span class="text-gray-400 text-xs">N/A</span>
                                                     @endif
